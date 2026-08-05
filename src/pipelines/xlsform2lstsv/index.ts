@@ -1,6 +1,5 @@
 import { ConfigManager, ConversionConfig } from '../../config/ConfigManager.js';
 import { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
-import { APPEARANCES } from '../../generated/Appearances.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TSVGenerator } from '../../lstsv/serialize.js';
 import { TypeMapper, TYPE_MAPPINGS } from './typeMapper.js';
@@ -23,6 +22,7 @@ import { Counters } from './counters.js';
 import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
 import { FieldNameHandler } from './fieldNameHandler.js';
+import { AppearanceHandler } from './appearanceHandler.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -48,6 +48,7 @@ export class XLSFormToTSVConverter {
   private answerEmitter: AnswerEmitter;
   private transpilerHelper: TranspilerHelper;
   private fieldNameHandler: FieldNameHandler;
+  private appearanceHandler: AppearanceHandler;
   private counters: Counters;
   private fileChoices: Record<string, ChoiceRow[]> = {};
   private surveySettingsEmitter: SurveySettingsEmitter;
@@ -101,6 +102,7 @@ export class XLSFormToTSVConverter {
       this.choiceManager,
     );
     this.fieldNameHandler = new FieldNameHandler(this.fieldSanitizer);
+    this.appearanceHandler = new AppearanceHandler();
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
@@ -356,19 +358,11 @@ export class XLSFormToTSVConverter {
 
     // Warn on unsupported appearances: not in the registry allowlist, or
     // registered but not valid for this question type.
-    if (appearance) {
-      for (const part of appearance.split(/\s+/)) {
-        const spec = APPEARANCES[part];
-        const isUnsupported =
-          !spec ||
-          (spec.validForTypes && !spec.validForTypes.includes(xfTypeInfo.base));
-        if (isUnsupported) {
-          console.warn(
-            `Unsupported appearance "${part}" on question "${row.name}" will be ignored`,
-          );
-        }
-      }
-    }
+    this.appearanceHandler.warnUnsupported(
+      row.name,
+      appearance,
+      xfTypeInfo.base,
+    );
 
     const questionName =
       row.name && row.name.trim() !== ''
@@ -380,19 +374,11 @@ export class XLSFormToTSVConverter {
     const lsType = this.typeMapper.mapType(xfTypeInfo);
 
     // Appearance-based type overrides (driven by registry APPEARANCES)
-    if (appearance) {
-      const parts = appearance.split(/\s+/);
-      for (const part of parts) {
-        const spec = APPEARANCES[part];
-        if (!spec?.lsTypeOverride) continue;
-        if (
-          !spec.validForTypes ||
-          spec.validForTypes.includes(xfTypeInfo.base)
-        ) {
-          lsType.type = spec.lsTypeOverride;
-        }
-      }
-    }
+    this.appearanceHandler.applyTypeOverrides(
+      lsType,
+      appearance,
+      xfTypeInfo.base,
+    );
 
     const isNote = xfTypeInfo.base === 'note';
     const isCalculate = xfTypeInfo.base === 'calculate';
