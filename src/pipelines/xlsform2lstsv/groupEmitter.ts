@@ -166,4 +166,73 @@ export class GroupEmitter {
     }
     this.pendingGroupNotes = [];
   }
+
+  /**
+   * Handle a `begin_group` row. Three cases:
+   *
+   *   - `table-list` appearance: emit as a LimeSurvey array (F) — the G row
+   *     plus an `addTableListHeader` to mark the array.
+   *   - `messageOnly` (group contains only a welcome/end note): push to
+   *     stack with `emittedAsGroup: false` and skip emission.
+   *   - `parentOnly` (group has no direct questions): push, queue a pending
+   *     note, do not emit.
+   *   - otherwise: push, emit G row, flush pending notes.
+   */
+  async handleBeginGroup(
+    row: SurveyRow,
+    isMessageOnly: boolean,
+    isParentOnly: boolean,
+    sanitizeName: (name: string) => string,
+    convertRelevance: (relevant?: string) => Promise<string>,
+    onTableList: (sanitizedName: string) => Promise<void>,
+  ): Promise<void> {
+    const originalName = (row.name || '').trim();
+    const sanitizedName = originalName
+      ? sanitizeName(originalName)
+      : `G${this.counters.getGroupSeq()}`;
+
+    const groupAppearance =
+      typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
+
+    if (groupAppearance.includes('table-list')) {
+      this.groupStack.push({
+        originalName,
+        sanitizedName,
+        emittedAsGroup: true,
+      });
+      this.rowEmitter.flushGroupContent();
+      await this.addGroup(row, sanitizeName, convertRelevance);
+      await this.emitPendingGroupNotes(sanitizeName, convertRelevance);
+      await onTableList(sanitizedName);
+      return;
+    }
+
+    if (isMessageOnly) {
+      this.groupStack.push({
+        originalName,
+        sanitizedName,
+        emittedAsGroup: false,
+      });
+      return;
+    }
+
+    if (isParentOnly) {
+      this.groupStack.push({
+        originalName,
+        sanitizedName,
+        emittedAsGroup: false,
+      });
+      this.pendingGroupNotes.push(row);
+      return;
+    }
+
+    this.groupStack.push({
+      originalName,
+      sanitizedName,
+      emittedAsGroup: true,
+    });
+    this.rowEmitter.flushGroupContent();
+    await this.addGroup(row, sanitizeName, convertRelevance);
+    await this.emitPendingGroupNotes(sanitizeName, convertRelevance);
+  }
 }

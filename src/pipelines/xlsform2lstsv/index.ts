@@ -290,70 +290,19 @@ export class XLSFormToTSVConverter {
     if (xfType === 'begin_group' || xfType === 'begin group') {
       this.matrixHandler.flushMatrix(this.matrixHelpers());
       const originalName = (row.name || '').trim();
-      const sanitizedName = originalName
-        ? this.fieldNameHandler.sanitizeName(originalName)
-        : `G${this.counters.getGroupSeq()}`;
-
-      // A `table-list` group is a grid: emit it as one LimeSurvey array (F)
-      // whose select_one children become subquestions, instead of a plain
-      // group of standalone questions. Preserves the matrix in the TSV and
-      // round-trips back to a DDI grid varGrp.
-      const groupAppearance =
-        typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
-      if (groupAppearance.includes('table-list')) {
-        this.groupEmitter.pushStack({
-          originalName,
-          sanitizedName,
-          emittedAsGroup: true,
-        });
-        this.rowEmitter.flushGroupContent();
-        await this.groupEmitter.addGroup(
-          row,
-          (name) => this.fieldNameHandler.sanitizeName(name),
-          (relevant) => this.transpilerHelper.convertRelevance(relevant),
-        );
-        await this.groupEmitter.emitPendingGroupNotes(
-          (name) => this.fieldNameHandler.sanitizeName(name),
-          (relevant) => this.transpilerHelper.convertRelevance(relevant),
-        );
-        await this.matrixHandler.addTableListHeader(
-          row,
-          sanitizedName,
-          this.matrixHelpers(),
-        );
-        return;
-      }
-
-      if (this.groupProcessor.getMessageOnlyGroups().has(originalName)) {
-        this.groupEmitter.pushStack({
-          originalName,
-          sanitizedName,
-          emittedAsGroup: false,
-        });
-      } else if (this.groupProcessor.getParentOnlyGroups().has(originalName)) {
-        this.groupEmitter.pushStack({
-          originalName,
-          sanitizedName,
-          emittedAsGroup: false,
-        });
-        this.groupEmitter.addPendingGroupNote(row);
-      } else {
-        this.groupEmitter.pushStack({
-          originalName,
-          sanitizedName,
-          emittedAsGroup: true,
-        });
-        this.rowEmitter.flushGroupContent();
-        await this.groupEmitter.addGroup(
-          row,
-          (name) => this.fieldNameHandler.sanitizeName(name),
-          (relevant) => this.transpilerHelper.convertRelevance(relevant),
-        );
-        await this.groupEmitter.emitPendingGroupNotes(
-          (name) => this.fieldNameHandler.sanitizeName(name),
-          (relevant) => this.transpilerHelper.convertRelevance(relevant),
-        );
-      }
+      await this.groupEmitter.handleBeginGroup(
+        row,
+        this.groupProcessor.getMessageOnlyGroups().has(originalName),
+        this.groupProcessor.getParentOnlyGroups().has(originalName),
+        (name) => this.fieldNameHandler.sanitizeName(name),
+        (relevant) => this.transpilerHelper.convertRelevance(relevant),
+        (sanitizedName) =>
+          this.matrixHandler.addTableListHeader(
+            row,
+            sanitizedName,
+            this.matrixHelpers(),
+          ),
+      );
       return;
     }
     if (xfType === 'end_group' || xfType === 'end group') {
