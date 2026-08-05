@@ -8,39 +8,11 @@
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "date",
-      "name": "geburtsdatum",
-      "label": "Wann wurden Sie geboren?"
-    }
-  ]
-}
-```
-
 ## `decimal` — Decimal/Float
 
 **Use when:** When collecting open decimal numeric values without predefined categories (e.g. height in metres, temperature).
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
-
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "decimal",
-      "name": "schlafdauer",
-      "label": "Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?"
-    }
-  ]
-}
-```
 
 ## `integer` — Integer
 
@@ -50,39 +22,11 @@
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "integer",
-      "name": "alter",
-      "label": "Wie alt sind Sie?"
-    }
-  ]
-}
-```
-
 ## `note` — Note (Display Text)
 
 **Use when:** When displaying non-interactive informational text, instructions, or section headers that require no respondent answer.
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
-
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "note",
-      "name": "hinweis",
-      "label": "Im folgenden Abschnitt geht es um Ihre Lebenssituation."
-    }
-  ]
-}
-```
 
 ## `select_multiple` — Select Multiple
 
@@ -100,88 +44,6 @@
 
 - `select_multiple_long_list` — Select Multiple (Long List): When selecting multiple answers from a long non-exclusive list maintained as a controlled vocabulary, presented via a compact interface.
 - `select_multiple_other` — Select Multiple with Other: When a multi-select question has an open-ended 'other' response option for unlisted selections.
-
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_multiple wochenendtage",
-      "name": "wochenende",
-      "label": "An welchen Tagen des Wochenendes sind Sie erreichbar?"
-    }
-  ],
-  "choices": [
-    {
-      "list_name": "wochenendtage",
-      "name": "sa",
-      "label": "Samstag"
-    },
-    {
-      "list_name": "wochenendtage",
-      "name": "so",
-      "label": "Sonntag"
-    }
-  ]
-}
-```
-
-**Example — `select_multiple_long_list`:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_multiple_from_file iso_3166_1.csv",
-      "name": "besuchtelaender",
-      "label": "Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich."
-    }
-  ]
-}
-```
-
-**Example — `select_multiple_other`:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_multiple geraete",
-      "name": "geraetebesitz",
-      "label": "Welche dieser Geräte besitzen Sie?"
-    },
-    {
-      "type": "text",
-      "name": "geraetebesitz_other",
-      "label": "Sonstiges (bitte angeben)",
-      "relevant": "${geraetebesitz} = 'other'"
-    }
-  ],
-  "choices": [
-    {
-      "list_name": "geraete",
-      "name": "smart",
-      "label": "Smartphone"
-    },
-    {
-      "list_name": "geraete",
-      "name": "lapt",
-      "label": "Laptop"
-    },
-    {
-      "list_name": "geraete",
-      "name": "tabl",
-      "label": "Tablet"
-    },
-    {
-      "list_name": "geraete",
-      "name": "other",
-      "label": "Sonstiges"
-    }
-  ]
-}
-```
 
 ## `select_multiple_from_file` — Select Multiple (from file)
 
@@ -206,103 +68,6 @@
 - `select_one_long_list` — Select One (Long List): When selecting one answer from a long closed list (typically 15+ options) such as countries or occupations, where a dropdown or autocomplete interface is preferable to many radio buttons.
 - `select_one_other` — Select One with Other: When a single-select question has an open-ended 'other' response option for answers not covered by the predefined categories.
 
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_one bildungsgrad",
-      "name": "bildungsgrad",
-      "label": "Was ist Ihr höchster Bildungsabschluss?"
-    }
-  ],
-  "choices": [
-    {
-      "list_name": "bildungsgrad",
-      "name": "1",
-      "label": "Kein Abschluss"
-    },
-    {
-      "list_name": "bildungsgrad",
-      "name": "2",
-      "label": "Haupt- oder Realschulabschluss"
-    },
-    {
-      "list_name": "bildungsgrad",
-      "name": "3",
-      "label": "Fachhochschulreife / Abitur"
-    },
-    {
-      "list_name": "bildungsgrad",
-      "name": "4",
-      "label": "Abgeschlossene Berufsausbildung"
-    },
-    {
-      "list_name": "bildungsgrad",
-      "name": "5",
-      "label": "Hochschulabschluss"
-    }
-  ]
-}
-```
-
-**Example — `select_one_long_list`:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_one_from_file iso_3166_1.csv",
-      "name": "geburtsland",
-      "label": "In welchem Land wurden Sie geboren?"
-    }
-  ]
-}
-```
-
-**Example — `select_one_other`:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "select_one quelle",
-      "name": "aufmerksam",
-      "label": "Wie sind Sie auf unser Angebot aufmerksam geworden?"
-    },
-    {
-      "type": "text",
-      "name": "aufmerksam_other",
-      "label": "Sonstiges (bitte angeben)",
-      "relevant": "${aufmerksam} = 'other'"
-    }
-  ],
-  "choices": [
-    {
-      "list_name": "quelle",
-      "name": "such",
-      "label": "Suchmaschine"
-    },
-    {
-      "list_name": "quelle",
-      "name": "empf",
-      "label": "Persönliche Empfehlung"
-    },
-    {
-      "list_name": "quelle",
-      "name": "sozme",
-      "label": "Soziale Medien"
-    },
-    {
-      "list_name": "quelle",
-      "name": "other",
-      "label": "Sonstiges"
-    }
-  ]
-}
-```
-
 ## `select_one_from_file` — Select One (from file)
 
 **Use when:** When selecting from a long closed list of exhaustive, mutually exclusive options maintained as a controlled vocabulary (e.g. country, occupation), presented via dropdown or autocomplete.
@@ -319,37 +84,9 @@
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "text",
-      "name": "anmerkungen",
-      "label": "Haben Sie weitere Anmerkungen?"
-    }
-  ]
-}
-```
-
 ## `time` — Time
 
 **Use when:** When capturing a time of day without an associated date (e.g. preferred appointment time).
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
-
-**Example:**
-
-```json
-{
-  "survey": [
-    {
-      "type": "time",
-      "name": "aufstehzeit",
-      "label": "Um wie viel Uhr stehen Sie werktags normalerweise auf?"
-    }
-  ]
-}
-```
 

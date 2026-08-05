@@ -53,7 +53,7 @@ function discoverCases(): Case[] {
     if (!fs.statSync(dir).isDirectory()) continue;
     if (
       fs.existsSync(path.join(dir, 'tsv.tsv')) &&
-      fs.existsSync(path.join(dir, 'xlsform.json'))
+      fs.existsSync(path.join(dir, 'fixtures', 'xlsform.json'))
     ) {
       cases.push({ id: slug, dir });
     }
@@ -73,7 +73,7 @@ describe('lstsv2xlsform round-trip', () => {
     ({ dir }) => {
       const tsv = fs.readFileSync(path.join(dir, 'tsv.tsv'), 'utf-8');
       const original = JSON.parse(
-        fs.readFileSync(path.join(dir, 'xlsform.json'), 'utf-8'),
+        fs.readFileSync(path.join(dir, 'fixtures', 'xlsform.json'), 'utf-8'),
       );
       const observed = lstsvToXlsform(tsv);
 

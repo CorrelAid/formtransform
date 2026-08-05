@@ -57,7 +57,7 @@ let written = 0;
 let skipped = 0;
 for (const variant of variants) {
   const exDir = path.join(REPO_ROOT, variant.exampleDir ?? '');
-  const src = path.join(exDir, 'xlsform.json');
+  const src = path.join(exDir, 'fixtures', 'xlsform.json');
   if (!variant.exampleDir || !fs.existsSync(src)) continue;
 
   const xlsform = JSON.parse(fs.readFileSync(src, 'utf-8'));

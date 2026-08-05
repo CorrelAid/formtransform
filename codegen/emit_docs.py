@@ -127,9 +127,12 @@ path back out of it (see `src/pipelines/README.md`)."""
 ## Source
 
 - [`definition.jsonld`](definition.jsonld) — the QuestionType entry (single source for codegen)
-- `xlsform.json` + derived `ddi.xml` / `tsv.tsv` / `xlsform.xlsx` / `meta.json` — this type's own worked example, alongside in this folder
+- `fixtures/xlsform.json` — this type's example input
+- `generated/` — codegen outputs (docs.md, xlsform.xlsx)
+- `ddi.xml` / `tsv.tsv` — blessed snapshots
 - `../<variant>/` — sibling folders for each real variant (e.g. `_other`, `_long_list`)
 """
-        (tdir / "docs.md").write_text(doc)
+        (tdir / "generated").mkdir(exist_ok=True)
+        (tdir / "generated" / "docs.md").write_text(doc)
         written += 1
     return written

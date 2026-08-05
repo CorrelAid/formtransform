@@ -41,3 +41,5 @@ jscpd-report/
 # ...except the live-suite docker stack config: throwaway localhost credentials
 # that docker compose auto-loads, needed for `npm run test:live` after a clone.
 !tests/live/limesurvey/.env
+# Generated registry artifacts
+registry/entities/*/generated/

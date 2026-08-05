@@ -111,7 +111,7 @@ function minimalForm(qt: RegistryEntry): XLSFormInput {
 /** Load the source xlsform.json from a QuestionTypeVariant's example dir. */
 function loadExample(variant: RegistryEntry): XLSFormInput {
   const raw = JSON.parse(
-    fs.readFileSync(path.join(REPO_ROOT, variant.examplePath), 'utf-8'),
+    fs.readFileSync(path.join(REPO_ROOT, variant.exampleDir, 'fixtures', 'xlsform.json'), 'utf-8'),
   );
   return {
     survey: raw.survey ?? [],

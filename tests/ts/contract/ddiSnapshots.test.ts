@@ -36,13 +36,13 @@ interface Case {
 }
 
 function discoverCases(): Case[] {
-  // One self-contained folder per example: registry/entities/<slug>/{xlsform.json, ddi.xml, ...}
+  // One self-contained folder per example: registry/entities/<slug>/{fixtures/xlsform.json, ddi.xml, ...}
   const cases: Case[] = [];
   for (const slug of fs.readdirSync(REGISTRY_DIR).sort()) {
     const dir = path.join(REGISTRY_DIR, slug);
     if (!fs.statSync(dir).isDirectory()) continue;
     if (
-      fs.existsSync(path.join(dir, 'xlsform.json')) &&
+      fs.existsSync(path.join(dir, 'fixtures', 'xlsform.json')) &&
       fs.existsSync(path.join(dir, 'ddi.xml'))
     ) {
       cases.push({ id: slug, dir });
@@ -60,7 +60,7 @@ describe('DDI snapshot parity', () => {
 
   test.each(cases)('$id matches committed ddi.xml', ({ dir }) => {
     const xlsform = JSON.parse(
-      fs.readFileSync(path.join(dir, 'xlsform.json'), 'utf-8'),
+      fs.readFileSync(path.join(dir, 'fixtures', 'xlsform.json'), 'utf-8'),
     );
     const committed = fs.readFileSync(path.join(dir, 'ddi.xml'), 'utf-8');
 

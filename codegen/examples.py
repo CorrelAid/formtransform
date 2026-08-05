@@ -47,7 +47,7 @@ def build_example_artifacts(
         if not ex_dir_rel:
             continue
         ex_dir = base_dir / ex_dir_rel
-        src = ex_dir / "xlsform.json"
+        src = ex_dir / "fixtures" / "xlsform.json"
         if not src.exists():
             continue
 
@@ -87,7 +87,8 @@ def build_example_artifacts(
             ws_set.append(["form_title", "form_id", "default_language"])
             ws_set.append([label, eid, "default"])
 
-            wb.save(ex_dir / "xlsform.xlsx")
+            (ex_dir / "generated").mkdir(exist_ok=True)
+            wb.save(ex_dir / "generated" / "xlsform.xlsx")
             rep["xlsx"] = True
 
         # ddi.xml — blessed separately via scripts/bless-ddi-snapshots.mjs
