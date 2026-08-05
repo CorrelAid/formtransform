@@ -9,6 +9,7 @@ import {
   SKIP_TYPES,
   UNIMPLEMENTED_TYPES,
   FROM_FILE_BASE,
+  TSVRowData,
 } from './constants.js';
 import { ChoiceManager } from './choiceManager.js';
 import { GroupProcessor } from './groupProcessor.js';
@@ -380,17 +381,58 @@ export class XLSFormToTSVConverter {
       xfTypeInfo.base,
     );
 
+    const fields = await this.computeQuestionFields(row, xfTypeInfo, lsType);
+
+    this.rowEmitter.emitForEachLanguage((lang) =>
+      this.buildQuestionRow(
+        row,
+        lang,
+        questionName,
+        xfTypeInfo,
+        lsType,
+        fields,
+        cdlVocab,
+      ),
+    );
+
+    // Reset answer sequence for this question
+    this.counters.setSubquestionSeq(0);
+    this.counters.setAnswerSeq(0);
+
+    // Add answers/subquestions for select types (notes don't have answers)
+    if (xfTypeInfo.base !== 'note' && xfTypeInfo.listName) {
+      this.answerEmitter.addAnswers(xfTypeInfo, lsType, this.answerHelpers());
+    }
+  }
+
+  /**
+   * Compute the per-question fields that don't vary by language
+   * (relevance, validation, mandatory, other, default, hidden, hide_tip).
+   */
+  private async computeQuestionFields(
+    row: SurveyRow,
+    xfTypeInfo: { base: string },
+    lsType: { other?: boolean; dateFormat?: string },
+  ): Promise<{
+    calculationExpr: string;
+    relevance: string;
+    emValidation: string;
+    mandatory: string;
+    other: string;
+    defaultVal: string;
+    hidden: string;
+    hideTip: string;
+    isNote: boolean;
+    isCalculate: boolean;
+  }> {
     const isNote = xfTypeInfo.base === 'note';
     const isCalculate = xfTypeInfo.base === 'calculate';
     const isNoteOrCalc = isNote || isCalculate;
 
-    let calculationExpr = '';
-    if (isCalculate && row.calculation) {
-      calculationExpr = await this.transpilerHelper.convertCalculation(
-        row.calculation,
-      );
-    }
-
+    const calculationExpr =
+      isCalculate && row.calculation
+        ? await this.transpilerHelper.convertCalculation(row.calculation)
+        : '';
     const relevance = await this.transpilerHelper.convertRelevance(
       row.relevant,
     );
@@ -420,51 +462,79 @@ export class XLSFormToTSVConverter {
         ? '1'
         : '';
 
-    this.rowEmitter.emitForEachLanguage((lang) => {
-      let text: string;
-      if (isCalculate) {
-        text = `{${calculationExpr}}`;
-      } else {
-        text = this.languageHandler.renderLabel(row.label, lang, questionName);
-      }
-      text = this.fieldNameHandler.convertVariableReferences(text);
-      const help = this.fieldNameHandler.convertVariableReferences(
-        this.languageHandler.renderLabel(row.hint, lang),
-      );
+    return {
+      calculationExpr,
+      relevance,
+      emValidation,
+      mandatory,
+      other,
+      defaultVal,
+      hidden: isCalculate ? '1' : '',
+      hideTip,
+      isNote,
+      isCalculate,
+    };
+  }
 
-      return {
-        class: 'Q',
-        'type/scale': isNote ? 'X' : lsType.type,
-        name: questionName,
-        relevance,
-        text,
-        help,
-        em_validation_q: emValidation,
-        mandatory,
-        other,
-        default: defaultVal,
-        same_default: '',
-        hidden: isCalculate ? '1' : '',
-        ...(hideTip ? { hide_tip: hideTip } : {}),
-        // Date/time widget format (date vs time vs both), from the registry.
-        ...(lsType.dateFormat ? { date_format: lsType.dateFormat } : {}),
-        // Vocabulary provenance for from_file selects. Stored in the `cssclass`
-        // question attribute (namespaced `cdlvocab-<id>`) — verified to survive
-        // LimeSurvey import and be queryable, unlike an unregistered attribute.
-        // It's a machine hook only (no styling effect); the faithful reference
-        // still lives in DDI's concept/@vocab. Empty for all other questions.
-        ...(cdlVocab ? { cssclass: `cdlvocab-${cdlVocab}` } : {}),
-      };
-    });
-
-    // Reset answer sequence for this question
-    this.counters.setSubquestionSeq(0);
-    this.counters.setAnswerSeq(0);
-
-    // Add answers/subquestions for select types (notes don't have answers)
-    if (!isNote && xfTypeInfo.listName) {
-      this.answerEmitter.addAnswers(xfTypeInfo, lsType, this.answerHelpers());
+  /**
+   * Build the per-language Q row for a question. The body is the per-language
+   * part (text, help); the rest of the fields come from the precomputed
+   * `fields` argument.
+   */
+  private buildQuestionRow(
+    row: SurveyRow,
+    lang: string,
+    questionName: string,
+    xfTypeInfo: { base: string },
+    lsType: { type: string; dateFormat?: string },
+    fields: {
+      calculationExpr: string;
+      relevance: string;
+      emValidation: string;
+      mandatory: string;
+      other: string;
+      defaultVal: string;
+      hidden: string;
+      hideTip: string;
+      isNote: boolean;
+      isCalculate: boolean;
+    },
+    cdlVocab: string,
+  ): Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'> {
+    let text: string;
+    if (fields.isCalculate) {
+      text = `{${fields.calculationExpr}}`;
+    } else {
+      text = this.languageHandler.renderLabel(row.label, lang, questionName);
     }
+    text = this.fieldNameHandler.convertVariableReferences(text);
+    const help = this.fieldNameHandler.convertVariableReferences(
+      this.languageHandler.renderLabel(row.hint, lang),
+    );
+
+    return {
+      class: 'Q',
+      'type/scale': fields.isNote ? 'X' : lsType.type,
+      name: questionName,
+      relevance: fields.relevance,
+      text,
+      help,
+      em_validation_q: fields.emValidation,
+      mandatory: fields.mandatory,
+      other: fields.other,
+      default: fields.defaultVal,
+      same_default: '',
+      hidden: fields.hidden,
+      ...(fields.hideTip ? { hide_tip: fields.hideTip } : {}),
+      // Date/time widget format (date vs time vs both), from the registry.
+      ...(lsType.dateFormat ? { date_format: lsType.dateFormat } : {}),
+      // Vocabulary provenance for from_file selects. Stored in the `cssclass`
+      // question attribute (namespaced `cdlvocab-<id>`) — verified to survive
+      // LimeSurvey import and be queryable, unlike an unregistered attribute.
+      // It's a machine hook only (no styling effect); the faithful reference
+      // still lives in DDI's concept/@vocab. Empty for all other questions.
+      ...(cdlVocab ? { cssclass: `cdlvocab-${cdlVocab}` } : {}),
+    };
   }
 
   // ── Type helpers ─────────────────────────────────────────────────────
