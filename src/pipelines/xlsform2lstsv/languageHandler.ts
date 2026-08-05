@@ -3,6 +3,37 @@ import { getBaseLanguage } from '../../utils/languageUtils.js';
 import { markdownToHtml } from '../../utils/markdownRenderer.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 
+/** A value that could carry per-language sub-objects (label, hint, settings). */
+function isLanguageMap(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Push every per-language code on `row` into `codes` (`_languages` first, else keys of label/hint). */
+function harvestRowCodes(row: SurveyRow | ChoiceRow, codes: Set<string>): void {
+  if (row._languages) {
+    for (const lang of row._languages) codes.add(lang);
+    return;
+  }
+  const fields: unknown[] = [row.label, (row as SurveyRow).hint];
+  for (const field of fields) {
+    if (isLanguageMap(field)) {
+      for (const lang of Object.keys(field)) codes.add(lang);
+    }
+  }
+}
+
+/** True when `row` carries an explicit `_languages` array OR an object-valued label/hint. */
+function rowIsMultilingual(row: SurveyRow | ChoiceRow): boolean {
+  if (row._languages) return true;
+  const fields: unknown[] = [row.label, (row as SurveyRow).hint];
+  return fields.some(isLanguageMap);
+}
+
+/** True when any settings entry is a per-language object (form_title, etc.). */
+function settingsIsMultilingual(settings: SettingsRow): boolean {
+  return Object.values(settings).some(isLanguageMap);
+}
+
 /**
  * Handles language detection and multilingual content for XLSForm to TSV conversion
  */
@@ -30,62 +61,19 @@ export class LanguageHandler {
     settingsData: SettingsRow[],
   ): void {
     const languageCodes = new Set<string>();
-
-    // Check survey data for language codes
-    for (const row of surveyData) {
-      if (row._languages) {
-        row._languages.forEach((lang: string) => languageCodes.add(lang));
-      } else {
-        for (const field of [row.label, row.hint]) {
-          if (typeof field === 'object' && field !== null) {
-            for (const lang of Object.keys(field)) languageCodes.add(lang);
-          }
-        }
-      }
-    }
-
-    // Check choices data for language codes
-    for (const row of choicesData) {
-      if (row._languages) {
-        row._languages.forEach((lang: string) => languageCodes.add(lang));
-      } else {
-        if (typeof row.label === 'object' && row.label !== null) {
-          for (const lang of Object.keys(row.label)) languageCodes.add(lang);
-        }
-      }
-    }
-
-    // Check settings data for language-specific fields
-    const settings = settingsData[0] || {};
-    for (const [, value] of Object.entries(settings)) {
-      if (
-        typeof value === 'object' &&
-        value !== null &&
-        !Array.isArray(value)
-      ) {
-        for (const lang of Object.keys(value)) {
-          languageCodes.add(lang);
-        }
+    for (const row of surveyData) harvestRowCodes(row, languageCodes);
+    for (const row of choicesData) harvestRowCodes(row, languageCodes);
+    for (const value of Object.values(settingsData[0] ?? {})) {
+      if (isLanguageMap(value)) {
+        for (const lang of Object.keys(value)) languageCodes.add(lang);
       }
     }
 
     // Only use multiple languages if we actually have language-specific data
     const hasLanguageSpecificData =
-      surveyData.some(
-        (row) =>
-          row._languages ||
-          (typeof row.label === 'object' && row.label !== null) ||
-          (typeof row.hint === 'object' && row.hint !== null),
-      ) ||
-      choicesData.some(
-        (row) =>
-          row._languages ||
-          (typeof row.label === 'object' && row.label !== null),
-      ) ||
-      Object.values(settings).some(
-        (value) =>
-          typeof value === 'object' && value !== null && !Array.isArray(value),
-      );
+      surveyData.some(rowIsMultilingual) ||
+      choicesData.some(rowIsMultilingual) ||
+      settingsIsMultilingual(settingsData[0] ?? {});
 
     if (hasLanguageSpecificData && languageCodes.size > 0) {
       const languagesArray = Array.from(languageCodes);

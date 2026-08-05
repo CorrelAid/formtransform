@@ -128,6 +128,178 @@ function buildQuestionVar(
   };
 }
 
+/** Mutable accumulator for an in-flight `array` (`F` LimeSurvey type) row:
+ * subquestion rows become individual `select_one` variables on flush, and
+ * answer rows become the shared choice list they pull from. */
+interface ArrayAccumulator {
+  name: string;
+  label: string;
+  group: string;
+  subquestions: Choice[];
+  answers: Choice[];
+}
+
+/** Append the `other` category to each select that natively carries `other=Y`,
+ * returning `variables` untouched when there are none (the common case). */
+function appendOtherCategories(
+  variables: Variable[],
+  otherSelects: Set<string>,
+  baseLang: string,
+): Variable[] {
+  if (otherSelects.size === 0) return variables;
+  const otherLabel = otherLabelFor(baseLang);
+  for (const v of variables) {
+    if (otherSelects.has(v.name)) {
+      v.choices.push({ name: OTHER_CODE, label: otherLabel });
+    }
+  }
+  return variables;
+}
+
+/** Synthesize a `<base>_other` companion for every `other=Y` select that
+ * doesn't already have one authored in the TSV (i.e. came from the XLSForm
+ * `or_other` shorthand — LimeSurvey stores the free text inline). */
+function appendOtherCompanions(
+  variables: Variable[],
+  otherSelects: Set<string>,
+  baseLang: string,
+): Variable[] {
+  const names = new Set(variables.map((v) => v.name));
+  const otherLabel = otherLabelFor(baseLang);
+  const out: Variable[] = [];
+  for (const v of variables) {
+    out.push(v);
+    const companionName = v.name + OTHER_SUFFIX;
+    if (otherSelects.has(v.name) && !names.has(companionName)) {
+      out.push({
+        name: companionName,
+        type: 'text',
+        label: otherLabel,
+        group: v.group,
+        groupLabel: v.groupLabel,
+        groupAppearance: v.groupAppearance,
+        listName: '',
+        vocab: '',
+        choices: [],
+      });
+    }
+  }
+  return out;
+}
+
+/** Handle an `S`/`SL` row by skipping it (settings already parsed upstream). */
+function isIgnorableSettingRow(cls: string): boolean {
+  return cls === 'S' || cls === 'SL';
+}
+
+/** True when an `other=Y` row should mark its base select for post-pass `other`
+ * reconstruction (only meaningful for `select_one` / `select_multiple`). */
+function isOtherEligibleSelect(variable: Variable): boolean {
+  return variable.type === 'select_one' || variable.type === 'select_multiple';
+}
+
+/** Apply the `<base>other → <base>_other` companion-rename rule: a free-text
+ * variable whose sanitized name ends in `other` and whose base is registered
+ * as a select with `other=Y` should be surfaced under the canonical suffix so
+ * the DDI emitter's `varGrp[@type=other]` detection picks it up. */
+function renameOtherCompanion(
+  variable: Variable,
+  otherSelects: Set<string>,
+): void {
+  if (variable.type !== 'text' || !variable.name.endsWith(OTHER_CODE)) return;
+  const base = variable.name.slice(0, -OTHER_CODE.length);
+  if (otherSelects.has(base)) variable.name = base + OTHER_SUFFIX;
+}
+
+/** Outcome from {@link processQuestionRow}: either a new array (`F` row) or a
+ * a regular question variable to push. */
+type QuestionRowOutcome =
+  | { kind: 'array'; array: ArrayAccumulator }
+  | { kind: 'question'; variable: Variable; currentVar: Variable | null };
+
+/** Process a single Q-row: starts a new array, or builds a `Variable` and
+ * updates the `other` companion registry. */
+function processQuestionRow(
+  row: Row,
+  currentGroup: string,
+  otherSelects: Set<string>,
+  flushArray: () => void,
+): QuestionRowOutcome {
+  flushArray();
+  const lsType = cell(row, 'type/scale');
+  const name = cell(row, 'name');
+
+  if (lsType === 'F') {
+    return {
+      kind: 'array',
+      array: {
+        name,
+        label: cell(row, 'text'),
+        // Group by the array's own machine name (matches the XLSForm→DDI grid
+        // group id); the enclosing G row only carries the human label.
+        group: name,
+        subquestions: [],
+        answers: [],
+      },
+    };
+  }
+
+  const label = cell(row, 'text');
+  const cdlVocab = vocabFromCssClass(cell(row, 'cssclass'));
+  const variable = buildQuestionVar(lsType, name, label, cdlVocab, currentGroup);
+
+  if (cell(row, 'other') === 'Y' && isOtherEligibleSelect(variable)) {
+    otherSelects.add(variable.name);
+  }
+  renameOtherCompanion(variable, otherSelects);
+
+  // from_file selects (vocab set) inline options in the TSV that DDI drops.
+  return { kind: 'question', variable, currentVar: variable.vocab ? null : variable };
+}
+
+/** Materialise `array` into one `select_one` Variable per subquestion. */
+function drainArray(variables: Variable[], array: ArrayAccumulator): void {
+  for (const sq of array.subquestions) {
+    variables.push({
+      name: sq.name,
+      type: 'select_one',
+      label: sq.label,
+      group: array.group,
+      groupLabel: array.label,
+      groupAppearance: 'table-list',
+      listName: array.name,
+      vocab: '',
+      choices: array.answers.map((a) => ({ ...a })),
+    });
+  }
+}
+
+/** Append one choice row either to the array bucket or to the most recent
+ * non-array `Variable`. */
+function attachChoice(
+  cls: string,
+  row: Row,
+  array: ArrayAccumulator | null,
+  currentVar: Variable | null,
+): void {
+  const choice: Choice = {
+    name: cell(row, 'name'),
+    label: cell(row, 'text'),
+  };
+  if (array) {
+    if (cls === 'SQ') array.subquestions.push(choice);
+    else array.answers.push(choice);
+    return;
+  }
+  if (currentVar) currentVar.choices.push(choice);
+}
+
+/** Handle a `G` (group opener) row: flush any in-progress array and reset var state. */
+function openGroup(row: Row, flushArray: () => void): string {
+  flushArray();
+  return cell(row, 'name');
+}
+
 /**
  * Flatten LimeSurvey structure-TSV rows into an ordered {@link Variable} list.
  *
@@ -143,7 +315,6 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
       ?.text?.trim() ?? '';
 
   const variables: Variable[] = [];
-
   // Base selects carrying LimeSurvey's native `other=Y`: an `other` category is
   // appended (post-pass) and the `<base>other` companion is renamed so the DDI
   // emitter reconstructs `varGrp[@type=other]`.
@@ -153,168 +324,49 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
   let currentVar: Variable | null = null;
   // Group label carried by the enclosing `G` row (LimeSurvey has no group name).
   let currentGroup = '';
-
-  // Array (`F`) accumulation: subquestions become individual select_one vars,
-  // answers become the shared choice list, grouped as a grid.
-  let inArray = false;
-  let arrayName = '';
-  let arrayLabel = '';
-  let arrayGroup = '';
-  let arraySubqs: Choice[] = [];
-  let arrayAnswers: Choice[] = [];
+  // Array (`F`) accumulator; `null` means we're between arrays.
+  let array: ArrayAccumulator | null = null;
 
   const flushArray = (): void => {
-    if (!inArray) return;
-    for (const sq of arraySubqs) {
-      variables.push({
-        name: sq.name,
-        type: 'select_one',
-        label: sq.label,
-        group: arrayGroup,
-        groupLabel: arrayLabel,
-        groupAppearance: 'table-list',
-        listName: arrayName,
-        vocab: '',
-        choices: arrayAnswers.map((a) => ({ ...a })),
-      });
-    }
-    inArray = false;
-    arrayName = '';
-    arrayLabel = '';
-    arrayGroup = '';
-    arraySubqs = [];
-    arrayAnswers = [];
+    if (!array) return;
+    drainArray(variables, array);
+    array = null;
   };
 
   for (const row of rows) {
     const cls = cell(row, 'class');
-    const lang = cell(row, 'language');
 
     // Translations are duplicate rows; DDI needs one language only.
-    if (baseLang && lang && lang !== baseLang) continue;
+    const lang = cell(row, 'language');
+    if (baseLang && lang !== baseLang) continue;
 
-    switch (cls) {
-      case 'S':
-      case 'SL':
-        continue;
+    if (isIgnorableSettingRow(cls)) continue;
 
-      case 'G':
-        flushArray();
-        currentVar = null;
-        currentGroup = cell(row, 'name');
-        continue;
+    if (cls === 'G') {
+      currentGroup = openGroup(row, flushArray);
+      currentVar = null;
+      continue;
+    }
 
-      case 'Q': {
-        flushArray();
-        currentVar = null;
-
-        const lsType = cell(row, 'type/scale');
-        const name = cell(row, 'name');
-        const label = cell(row, 'text');
-        const cdlVocab = vocabFromCssClass(cell(row, 'cssclass'));
-
-        if (lsType === 'F') {
-          inArray = true;
-          arrayName = name;
-          arrayLabel = label;
-          // Group by the array's own machine name (matches the XLSForm→DDI grid
-          // group id); the enclosing G row only carries the human label.
-          arrayGroup = name;
-          arraySubqs = [];
-          arrayAnswers = [];
-          continue;
-        }
-
-        const variable = buildQuestionVar(
-          lsType,
-          name,
-          label,
-          cdlVocab,
-          currentGroup,
-        );
-
-        // Native "other" on a select: mark for post-pass `other` category.
-        const hasOther = cell(row, 'other') === 'Y';
-        if (
-          hasOther &&
-          (variable.type === 'select_one' ||
-            variable.type === 'select_multiple')
-        ) {
-          otherSelects.add(name);
-        }
-
-        // The free-text companion (`<base>other`, sanitized) → restore the
-        // canonical `<base>_other` name so codebook detects the other pattern.
-        if (variable.type === 'text' && name.endsWith(OTHER_CODE)) {
-          const base = name.slice(0, -OTHER_CODE.length);
-          if (otherSelects.has(base)) variable.name = base + OTHER_SUFFIX;
-        }
-
-        variables.push(variable);
-        // from_file selects (vocab set) inline options in the TSV that DDI drops.
-        currentVar = variable.vocab ? null : variable;
+    if (cls === 'Q') {
+      const outcome = processQuestionRow(row, currentGroup, otherSelects, flushArray);
+      if (outcome.kind === 'array') {
+        array = outcome.array;
         continue;
       }
+      variables.push(outcome.variable);
+      currentVar = outcome.currentVar;
+      continue;
+    }
 
-      case 'A':
-      case 'SQ': {
-        const choice: Choice = {
-          name: cell(row, 'name'),
-          label: cell(row, 'text'),
-        };
-        if (inArray) {
-          if (cls === 'SQ') arraySubqs.push(choice);
-          else arrayAnswers.push(choice);
-        } else if (currentVar) {
-          currentVar.choices.push(choice);
-        }
-        continue;
-      }
-
-      default:
-        continue;
+    if (cls === 'A' || cls === 'SQ') {
+      attachChoice(cls, row, array, currentVar);
+      continue;
     }
   }
 
   flushArray();
 
-  // Append the `other` category last on each native-other select (after its
-  // real A/SQ options were collected), matching the XLSForm→DDI ordering.
-  if (otherSelects.size === 0) return variables;
-
-  const otherLabel = otherLabelFor(baseLang);
-  for (const v of variables) {
-    if (otherSelects.has(v.name)) {
-      v.choices.push({ name: OTHER_CODE, label: otherLabel });
-    }
-  }
-
-  // A native `other=Y` with no companion question in the TSV came from the
-  // XLSForm `or_other` shorthand, which stores the typed-in answer as free text
-  // (`aufmerksam[other]` in LimeSurvey). Synthesize the `<base>_other` text
-  // companion so the pattern round-trips as the canonical `varGrp[@type=other]`
-  // — without it, the appended `other` category is emitted as a plain category
-  // (and on `select_multiple`, as a spurious boolean variable). Surveys that do
-  // carry an explicit companion row keep it untouched.
-  const names = new Set(variables.map((v) => v.name));
-  const withCompanions: Variable[] = [];
-  for (const v of variables) {
-    withCompanions.push(v);
-    const companionName = v.name + OTHER_SUFFIX;
-    if (otherSelects.has(v.name) && !names.has(companionName)) {
-      withCompanions.push({
-        name: companionName,
-        type: 'text',
-        label: otherLabel,
-        group: v.group,
-        groupLabel: v.groupLabel,
-        groupAppearance: v.groupAppearance,
-        listName: '',
-        vocab: '',
-        choices: [],
-      });
-    }
-  }
-
-  return withCompanions;
+  appendOtherCategories(variables, otherSelects, baseLang);
+  return appendOtherCompanions(variables, otherSelects, baseLang);
 }

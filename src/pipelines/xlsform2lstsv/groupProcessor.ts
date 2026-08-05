@@ -8,6 +8,46 @@ export interface GroupInfo {
   emittedAsGroup: boolean;
 }
 
+/** A row whose `type` opens or closes a group, recognised in both forms. */
+function isBeginGroup(type: string): boolean {
+  return type === 'begin_group' || type === 'begin group';
+}
+
+function isEndGroup(type: string): boolean {
+  return type === 'end_group' || type === 'end group';
+}
+
+/** Map an "open" row to its group name, with the trim applied. */
+function beginGroupName(row: SurveyRow): string {
+  return (row.name || '').trim();
+}
+
+/** Config flags read by {@link isMessageNoteRow} — a narrow shape to avoid coupling. */
+interface WelcomeEndFlags {
+  convertWelcomeNote?: boolean;
+  convertEndNote?: boolean;
+}
+
+/** Pure helper: is this row a configured welcome/end note (`type=note` + match name)? */
+function isMessageNoteRow(row: SurveyRow, flags: WelcomeEndFlags): boolean {
+  if (row.type !== 'note') return false;
+  const rowName = (row.name || '').trim().toLowerCase();
+  return (
+    (Boolean(flags.convertWelcomeNote) && rowName === 'welcome') ||
+    (Boolean(flags.convertEndNote) && rowName === 'end')
+  );
+}
+
+/** Per-group bookkeeping during the message-only prescan. */
+interface MessageGroupInfo {
+  hasMessageNote: boolean;
+  hasOtherContent: boolean;
+}
+
+function extractBaseType(row: SurveyRow): string {
+  return (row.type || '').trim().split(/\s+/)[0];
+}
+
 /**
  * Handles group processing for XLSForm to TSV conversion
  */
@@ -37,44 +77,32 @@ export class GroupProcessor {
   identifyMessageOnlyGroups(surveyData: SurveyRow[]): void {
     const messageOnly = new Set<string>();
     const stack: string[] = [];
-    const groupInfo = new Map<
-      string,
-      { hasMessageNote: boolean; hasOtherContent: boolean }
-    >();
+    const groupInfo = new Map<string, MessageGroupInfo>();
+    const flags = this.configManager.getConfig();
 
     for (const row of surveyData) {
       const type = (row.type || '').trim();
-      const baseType = type.split(/\s+/)[0];
-
-      if (type === 'begin_group' || type === 'begin group') {
-        const name = (row.name || '').trim();
+      if (isBeginGroup(type)) {
+        const name = beginGroupName(row);
         stack.push(name);
         groupInfo.set(name, { hasMessageNote: false, hasOtherContent: false });
-      } else if (type === 'end_group' || type === 'end group') {
-        const name = stack.pop();
-        if (name !== undefined) {
-          const info = groupInfo.get(name);
-          if (info && info.hasMessageNote && !info.hasOtherContent) {
-            messageOnly.add(name);
-          }
-        }
-      } else if (type && stack.length > 0 && !SKIP_TYPES.includes(baseType)) {
-        const groupName = stack[stack.length - 1];
-        const info = groupInfo.get(groupName);
-        if (info) {
-          const rowName = (row.name || '').trim().toLowerCase();
-          const cfg = this.configManager.getConfig();
-          const isMessageNote =
-            type === 'note' &&
-            ((cfg.convertWelcomeNote && rowName === 'welcome') ||
-              (cfg.convertEndNote && rowName === 'end'));
-          if (isMessageNote) {
-            info.hasMessageNote = true;
-          } else {
-            info.hasOtherContent = true;
-          }
-        }
+        continue;
       }
+      if (isEndGroup(type)) {
+        const name = stack.pop();
+        if (name === undefined) continue;
+        const info = groupInfo.get(name);
+        if (info && info.hasMessageNote && !info.hasOtherContent) {
+          messageOnly.add(name);
+        }
+        continue;
+      }
+      if (!type || stack.length === 0 || SKIP_TYPES.includes(extractBaseType(row)))
+        continue;
+      const info = groupInfo.get(stack[stack.length - 1]);
+      if (!info) continue;
+      if (isMessageNoteRow(row, flags)) info.hasMessageNote = true;
+      else info.hasOtherContent = true;
     }
 
     this.messageOnlyGroups = messageOnly;
@@ -91,21 +119,22 @@ export class GroupProcessor {
 
     for (const row of surveyData) {
       const type = (row.type || '').trim();
-      const baseType = type.split(/\s+/)[0];
-
-      if (type === 'begin_group' || type === 'begin group') {
-        const name = (row.name || '').trim();
+      if (isBeginGroup(type)) {
+        const name = beginGroupName(row);
         stack.push(name);
         hasDirectContent.set(name, false);
-      } else if (type === 'end_group' || type === 'end group') {
+        continue;
+      }
+      if (isEndGroup(type)) {
         const name = stack.pop();
         if (name !== undefined && !hasDirectContent.get(name)) {
           parentOnly.add(name);
         }
-      } else if (type && !SKIP_TYPES.includes(baseType)) {
-        if (stack.length > 0) {
-          hasDirectContent.set(stack[stack.length - 1], true);
-        }
+        continue;
+      }
+      if (!type || SKIP_TYPES.includes(extractBaseType(row))) continue;
+      if (stack.length > 0) {
+        hasDirectContent.set(stack[stack.length - 1], true);
       }
     }
 

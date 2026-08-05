@@ -57,20 +57,22 @@ interface AddVarOpts {
   preQTxt?: string;
 }
 
+interface AddVarSpec {
+  varId: string;
+  name: string;
+  label: string;
+  varType: string;
+  choices: Choice[];
+  opts?: AddVarOpts;
+}
+
 /**
  * Append one `<var>`. Element order: `qstn → catgry* → concept → varFormat`.
  * With `vocab`, no `<catgry>` is emitted and `<concept>` carries `@vocab`.
  */
-function addVarElement(
-  parent: XmlElement,
-  varId: string,
-  name: string,
-  label: string,
-  varType: string,
-  choices: Choice[],
-  opts: AddVarOpts = {},
-): XmlElement {
-  const { vocab = '', preQTxt = '' } = opts;
+function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
+  const { varId, name, label, varType, choices } = spec;
+  const { vocab = '', preQTxt = '' } = spec.opts ?? {};
   const [intrvl, fmtType] = DDI_TYPE_MAP[varType] ?? ['discrete', 'character'];
   const respDomain = RESPONSE_DOMAIN_MAP[varType] ?? 'text';
 
@@ -218,25 +220,23 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
       );
     }
   } else {
-    addVarElement(
-      dataDscr,
-      makeVarId(baseName),
-      baseName,
-      base.label,
-      base.type,
-      base.choices,
-    );
+    addVarElement(dataDscr, {
+      varId: makeVarId(baseName),
+      name: baseName,
+      label: base.label,
+      varType: base.type,
+      choices: base.choices,
+    });
   }
 
   // The `_other` text follow-up is always a standalone text var.
-  addVarElement(
-    dataDscr,
-    makeVarId(otherVar.name),
-    otherVar.name,
-    otherVar.label,
-    otherVar.type,
-    [],
-  );
+  addVarElement(dataDscr, {
+    varId: makeVarId(otherVar.name),
+    name: otherVar.name,
+    label: otherVar.label,
+    varType: otherVar.type,
+    choices: [],
+  });
 }
 
 /** Optional settings that shape study-level metadata. */
@@ -259,64 +259,16 @@ export interface BuildDdiOptions {
   prodDate?: string;
 }
 
-/**
- * Build the DDI-Codebook document tree from an already-extracted variable list.
- * Exposed for callers that build a {@link Variable} list by other means.
- */
-export function buildDdiCodebook(
-  variables: Variable[],
-  options: BuildDdiOptions = {},
-): XmlElement {
-  const {
-    assetName = '',
-    settings = {},
-    submissions = [],
-    datasetFilename = 'data.csv',
-    prodDate = new Date().toISOString().slice(0, 10),
-  } = options;
+/** Returned by {@link splitDataVars}: every data var bucketed by its emit role. */
+interface DataVarBuckets {
+  otherPatterns: Map<string, OtherPattern>;
+  gridGroups: Map<string, Variable[]>;
+  multiRespGroups: Map<string, Variable>;
+  standaloneVars: Variable[];
+}
 
-  const classified = classifyNotes(variables);
-  const dataVars = classified.dataVars;
-  const notePreqtxt = classified.inlinePreqtxt;
-
-  const title =
-    assetName.trim() || String(settings.form_title ?? '').trim() || 'Untitled';
-
-  const root = new XmlElement('codeBook');
-  root.setAttr('xmlns', NS);
-  root.setAttr('xmlns:xsi', XSI);
-  root.setAttr('xsi:schemaLocation', SCHEMA_LOC);
-  root.setAttr('version', '2.5');
-
-  // --- stdyDscr ---
-  const stdy = root.child('stdyDscr');
-  const citation = stdy.child('citation');
-
-  const titlStmt = citation.child('titlStmt');
-  titlStmt.textChild('titl', title);
-  const studyId = settings.id_string;
-  if (studyId) titlStmt.textChild('IDNo', String(studyId));
-
-  const prodStmt = citation.child('prodStmt');
-  prodStmt.textChild('prodDate', prodDate, { date: prodDate });
-
-  const ver = settings.version;
-  if (ver) {
-    citation.child('verStmt').textChild('version', String(ver));
-  }
-
-  // --- fileDscr ---
-  const fileTxt = root
-    .child('fileDscr', { ID: 'F1', URI: datasetFilename })
-    .child('fileTxt');
-  fileTxt.textChild('fileName', datasetFilename);
-  fileTxt.child('dimensns').textChild('caseQnty', String(submissions.length));
-  fileTxt.textChild('fileType', 'Comma-separated values (CSV)');
-  fileTxt.textChild('format', 'text/csv');
-
-  // --- dataDscr ---
-  const dataDscr = root.child('dataDscr');
-
+/** Sort the flat data vars into the four emit roles `dataDscr` walks through. */
+function splitDataVars(dataVars: Variable[]): DataVarBuckets {
   const otherPatterns = detectOtherPatterns(dataVars);
   const baseNamesInOther = new Set(
     [...otherPatterns.values()].map((p) => p.base.name),
@@ -342,13 +294,73 @@ export function buildDdiCodebook(
     }
   }
 
-  const withNote = (name: string, base = ''): string => {
-    const note = notePreqtxt[name] ?? '';
-    if (note && base) return `${note}\n\n${base}`;
-    return note || base;
-  };
+  return { otherPatterns, gridGroups, multiRespGroups, standaloneVars };
+}
 
-  // --- varGrp elements first (XSD requires them before <var>) ---
+/** Prepend the per-question note (`preQTxt`) for the first row of a group. */
+function combineNote(
+  notePreqtxt: Record<string, string>,
+  name: string,
+  base = '',
+): string {
+  const note = notePreqtxt[name] ?? '';
+  if (note && base) return `${note}\n\n${base}`;
+  return note || base;
+}
+
+/** Emit `<stdyDscr>` (citation + orphan notes appended). */
+function addStudyDscr(
+  root: XmlElement,
+  settings: DdiSettings,
+  title: string,
+  prodDate: string,
+  orphanNotes: Variable[],
+): void {
+  const stdy = root.child('stdyDscr');
+  const citation = stdy.child('citation');
+
+  const titlStmt = citation.child('titlStmt');
+  titlStmt.textChild('titl', title);
+  const studyId = settings.id_string;
+  if (studyId) titlStmt.textChild('IDNo', String(studyId));
+
+  const prodStmt = citation.child('prodStmt');
+  prodStmt.textChild('prodDate', prodDate, { date: prodDate });
+
+  const ver = settings.version;
+  if (ver) citation.child('verStmt').textChild('version', String(ver));
+
+  for (const note of orphanNotes) {
+    if (!note.label) continue;
+    const attrs: Record<string, string> = { type: 'instruction' };
+    if (note.name) attrs.subject = note.name;
+    stdy.textChild('notes', note.label, attrs);
+  }
+}
+
+/** Emit `<fileDscr>` with `caseQnty` set to the submissions count. */
+function addFileDscr(
+  root: XmlElement,
+  datasetFilename: string,
+  caseCount: number,
+): void {
+  const fileTxt = root
+    .child('fileDscr', { ID: 'F1', URI: datasetFilename })
+    .child('fileTxt');
+  fileTxt.textChild('fileName', datasetFilename);
+  fileTxt.child('dimensns').textChild('caseQnty', String(caseCount));
+  fileTxt.textChild('fileType', 'Comma-separated values (CSV)');
+  fileTxt.textChild('format', 'text/csv');
+}
+
+/** Emit every `<varGrp>` element into `<dataDscr>` (must come before `<var>`). */
+function addVarGroups(
+  dataDscr: XmlElement,
+  dataVars: Variable[],
+  buckets: DataVarBuckets,
+  otherPatterns: Map<string, OtherPattern>,
+): void {
+  const { gridGroups, multiRespGroups } = buckets;
 
   for (const [groupName, members] of gridGroups) {
     const groupLabel = getGroupLabel(dataVars, groupName);
@@ -376,28 +388,36 @@ export function buildDdiCodebook(
   for (const p of otherPatterns.values()) {
     emitOtherPattern(dataDscr, p);
   }
+}
 
-  // --- var elements ---
+/** Emit every `<var>` element into `<dataDscr>` (XSD ordering: after `<varGrp>`). */
+function addVars(
+  dataDscr: XmlElement,
+  dataVars: Variable[],
+  notePreqtxt: Record<string, string>,
+  buckets: DataVarBuckets,
+  otherPatterns: Map<string, OtherPattern>,
+): void {
+  const { gridGroups, multiRespGroups, standaloneVars } = buckets;
 
   for (const [groupName, members] of gridGroups) {
     const groupLabel = getGroupLabel(dataVars, groupName);
     members.forEach((v, i) => {
-      const pre = i === 0 ? withNote(v.name, groupLabel) : groupLabel;
-      addVarElement(
-        dataDscr,
-        makeVarId(v.name),
-        v.name,
-        v.label,
-        v.type,
-        v.choices,
-        { preQTxt: pre },
-      );
+      const pre = i === 0 ? combineNote(notePreqtxt, v.name, groupLabel) : groupLabel;
+      addVarElement(dataDscr, {
+        varId: makeVarId(v.name),
+        name: v.name,
+        label: v.label,
+        varType: v.type,
+        choices: v.choices,
+        opts: { preQTxt: pre },
+      });
     });
   }
 
   for (const [smName, smVar] of multiRespGroups) {
     smVar.choices.forEach((choice, i) => {
-      const stem = i === 0 ? withNote(smName, smVar.label) : smVar.label;
+      const stem = i === 0 ? combineNote(notePreqtxt, smName, smVar.label) : smVar.label;
       addBinaryVar(
         dataDscr,
         makeVarId(`${smName}_${choice.name}`),
@@ -413,27 +433,61 @@ export function buildDdiCodebook(
   }
 
   for (const v of standaloneVars) {
-    addVarElement(
-      dataDscr,
-      makeVarId(v.name),
-      v.name,
-      v.label,
-      v.type,
-      v.choices,
-      {
+    addVarElement(dataDscr, {
+      varId: makeVarId(v.name),
+      name: v.name,
+      label: v.label,
+      varType: v.type,
+      choices: v.choices,
+      opts: {
         vocab: v.vocab,
-        preQTxt: withNote(v.name),
+        preQTxt: combineNote(notePreqtxt, v.name),
       },
-    );
+    });
   }
+}
 
-  // --- orphan notes (intro/outro/group-trailing) appended to stdyDscr ---
-  for (const note of classified.orphanNotes) {
-    if (!note.label) continue;
-    const attrs: Record<string, string> = { type: 'instruction' };
-    if (note.name) attrs.subject = note.name;
-    stdy.textChild('notes', note.label, attrs);
-  }
+/**
+ * Build the DDI-Codebook document tree from an already-extracted variable list.
+ * Exposed for callers that build a {@link Variable} list by other means.
+ */
+export function buildDdiCodebook(
+  variables: Variable[],
+  options: BuildDdiOptions = {},
+): XmlElement {
+  const {
+    assetName = '',
+    settings = {},
+    submissions = [],
+    datasetFilename = 'data.csv',
+    prodDate = new Date().toISOString().slice(0, 10),
+  } = options;
+
+  const classified = classifyNotes(variables);
+  const { dataVars, inlinePreqtxt, orphanNotes } = classified;
+
+  const title =
+    assetName.trim() || String(settings.form_title ?? '').trim() || 'Untitled';
+
+  const root = new XmlElement('codeBook');
+  root.setAttr('xmlns', NS);
+  root.setAttr('xmlns:xsi', XSI);
+  root.setAttr('xsi:schemaLocation', SCHEMA_LOC);
+  root.setAttr('version', '2.5');
+
+  addStudyDscr(root, settings, title, prodDate, orphanNotes);
+  addFileDscr(root, datasetFilename, submissions.length);
+
+  const dataDscr = root.child('dataDscr');
+  const buckets = splitDataVars(dataVars);
+  addVarGroups(dataDscr, dataVars, buckets, buckets.otherPatterns);
+  addVars(
+    dataDscr,
+    dataVars,
+    inlinePreqtxt,
+    buckets,
+    buckets.otherPatterns,
+  );
 
   return root;
 }

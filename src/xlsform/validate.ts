@@ -31,6 +31,16 @@ export interface SubsetViolation {
   message: string;
 }
 
+/** Inputs for {@link XLSValidator.validateAll}. */
+export interface ValidateAllOpts {
+  surveyData: SurveyRow[];
+  choicesData: ChoiceRow[];
+  hasSurveySheet: boolean;
+  hasChoicesSheet: boolean;
+  surveySheetName?: string;
+  choicesSheetName?: string;
+}
+
 // The semi-open `<base>_other` follow-up is a registry convention. LimeSurvey
 // carries "other" via its native `other=Y` setting, so this underscore is a
 // source-side marker, not a literal LS code — validate only the `<base>` part.
@@ -197,14 +207,38 @@ export class XLSValidator {
   }
 
   /**
-   * Validate all sheets in the parsed data
-   * @param surveyData Survey data
-   * @param choicesData Choices data
-   * @param hasSurveySheet Whether survey sheet was found
-   * @param hasChoicesSheet Whether choices sheet was found
-   * @param surveySheetName Name of the survey sheet
-   * @param choicesSheetName Name of the choices sheet
+   * Validate all sheets in the parsed data.
+   *
+   * @param opts - bundle of parsed sheets + sheet-presence flags. Sheet names
+   *   default to `'survey'` / `'choices'` when omitted.
    */
+  static validateAll(opts: ValidateAllOpts): void {
+    const {
+      surveyData,
+      choicesData,
+      hasSurveySheet,
+      hasChoicesSheet,
+      surveySheetName = 'survey',
+      choicesSheetName = 'choices',
+    } = opts;
+
+    // Validate required sheets
+    this.validateRequiredSheets(hasSurveySheet, hasChoicesSheet);
+
+    // Validate survey sheet columns
+    if (hasSurveySheet && surveyData.length > 0) {
+      this.validateSurveySheetColumns(surveyData, surveySheetName);
+    }
+
+    // Validate choices sheet columns
+    if (hasChoicesSheet && choicesData.length > 0) {
+      this.validateChoicesSheetColumns(choicesData, choicesSheetName);
+    }
+
+    // Reject names/codes LimeSurvey cannot represent (strict by default).
+    this.validateNamesAndCodes(surveyData, choicesData);
+  }
+
   /**
    * Validate that every field name and answer code already satisfies the
    * LimeSurvey naming rules (alphanumeric, length-bounded, unique). We reject
@@ -236,48 +270,63 @@ export class XLSValidator {
     const seen = new Set<string>();
 
     for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      if (NO_NAME_TYPES.has(type)) continue;
-      const name = (row.name || '').trim();
-      if (!name) continue;
-
-      // Exempt the `_other` suffix: validate the base and the LimeSurvey code
-      // it sanitizes to (base + "other"), not the raw underscore form.
-      const isOther = name.endsWith(OTHER_SUFFIX);
-      const base = isOther ? name.slice(0, -OTHER_SUFFIX.length) : name;
-      const lsLength = isOther ? base.length + 'other'.length : name.length;
-
-      if (!NAME_RE.test(base)) {
-        errors.push(
-          `field name "${name}" must match ${NAME_RULES.pattern} (letters/digits only — no underscores, hyphens or spaces)`,
-        );
-      } else if (lsLength > NAME_RULES.maxLength) {
-        errors.push(
-          `field name "${name}" exceeds the ${NAME_RULES.maxLength}-character limit`,
-        );
-      }
-
-      if (seen.has(name)) {
-        errors.push(`field name "${name}" is used more than once`);
-      }
-      seen.add(name);
+      this.collectSurveyNameError(row, seen, errors);
     }
-
     for (const choice of choicesData) {
-      const code = (choice.name ?? '').toString().trim();
-      if (!code) continue;
-      if (!CHOICE_RE.test(code)) {
-        errors.push(
-          `answer code "${code}" (list "${choice.list_name ?? ''}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
-        );
-      } else if (code.length > CHOICE_RULES.maxLength) {
-        errors.push(
-          `answer code "${code}" (list "${choice.list_name ?? ''}") exceeds the ${CHOICE_RULES.maxLength}-character limit`,
-        );
-      }
+      this.collectChoiceCodeError(choice, errors);
     }
 
     return errors;
+  }
+
+  private static collectSurveyNameError(
+    row: SurveyRow,
+    seen: Set<string>,
+    errors: string[],
+  ): void {
+    const type = (row.type || '').trim();
+    if (NO_NAME_TYPES.has(type)) return;
+    const name = (row.name || '').trim();
+    if (!name) return;
+
+    // Exempt the `_other` suffix: validate the base and the LimeSurvey code
+    // it sanitizes to (base + "other"), not the raw underscore form.
+    const isOther = name.endsWith(OTHER_SUFFIX);
+    const base = isOther ? name.slice(0, -OTHER_SUFFIX.length) : name;
+    const lsLength = isOther ? base.length + 'other'.length : name.length;
+
+    if (!NAME_RE.test(base)) {
+      errors.push(
+        `field name "${name}" must match ${NAME_RULES.pattern} (letters/digits only — no underscores, hyphens or spaces)`,
+      );
+    } else if (lsLength > NAME_RULES.maxLength) {
+      errors.push(
+        `field name "${name}" exceeds the ${NAME_RULES.maxLength}-character limit`,
+      );
+    }
+
+    if (seen.has(name)) {
+      errors.push(`field name "${name}" is used more than once`);
+    }
+    seen.add(name);
+  }
+
+  private static collectChoiceCodeError(
+    choice: ChoiceRow,
+    errors: string[],
+  ): void {
+    const code = (choice.name ?? '').toString().trim();
+    if (!code) return;
+    const listName = choice.list_name ?? '';
+    if (!CHOICE_RE.test(code)) {
+      errors.push(
+        `answer code "${code}" (list "${listName}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
+      );
+    } else if (code.length > CHOICE_RULES.maxLength) {
+      errors.push(
+        `answer code "${code}" (list "${listName}") exceeds the ${CHOICE_RULES.maxLength}-character limit`,
+      );
+    }
   }
 
   /**
@@ -357,30 +406,5 @@ export class XLSValidator {
         });
       }
     }
-  }
-
-  static validateAll(
-    surveyData: SurveyRow[],
-    choicesData: ChoiceRow[],
-    hasSurveySheet: boolean,
-    hasChoicesSheet: boolean,
-    surveySheetName: string = 'survey',
-    choicesSheetName: string = 'choices',
-  ): void {
-    // Validate required sheets
-    this.validateRequiredSheets(hasSurveySheet, hasChoicesSheet);
-
-    // Validate survey sheet columns
-    if (hasSurveySheet && surveyData.length > 0) {
-      this.validateSurveySheetColumns(surveyData, surveySheetName);
-    }
-
-    // Validate choices sheet columns
-    if (hasChoicesSheet && choicesData.length > 0) {
-      this.validateChoicesSheetColumns(choicesData, choicesSheetName);
-    }
-
-    // Reject names/codes LimeSurvey cannot represent (strict by default).
-    this.validateNamesAndCodes(surveyData, choicesData);
   }
 }

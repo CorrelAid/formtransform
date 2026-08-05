@@ -174,6 +174,120 @@ function resolveType(baseType: string, rawType: string): ResolvedType {
   return { stdType: TYPE_MAP[baseType] ?? baseType, listName: '', vocab: '' };
 }
 
+/** Per-survey-row state shared by the helpers {@link extractVariables} dispatches to. */
+interface ExtractState {
+  variables: Variable[];
+  groupStack: string[];
+  groupMeta: Record<string, { label: string; appearance: string }>;
+  /** Names authored in the sheet — guards against duplicating the `<base>_other`
+   * companion when the source form already carries an explicit one. */
+  authoredNames: Set<string>;
+  /** Language of `label::<lang>` for the `or_other` synthesised labels. */
+  lang: string;
+  /** Source column for `label`, since sheets may use plain `label` or `label::<lang>`. */
+  labelCol: string;
+  /** Sheet's resolved choices keyed by list_name. */
+  choicesByList: Record<string, Choice[]>;
+}
+
+/** Classify a survey row's `type` cell for the dispatch loop. */
+type RowKind = 'open' | 'close' | 'skip' | 'question';
+
+/** Mutating helpers used by {@link extractVariables}: keep {@link RowKind}
+ * checks out of the loop body, so the loop stays a flat sequence of branches. */
+
+function classifyRow(rawType: string, baseType: string): RowKind {
+  if (rawType === 'begin_group') return 'open';
+  if (rawType === 'end_group') return 'close';
+  if (SKIP_TYPES.has(baseType)) return 'skip';
+  return 'question';
+}
+
+function openGroup(row: Row, state: ExtractState): void {
+  const name = toStr(row['name']);
+  state.groupStack.push(name);
+  state.groupMeta[name] = {
+    label: readLabel(row, state.labelCol),
+    appearance: toStr(row['appearance']).toLowerCase(),
+  };
+}
+
+function closeGroup(state: ExtractState): void {
+  state.groupStack.pop();
+}
+
+/** Inner-most enclosing group's stored label/appearance (defaults if outside any group). */
+function currentGroupMeta(
+  state: ExtractState,
+): { label: string; appearance: string } {
+  const cur = state.groupStack[state.groupStack.length - 1] ?? '';
+  return state.groupMeta[cur] ?? { label: '', appearance: '' };
+}
+
+/** True when the `select_* <list> or_other` shorthand is present in `rawType`. */
+function isOrOther(stdType: string, rawType: string): boolean {
+  return (
+    OTHER_TYPES.has(stdType) &&
+    rawType.split(/\s+/).slice(1).includes(OR_OTHER_TOKEN)
+  );
+}
+
+/** Run the `_or_other` expansion for one row's choice list (in place copy). */
+function expandedChoices(
+  baseChoices: Choice[],
+  stdType: string,
+  rawType: string,
+  lang: string,
+): Choice[] {
+  if (!isOrOther(stdType, rawType)) return baseChoices;
+  if (baseChoices.some((c) => c.name === OTHER_CODE)) return baseChoices;
+  return [...baseChoices, { name: OTHER_CODE, label: otherLabelFor(lang) }];
+}
+
+/** Append the question variable + (when applicable) its `_other` companion. */
+function pushQuestionRow(
+  row: Row,
+  baseType: string,
+  rawType: string,
+  state: ExtractState,
+): void {
+  const name = toStr(row['name']);
+  if (!name) return;
+  const { stdType, listName, vocab } = resolveType(baseType, rawType);
+  const group = state.groupStack.join('/');
+  const gm = currentGroupMeta(state);
+
+  const baseChoices = listName ? state.choicesByList[listName] ?? [] : [];
+  const choices = expandedChoices(baseChoices, stdType, rawType, state.lang);
+
+  state.variables.push({
+    name,
+    type: stdType,
+    label: readLabel(row, state.labelCol),
+    group,
+    groupLabel: gm.label,
+    groupAppearance: gm.appearance,
+    listName,
+    vocab,
+    choices,
+  });
+
+  if (!isOrOther(stdType, rawType)) return;
+  const companionName = name + OTHER_SUFFIX;
+  if (state.authoredNames.has(companionName)) return;
+  state.variables.push({
+    name: companionName,
+    type: OTHER_COMPANION_TYPE,
+    label: otherLabelFor(state.lang),
+    group,
+    groupLabel: gm.label,
+    groupAppearance: gm.appearance,
+    listName: '',
+    vocab: '',
+    choices: [],
+  });
+}
+
 /**
  * Extract a flat list of {@link Variable} from parsed survey rows.
  *
@@ -185,86 +299,42 @@ export function extractVariables(
 ): Variable[] {
   const labelCol = findLabelCol(surveyRows);
   const lang = langFromLabelCol(labelCol);
-  // Names authored in the sheet: an explicitly written `<base>_other` companion
-  // must not be duplicated by the `or_other` expansion below.
   const authoredNames = new Set(
     surveyRows.map((r) => toStr(r['name'])).filter(Boolean),
   );
 
-  const variables: Variable[] = [];
-  const groupStack: string[] = [];
-  const groupMeta: Record<string, { label: string; appearance: string }> = {};
+  const state: ExtractState = {
+    variables: [],
+    groupStack: [],
+    groupMeta: {},
+    authoredNames,
+    lang,
+    labelCol,
+    choicesByList,
+  };
 
   for (const row of surveyRows) {
     const rawType = toStr(row['type']).trim();
     if (!rawType) continue;
-
     const baseType = rawType.split(/\s+/)[0];
+    const kind = classifyRow(rawType, baseType);
 
-    if (baseType === 'begin_group') {
-      const gname = toStr(row['name']);
-      groupStack.push(gname);
-      groupMeta[gname] = {
-        label: readLabel(row, labelCol),
-        appearance: toStr(row['appearance']).toLowerCase(),
-      };
+    if (kind === 'open') {
+      openGroup(row, state);
+    } else if (kind === 'close') {
+      closeGroup(state);
+    } else if (kind === 'skip') {
       continue;
-    }
-    if (baseType === 'end_group') {
-      groupStack.pop();
+    } else if (
+      NO_DATA_APPEARANCES.has(
+        toStr(row['appearance']).trim().toLowerCase(),
+      )
+    ) {
       continue;
-    }
-    if (SKIP_TYPES.has(baseType)) continue;
-    if (NO_DATA_APPEARANCES.has(toStr(row['appearance']).trim().toLowerCase()))
-      continue;
-
-    const name = toStr(row['name']);
-    if (!name) continue;
-
-    const { stdType, listName, vocab } = resolveType(baseType, rawType);
-    const curGroup = groupStack[groupStack.length - 1] ?? '';
-    const gm = groupMeta[curGroup] ?? { label: '', appearance: '' };
-
-    const group = groupStack.join('/');
-    let choices = listName ? (choicesByList[listName] ?? []) : [];
-
-    // `select_* <list> or_other` shorthand → the explicit pair the emitter
-    // understands: an `other` category on the base list plus a `<base>_other`
-    // free-text companion.
-    const orOther =
-      OTHER_TYPES.has(stdType) &&
-      rawType.split(/\s+/).slice(1).includes(OR_OTHER_TOKEN);
-    if (orOther && !choices.some((c) => c.name === OTHER_CODE)) {
-      choices = [...choices, { name: OTHER_CODE, label: otherLabelFor(lang) }];
-    }
-
-    variables.push({
-      name,
-      type: stdType,
-      label: readLabel(row, labelCol),
-      group,
-      groupLabel: gm.label,
-      groupAppearance: gm.appearance,
-      listName,
-      vocab,
-      choices,
-    });
-
-    const companionName = name + OTHER_SUFFIX;
-    if (orOther && !authoredNames.has(companionName)) {
-      variables.push({
-        name: companionName,
-        type: OTHER_COMPANION_TYPE,
-        label: otherLabelFor(lang),
-        group,
-        groupLabel: gm.label,
-        groupAppearance: gm.appearance,
-        listName: '',
-        vocab: '',
-        choices: [],
-      });
+    } else {
+      pushQuestionRow(row, baseType, rawType, state);
     }
   }
 
-  return variables;
+  return state.variables;
 }

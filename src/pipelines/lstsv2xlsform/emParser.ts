@@ -39,68 +39,73 @@ function tokenize(src: string): Token[] {
   const tokens: Token[] = [];
   let i = 0;
   while (i < src.length) {
-    const c = src[i];
-    if (/\s/.test(c)) {
-      i++;
-      continue;
-    }
-    if (c === '(') {
-      tokens.push({ type: 'lparen', value: c });
-      i++;
-      continue;
-    }
-    if (c === ')') {
-      tokens.push({ type: 'rparen', value: c });
-      i++;
-      continue;
-    }
-    if (c === ',') {
-      tokens.push({ type: 'comma', value: c });
-      i++;
-      continue;
-    }
-    if (c === "'" || c === '"') {
-      const quote = c;
-      let j = i + 1;
-      let value = '';
-      while (j < src.length && src[j] !== quote) {
-        value += src[j];
-        j++;
-      }
-      if (j >= src.length)
-        throw new Error(`unterminated string literal in: ${src}`);
-      tokens.push({ type: 'str', value });
-      i = j + 1;
-      continue;
-    }
-    if (/[0-9]/.test(c)) {
-      let j = i;
-      while (j < src.length && /[0-9.]/.test(src[j])) j++;
-      tokens.push({ type: 'num', value: src.slice(i, j) });
-      i = j;
-      continue;
-    }
-    if (/[A-Za-z_]/.test(c)) {
-      let j = i;
-      while (j < src.length && /[A-Za-z0-9_.]/.test(src[j])) j++;
-      tokens.push({ type: 'ident', value: src.slice(i, j) });
-      i = j;
-      continue;
-    }
-    const two = src.slice(i, i + 2);
-    if (MULTI_CHAR_OPS.includes(two)) {
-      tokens.push({ type: 'op', value: two });
-      i += 2;
-      continue;
-    }
-    if (SINGLE_CHAR_OPS.includes(c)) {
-      tokens.push({ type: 'op', value: c });
-      i++;
-      continue;
-    }
-    throw new Error(`unsupported character "${c}" in expression: ${src}`);
+    const { token, next } = scanAt(src, i);
+    if (token) tokens.push(token);
+    i = next;
   }
   return tokens;
+}
+
+/** Identify what kind of token starts at `i` and return it (or `null` for trivia). */
+function scanAt(src: string, i: number): { token: Token | null; next: number } {
+  const c = src[i];
+  if (/\s/.test(c)) return { token: null, next: i + 1 };
+  if (c === '(') return { token: { type: 'lparen', value: c }, next: i + 1 };
+  if (c === ')') return { token: { type: 'rparen', value: c }, next: i + 1 };
+  if (c === ',') return { token: { type: 'comma', value: c }, next: i + 1 };
+  if (c === "'" || c === '"') return scanString(src, i, c);
+  if (/[0-9]/.test(c)) return scanNumber(src, i);
+  if (/[A-Za-z_]/.test(c)) return scanIdent(src, i);
+  return scanOperator(src, i);
+}
+
+/** Quoted string literal starting at `i` with the given `quote` char. */
+function scanString(
+  src: string,
+  i: number,
+  quote: string,
+): { token: Token; next: number } {
+  let j = i + 1;
+  while (j < src.length && src[j] !== quote) j++;
+  if (j >= src.length) {
+    throw new Error(`unterminated string literal in: ${src}`);
+  }
+  return { token: { type: 'str', value: src.slice(i + 1, j) }, next: j + 1 };
+}
+
+/** Numeric literal (digits + at most one dot) starting at `i`. */
+function scanNumber(
+  src: string,
+  i: number,
+): { token: Token; next: number } {
+  let j = i;
+  while (j < src.length && /[0-9.]/.test(src[j])) j++;
+  return { token: { type: 'num', value: src.slice(i, j) }, next: j };
+}
+
+/** Identifier (`[A-Za-z_][A-Za-z0-9_.]*`) — possibly `.NAOK` suffixed. */
+function scanIdent(
+  src: string,
+  i: number,
+): { token: Token; next: number } {
+  let j = i;
+  while (j < src.length && /[A-Za-z0-9_.]/.test(src[j])) j++;
+  return { token: { type: 'ident', value: src.slice(i, j) }, next: j };
+}
+
+/** Two-char operator if present, else single-char. Unknowns throw. */
+function scanOperator(
+  src: string,
+  i: number,
+): { token: Token; next: number } {
+  const two = src.slice(i, i + 2);
+  if (MULTI_CHAR_OPS.includes(two)) {
+    return { token: { type: 'op', value: two }, next: i + 2 };
+  }
+  if (SINGLE_CHAR_OPS.includes(src[i])) {
+    return { token: { type: 'op', value: src[i] }, next: i + 1 };
+  }
+  throw new Error(`unsupported character "${src[i]}" in expression: ${src}`);
 }
 
 // ── AST ───────────────────────────────────────────────────────────────────

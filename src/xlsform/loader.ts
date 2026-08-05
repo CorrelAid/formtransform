@@ -148,12 +148,12 @@ export class XLSLoader {
 
     // Validate by default, unless explicitly skipped
     if (!options.skipValidation) {
-      XLSValidator.validateAll(
+      XLSValidator.validateAll({
         surveyData,
         choicesData,
         hasSurveySheet,
         hasChoicesSheet,
-      );
+      });
     }
 
     return {

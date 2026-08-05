@@ -449,36 +449,22 @@ export class XLSFormToTSVConverter {
     const isCalculate = xfTypeInfo.base === 'calculate';
     const isNoteOrCalc = isNote || isCalculate;
 
-    const calculationExpr =
-      isCalculate && row.calculation
-        ? await this.transpilerHelper.convertCalculation(row.calculation)
-        : '';
+    const calculationExpr = await this.computeCalculation(row, isCalculate);
     const relevance = await this.transpilerHelper.convertRelevance(
       row.relevant,
     );
     const emValidation = isNoteOrCalc
       ? ''
       : await this.transpilerHelper.convertConstraint(row.constraint || '');
-    const mandatory = isNoteOrCalc
-      ? ''
-      : row.required === 'yes' || row.required === 'true'
-        ? 'Y'
-        : '';
-    const otherPattern = this.configManager.getConfig().convertOtherPattern
-      ? this.otherPatternDetector.hasOtherQuestionPattern(
-          row,
-          this.surveyDataCache,
-          (type) => this.typeMapper.parseType(type),
-          (name) => this.fieldNameHandler.sanitizeName(name),
-        )
-      : false;
-    const other = isNoteOrCalc ? '' : lsType.other || otherPattern ? 'Y' : '';
+    const mandatory = isNoteOrCalc ? '' : this.mandatoryValue(row);
+    const other = this.computeOtherFlag(row, lsType, isNoteOrCalc);
     const defaultVal = isNoteOrCalc ? '' : row.default || '';
     // Suppress LimeSurvey's stock per-question tips ("Only numbers may be
     // entered", "Select all that apply", …) on real questions. Notes (type X)
     // carry no tip, so leave them alone.
-    const hideTip =
-      !isNoteOrCalc && this.configManager.getConfig().hideQuestionTips !== false
+    const hideTip = isNoteOrCalc
+      ? ''
+      : this.configManager.getConfig().hideQuestionTips !== false
         ? '1'
         : '';
 
@@ -494,6 +480,39 @@ export class XLSFormToTSVConverter {
       isNote,
       isCalculate,
     };
+  }
+
+  /** Transpile `row.calculation` to EM, only meaningful for `calculate` questions. */
+  private async computeCalculation(
+    row: SurveyRow,
+    isCalculate: boolean,
+  ): Promise<string> {
+    if (!isCalculate || !row.calculation) return '';
+    return this.transpilerHelper.convertCalculation(row.calculation);
+  }
+
+  /** Map the XLSForm `required` cell to LimeSurvey's `Y` (true) or empty. */
+  private mandatoryValue(row: SurveyRow): string {
+    return row.required === 'yes' || row.required === 'true' ? 'Y' : '';
+  }
+
+  /** `other=Y` if either the type is a select that natively carries `other`
+   * (registry-driven) or the `_other` companion-question pattern is present. */
+  private computeOtherFlag(
+    row: SurveyRow,
+    lsType: { other?: boolean },
+    isNoteOrCalc: boolean,
+  ): string {
+    if (isNoteOrCalc) return '';
+    const detected = this.configManager.getConfig().convertOtherPattern
+      ? this.otherPatternDetector.hasOtherQuestionPattern(
+          row,
+          this.surveyDataCache,
+          (type) => this.typeMapper.parseType(type),
+          (name) => this.fieldNameHandler.sanitizeName(name),
+        )
+      : false;
+    return lsType.other || detected ? 'Y' : '';
   }
 
   /**

@@ -371,6 +371,124 @@ export interface XlsformOutput {
   settings: SettingsRow[];
 }
 
+/** Pre-scan: walk every bucket's base-language rows to enumerate the `select_multiple`
+ * questions in the document (so the `selected()` reconstruction context can be built
+ * globally — relevance can reference any question, not just the current group). */
+function collectSelectMultiples(
+  buckets: GroupBucket[],
+  baseLanguage: string,
+  languages: string[],
+): Array<{ name: string; codes: string[] }> {
+  const out: Array<{ name: string; codes: string[] }> = [];
+  for (const bucket of buckets) {
+    const baseRows = bucket.rows.filter((r) => cell(r, 'language') === baseLanguage);
+    const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
+    for (const item of items) {
+      if (
+        item.kind === 'plain' &&
+        item.lsType === 'M' &&
+        !vocabFromCssClass(item.cssclass)
+      ) {
+        out.push({
+          name: item.name,
+          codes: choicesByName.get(item.name) ?? [],
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/** Shared inputs for {@link emitBucketOpen}. */
+interface BucketOpenCtx {
+  bucket: GroupBucket;
+  buckets: GroupBucket[];
+  baseLanguage: string;
+  baseRows: Row[];
+  languages: string[];
+  label: (key: string) => LabelValue;
+}
+
+/** Compute the begin-group row for one bucket. Returns `{ row, isSyntheticDefault }`:
+ * when the bucket is the auto-injected single-default group, we elide the wrapper. */
+function emitBucketOpen(ctx: BucketOpenCtx): {
+  row: SurveyRow | null;
+  isSyntheticDefault: boolean;
+} {
+  const { bucket, buckets, baseLanguage, baseRows, languages, label } = ctx;
+  const groupLabel = label(`G:${bucket.seqKey}`);
+  const groupLabelText =
+    typeof groupLabel === 'string'
+      ? groupLabel
+      : (groupLabel[baseLanguage] ?? '');
+  const { items } = readLogicalQuestions(baseRows, languages);
+  const hasArray = items.some((i) => i.kind === 'array');
+  const isSyntheticDefault =
+    buckets.length === 1 &&
+    groupLabelText === defaultConfig.defaults.groupName &&
+    !hasArray;
+  if (isSyntheticDefault) return { row: null, isSyntheticDefault: true };
+
+  const arrayItem = items.find((i): i is ArrayQuestion => i.kind === 'array');
+  let groupName: string;
+  let groupAppearance: string | undefined;
+  if (items.length === 1 && arrayItem) {
+    groupName = arrayItem.name;
+    groupAppearance = 'table-list';
+  } else {
+    groupName = slugifyGroupName(groupLabelText);
+  }
+  const row: SurveyRow = {
+    type: 'begin_group',
+    name: groupName,
+    label: htmlLabel(groupLabel),
+  };
+  if (groupAppearance) row.appearance = groupAppearance;
+  return { row, isSyntheticDefault: false };
+}
+
+/** Emit a bucket's rows + its (optional) begin/end_group wrappers into `ctx.survey`/`ctx.choices`. */
+function emitBucket(
+  bucket: GroupBucket,
+  buckets: GroupBucket[],
+  baseLanguage: string,
+  languages: string[],
+  ctx: EmitCtx,
+): void {
+  const baseRows = bucket.rows.filter(
+    (r) => cell(r, 'language') === baseLanguage,
+  );
+  const { row: openRow, isSyntheticDefault } = emitBucketOpen({
+    bucket,
+    buckets,
+    baseLanguage,
+    baseRows,
+    languages,
+    label: ctx.label,
+  });
+  const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
+  if (openRow) ctx.survey.push(openRow);
+  emitQuestions(items, choicesByName, ctx);
+  if (!isSyntheticDefault) ctx.survey.push({ type: 'end_group' });
+}
+
+/** Render the settings sheet — non-default values only. */
+function buildSettingsRow(settings: SurveySettings): SettingsRow[] {
+  const row: SettingsRow = {};
+  if (settings.baseLanguage !== defaultConfig.defaults.language) {
+    row.default_language = formatDefaultLanguage(settings.baseLanguage);
+  }
+  const formTitleBase =
+    typeof settings.formTitle === 'string'
+      ? settings.formTitle
+      : settings.formTitle[settings.baseLanguage];
+  if (formTitleBase && formTitleBase !== defaultConfig.defaults.surveyTitle) {
+    row.form_title = formTitleBase;
+  }
+  if (settings.style) row.style = settings.style;
+  return Object.keys(row).length > 0 ? [row] : [];
+}
+
 /**
  * Reconstruct XLSForm survey/choices/settings rows from parsed LimeSurvey
  * structure-TSV rows. See the module docstring for scope and known lossy
@@ -387,34 +505,21 @@ export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
     collapseLabel(helpByKey.get(key), languages, baseLanguage);
 
   const buckets = splitIntoGroups(rows);
-
-  // Pre-scan: relevance can reference any question in the document, not just
-  // ones in its own group, so the selected()-reconstruction context (which
-  // select_multiple questions exist, and their choice codes) must be built
-  // globally before emission.
-  const selectMultipleForCtx: Array<{ name: string; codes: string[] }> = [];
-  for (const bucket of buckets) {
-    const baseRows = bucket.rows.filter(
-      (r) => cell(r, 'language') === baseLanguage,
-    );
-    const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
-    for (const item of items) {
-      if (
-        item.kind === 'plain' &&
-        item.lsType === 'M' &&
-        !vocabFromCssClass(item.cssclass)
-      ) {
-        selectMultipleForCtx.push({
-          name: item.name,
-          codes: choicesByName.get(item.name) ?? [],
-        });
-      }
-    }
-  }
-  const selectCtx = buildSelectContext(selectMultipleForCtx);
+  const selectCtx = buildSelectContext(
+    collectSelectMultiples(buckets, baseLanguage, languages),
+  );
 
   const survey: SurveyRow[] = [];
   const choices: ChoiceRow[] = [];
+  const ctx: EmitCtx = {
+    label,
+    help,
+    languages,
+    baseLanguage,
+    survey,
+    choices,
+    selectCtx,
+  };
 
   if (settings.welcomeLabel) {
     survey.push({
@@ -425,57 +530,7 @@ export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
   }
 
   for (const bucket of buckets) {
-    const baseRows = bucket.rows.filter(
-      (r) => cell(r, 'language') === baseLanguage,
-    );
-    const groupLabel = label(`G:${bucket.seqKey}`);
-    const groupLabelText =
-      typeof groupLabel === 'string'
-        ? groupLabel
-        : (groupLabel[baseLanguage] ?? '');
-
-    const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
-    const hasArray = items.some((i) => i.kind === 'array');
-
-    const isSyntheticDefault =
-      buckets.length === 1 &&
-      groupLabelText === defaultConfig.defaults.groupName &&
-      !hasArray;
-
-    if (!isSyntheticDefault) {
-      const arrayItem = items.find(
-        (i): i is ArrayQuestion => i.kind === 'array',
-      );
-      let groupName: string;
-      let groupAppearance: string | undefined;
-      if (items.length === 1 && arrayItem) {
-        groupName = arrayItem.name;
-        groupAppearance = 'table-list';
-      } else {
-        groupName = slugifyGroupName(groupLabelText);
-      }
-      const groupRow: SurveyRow = {
-        type: 'begin_group',
-        name: groupName,
-        label: htmlLabel(groupLabel),
-      };
-      if (groupAppearance) groupRow.appearance = groupAppearance;
-      survey.push(groupRow);
-    }
-
-    emitQuestions(items, choicesByName, {
-      label,
-      help,
-      languages,
-      baseLanguage,
-      survey,
-      choices,
-      selectCtx,
-    });
-
-    if (!isSyntheticDefault) {
-      survey.push({ type: 'end_group' });
-    }
+    emitBucket(bucket, buckets, baseLanguage, languages, ctx);
   }
 
   if (settings.endLabel) {
@@ -486,23 +541,10 @@ export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
     });
   }
 
-  const settingsRow: SettingsRow = {};
-  if (settings.baseLanguage !== defaultConfig.defaults.language) {
-    settingsRow.default_language = formatDefaultLanguage(settings.baseLanguage);
-  }
-  const formTitleBase =
-    typeof settings.formTitle === 'string'
-      ? settings.formTitle
-      : settings.formTitle[settings.baseLanguage];
-  if (formTitleBase && formTitleBase !== defaultConfig.defaults.surveyTitle) {
-    settingsRow.form_title = formTitleBase;
-  }
-  if (settings.style) settingsRow.style = settings.style;
-
   return {
     survey,
     choices,
-    settings: Object.keys(settingsRow).length > 0 ? [settingsRow] : [],
+    settings: buildSettingsRow(settings),
   };
 }
 
@@ -516,6 +558,86 @@ interface EmitCtx {
   selectCtx: SelectContext;
 }
 
+/** Set of question names whose base select natively carries `other=Y` (so the
+ * `other` choice must be re-attached on the XLSForm side too). */
+function collectOtherBaseNames(items: LogicalQuestion[]): Set<string> {
+  return new Set(
+    items
+      .filter((i): i is PlainQuestion => i.kind === 'plain' && i.otherFlag)
+      .map((i) => i.name),
+  );
+}
+
+/** `select_*` (plain or `_from_file`) get their type string with the list or
+ * vocab attached; non-selects pass through unchanged. */
+function composeTypeWithList(
+  base: string,
+  item: PlainQuestion,
+  otherBaseNames: Set<string>,
+  choicesByName: Map<string, string[]>,
+  ctx: EmitCtx,
+): { type: string; emittedChoices: boolean } {
+  const vocab = vocabFromCssClass(item.cssclass);
+  if (vocab) {
+    const fromFile =
+      base === 'select_one' ? 'select_one_from_file' : 'select_multiple_from_file';
+    return { type: `${fromFile} ${vocab}.csv`, emittedChoices: false };
+  }
+  if (base === 'select_one' || base === 'select_multiple') {
+    const listName = item.name;
+    emitChoiceList(listName, choicesByName.get(item.name) ?? [], ctx);
+    if (otherBaseNames.has(item.name)) {
+      ctx.choices.push({
+        list_name: listName,
+        name: OTHER_CODE,
+        label: perLanguageOtherLabel(ctx.languages),
+      });
+    }
+    return { type: `${base} ${listName}`, emittedChoices: true };
+  }
+  return { type: base, emittedChoices: false };
+}
+
+/** True when this Q is the `<base>_other` free-text companion of a sibling select. */
+function isOtherCompanionRow(
+  resolvedBase: string,
+  name: string,
+  otherBaseNames: Set<string>,
+): boolean {
+  return (
+    resolvedBase === CANONICAL_TEXT_TYPE &&
+    name.endsWith(OTHER_CODE) &&
+    otherBaseNames.has(name.slice(0, -OTHER_CODE.length))
+  );
+}
+
+/** Resolve the per-row SurveyRow cell values from the precomputed item + ctx. */
+function buildPlainQuestionRow(
+  item: PlainQuestion,
+  type: string,
+  isOtherCompanion: boolean,
+  resolved: ResolvedType,
+  ctx: EmitCtx,
+): SurveyRow {
+  const row: SurveyRow = {
+    type,
+    name: isOtherCompanion
+      ? item.name.slice(0, -OTHER_CODE.length) + OTHER_SUFFIX
+      : item.name,
+    label: htmlLabel(ctx.label(`Q:${item.name}`)),
+  };
+  const helpVal = ctx.help(`Q:${item.name}`);
+  if (helpVal) row.hint = htmlLabel(helpVal);
+  if (item.mandatory === 'Y') row.required = 'yes';
+  if (item.defaultVal) row.default = item.defaultVal;
+  if (resolved.appearance) row.appearance = resolved.appearance;
+  const relevant = reverseRelevance(item.relevance, ctx.selectCtx);
+  if (relevant) row.relevant = relevant;
+  const constraint = reverseConstraint(item.emValidationQ);
+  if (constraint) row.constraint = constraint;
+  return row;
+}
+
 /** Emit survey/choice rows for one group's logical questions, in order,
  * reconstructing the `other` pattern across the base select + its companion. */
 function emitQuestions(
@@ -523,64 +645,29 @@ function emitQuestions(
   choicesByName: Map<string, string[]>,
   ctx: EmitCtx,
 ): void {
-  const otherBaseNames = new Set(
-    items
-      .filter((i): i is PlainQuestion => i.kind === 'plain' && i.otherFlag)
-      .map((i) => i.name),
-  );
+  const otherBaseNames = collectOtherBaseNames(items);
 
   for (const item of items) {
     if (item.kind === 'array') {
       emitArrayQuestion(item, choicesByName, ctx);
       continue;
     }
-
     const resolved = resolveType(item.lsType, item.dateFormat);
-    let type = resolved.base;
-
-    const vocab = vocabFromCssClass(item.cssclass);
-    if (vocab) {
-      type =
-        type === 'select_one'
-          ? 'select_one_from_file'
-          : 'select_multiple_from_file';
-      type = `${type} ${vocab}.csv`;
-    } else if (type === 'select_one' || type === 'select_multiple') {
-      const listName = item.name;
-      type = `${type} ${listName}`;
-      emitChoiceList(listName, choicesByName.get(item.name) ?? [], ctx);
-      if (otherBaseNames.has(item.name)) {
-        ctx.choices.push({
-          list_name: listName,
-          name: OTHER_CODE,
-          label: perLanguageOtherLabel(ctx.languages),
-        });
-      }
-    }
-
-    const isOtherCompanion =
-      resolved.base === CANONICAL_TEXT_TYPE &&
-      item.name.endsWith(OTHER_CODE) &&
-      otherBaseNames.has(item.name.slice(0, -OTHER_CODE.length));
-
-    const row: SurveyRow = {
-      type,
-      name: isOtherCompanion
-        ? item.name.slice(0, -OTHER_CODE.length) + OTHER_SUFFIX
-        : item.name,
-      label: htmlLabel(ctx.label(`Q:${item.name}`)),
-    };
-    const helpVal = ctx.help(`Q:${item.name}`);
-    if (helpVal) row.hint = htmlLabel(helpVal);
-    if (item.mandatory === 'Y') row.required = 'yes';
-    if (item.defaultVal) row.default = item.defaultVal;
-    if (resolved.appearance) row.appearance = resolved.appearance;
-    const relevant = reverseRelevance(item.relevance, ctx.selectCtx);
-    if (relevant) row.relevant = relevant;
-    const constraint = reverseConstraint(item.emValidationQ);
-    if (constraint) row.constraint = constraint;
-
-    ctx.survey.push(row);
+    const { type } = composeTypeWithList(
+      resolved.base,
+      item,
+      otherBaseNames,
+      choicesByName,
+      ctx,
+    );
+    const isOtherCompanion = isOtherCompanionRow(
+      resolved.base,
+      item.name,
+      otherBaseNames,
+    );
+    ctx.survey.push(
+      buildPlainQuestionRow(item, type, isOtherCompanion, resolved, ctx),
+    );
   }
 }
 
