@@ -27,6 +27,13 @@ import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
 import { GroupEmitter, GroupCounters } from './groupEmitter.js';
+import {
+  MatrixHandler,
+  MatrixCounters,
+  MatrixHelpers,
+} from './matrixHandler.js';
+import { Counters } from './counters.js';
+import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -48,16 +55,10 @@ export class XLSFormToTSVConverter {
   private rowEmitter: RowEmitter;
   private otherPatternDetector: OtherPatternDetector;
   private groupEmitter: GroupEmitter;
+  private matrixHandler: MatrixHandler;
+  private answerEmitter: AnswerEmitter;
+  private counters: Counters;
   private fileChoices: Record<string, ChoiceRow[]> = {};
-  private groupSeq: number;
-  private questionSeq: number;
-  private answerSeq: number;
-  private subquestionSeq: number;
-  private inMatrix: boolean;
-  private matrixListName: string | null;
-  // True while inside a `table-list` group emitted as a LimeSurvey array (F):
-  // its select_one children become subquestions of one array question.
-  private inTableListMatrix: boolean;
   private surveySettingsEmitter: SurveySettingsEmitter;
   private surveyDataCache: SurveyRow[] = [];
 
@@ -83,28 +84,46 @@ export class XLSFormToTSVConverter {
       this.rowEmitter,
       this.languageHandler,
     );
-    this.groupSeq = 0;
-    this.questionSeq = 0;
-    this.answerSeq = 0;
-    this.subquestionSeq = 0;
-    const counters: GroupCounters = {
-      getGroupSeq: () => this.groupSeq,
-      bumpGroupSeq: () => ++this.groupSeq,
-      getQuestionSeq: () => this.questionSeq,
-      bumpQuestionSeq: () => ++this.questionSeq,
-    };
+    this.counters = new Counters();
     this.groupEmitter = new GroupEmitter(
       this.configManager,
       this.rowEmitter,
       this.languageHandler,
-      counters,
+      this.counters,
     );
-    this.inMatrix = false;
-    this.matrixListName = null;
-    this.inTableListMatrix = false;
+    this.matrixHandler = new MatrixHandler(
+      this.configManager,
+      this.rowEmitter,
+      this.languageHandler,
+      this.choiceManager,
+      this.counters,
+    );
+    this.answerEmitter = new AnswerEmitter(
+      this.rowEmitter,
+      this.languageHandler,
+      this.choiceManager,
+      this.groupEmitter,
+      this.counters,
+    );
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
+
+  /** Helpers passed to the matrix handler so it can call back into the converter. */
+  private matrixHelpers(): MatrixHelpers {
+    return {
+      sanitizeName: (name) => this.sanitizeName(name),
+      sanitizeAnswerCode: (code) => this.sanitizeAnswerCode(code),
+      convertRelevance: (relevant) => this.convertRelevance(relevant),
+    };
+  }
+
+  /** Helpers passed to the answer emitter. */
+  private answerHelpers(): AnswerHelpers {
+    return {
+      sanitizeAnswerCode: (code) => this.sanitizeAnswerCode(code),
+    };
+  }
 
   // ── Public API ───────────────────────────────────────────────────────
 
@@ -137,16 +156,11 @@ export class XLSFormToTSVConverter {
     this.fileChoices = fileChoices;
     this.choiceManager.clear();
     this.tsvGenerator.clear();
-    this.groupSeq = 0;
-    this.questionSeq = 0;
-    this.answerSeq = 0;
-    this.subquestionSeq = 0;
-    this.inMatrix = false;
-    this.matrixListName = null;
-    this.inTableListMatrix = false;
+    this.counters.clear();
     this.rowEmitter.clear();
     this.surveySettingsEmitter.clear();
     this.groupEmitter.clear();
+    this.matrixHandler.clear();
 
     // Pre-scan for welcome/end notes (must happen before group identification)
     this.surveySettingsEmitter.captureNotes(surveyData);
@@ -208,7 +222,7 @@ export class XLSFormToTSVConverter {
     }
 
     // Flush any pending matrix at the end
-    this.flushMatrix();
+    this.matrixHandler.flushMatrix(this.matrixHelpers());
 
     // Flush remaining buffered group content
     this.rowEmitter.flushGroupContent();
@@ -309,11 +323,11 @@ export class XLSFormToTSVConverter {
     }
 
     if (xfType === 'begin_group' || xfType === 'begin group') {
-      this.flushMatrix();
+      this.matrixHandler.flushMatrix(this.matrixHelpers());
       const originalName = (row.name || '').trim();
       const sanitizedName = originalName
         ? this.sanitizeName(originalName)
-        : `G${this.groupSeq}`;
+        : `G${this.counters.getGroupSeq()}`;
 
       // A `table-list` group is a grid: emit it as one LimeSurvey array (F)
       // whose select_one children become subquestions, instead of a plain
@@ -337,7 +351,11 @@ export class XLSFormToTSVConverter {
           (name) => this.sanitizeName(name),
           (relevant) => this.convertRelevance(relevant),
         );
-        await this.addTableListHeader(row, sanitizedName);
+        await this.matrixHandler.addTableListHeader(
+          row,
+          sanitizedName,
+          this.matrixHelpers(),
+        );
         return;
       }
 
@@ -374,7 +392,7 @@ export class XLSFormToTSVConverter {
       return;
     }
     if (xfType === 'end_group' || xfType === 'end group') {
-      this.flushMatrix();
+      this.matrixHandler.flushMatrix(this.matrixHelpers());
       this.groupEmitter.popStack();
       this.groupEmitter.restoreCurrentGroupFromStack();
       return;
@@ -413,9 +431,13 @@ export class XLSFormToTSVConverter {
     // Inside a `table-list` group: each select_one child is a subquestion of
     // the enclosing array. Capture the shared list from the first child so
     // flushMatrix can emit its answer scale.
-    if (this.inTableListMatrix && xfTypeInfo.base === 'select_one') {
-      if (!this.matrixListName) this.matrixListName = xfTypeInfo.listName;
-      await this.addMatrixSubquestion(row);
+    if (
+      this.matrixHandler.isInTableListMatrix() &&
+      xfTypeInfo.base === 'select_one'
+    ) {
+      if (!this.matrixHandler.getMatrixListName())
+        this.matrixHandler.setMatrixListName(xfTypeInfo.listName);
+      await this.matrixHandler.addMatrixSubquestion(row, this.matrixHelpers());
       return;
     }
 
@@ -425,23 +447,27 @@ export class XLSFormToTSVConverter {
       xfTypeInfo.base === 'select_one' &&
       xfTypeInfo.listName
     ) {
-      this.flushMatrix();
-      await this.addMatrixHeader(row, xfTypeInfo);
+      this.matrixHandler.flushMatrix(this.matrixHelpers());
+      await this.matrixHandler.addMatrixHeader(
+        row,
+        xfTypeInfo,
+        this.matrixHelpers(),
+      );
       return;
     }
 
     // Matrix subquestion: select_one with appearance "list-nolabel" while in matrix mode
     if (
       appearance === 'list-nolabel' &&
-      this.inMatrix &&
+      this.matrixHandler.isInMatrix() &&
       xfTypeInfo.base === 'select_one'
     ) {
-      await this.addMatrixSubquestion(row);
+      await this.matrixHandler.addMatrixSubquestion(row, this.matrixHelpers());
       return;
     }
 
     // Non-matrix question: flush any pending matrix first
-    this.flushMatrix();
+    this.matrixHandler.flushMatrix(this.matrixHelpers());
 
     // Warn on unsupported appearances: not in the registry allowlist, or
     // registered but not valid for this question type.
@@ -462,9 +488,9 @@ export class XLSFormToTSVConverter {
     const questionName =
       row.name && row.name.trim() !== ''
         ? this.sanitizeName(row.name.trim())
-        : `Q${this.questionSeq}`;
+        : `Q${this.counters.getQuestionSeq()}`;
 
-    this.questionSeq++;
+    this.counters.bumpQuestionSeq();
 
     const lsType = this.mapType(xfTypeInfo);
 
@@ -557,185 +583,12 @@ export class XLSFormToTSVConverter {
     });
 
     // Reset answer sequence for this question
-    this.answerSeq = 0;
-    this.subquestionSeq = 0;
+    this.counters.setSubquestionSeq(0);
+    this.counters.setAnswerSeq(0);
 
     // Add answers/subquestions for select types (notes don't have answers)
     if (!isNote && xfTypeInfo.listName) {
-      this.addAnswers(xfTypeInfo, lsType);
-    }
-  }
-
-  // ── Matrix questions ─────────────────────────────────────────────────
-
-  /**
-   * Open a LimeSurvey array (F) for a `table-list` group. The array title is
-   * the group label; its select_one children are added as subquestions and the
-   * shared answer scale is emitted by flushMatrix (on end_group). No G row is
-   * emitted — the group *is* the array.
-   */
-  private async addTableListHeader(
-    row: SurveyRow,
-    questionName: string,
-  ): Promise<void> {
-    this.groupSeq++;
-    this.inMatrix = true;
-    this.inTableListMatrix = true;
-    this.matrixListName = null;
-    this.subquestionSeq = 0;
-
-    const relevance = await this.convertRelevance(row.relevant);
-    const mandatory =
-      row.required === 'yes' || row.required === 'true' ? 'Y' : '';
-
-    const hideTip =
-      this.configManager.getConfig().hideQuestionTips !== false ? '1' : '';
-    this.rowEmitter.emitForEachLanguage((lang) => ({
-      class: 'Q',
-      'type/scale': 'F',
-      name: questionName,
-      relevance,
-      mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, questionName),
-      help: this.languageHandler.renderLabel(row.hint, lang),
-      ...(hideTip ? { hide_tip: hideTip } : {}),
-    }));
-  }
-
-  private async addMatrixHeader(
-    row: SurveyRow,
-    xfTypeInfo: TypeInfo,
-  ): Promise<void> {
-    const questionName =
-      row.name && row.name.trim() !== ''
-        ? this.sanitizeName(row.name.trim())
-        : `Q${this.questionSeq}`;
-
-    this.questionSeq++;
-    this.inMatrix = true;
-    this.matrixListName = xfTypeInfo.listName;
-    this.subquestionSeq = 0;
-
-    const relevance = await this.convertRelevance(row.relevant);
-    const mandatory =
-      row.required === 'yes' || row.required === 'true' ? 'Y' : '';
-
-    const hideTip =
-      this.configManager.getConfig().hideQuestionTips !== false ? '1' : '';
-    this.rowEmitter.emitForEachLanguage((lang) => ({
-      class: 'Q',
-      'type/scale': 'F',
-      name: questionName,
-      relevance,
-      mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, questionName),
-      help: this.languageHandler.renderLabel(row.hint, lang),
-      ...(hideTip ? { hide_tip: hideTip } : {}),
-    }));
-  }
-
-  private async addMatrixSubquestion(row: SurveyRow): Promise<void> {
-    const sqName =
-      row.name && row.name.trim() !== ''
-        ? this.sanitizeName(row.name.trim())
-        : `SQ${this.subquestionSeq}`;
-
-    this.subquestionSeq++;
-    const relevance = await this.convertRelevance(row.relevant);
-    const mandatory =
-      row.required === 'yes' || row.required === 'true' ? 'Y' : '';
-
-    this.rowEmitter.emitForEachLanguage((lang) => ({
-      class: 'SQ',
-      name: sqName,
-      relevance,
-      mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, sqName),
-    }));
-  }
-
-  private flushMatrix(): void {
-    if (!this.inMatrix || !this.matrixListName) {
-      this.inMatrix = false;
-      this.matrixListName = null;
-      return;
-    }
-
-    const choices = this.choiceManager.getChoices(this.matrixListName);
-    if (choices) {
-      let seq = 0;
-      for (const choice of choices) {
-        const choiceName =
-          choice.name && choice.name.trim() !== ''
-            ? this.sanitizeAnswerCode(choice.name.trim())
-            : `A${seq++}`;
-
-        this.rowEmitter.emitForEachLanguage((lang) => ({
-          class: 'A',
-          name: choiceName,
-          relevance: '',
-          text: this.languageHandler.renderLabel(
-            choice.label,
-            lang,
-            choiceName,
-          ),
-        }));
-      }
-    }
-
-    this.inMatrix = false;
-    this.matrixListName = null;
-    this.inTableListMatrix = false;
-  }
-
-  // ── Answer emission ──────────────────────────────────────────────────
-
-  private addAnswers(xfTypeInfo: TypeInfo, lsType: LSType): void {
-    const choices = this.choiceManager.getChoices(xfTypeInfo.listName!);
-    if (!choices) {
-      console.warn(`Choice list not found: ${xfTypeInfo.listName}`);
-      return;
-    }
-
-    const answerClass =
-      lsType.answerClass ||
-      (xfTypeInfo.base === 'select_multiple' ? 'SQ' : 'A');
-
-    // Pre-compute and deduplicate sanitized choice names
-    const rawNames = choices.map((choice) => {
-      const rawName =
-        choice.name && choice.name.trim() !== '' ? choice.name.trim() : '';
-      return rawName
-        ? this.sanitizeAnswerCode(rawName)
-        : answerClass === 'SQ'
-          ? `SQ${this.subquestionSeq++}`
-          : `A${this.answerSeq++}`;
-    });
-
-    const choiceNames = deduplicateNames(rawNames, 5);
-    for (let i = 0; i < rawNames.length; i++) {
-      if (choiceNames[i] !== rawNames[i]) {
-        console.warn(
-          `Duplicate answer code "${rawNames[i]}" resolved to "${choiceNames[i]}"`,
-        );
-      }
-    }
-
-    for (let i = 0; i < choices.length; i++) {
-      const choice = choices[i];
-      const choiceName = choiceNames[i];
-
-      this.rowEmitter.emitForEachLanguage((lang) => ({
-        class: answerClass,
-        name: choiceName,
-        relevance: '',
-        ...(choice.filter
-          ? {
-              relevance: `({${this.groupEmitter.getCurrentGroup() || 'parent'}} == "${choice.filter}")`,
-            }
-          : {}),
-        text: this.languageHandler.renderLabel(choice.label, lang, choiceName),
-      }));
+      this.answerEmitter.addAnswers(xfTypeInfo, lsType, this.answerHelpers());
     }
   }
 

@@ -3,6 +3,7 @@ import { ConfigManager } from '../../config/ConfigManager.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';
 import { GroupStackItem } from './constants.js';
+import { Counters } from './counters.js';
 
 /**
  * Helper class for the group-related callbacks the converter passes
@@ -10,12 +11,7 @@ import { GroupStackItem } from './constants.js';
  * question/matrix emission); instead receives a snapshot via the
  * counters interface and reports back the post-increment values.
  */
-export interface GroupCounters {
-  getGroupSeq(): number;
-  bumpGroupSeq(): number;
-  getQuestionSeq(): number;
-  bumpQuestionSeq(): number;
-}
+export type GroupCounters = Counters;
 
 /**
  * Emits G (group) rows and the X-row (note) placeholders that parent-only
