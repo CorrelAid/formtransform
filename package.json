@@ -44,7 +44,7 @@
     "prepare": "husky || true; npm run build"
   },
   "dependencies": {
-    "js-xpath": "github:jstet/js-xpath",
+    "js-xpath": "0.0.4",
     "marked": "^17.0.5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },

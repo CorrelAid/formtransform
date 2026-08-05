@@ -17,22 +17,21 @@ export default defineConfig({
         test: {
           ...shared,
           name: 'unit',
-          include: ['src/test/**/*.test.ts'],
-          exclude: ['src/test/contract/**', 'src/test/integration/**'],
+          include: ['tests/ts/unit/**/*.test.ts'],
         },
       },
       {
         test: {
           ...shared,
           name: 'integration',
-          include: ['src/test/integration/**/*.test.ts'],
+          include: ['tests/ts/integration/**/*.test.ts'],
         },
       },
       {
         test: {
           ...shared,
           name: 'contract',
-          include: ['src/test/contract/**/*.test.ts'],
+          include: ['tests/ts/contract/**/*.test.ts'],
         },
       },
     ],

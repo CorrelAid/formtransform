@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["src/generateFixtures.ts"],
   "project": ["src/**/*.ts"],
-  "ignore": ["src/generated/**", "src/**/*.test.ts", "src/test/**"],
+  "ignore": ["src/generated/**", "src/**/*.test.ts", "tests/**"],
   "ignoreBinaries": ["docker-compose", "uv", "ruff"],
   "ignoreDependencies": [],
   "rules": {

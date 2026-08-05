@@ -28,7 +28,7 @@ jobs:
       - name: Build
         working-directory: docs
         env:
-          VITE_BASE: /survey-type-registry/
+          VITE_BASE: /formtransform/
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

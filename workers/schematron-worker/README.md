@@ -4,7 +4,7 @@ A Java microservice that validates DDI-Codebook XML documents against XSD schema
 
 ## Consuming this worker
 
-This lives in `survey-type-registry` and is **published as a prebuilt image**, so
+This lives in `formtransform` and is **published as a prebuilt image**, so
 downstream services (qwacback) don't build it:
 
 - **Container image** — `ghcr.io/correlaid/schematron-worker:<version>`, built +

@@ -32,6 +32,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - uses: astral-sh/setup-uv@v3
+      - name: Install codegen deps
+        run: uv sync
       - name: Check generated/ in sync with codegen
         run: bash scripts/check-drift.sh
 
@@ -55,31 +58,3 @@ jobs:
       - name: Validate blessed DDI snapshots (XSD + schematron)
         run: uv run pytest tests/validation/test_ddi_schema.py -v
 
-  transformations:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - uses: astral-sh/setup-uv@v3
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Checkout xlsform2lstsv into subdir
-        uses: actions/checkout@v4
-        with:
-          repository: CorrelAid/xlsform2lstsv
-          path: _xlsform2lstsv
-          # TODO: pin to a tag once xlsform2lstsv consumes the registry
-      - name: Build xlsform2lstsv
-        working-directory: _xlsform2lstsv
-        run: |
-          npm ci
-          npm run build
-      - name: Install registry test deps
-        run: uv sync
-      - name: Run transformation tests
-        env:
-          XLSFORM2LSTSV_PATH: ${{ github.workspace }}/_xlsform2lstsv
-        run: uv run pytest tests/validation/ -v

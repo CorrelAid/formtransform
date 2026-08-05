@@ -1,7 +1,7 @@
 [project]
 name = "formtransform"
 version = "0.1.0"
-description = "CDL survey type registry: JSON-LD source of truth + codegen for TS/Python/Go consumers."
+description = "CDL formtransform: Registry-driven survey transformation between XLSForm, LimeSurvey TSV and DDI Codebook."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []

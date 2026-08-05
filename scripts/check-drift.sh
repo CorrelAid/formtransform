@@ -10,9 +10,9 @@ python -m codegen > /dev/null
 # source IS drift-guarded; xlsx is just a rendering of it.
 # registry/entities/<slug>/ holds each entity's definition + codegen-written
 # docs.md + fixtures.
-TARGETS=(generated registry)
+TARGETS=(src/generated registry)
 
-if ! git diff --exit-code --ignore-matching-lines='.' \
+if ! git diff --exit-code \
       ':(exclude)*.xlsx' \
       "${TARGETS[@]}" ; then
   echo ""
