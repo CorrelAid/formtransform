@@ -261,9 +261,35 @@ export class XLSFormToTSVConverter {
       if (cfg.convertEndNote && name === 'end') return;
     }
 
-    // Registered but not natively expressible in LimeSurvey TSV. Exception:
-    // select_*_from_file is emittable when the referenced CSV was supplied
-    // (choices get inlined + a cdl_vocab attribute is attached — see addQuestion).
+    // Validate the type is registered and emittable. Two failure modes:
+    //   1. registered but unsupported by LimeSurvey TSV (no native slot)
+    //   2. not registered at all (convention:unregisteredRows)
+    this.validateRowType(xfType, baseType);
+
+    if (xfType === 'begin_group' || xfType === 'begin group') {
+      await this.handleBeginGroup(row);
+      return;
+    }
+    if (xfType === 'end_group' || xfType === 'end group') {
+      this.handleEndGroup();
+      return;
+    }
+
+    // Auto-create a group for questions outside any explicit group.
+    if (this.isOutsideAnyGroup()) {
+      this.rowEmitter.flushGroupContent();
+      this.groupEmitter.addAutoGroupForOrphans();
+    }
+
+    await this.addQuestion(row);
+  }
+
+  /**
+   * Throws if the row's type is not emittable. Two checks: registered-but-
+   * unsupported (with an exception for select_*_from_file when the
+   * referenced CSV is supplied), and not-registered-at-all.
+   */
+  private validateRowType(xfType: string, baseType: string): void {
     if (UNIMPLEMENTED_TYPES.includes(baseType)) {
       const filename = xfType.split(/\s+/)[1];
       const canInline =
@@ -277,8 +303,6 @@ export class XLSFormToTSVConverter {
       }
     }
 
-    // Registry is an allowlist: unregistered types abort the transformation
-    // (convention:unregisteredRows).
     if (
       !(baseType in TYPE_MAPPINGS) &&
       baseType !== 'begin_group' &&
@@ -289,42 +313,37 @@ export class XLSFormToTSVConverter {
         `Unimplemented XLSForm type: '${baseType}'. This type is not registered in the survey type registry.`,
       );
     }
+  }
 
-    if (xfType === 'begin_group' || xfType === 'begin group') {
-      this.matrixHandler.flushMatrix(this.matrixHelpers());
-      const originalName = (row.name || '').trim();
-      await this.groupEmitter.handleBeginGroup(
-        row,
-        this.groupProcessor.getMessageOnlyGroups().has(originalName),
-        this.groupProcessor.getParentOnlyGroups().has(originalName),
-        (name) => this.fieldNameHandler.sanitizeName(name),
-        (relevant) => this.transpilerHelper.convertRelevance(relevant),
-        (sanitizedName) =>
-          this.matrixHandler.addTableListHeader(
-            row,
-            sanitizedName,
-            this.matrixHelpers(),
-          ),
-      );
-      return;
-    }
-    if (xfType === 'end_group' || xfType === 'end group') {
-      this.matrixHandler.flushMatrix(this.matrixHelpers());
-      this.groupEmitter.popStack();
-      this.groupEmitter.restoreCurrentGroupFromStack();
-      return;
-    }
+  private async handleBeginGroup(row: SurveyRow): Promise<void> {
+    this.matrixHandler.flushMatrix(this.matrixHelpers());
+    const originalName = (row.name || '').trim();
+    await this.groupEmitter.handleBeginGroup(
+      row,
+      this.groupProcessor.getMessageOnlyGroups().has(originalName),
+      this.groupProcessor.getParentOnlyGroups().has(originalName),
+      (name) => this.fieldNameHandler.sanitizeName(name),
+      (relevant) => this.transpilerHelper.convertRelevance(relevant),
+      (sanitizedName) =>
+        this.matrixHandler.addTableListHeader(
+          row,
+          sanitizedName,
+          this.matrixHelpers(),
+        ),
+    );
+  }
 
-    // Auto-create a group for questions outside any explicit group.
-    if (
+  private handleEndGroup(): void {
+    this.matrixHandler.flushMatrix(this.matrixHelpers());
+    this.groupEmitter.popStack();
+    this.groupEmitter.restoreCurrentGroupFromStack();
+  }
+
+  private isOutsideAnyGroup(): boolean {
+    return (
       this.groupEmitter.getCurrentGroup() === null &&
       this.groupEmitter.getGroupStack().length === 0
-    ) {
-      this.rowEmitter.flushGroupContent();
-      this.groupEmitter.addAutoGroupForOrphans();
-    }
-
-    await this.addQuestion(row);
+    );
   }
 
   // ── Question emission ────────────────────────────────────────────────
