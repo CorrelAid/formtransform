@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "note",
+      "name": "hinweis",
+      "label": "Im folgenden Abschnitt geht es um Ihre Lebenssituation."
+    }
+  ],
+  "choices": []
+}

@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "select_one_from_file iso_3166_1.csv",
+      "name": "geburtsland",
+      "label": "In welchem Land wurden Sie geboren?"
+    }
+  ],
+  "choices": []
+}

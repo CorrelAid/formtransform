@@ -1,0 +1,20 @@
+{
+  "survey": [
+    { "type": "begin_group", "name": "page1", "label": "Page One", "appearance": "field-list" },
+    { "type": "text", "name": "name", "label": "Your name" },
+    { "type": "integer", "name": "age", "label": "Your age" },
+    { "type": "end_group" },
+    { "type": "begin_group", "name": "page2", "label": "Page Two", "appearance": "field-list" },
+    { "type": "select_one colors", "name": "favcolor", "label": "Favourite colour" },
+    { "type": "note", "name": "thankyou", "label": "Thank you!" },
+    { "type": "end_group" }
+  ],
+  "choices": [
+    { "list_name": "colors", "name": "red", "label": "Red" },
+    { "list_name": "colors", "name": "blue", "label": "Blue" },
+    { "list_name": "colors", "name": "green", "label": "Green" }
+  ],
+  "settings": [
+    { "form_title": "Multi-Page Survey", "form_id": "multipage", "default_language": "en", "style": "pages" }
+  ]
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>select_multiple</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-07-22">2026-07-22</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_wochenende" name="wochenende" type="multipleResp" var="V_wochenende_sa V_wochenende_so">
+      <txt>An welchen Tagen des Wochenendes sind Sie erreichbar?</txt>
+      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?</concept>
+    </varGrp>
+    <var ID="V_wochenende_sa" name="wochenende_sa" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>An welchen Tagen des Wochenendes sind Sie erreichbar?</preQTxt>
+        <qstnLit>Samstag</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?: Samstag</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_wochenende_so" name="wochenende_so" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>An welchen Tagen des Wochenendes sind Sie erreichbar?</preQTxt>
+        <qstnLit>Sonntag</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?: Sonntag</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

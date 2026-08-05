@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "integer",
+      "name": "alter",
+      "label": "Wie alt sind Sie?"
+    }
+  ],
+  "choices": []
+}

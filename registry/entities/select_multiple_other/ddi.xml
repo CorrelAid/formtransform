@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>select_multiple_other</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-07-22">2026-07-22</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_geraetebesitz" name="geraetebesitz" type="other" var="V_geraetebesitz_other" varGrp="VG_geraetebesitz_choices">
+      <txt>Welche dieser Geräte besitzen Sie?</txt>
+      <concept>Welche dieser Geräte besitzen Sie?</concept>
+    </varGrp>
+    <varGrp ID="VG_geraetebesitz_choices" name="geraetebesitz_choices" type="multipleResp" var="V_geraetebesitz_smart V_geraetebesitz_lapt V_geraetebesitz_tabl">
+      <txt>Welche dieser Geräte besitzen Sie?</txt>
+      <concept>Welche dieser Geräte besitzen Sie?</concept>
+    </varGrp>
+    <var ID="V_geraetebesitz_smart" name="geraetebesitz_smart" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
+        <qstnLit>Smartphone</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche dieser Geräte besitzen Sie?: Smartphone</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_geraetebesitz_lapt" name="geraetebesitz_lapt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
+        <qstnLit>Laptop</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche dieser Geräte besitzen Sie?: Laptop</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_geraetebesitz_tabl" name="geraetebesitz_tabl" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
+        <qstnLit>Tablet</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche dieser Geräte besitzen Sie?: Tablet</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_geraetebesitz_other" name="geraetebesitz_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Sonstiges (bitte angeben)</qstnLit>
+      </qstn>
+      <concept>Sonstiges (bitte angeben)</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

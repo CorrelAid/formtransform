@@ -1,0 +1,99 @@
+{
+  "survey": [
+    {
+      "type": "note",
+      "name": "welcome",
+      "label": "Validation and Relevance Test Survey"
+    },
+    {
+      "type": "text",
+      "name": "username",
+      "label": "Username",
+      "constraint": ". != ''",
+      "constraint_message": "Username cannot be empty"
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": "Age",
+      "constraint": ". >= 18 and . <= 120",
+      "constraint_message": "Age must be between 18 and 120"
+    },
+    {
+      "type": "decimal",
+      "name": "price",
+      "label": "Price",
+      "constraint": ". > 0 and . < 1000",
+      "constraint_message": "Price must be between 0 and 1000"
+    },
+    {
+      "type": "select_one",
+      "name": "consent",
+      "label": "Do you consent?",
+      "list_name": "yes_no"
+    },
+    {
+      "type": "text",
+      "name": "adult_info",
+      "label": "Adult Information",
+      "relevant": "${age} >= 18",
+      "constraint": ". != ''"
+    },
+    {
+      "type": "text",
+      "name": "senior_discount",
+      "label": "Senior Discount Code",
+      "relevant": "${age} >= 65"
+    },
+    {
+      "type": "text",
+      "name": "consent_required_info",
+      "label": "Additional Information",
+      "relevant": "${consent} = 'yes'"
+    },
+    {
+      "type": "text",
+      "name": "complex_relevance",
+      "label": "Complex Relevance Test",
+      "relevant": "${age} >= 18 and ${consent} = 'yes'"
+    },
+    {
+      "type": "text",
+      "name": "or_relevance",
+      "label": "OR Relevance Test",
+      "relevant": "${age} < 18 or ${consent} = 'no'"
+    },
+    {
+      "type": "text",
+      "name": "string_functions",
+      "label": "String Function Test",
+      "relevant": "string-length(${username}) > 3",
+      "constraint": "string-length(.) >= 5"
+    },
+    {
+      "type": "integer",
+      "name": "math_functions",
+      "label": "Math Function Test",
+      "relevant": "${age} > 21",
+      "constraint": ". >= ${age} * 2"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "yes_no",
+      "name": "yes",
+      "label": "Yes"
+    },
+    {
+      "list_name": "yes_no",
+      "name": "no",
+      "label": "No"
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "Validation and Relevance Test",
+      "default_language": "en"
+    }
+  ]
+}

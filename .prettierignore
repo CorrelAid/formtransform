@@ -1,0 +1,9 @@
+dist/
+generated/
+src/generated/
+node_modules/
+_xlsform2lstsv/
+docs/
+package-lock.json
+uv.lock
+**/*.md

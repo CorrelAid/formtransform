@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>validation_relevance_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_username" name="username" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <preQTxt>Validation and Relevance Test Survey</preQTxt>
+        <qstnLit>Username</qstnLit>
+      </qstn>
+      <concept>Username</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Age</qstnLit>
+      </qstn>
+      <concept>Age</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_price" name="price" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Price</qstnLit>
+      </qstn>
+      <concept>Price</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Do you consent?</qstnLit>
+      </qstn>
+      <concept>Do you consent?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_adult_info" name="adult_info" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Adult Information</qstnLit>
+      </qstn>
+      <concept>Adult Information</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_senior_discount" name="senior_discount" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Senior Discount Code</qstnLit>
+      </qstn>
+      <concept>Senior Discount Code</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_consent_required_info" name="consent_required_info" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Additional Information</qstnLit>
+      </qstn>
+      <concept>Additional Information</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_complex_relevance" name="complex_relevance" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Complex Relevance Test</qstnLit>
+      </qstn>
+      <concept>Complex Relevance Test</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_or_relevance" name="or_relevance" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>OR Relevance Test</qstnLit>
+      </qstn>
+      <concept>OR Relevance Test</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_string_functions" name="string_functions" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>String Function Test</qstnLit>
+      </qstn>
+      <concept>String Function Test</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_math_functions" name="math_functions" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Math Function Test</qstnLit>
+      </qstn>
+      <concept>Math Function Test</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

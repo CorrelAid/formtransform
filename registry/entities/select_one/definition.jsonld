@@ -1,0 +1,53 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:select_one",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Select One",
+      "xlsform": {
+        "typeString": "select_one",
+        "requiresListName": true
+      },
+      "limesurvey": {
+        "typeCode": "L",
+        "supportsOther": true,
+        "answerClass": "A"
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "numeric",
+        "responseDomainType": "category"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$",
+        "maxChoiceCodeLength": 5,
+        "choiceCodePattern": "^[a-zA-Z0-9]+$",
+        "warnings": [
+          "Choice codes > 5 chars will be truncated in LimeSurvey"
+        ]
+      },
+      "variants": [
+        "variant:select_one_other",
+        "variant:select_one_long_list"
+      ],
+      "tests": [
+        "tests/types/select_one/"
+      ],
+      "exampleDir": "registry/entities/select_one",
+      "examplePath": "registry/entities/select_one/xlsform.json",
+      "useWhen": "When answer categories are exhaustive and mutually exclusive, and exactly one option should be selected (e.g. education level, employment status)."
+    }
+  ]
+}

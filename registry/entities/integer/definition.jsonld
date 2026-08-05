@@ -1,0 +1,47 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:integer",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Integer",
+      "xlsform": {
+        "typeString": "integer",
+        "aliases": [
+          "int"
+        ]
+      },
+      "limesurvey": {
+        "typeCode": "N",
+        "supportsOther": false,
+        "answerClass": null
+      },
+      "ddi": {
+        "intrvl": "contin",
+        "formatType": "numeric",
+        "responseDomainType": "numeric"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$",
+        "validationMessage": "Variable names must be alphanumeric, max 20 chars"
+      },
+      "tests": [
+        "tests/types/integer/"
+      ],
+      "exampleDir": "registry/entities/integer",
+      "examplePath": "registry/entities/integer/xlsform.json",
+      "useWhen": "When collecting open integer values without predefined categories, where respondents provide a raw number (e.g. age, household size)."
+    }
+  ]
+}

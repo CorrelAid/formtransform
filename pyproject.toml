@@ -1,0 +1,70 @@
+[project]
+name = "formtransform"
+version = "0.1.0"
+description = "CDL survey type registry: JSON-LD source of truth + codegen for TS/Python/Go consumers."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+codegen = "codegen.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["codegen"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "pytest>=8.0",
+    # No Python XSD/schematron deps. Validation runs via the Java
+    # schematron-worker CLI (workers/schematron-worker/), built with
+    # `bash scripts/build-worker.sh` (JDK 21 + gradle).
+    # External XLSForm oracle: validates fixture INPUTS (not our outputs).
+    # See tests/validation/test_xlsform_pyxform.py.
+    "pyxform>=2.0",
+    # LimeSurvey RemoteControl client — drives the live-engine suite
+    # (tests/live/) and codegen's screenshot/response tooling.
+    "citric>=2.0",
+    "requests>=2.31",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+    "C90",  # mccabe complexity
+]
+ignore = [
+    "E501",   # line too long (formatter handles)
+    "RUF003", # ambiguous unicode (×) in comments — intentional survey-grid notation
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Live-engine tests need a running survey engine, so they are excluded by
+# default; `npm run test:integration` brings the stack up and drops the filter.
+addopts = '-ra --strict-markers -m "not docker"'
+markers = [
+    "docker: needs a live survey engine from docker compose (applied automatically to tests/live/)",
+]

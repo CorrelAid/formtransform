@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <varGrp ID="VG1" name="test_grid" type="grid" var="V1 V2">
+      <txt>Shared question stem</txt>
+      <concept>Test construct</concept>
+    </varGrp>
+    <var ID="V1" name="grid_item_a" intrvl="discrete">
+      <qstn responseDomainType="category">
+        <preQTxt>Shared question stem</preQTxt>
+        <qstnLit>Item A</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>No</labl>
+      </catgry>
+      <concept>Test: Item A</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V2" name="grid_item_b" intrvl="discrete">
+      <qstn responseDomainType="category">
+        <preQTxt>Shared question stem</preQTxt>
+        <qstnLit>Item B</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>No</labl>
+      </catgry>
+      <concept>Test: Item B</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

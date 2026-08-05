@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>basic_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="thank_you">Thank you for your participation!</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_respondent_name" name="respondent_name" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>What is your name?</qstnLit>
+      </qstn>
+      <concept>What is your name?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>What is your age?</qstnLit>
+      </qstn>
+      <concept>What is your age?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Do you consent to participate?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>yes</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <catgry>
+        <catValu>no</catValu>
+        <labl>No</labl>
+      </catgry>
+      <concept>Do you consent to participate?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -1,0 +1,122 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "demographics",
+      "label": {
+        "en": "Demographics",
+        "es": "Datos demográficos"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "type": "text",
+      "name": "name",
+      "label": {
+        "en": "What is your name?",
+        "es": "¿Cuál es tu nombre?"
+      },
+      "hint": {
+        "en": "Enter your full name",
+        "es": "Ingresa tu nombre completo"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": {
+        "en": "What is your age?",
+        "es": "¿Cuál es tu edad?"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "type": "select_one gender",
+      "name": "gender",
+      "label": {
+        "en": "Gender",
+        "es": "Género"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "select_one satisfaction",
+      "name": "satisfaction",
+      "label": {
+        "en": "How satisfied are you?",
+        "es": "¿Qué tan satisfecho estás?"
+      },
+      "_languages": ["en", "es"]
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "gender",
+      "name": "male",
+      "label": {
+        "en": "Male",
+        "es": "Masculino"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "list_name": "gender",
+      "name": "female",
+      "label": {
+        "en": "Female",
+        "es": "Femenino"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "list_name": "gender",
+      "name": "other",
+      "label": {
+        "en": "Other",
+        "es": "Otro"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "happy",
+      "label": {
+        "en": "Very satisfied",
+        "es": "Muy satisfecho"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "neutral",
+      "label": {
+        "en": "Neutral",
+        "es": "Neutral"
+      },
+      "_languages": ["en", "es"]
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "unhappy",
+      "label": {
+        "en": "Not satisfied",
+        "es": "No satisfecho"
+      },
+      "_languages": ["en", "es"]
+    }
+  ],
+  "settings": [
+    {
+      "form_title": {
+        "en": "Multilingual Survey",
+        "es": "Encuesta multilingüe"
+      },
+      "form_id": "multilingual_survey",
+      "default_language": "en"
+    }
+  ]
+}

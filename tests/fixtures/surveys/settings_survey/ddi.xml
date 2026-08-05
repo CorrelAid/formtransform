@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>settings_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="welcome">**Welcome** to the survey!</notes>
+    <notes type="instruction" subject="end">**Thank you** for participating!</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_fav_color" name="fav_color" type="other" var="V_fav_color V_fav_color_other">
+      <txt>What is your _favorite_ color?</txt>
+      <concept>What is your _favorite_ color?</concept>
+    </varGrp>
+    <var ID="V_fav_color" name="fav_color" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>What is your _favorite_ color?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>red</catValu>
+        <labl>Red</labl>
+      </catgry>
+      <catgry>
+        <catValu>blue</catValu>
+        <labl>Blue</labl>
+      </catgry>
+      <catgry>
+        <catValu>other</catValu>
+        <labl>Other</labl>
+      </catgry>
+      <concept>What is your _favorite_ color?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_fav_color_other" name="fav_color_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Please specify your color</qstnLit>
+      </qstn>
+      <concept>Please specify your color</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_comment" name="comment" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Any **comments**?</qstnLit>
+      </qstn>
+      <concept>Any **comments**?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

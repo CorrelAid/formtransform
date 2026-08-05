@@ -1,0 +1,38 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple geraete",
+      "name": "geraetebesitz",
+      "label": "Welche dieser Geräte besitzen Sie?"
+    },
+    {
+      "type": "text",
+      "name": "geraetebesitz_other",
+      "label": "Sonstiges (bitte angeben)",
+      "relevant": "${geraetebesitz} = 'other'"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "geraete",
+      "name": "smart",
+      "label": "Smartphone"
+    },
+    {
+      "list_name": "geraete",
+      "name": "lapt",
+      "label": "Laptop"
+    },
+    {
+      "list_name": "geraete",
+      "name": "tabl",
+      "label": "Tablet"
+    },
+    {
+      "list_name": "geraete",
+      "name": "other",
+      "label": "Sonstiges"
+    }
+  ],
+  "settings": [{ "default_language": "German (de)" }]
+}

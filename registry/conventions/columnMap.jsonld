@@ -1,0 +1,76 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:columnMap",
+      "@type": "XLSFormColumnMap",
+      "skos:prefLabel": "XLSForm → LimeSurvey TSV Column Mapping",
+      "map": [
+        {
+          "xlsform": "required",
+          "lsTsv": "mandatory",
+          "transform": "yes→Y, no→N or empty"
+        },
+        {
+          "xlsform": "constraint",
+          "lsTsv": "em_validation_q",
+          "transform": "XPath → LimeSurvey EM expression — see convention:logicMapping"
+        },
+        {
+          "xlsform": "constraint_message",
+          "lsTsv": "validation",
+          "transform": "passthrough — see convention:logicMapping"
+        },
+        {
+          "xlsform": "default",
+          "lsTsv": "default",
+          "transform": "passthrough"
+        },
+        {
+          "xlsform": "relevant",
+          "lsTsv": "relevance",
+          "transform": "XPath → LimeSurvey EM expression — see convention:logicMapping"
+        },
+        {
+          "xlsform": "label",
+          "lsTsv": "text",
+          "transform": "Markdown → HTML; ${var} → {name}"
+        },
+        {
+          "xlsform": "hint",
+          "lsTsv": "help",
+          "transform": "Markdown → HTML; ${var} → {name}"
+        },
+        {
+          "xlsform": "name",
+          "lsTsv": "name",
+          "transform": "sanitize per convention:sanitization"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "type:end_group",
+      "@type": "StructuralType",
+      "skos:prefLabel": "Group (End)",
+      "xlsform": {
+        "typeString": "end_group"
+      },
+      "limesurvey": {
+        "typeCode": null,
+        "supported": true,
+        "emitsGroupRow": false
+      },
+      "pairedWith": {
+        "@id": "type:begin_group"
+      }
+    },
+    {
+      "@id": "type:select_one_from_file",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Select One (from file)",
+      "xlsform": {
+        "typeString": "select_one_from_file",
+        "requiresListName": true
+      },
+      "limesurvey": {
+        "typeCode": null,
+        "supported": false,
+        "supportsOther": false,
+        "answerClass": null
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "numeric",
+        "responseDomainType": "category",
+        "externalCodeList": true,
+        "conceptVocabFrom": "filename"
+      },
+      "useWhen": "When selecting from a long closed list of exhaustive, mutually exclusive options maintained as a controlled vocabulary (e.g. country, occupation), presented via dropdown or autocomplete."
+    },
+    {
+      "@id": "type:select_multiple_from_file",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Select Multiple (from file)",
+      "xlsform": {
+        "typeString": "select_multiple_from_file",
+        "requiresListName": true
+      },
+      "limesurvey": {
+        "typeCode": null,
+        "supported": false,
+        "supportsOther": false,
+        "answerClass": null
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "numeric",
+        "responseDomainType": "multiple",
+        "externalCodeList": true,
+        "conceptVocabFrom": "filename"
+      },
+      "useWhen": "When selecting from a long non-exclusive list of options maintained as a controlled vocabulary, allowing multiple selections."
+    },
+    {
+      "@id": "appearance:minimal",
+      "@type": "Appearance",
+      "skos:prefLabel": "Dropdown / minimal display",
+      "xlsform": {
+        "appearanceString": "minimal"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one"
+      ],
+      "lsEffect": "Override LS type from L to !",
+      "lsTypeOverride": "!"
+    },
+    {
+      "@id": "appearance:multiline",
+      "@type": "Appearance",
+      "skos:prefLabel": "Multi-line text",
+      "xlsform": {
+        "appearanceString": "multiline"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "text"
+      ],
+      "lsEffect": "Override LS type from S to T",
+      "lsTypeOverride": "T"
+    },
+    {
+      "@id": "appearance:label",
+      "@type": "Appearance",
+      "skos:prefLabel": "Matrix header row",
+      "xlsform": {
+        "appearanceString": "label"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "begin_group",
+        "select_one"
+      ],
+      "carriesData": false,
+      "lsEffect": "Begin matrix (F header)"
+    },
+    {
+      "@id": "appearance:list-nolabel",
+      "@type": "Appearance",
+      "skos:prefLabel": "Matrix body row",
+      "xlsform": {
+        "appearanceString": "list-nolabel"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one"
+      ],
+      "lsEffect": "Matrix SQ inside table"
+    },
+    {
+      "@id": "appearance:field-list",
+      "@type": "Appearance",
+      "skos:prefLabel": "Field list group",
+      "xlsform": {
+        "appearanceString": "field-list"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "begin_group"
+      ],
+      "lsEffect": "No-op; LS already groups"
+    },
+    {
+      "@id": "appearance:likert",
+      "@type": "Appearance",
+      "skos:prefLabel": "Likert appearance hint",
+      "xlsform": {
+        "appearanceString": "likert"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one"
+      ],
+      "lsEffect": "No-op (pedagogical only)"
+    },
+    {
+      "@id": "appearance:table-list",
+      "@type": "Appearance",
+      "skos:prefLabel": "Table list (matrix)",
+      "xlsform": {
+        "appearanceString": "table-list"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "begin_group"
+      ],
+      "lsEffect": "Marker for grid/matrix block"
+    },
+    {
+      "@id": "vocab:iso_3166_1",
+      "@type": "Vocabulary",
+      "skos:prefLabel": "ISO 3166-1 country codes (alpha-2)",
+      "xlsformFilename": "iso_3166_1.csv",
+      "ddiVocab": "iso_3166_1",
+      "vocabURI": "https://www.iso.org/iso-3166-country-codes.html",
+      "standard": "ISO 3166-1",
+      "description": "Two-letter country codes (e.g. DE, FR, US)."
+    },
+    {
+      "@id": "type:begin_group",
+      "@type": "StructuralType",
+      "skos:prefLabel": "Group (Begin)",
+      "xlsform": {
+        "typeString": "begin_group"
+      },
+      "limesurvey": {
+        "typeCode": null,
+        "emitsGroupRow": true,
+        "supportsNesting": false
+      },
+      "ddi": {
+        "preservation": "conditional",
+        "conditions": [
+          {
+            "if": "appearance='table-list' OR name contains 'grid' OR label contains 'matrix'",
+            "then": "varGrp[@type='grid']"
+          },
+          {
+            "if": "else",
+            "then": "DROPPED - variables flattened to top level"
+          }
+        ]
+      },
+      "variants": [
+        "variant:grid"
+      ],
+      "tests": [
+        "tests/types/begin_group/"
+      ]
+    }
+  ]
+}

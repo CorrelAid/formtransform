@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <!-- labl should not be used on var — use concept instead -->
+    <var ID="V1" name="bad_var" intrvl="discrete">
+      <labl>This should not be here</labl>
+      <qstn responseDomainType="category">
+        <qstnLit>Question one</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

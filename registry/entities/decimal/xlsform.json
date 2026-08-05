@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "decimal",
+      "name": "schlafdauer",
+      "label": "Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?"
+    }
+  ],
+  "choices": []
+}

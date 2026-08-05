@@ -1,0 +1,36 @@
+{
+  "survey": [
+    {
+      "type": "select_one bildungsgrad",
+      "name": "bildungsgrad",
+      "label": "Was ist Ihr höchster Bildungsabschluss?"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "bildungsgrad",
+      "name": "1",
+      "label": "Kein Abschluss"
+    },
+    {
+      "list_name": "bildungsgrad",
+      "name": "2",
+      "label": "Haupt- oder Realschulabschluss"
+    },
+    {
+      "list_name": "bildungsgrad",
+      "name": "3",
+      "label": "Fachhochschulreife / Abitur"
+    },
+    {
+      "list_name": "bildungsgrad",
+      "name": "4",
+      "label": "Abgeschlossene Berufsausbildung"
+    },
+    {
+      "list_name": "bildungsgrad",
+      "name": "5",
+      "label": "Hochschulabschluss"
+    }
+  ]
+}

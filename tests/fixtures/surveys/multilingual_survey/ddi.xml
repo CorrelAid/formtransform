@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>multilingual_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_name" name="name" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>What is your name?</qstnLit>
+      </qstn>
+      <concept>What is your name?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>What is your age?</qstnLit>
+      </qstn>
+      <concept>What is your age?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Gender</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>male</catValu>
+        <labl>Male</labl>
+      </catgry>
+      <catgry>
+        <catValu>female</catValu>
+        <labl>Female</labl>
+      </catgry>
+      <catgry>
+        <catValu>other</catValu>
+        <labl>Other</labl>
+      </catgry>
+      <concept>Gender</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_satisfaction" name="satisfaction" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>How satisfied are you?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>happy</catValu>
+        <labl>Very satisfied</labl>
+      </catgry>
+      <catgry>
+        <catValu>neutral</catValu>
+        <labl>Neutral</labl>
+      </catgry>
+      <catgry>
+        <catValu>unhappy</catValu>
+        <labl>Not satisfied</labl>
+      </catgry>
+      <concept>How satisfied are you?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -1,0 +1,256 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	cssclass	hide_tip
+S		language	1	en		en									
+S		format	1	A		en									
+S		shownoanswer	1	N		en									
+SL		surveyls_title	1	Untitled Survey		en									
+G		Questions	1	Questions		en									
+Q	L	geburtsland	1	In welchem Land wurden Sie geboren?		en								cdlvocab-iso_3166_1	1
+A		AF		Afghanistan		en									
+A		AX		Åland Islands		en									
+A		AL		Albania		en									
+A		DZ		Algeria		en									
+A		AS		American Samoa		en									
+A		AD		Andorra		en									
+A		AO		Angola		en									
+A		AI		Anguilla		en									
+A		AQ		Antarctica		en									
+A		AG		Antigua and Barbuda		en									
+A		AR		Argentina		en									
+A		AM		Armenia		en									
+A		AW		Aruba		en									
+A		AU		Australia		en									
+A		AT		Austria		en									
+A		AZ		Azerbaijan		en									
+A		BS		Bahamas		en									
+A		BH		Bahrain		en									
+A		BD		Bangladesh		en									
+A		BB		Barbados		en									
+A		BY		Belarus		en									
+A		BE		Belgium		en									
+A		BZ		Belize		en									
+A		BJ		Benin		en									
+A		BM		Bermuda		en									
+A		BT		Bhutan		en									
+A		BO		&quot;Bolivia		en									
+A		BQ		&quot;Bonaire		en									
+A		BA		Bosnia and Herzegovina		en									
+A		BW		Botswana		en									
+A		BV		Bouvet Island		en									
+A		BR		Brazil		en									
+A		IO		British Indian Ocean Territory		en									
+A		BN		Brunei Darussalam		en									
+A		BG		Bulgaria		en									
+A		BF		Burkina Faso		en									
+A		BI		Burundi		en									
+A		CV		Cabo Verde		en									
+A		KH		Cambodia		en									
+A		CM		Cameroon		en									
+A		CA		Canada		en									
+A		KY		Cayman Islands		en									
+A		CF		Central African Republic		en									
+A		TD		Chad		en									
+A		CL		Chile		en									
+A		CN		China		en									
+A		CX		Christmas Island		en									
+A		CC		Cocos (Keeling) Islands		en									
+A		CO		Colombia		en									
+A		KM		Comoros		en									
+A		CG		Congo		en									
+A		CD		&quot;Congo		en									
+A		CK		Cook Islands		en									
+A		CR		Costa Rica		en									
+A		CI		Côte d&#39;Ivoire		en									
+A		HR		Croatia		en									
+A		CU		Cuba		en									
+A		CW		Curaçao		en									
+A		CY		Cyprus		en									
+A		CZ		Czechia		en									
+A		DK		Denmark		en									
+A		DJ		Djibouti		en									
+A		DM		Dominica		en									
+A		DO		Dominican Republic		en									
+A		EC		Ecuador		en									
+A		EG		Egypt		en									
+A		SV		El Salvador		en									
+A		GQ		Equatorial Guinea		en									
+A		ER		Eritrea		en									
+A		EE		Estonia		en									
+A		SZ		Eswatini		en									
+A		ET		Ethiopia		en									
+A		FK		Falkland Islands (Malvinas)		en									
+A		FO		Faroe Islands		en									
+A		FJ		Fiji		en									
+A		FI		Finland		en									
+A		FR		France		en									
+A		GF		French Guiana		en									
+A		PF		French Polynesia		en									
+A		TF		French Southern Territories		en									
+A		GA		Gabon		en									
+A		GM		Gambia		en									
+A		GE		Georgia		en									
+A		DE		Germany		en									
+A		GH		Ghana		en									
+A		GI		Gibraltar		en									
+A		GR		Greece		en									
+A		GL		Greenland		en									
+A		GD		Grenada		en									
+A		GP		Guadeloupe		en									
+A		GU		Guam		en									
+A		GT		Guatemala		en									
+A		GG		Guernsey		en									
+A		GN		Guinea		en									
+A		GW		Guinea-Bissau		en									
+A		GY		Guyana		en									
+A		HT		Haiti		en									
+A		HM		Heard Island and McDonald Islands		en									
+A		VA		Holy See		en									
+A		HN		Honduras		en									
+A		HK		Hong Kong		en									
+A		HU		Hungary		en									
+A		IS		Iceland		en									
+A		IN		India		en									
+A		ID		Indonesia		en									
+A		IR		&quot;Iran		en									
+A		IQ		Iraq		en									
+A		IE		Ireland		en									
+A		IM		Isle of Man		en									
+A		IL		Israel		en									
+A		IT		Italy		en									
+A		JM		Jamaica		en									
+A		JP		Japan		en									
+A		JE		Jersey		en									
+A		JO		Jordan		en									
+A		KZ		Kazakhstan		en									
+A		KE		Kenya		en									
+A		KI		Kiribati		en									
+A		KP		&quot;Korea		en									
+A		KR		&quot;Korea		en									
+A		KW		Kuwait		en									
+A		KG		Kyrgyzstan		en									
+A		LA		Lao People&#39;s Democratic Republic		en									
+A		LV		Latvia		en									
+A		LB		Lebanon		en									
+A		LS		Lesotho		en									
+A		LR		Liberia		en									
+A		LY		Libya		en									
+A		LI		Liechtenstein		en									
+A		LT		Lithuania		en									
+A		LU		Luxembourg		en									
+A		MO		Macao		en									
+A		MG		Madagascar		en									
+A		MW		Malawi		en									
+A		MY		Malaysia		en									
+A		MV		Maldives		en									
+A		ML		Mali		en									
+A		MT		Malta		en									
+A		MH		Marshall Islands		en									
+A		MQ		Martinique		en									
+A		MR		Mauritania		en									
+A		MU		Mauritius		en									
+A		YT		Mayotte		en									
+A		MX		Mexico		en									
+A		FM		&quot;Micronesia		en									
+A		MD		&quot;Moldova		en									
+A		MC		Monaco		en									
+A		MN		Mongolia		en									
+A		ME		Montenegro		en									
+A		MS		Montserrat		en									
+A		MA		Morocco		en									
+A		MZ		Mozambique		en									
+A		MM		Myanmar		en									
+A		NA		Namibia		en									
+A		NR		Nauru		en									
+A		NP		Nepal		en									
+A		NL		&quot;Netherlands		en									
+A		NC		New Caledonia		en									
+A		NZ		New Zealand		en									
+A		NI		Nicaragua		en									
+A		NE		Niger		en									
+A		NG		Nigeria		en									
+A		NU		Niue		en									
+A		NF		Norfolk Island		en									
+A		MK		North Macedonia		en									
+A		MP		Northern Mariana Islands		en									
+A		NO		Norway		en									
+A		OM		Oman		en									
+A		PK		Pakistan		en									
+A		PW		Palau		en									
+A		PS		&quot;Palestine		en									
+A		PA		Panama		en									
+A		PG		Papua New Guinea		en									
+A		PY		Paraguay		en									
+A		PE		Peru		en									
+A		PH		Philippines		en									
+A		PN		Pitcairn		en									
+A		PL		Poland		en									
+A		PT		Portugal		en									
+A		PR		Puerto Rico		en									
+A		QA		Qatar		en									
+A		RE		Réunion		en									
+A		RO		Romania		en									
+A		RU		Russian Federation		en									
+A		RW		Rwanda		en									
+A		BL		Saint Barthélemy		en									
+A		SH		&quot;Saint Helena		en									
+A		KN		Saint Kitts and Nevis		en									
+A		LC		Saint Lucia		en									
+A		MF		Saint Martin (French part)		en									
+A		PM		Saint Pierre and Miquelon		en									
+A		VC		Saint Vincent and the Grenadines		en									
+A		WS		Samoa		en									
+A		SM		San Marino		en									
+A		ST		Sao Tome and Principe		en									
+A		SA		Saudi Arabia		en									
+A		SN		Senegal		en									
+A		RS		Serbia		en									
+A		SC		Seychelles		en									
+A		SL		Sierra Leone		en									
+A		SG		Singapore		en									
+A		SX		Sint Maarten (Dutch part)		en									
+A		SK		Slovakia		en									
+A		SI		Slovenia		en									
+A		SB		Solomon Islands		en									
+A		SO		Somalia		en									
+A		ZA		South Africa		en									
+A		GS		South Georgia and the South Sandwich Islands		en									
+A		SS		South Sudan		en									
+A		ES		Spain		en									
+A		LK		Sri Lanka		en									
+A		SD		Sudan		en									
+A		SR		Suriname		en									
+A		SJ		Svalbard and Jan Mayen		en									
+A		SE		Sweden		en									
+A		CH		Switzerland		en									
+A		SY		Syrian Arab Republic		en									
+A		TW		&quot;Taiwan		en									
+A		TJ		Tajikistan		en									
+A		TZ		&quot;Tanzania		en									
+A		TH		Thailand		en									
+A		TL		Timor-Leste		en									
+A		TG		Togo		en									
+A		TK		Tokelau		en									
+A		TO		Tonga		en									
+A		TT		Trinidad and Tobago		en									
+A		TN		Tunisia		en									
+A		TR		Türkiye		en									
+A		TM		Turkmenistan		en									
+A		TC		Turks and Caicos Islands		en									
+A		TV		Tuvalu		en									
+A		UG		Uganda		en									
+A		UA		Ukraine		en									
+A		AE		United Arab Emirates		en									
+A		GB		United Kingdom of Great Britain and Northern Ireland		en									
+A		US		United States of America		en									
+A		UM		United States Minor Outlying Islands		en									
+A		UY		Uruguay		en									
+A		UZ		Uzbekistan		en									
+A		VU		Vanuatu		en									
+A		VE		&quot;Venezuela		en									
+A		VN		Viet Nam		en									
+A		VG		Virgin Islands (British)		en									
+A		VI		Virgin Islands (U.S.)		en									
+A		WF		Wallis and Futuna		en									
+A		EH		Western Sahara		en									
+A		YE		Yemen		en									
+A		ZM		Zambia		en									
+A		ZW		Zimbabwe		en									

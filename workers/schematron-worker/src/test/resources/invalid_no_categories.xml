@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <!-- responseDomainType="category" but no catgry elements -->
+    <var ID="V1" name="q1" intrvl="discrete">
+      <qstn responseDomainType="category">
+        <qstnLit>Question one</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

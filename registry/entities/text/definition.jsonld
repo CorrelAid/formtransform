@@ -1,0 +1,46 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:text",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Text (Short Free Text)",
+      "xlsform": {
+        "typeString": "text",
+        "aliases": [
+          "string"
+        ]
+      },
+      "limesurvey": {
+        "typeCode": "S",
+        "supportsOther": false,
+        "answerClass": null
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "character",
+        "responseDomainType": "text"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "tests": [
+        "tests/types/text/"
+      ],
+      "exampleDir": "registry/entities/text",
+      "examplePath": "registry/entities/text/xlsform.json",
+      "useWhen": "When responses are free text that cannot be meaningfully pre-categorised, or when exploring unknown topics exploratively."
+    }
+  ]
+}

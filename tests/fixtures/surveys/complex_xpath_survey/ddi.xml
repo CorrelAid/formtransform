@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>complex_xpath_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Do you consent to participate?</qstnLit>
+      </qstn>
+      <concept>Do you consent to participate?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>What is your age?</qstnLit>
+      </qstn>
+      <concept>What is your age?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_country" name="country" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>What country do you live in?</qstnLit>
+      </qstn>
+      <concept>What country do you live in?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_adult_consent" name="adult_consent" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Adult consent verification</qstnLit>
+      </qstn>
+      <concept>Adult consent verification</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_eligible_participant" name="eligible_participant" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Eligible participant</qstnLit>
+      </qstn>
+      <concept>Eligible participant</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_valid_response" name="valid_response" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Valid response check</qstnLit>
+      </qstn>
+      <concept>Valid response check</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age_category" name="age_category" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Age category</qstnLit>
+      </qstn>
+      <concept>Age category</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_complex_validation" name="complex_validation" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Complex validation test</qstnLit>
+      </qstn>
+      <concept>Complex validation test</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

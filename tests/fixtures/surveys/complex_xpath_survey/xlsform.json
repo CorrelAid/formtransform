@@ -1,0 +1,66 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "consent_section",
+      "label": "Consent and Demographics"
+    },
+    {
+      "type": "text",
+      "name": "consent",
+      "label": "Do you consent to participate?"
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": "What is your age?"
+    },
+    {
+      "type": "text",
+      "name": "country",
+      "label": "What country do you live in?"
+    },
+    {
+      "type": "text",
+      "name": "adult_consent",
+      "label": "Adult consent verification",
+      "relevant": "selected(${consent}, 'yes') and ${age} >= 18"
+    },
+    {
+      "type": "text",
+      "name": "eligible_participant",
+      "label": "Eligible participant",
+      "relevant": "${age} >= 18 and (${country} = 'USA' or ${country} = 'Canada')"
+    },
+    {
+      "type": "text",
+      "name": "valid_response",
+      "label": "Valid response check",
+      "relevant": "not(${consent} = '') and ${age} > 0"
+    },
+    {
+      "type": "text",
+      "name": "age_category",
+      "label": "Age category",
+      "relevant": "if(${age} > 18, true(), false())"
+    },
+    {
+      "type": "text",
+      "name": "complex_validation",
+      "label": "Complex validation test",
+      "relevant": "${consent} = 'yes' and (${age} >= 18 or ${country} = 'USA')",
+      "constraint": ". >= 5 and . <= 100"
+    },
+    {
+      "type": "end_group"
+    }
+  ],
+  "choices": [],
+  "settings": [
+    {
+      "form_title": "Complex XPath Survey",
+      "form_id": "complex_xpath_survey",
+      "default_language": "en"
+    }
+  ]
+}

@@ -1,0 +1,422 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>all_types_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="q_note">Im nächsten Abschnitt bitten wir Sie um Ihr ausführliches Feedback. Bitte nehmen Sie sich Zeit.</notes>
+    <notes type="instruction" subject="orphan_after">Vielen Dank für Ihre Teilnahme an dieser Umfrage!</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_q_select_multi" name="q_select_multi" type="multipleResp" var="V_q_select_multi_red V_q_select_multi_blue V_q_select_multi_green">
+      <txt>An welchen Tracks haben Sie teilgenommen?</txt>
+      <concept>An welchen Tracks haben Sie teilgenommen?</concept>
+    </varGrp>
+    <varGrp ID="VG_q_sel1_other" name="q_sel1_other" type="other" var="V_q_sel1_other V_q_sel1_other_other">
+      <txt>Welcher Track hat Ihnen am besten gefallen?</txt>
+      <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
+    </varGrp>
+    <varGrp ID="VG_q_selm_other" name="q_selm_other" type="other" var="V_q_selm_other_other" varGrp="VG_q_selm_other_choices">
+      <txt>Welche Tracks würden Sie erneut besuchen?</txt>
+      <concept>Welche Tracks würden Sie erneut besuchen?</concept>
+    </varGrp>
+    <varGrp ID="VG_q_selm_other_choices" name="q_selm_other_choices" type="multipleResp" var="V_q_selm_other_red V_q_selm_other_blue V_q_selm_other_green">
+      <txt>Welche Tracks würden Sie erneut besuchen?</txt>
+      <concept>Welche Tracks würden Sie erneut besuchen?</concept>
+    </varGrp>
+    <var ID="V_q_select_multi_red" name="q_select_multi_red" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
+        <qstnLit>Frontend-Entwicklung</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>An welchen Tracks haben Sie teilgenommen?: Frontend-Entwicklung</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_select_multi_blue" name="q_select_multi_blue" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
+        <qstnLit>Backend-Entwicklung</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>An welchen Tracks haben Sie teilgenommen?: Backend-Entwicklung</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_select_multi_green" name="q_select_multi_green" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
+        <qstnLit>Data Science</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>An welchen Tracks haben Sie teilgenommen?: Data Science</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_sel1_other" name="q_sel1_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Welcher Track hat Ihnen am besten gefallen?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>red</catValu>
+        <labl>Frontend-Entwicklung</labl>
+      </catgry>
+      <catgry>
+        <catValu>blue</catValu>
+        <labl>Backend-Entwicklung</labl>
+      </catgry>
+      <catgry>
+        <catValu>green</catValu>
+        <labl>Data Science</labl>
+      </catgry>
+      <catgry>
+        <catValu>other</catValu>
+        <labl>Other</labl>
+      </catgry>
+      <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_sel1_other_other" name="q_sel1_other_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Other</qstnLit>
+      </qstn>
+      <concept>Other</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_selm_other_red" name="q_selm_other_red" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
+        <qstnLit>Frontend-Entwicklung</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Tracks würden Sie erneut besuchen?: Frontend-Entwicklung</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_selm_other_blue" name="q_selm_other_blue" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
+        <qstnLit>Backend-Entwicklung</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Tracks würden Sie erneut besuchen?: Backend-Entwicklung</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_selm_other_green" name="q_selm_other_green" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
+        <qstnLit>Data Science</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Tracks würden Sie erneut besuchen?: Data Science</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_selm_other_other" name="q_selm_other_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Other</qstnLit>
+      </qstn>
+      <concept>Other</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_start" name="start" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_end" name="end" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_today" name="today" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_deviceid" name="deviceid" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_username" name="username" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_hidden1" name="hidden1" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_audit" name="audit" intrvl="discrete" files="F1">
+      <concept></concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_orphan_before" name="orphan_before" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie lautet Ihre Teilnehmer-ID?</qstnLit>
+      </qstn>
+      <concept>Wie lautet Ihre Teilnehmer-ID?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_text" name="q_text" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie heißen Sie (Vor- und Nachname)?</qstnLit>
+      </qstn>
+      <concept>Wie heißen Sie (Vor- und Nachname)?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_string" name="q_string" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie lautet Ihre E-Mail-Adresse?</qstnLit>
+      </qstn>
+      <concept>Wie lautet Ihre E-Mail-Adresse?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_integer" name="q_integer" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>An wie vielen Workshops haben Sie bisher teilgenommen?</qstnLit>
+      </qstn>
+      <concept>An wie vielen Workshops haben Sie bisher teilgenommen?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_int" name="q_int" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>An wie vielen Sessions haben Sie heute teilgenommen?</qstnLit>
+      </qstn>
+      <concept>An wie vielen Sessions haben Sie heute teilgenommen?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_decimal" name="q_decimal" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?</qstnLit>
+      </qstn>
+      <concept>Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_date" name="q_date" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wann sind Sie geboren?</qstnLit>
+      </qstn>
+      <concept>Wann sind Sie geboren?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_time" name="q_time" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Um wie viel Uhr sind Sie angekommen?</qstnLit>
+      </qstn>
+      <concept>Um wie viel Uhr sind Sie angekommen?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_select_one" name="q_select_one" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Würden Sie diesen Workshop weiterempfehlen?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>yes</catValu>
+        <labl>Ja</labl>
+      </catgry>
+      <catgry>
+        <catValu>no</catValu>
+        <labl>Nein</labl>
+      </catgry>
+      <concept>Würden Sie diesen Workshop weiterempfehlen?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_multiline_text" name="q_multiline_text" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Beschreiben Sie bitte Ihre Erfahrungen beim Workshop</qstnLit>
+      </qstn>
+      <concept>Beschreiben Sie bitte Ihre Erfahrungen beim Workshop</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_multiline_string" name="q_multiline_string" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?</qstnLit>
+      </qstn>
+      <concept>Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_likert" name="q_likert" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie zufrieden waren Sie mit der Organisation insgesamt?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>low</catValu>
+        <labl>Schlecht</labl>
+      </catgry>
+      <catgry>
+        <catValu>mid</catValu>
+        <labl>Mittelmäßig</labl>
+      </catgry>
+      <catgry>
+        <catValu>high</catValu>
+        <labl>Ausgezeichnet</labl>
+      </catgry>
+      <concept>Wie zufrieden waren Sie mit der Organisation insgesamt?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_minimal" name="q_minimal" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Bevorzugst du Dropdown?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>yes</catValu>
+        <labl>Ja</labl>
+      </catgry>
+      <catgry>
+        <catValu>no</catValu>
+        <labl>Nein</labl>
+      </catgry>
+      <concept>Bevorzugst du Dropdown?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_skill_python" name="skill_python" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Python</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>none</catValu>
+        <labl>Keine</labl>
+      </catgry>
+      <catgry>
+        <catValu>basic</catValu>
+        <labl>Grundkenntnisse</labl>
+      </catgry>
+      <catgry>
+        <catValu>adv</catValu>
+        <labl>Fortgeschritten</labl>
+      </catgry>
+      <catgry>
+        <catValu>exp</catValu>
+        <labl>Experte</labl>
+      </catgry>
+      <concept>Python</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_skill_js" name="skill_js" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>JavaScript</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>none</catValu>
+        <labl>Keine</labl>
+      </catgry>
+      <catgry>
+        <catValu>basic</catValu>
+        <labl>Grundkenntnisse</labl>
+      </catgry>
+      <catgry>
+        <catValu>adv</catValu>
+        <labl>Fortgeschritten</labl>
+      </catgry>
+      <catgry>
+        <catValu>exp</catValu>
+        <labl>Experte</labl>
+      </catgry>
+      <concept>JavaScript</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_skill_sql" name="skill_sql" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>SQL</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>none</catValu>
+        <labl>Keine</labl>
+      </catgry>
+      <catgry>
+        <catValu>basic</catValu>
+        <labl>Grundkenntnisse</labl>
+      </catgry>
+      <catgry>
+        <catValu>adv</catValu>
+        <labl>Fortgeschritten</labl>
+      </catgry>
+      <catgry>
+        <catValu>exp</catValu>
+        <labl>Experte</labl>
+      </catgry>
+      <concept>SQL</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_mandatory" name="q_mandatory" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie lautet Ihre E-Mail-Adresse?</qstnLit>
+      </qstn>
+      <concept>Wie lautet Ihre E-Mail-Adresse?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_hint" name="q_hint" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie lautet Ihre Telefonnummer?</qstnLit>
+      </qstn>
+      <concept>Wie lautet Ihre Telefonnummer?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_constraint" name="q_constraint" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Wie alt sind Sie?</qstnLit>
+      </qstn>
+      <concept>Wie alt sind Sie?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_q_default" name="q_default" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>In welchem Land leben Sie?</qstnLit>
+      </qstn>
+      <concept>In welchem Land leben Sie?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_relevant" name="q_relevant" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Wie sollen wir Sie kontaktieren?</qstnLit>
+      </qstn>
+      <concept>Wie sollen wir Sie kontaktieren?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_q_all_features" name="q_all_features" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Haben Sie noch Anmerkungen?</qstnLit>
+      </qstn>
+      <concept>Haben Sie noch Anmerkungen?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -1,0 +1,41 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:time",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Time",
+      "xlsform": {
+        "typeString": "time"
+      },
+      "limesurvey": {
+        "typeCode": "D",
+        "supportsOther": false,
+        "answerClass": null,
+        "dateFormat": "HH:MM"
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "character",
+        "responseDomainType": "text"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "exampleDir": "registry/entities/time",
+      "examplePath": "registry/entities/time/xlsform.json",
+      "useWhen": "When capturing a time of day without an associated date (e.g. preferred appointment time)."
+    }
+  ]
+}

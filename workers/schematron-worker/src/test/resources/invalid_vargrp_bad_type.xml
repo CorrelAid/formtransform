@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <!-- varGrp type="section" is not allowed -->
+    <varGrp ID="VG1" name="bad_group" type="section" var="V1">
+      <txt>Section groups are not supported</txt>
+    </varGrp>
+    <var ID="V1" name="some_var" intrvl="discrete">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Question one</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

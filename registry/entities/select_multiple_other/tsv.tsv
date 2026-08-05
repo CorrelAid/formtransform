@@ -1,0 +1,11 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	de		de								
+S		format	1	A		de								
+S		shownoanswer	1	N		de								
+SL		surveyls_title	1	Untitled Survey		de								
+G		Questions	1	Questions		de								
+Q	M	geraetebesitz	1	Welche dieser Geräte besitzen Sie?		de				Y				1
+SQ		smart		Smartphone		de								
+SQ		lapt		Laptop		de								
+SQ		tabl		Tablet		de								
+Q	S	geraetebesitzother	geraetebesitz == 'other'	Sonstiges (bitte angeben)		de								1

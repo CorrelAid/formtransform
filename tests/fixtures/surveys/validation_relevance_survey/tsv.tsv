@@ -1,0 +1,18 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	en		en								
+S		format	1	A		en								
+S		shownoanswer	1	N		en								
+SL		surveyls_title	1	Validation and Relevance Test		en								
+SL		surveyls_welcometext	1	Validation and Relevance Test Survey		en								
+G		Questions	1	Questions		en								
+Q	S	username	1	Username		en		self != ''						1
+Q	N	age	1	Age		en		self >= 18 and self <= 120						1
+Q	N	price	1	Price		en		self > 0 and self < 1000						1
+Q	L	consent	1	Do you consent?		en								1
+Q	S	adultinfo	age >= 18	Adult Information		en		self != ''						1
+Q	S	seniordiscount	age >= 65	Senior Discount Code		en								1
+Q	S	consentrequiredinfo	consent == 'yes'	Additional Information		en								1
+Q	S	complexrelevance	age >= 18 and consent == 'yes'	Complex Relevance Test		en								1
+Q	S	orrelevance	age < 18 or consent == 'no'	OR Relevance Test		en								1
+Q	S	stringfunctions	strlen(username) > 3	String Function Test		en		strlen(self) >= 5						1
+Q	N	mathfunctions	age > 21	Math Function Test		en		self >= age * 2						1

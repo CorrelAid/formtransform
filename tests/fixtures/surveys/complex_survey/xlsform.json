@@ -1,0 +1,136 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "demographics",
+      "label": "Demographics"
+    },
+    {
+      "type": "text",
+      "name": "full_name",
+      "label": "Full Name",
+      "required": "yes"
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": "Age",
+      "constraint": ". >= 18 and . <= 120",
+      "constraint_message": "Age must be between 18 and 120"
+    },
+    {
+      "type": "select_one gender",
+      "name": "gender",
+      "label": "Gender"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "preferences",
+      "label": "Preferences",
+      "relevant": "${age} >= 18"
+    },
+    {
+      "type": "select_multiple colors",
+      "name": "favorite_colors",
+      "label": "What are your favorite colors?",
+      "hint": "Select all that apply"
+    },
+    {
+      "type": "select_one satisfaction",
+      "name": "satisfaction_level",
+      "label": "How satisfied are you?"
+    },
+    {
+      "type": "text",
+      "name": "other_comments",
+      "label": "Any other comments?",
+      "relevant": "${satisfaction_level} = 'unhappy'"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "date",
+      "name": "survey_date",
+      "label": "Date of survey",
+      "default": "today()"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "gender",
+      "name": "male",
+      "label": "Male"
+    },
+    {
+      "list_name": "gender",
+      "name": "feml",
+      "label": "Woman"
+    },
+    {
+      "list_name": "gender",
+      "name": "othr",
+      "label": "Other"
+    },
+    {
+      "list_name": "colors",
+      "name": "red",
+      "label": "Red"
+    },
+    {
+      "list_name": "colors",
+      "name": "blue",
+      "label": "Blue"
+    },
+    {
+      "list_name": "colors",
+      "name": "green",
+      "label": "Green"
+    },
+    {
+      "list_name": "colors",
+      "name": "yellow",
+      "label": "Yellow"
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "happ",
+      "label": "Happy"
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "unhp",
+      "label": "Unhappy"
+    },
+    {
+      "list_name": "priorities",
+      "name": "family",
+      "label": "Family"
+    },
+    {
+      "list_name": "priorities",
+      "name": "career",
+      "label": "Career"
+    },
+    {
+      "list_name": "priorities",
+      "name": "health",
+      "label": "Health"
+    },
+    {
+      "list_name": "priorities",
+      "name": "friends",
+      "label": "Friends"
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "Complex Survey with Groups and Logic",
+      "form_id": "complex_survey",
+      "default_language": "en"
+    }
+  ]
+}

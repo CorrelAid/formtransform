@@ -1,0 +1,82 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:surveySettings",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "XLSForm `settings` sheet ↔ LS TSV ↔ DDI",
+      "rule": {
+        "fields": [
+          {
+            "xlsformKey": "form_title",
+            "lsTsvRow": "SL surveyls_title",
+            "ddiPath": "stdyDscr/citation/titlStmt/titl",
+            "required": true
+          },
+          {
+            "xlsformKey": "form_id",
+            "lsTsvRow": null,
+            "ddiPath": "fileDscr/@ID",
+            "required": true
+          },
+          {
+            "xlsformKey": "default_language",
+            "lsTsvCell": "language column on every row",
+            "ddiPath": "fallback xml:lang on var/qstn elements",
+            "required": false
+          },
+          {
+            "xlsformKey": "version",
+            "lsTsvRow": null,
+            "ddiPath": "codeBook/@version (DDI version, not survey version — record survey version elsewhere)",
+            "required": false
+          },
+          {
+            "xlsformKey": "instance_name",
+            "lsTsvRow": null,
+            "ddiPath": "fileDscr/fileTxt/fileName",
+            "required": false
+          }
+        ],
+        "magicNames": [
+          {
+            "xlsformRow": "type=note + name=welcome",
+            "lsTsvRow": "SL surveyls_welcometext",
+            "ddiPath": "stdyDscr/stdyInfo/abstract (or notes)",
+            "note": "Body text from label promoted to survey-level intro. Convention only; opt-in via tool config."
+          },
+          {
+            "xlsformRow": "type=note + name=end",
+            "lsTsvRow": "SL surveyls_endtext",
+            "ddiPath": "—",
+            "note": "End-of-survey thank-you. LS-only."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <var ID="V1" name="q1" intrvl="discrete">
+      <labl>First question</labl>
+      <bogusElement>This element does not exist in the DDI schema</bogusElement>
+    </var>
+  </dataDscr>
+</codeBook>

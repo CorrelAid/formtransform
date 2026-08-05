@@ -1,0 +1,14 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	en		en								
+S		format	1	A		en								
+S		shownoanswer	1	N		en								
+SL		surveyls_title	1	Untitled Survey		en								
+G	1	Vertrauen in Institutionen	1			en								
+Q	F	institutionen	1	Vertrauen in Institutionen		en								1
+SQ		vertrauenparlament	1	Das Parlament		en								
+SQ		vertrauenpolizei	1	Die Polizei		en								
+A		1		Gar nicht		en								
+A		2		2		en								
+A		3		3		en								
+A		4		4		en								
+A		5		Vollständig		en								

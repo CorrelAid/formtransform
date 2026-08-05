@@ -1,0 +1,187 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	de		de								
+S		additional_languages	1	en		de								
+S		format	1	A		de								
+S		shownoanswer	1	N		de								
+SL		surveyls_title	1	Untitled Survey		de								
+SL		surveyls_title	1	Untitled Survey		en								
+G	1	Hallo!	1			de								
+G	1	Hallo!	1			en								
+Q	X	Hallo	1	Hallo!	<p>Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. </p><br /><p>Für die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger<em>in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator</em>innen kontaktieren Dich dann schnellstmöglich.</p>	de								
+Q	X	Disclaimer	1	Disclaimer	"<p>In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.</p><br /><p>Bei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an <a href=""mailto:info@correlaid.org"">info@correlaid.org</a>. Nach erfolgtem Widerruf werden Deine Daten gelöscht.</p>"	de								
+Q	X	Hallo	1	Hello!	<p>Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. </p><br /><p>The survey will take 5 to 10 minutes to complete. So don&#39;t worry if you check the “beginner” box—you don&#39;t have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible.</p>	en								
+Q	X	Disclaimer	1	Disclaimer	"<p>In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.</p><br /><p>In accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to <a href=""mailto:info@correlaid.org"">info@correlaid.org</a>. Your data will be deleted after revocation.</p>"	en								
+G	2	G1	1	G1		de								
+G	2	G1	1	G1		en								
+Q	M	projectid	1	Für welche Projekte möchtest Du dich bewerben?		de			Y					1
+SQ		proje		Projekt Alpha		de								
+SQ		proj1		Projekt Beta		de								
+SQ		proj2		Projekt Gamma		de								
+Q	M	projectroleprojectal	(projectid_proje.NAOK == 'Y')	In welcher Rolle siehst du dich im Projekt Projekt Alpha?		de			Y					1
+SQ		roles		Umfragedesign und Datenerhebung		de								
+SQ		roled		Datenanalyse		de								
+SQ		teamc		Teamkoordinator:in		de								
+SQ		teamt		Team Trainee		de								
+Q	M	projectroleprojectbe	(projectid_proj1.NAOK == 'Y')	In welcher Rolle siehst du dich im Projekt Beta?		de			Y					1
+SQ		rolev		Datenvisualisierung		de								
+SQ		roled		Data Engineering		de								
+SQ		teamc		Teamkoordinator:in		de								
+SQ		teamt		Team Trainee		de								
+Q	M	projectroleprojectga	(projectid_proj2.NAOK == 'Y')	In welcher Rolle siehst du dich im Projekt Gamma?		de			Y					1
+SQ		rolep		Projektmanagement		de								
+SQ		rolem		Machine Learning		de								
+SQ		teamc		Teamkoordinator:in		de								
+SQ		teamt		Team Trainee		de								
+Q	M	projectid	1	Which project(s) do you want to apply for?		en			Y					1
+SQ		proje		Project Alpha		en								
+SQ		proj1		Project Beta		en								
+SQ		proj2		Project Gamma		en								
+Q	M	projectroleprojectal	(projectid_proje.NAOK == 'Y')	Which role do you think you could fill in Project Alpha?		en			Y					1
+SQ		roles		Survey design and data collection		en								
+SQ		roled		Data analysis		en								
+SQ		teamc		Team Coordinator		en								
+SQ		teamt		Team Trainee		en								
+Q	M	projectroleprojectbe	(projectid_proj1.NAOK == 'Y')	Which role do you see yourself in for Project Beta?		en			Y					1
+SQ		rolev		Data visualization		en								
+SQ		roled		Data engineering		en								
+SQ		teamc		Team Coordinator		en								
+SQ		teamt		Team Trainee		en								
+Q	M	projectroleprojectga	(projectid_proj2.NAOK == 'Y')	Which role do you see yourself in for Project Gamma?		en			Y					1
+SQ		rolep		Project management		en								
+SQ		rolem		Machine learning		en								
+SQ		teamc		Team Coordinator		en								
+SQ		teamt		Team Trainee		en								
+G	3	Tools	1			de								
+G	3	Tools	1			en								
+Q	X	grouplt58n55	1	Deine Fähigkeiten und Erfahrungen		de								
+Q	F	ratingtechnologiest1	1	Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:	"Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	de								1
+SQ		soscisurvey	(projectroleprojectal_roles.NAOK == 'Y')	SoSci Survey		de			Y					
+SQ		python	(projectroleprojectal_roled.NAOK == 'Y')	Python		de			Y					
+SQ		rstats	(projectroleprojectal_roled.NAOK == 'Y')	R		de			Y					
+SQ		powerbi	(projectroleprojectbe_rolev.NAOK == 'Y')	Power BI		de			Y					
+SQ		excel	(projectroleprojectbe_rolev.NAOK == 'Y')	Microsoft Excel		de			Y					
+SQ		sql	(projectroleprojectbe_roled.NAOK == 'Y')	SQL		de			Y					
+SQ		git	(projectroleprojectbe_roled.NAOK == 'Y')	Git		de			Y					
+SQ		jupyter	(projectroleprojectga_rolem.NAOK == 'Y')	Jupyter Notebooks		de			Y					
+SQ		tensorflow	(projectroleprojectga_rolem.NAOK == 'Y')	TensorFlow / PyTorch		de			Y					
+A		begin		Anfänger:in		de								
+A		user		Benutzer:in		de								
+A		advan		Fortgeschrittene:r		de								
+A		exper		Expert:in		de								
+Q	T	toolsother	1	Andere relevante Tools	Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.	de								1
+Q	X	grouplt58n55	1	Your skills and experiences		en								
+Q	F	ratingtechnologiest1	1	Please rate your experience with the following technologies and tools:	"Read more about what the different experience labels mean for us: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	en								1
+SQ		soscisurvey	(projectroleprojectal_roles.NAOK == 'Y')	SoSci Survey		en			Y					
+SQ		python	(projectroleprojectal_roled.NAOK == 'Y')	Python		en			Y					
+SQ		rstats	(projectroleprojectal_roled.NAOK == 'Y')	R		en			Y					
+SQ		powerbi	(projectroleprojectbe_rolev.NAOK == 'Y')	Power BI		en			Y					
+SQ		excel	(projectroleprojectbe_rolev.NAOK == 'Y')	Microsoft Excel		en			Y					
+SQ		sql	(projectroleprojectbe_roled.NAOK == 'Y')	SQL		en			Y					
+SQ		git	(projectroleprojectbe_roled.NAOK == 'Y')	Git		en			Y					
+SQ		jupyter	(projectroleprojectga_rolem.NAOK == 'Y')	Jupyter Notebooks		en			Y					
+SQ		tensorflow	(projectroleprojectga_rolem.NAOK == 'Y')	TensorFlow / PyTorch		en			Y					
+A		begin		Beginner		en								
+A		user		User		en								
+A		advan		Advanced		en								
+A		exper		Expert		en								
+Q	T	toolsother	1	Other relevant tools	Please specifiy other tools you know that you consider relevant	en								1
+G	4	Techniken	1			de								
+G	4	Techniques	1			en								
+Q	F	ratingtechniqueshead	1	Bitte bewerte Deine Erfahrung mit den folgenden Techniken.	"Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	de								1
+SQ		surveydesign	(projectroleprojectal_roles.NAOK == 'Y')	Entwicklung von Fragebögen		de			Y					
+SQ		indicatordevelopment	(projectroleprojectal_roles.NAOK == 'Y')	Entwicklung von Indikatoren		de			Y					
+SQ		datacollection	(projectroleprojectal_roles.NAOK == 'Y')	Datenerhebung		de			Y					
+SQ		datacleaning	(projectroleprojectal_roled.NAOK == 'Y')	Datenbereinigung		de			Y					
+SQ		descriptivestatistic	(projectroleprojectal_roled.NAOK == 'Y')	Deskriptive Statistik		de			Y					
+SQ		datavisualization	(projectroleprojectbe_rolev.NAOK == 'Y')	Datenvisualisierung		de			Y					
+SQ		dataengineering	(projectroleprojectbe_roled.NAOK == 'Y')	Data Engineering		de			Y					
+SQ		automation	(projectroleprojectbe_roled.NAOK == 'Y')	Automatisierung		de			Y					
+SQ		projectplanning	(projectroleprojectga_rolep.NAOK == 'Y')	Projektplanung		de			Y					
+SQ		mlmodeling	(projectroleprojectga_rolem.NAOK == 'Y')	ML-Modellierung		de			Y					
+A		begin		Anfänger:in		de								
+A		user		Benutzer:in		de								
+A		advan		Fortgeschrittene:r		de								
+A		exper		Expert:in		de								
+Q	F	ratingtechniqueshead	1	Please rate your experience with the following techniques:	"Read more about what the different experience labels mean for us: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	en								1
+SQ		surveydesign	(projectroleprojectal_roles.NAOK == 'Y')	Survey design		en			Y					
+SQ		indicatordevelopment	(projectroleprojectal_roles.NAOK == 'Y')	Development of indicators		en			Y					
+SQ		datacollection	(projectroleprojectal_roles.NAOK == 'Y')	Data collection		en			Y					
+SQ		datacleaning	(projectroleprojectal_roled.NAOK == 'Y')	Data cleaning		en			Y					
+SQ		descriptivestatistic	(projectroleprojectal_roled.NAOK == 'Y')	Descriptive statistics		en			Y					
+SQ		datavisualization	(projectroleprojectbe_rolev.NAOK == 'Y')	Data visualization		en			Y					
+SQ		dataengineering	(projectroleprojectbe_roled.NAOK == 'Y')	Data engineering		en			Y					
+SQ		automation	(projectroleprojectbe_roled.NAOK == 'Y')	Automation		en			Y					
+SQ		projectplanning	(projectroleprojectga_rolep.NAOK == 'Y')	Project planning		en			Y					
+SQ		mlmodeling	(projectroleprojectga_rolem.NAOK == 'Y')	ML modeling		en			Y					
+A		begin		Beginner		en								
+A		user		User		en								
+A		advan		Advanced		en								
+A		exper		Expert		en								
+G	5	Themen	1			de								
+G	5	Topics	1			en								
+Q	F	ratingtopicsheader	1	Bitte bewerte Deine Erfahrung mit den folgenden Themen:	"Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	de								1
+SQ		wirkungsmessung	(projectroleprojectal_roles.NAOK == 'Y')	Wirkungsmessung		de			Y					
+SQ		researchdesign	(projectroleprojectal_roles.NAOK == 'Y')	Research Design		de			Y					
+SQ		surveyresearch	(projectroleprojectal_roles.NAOK == 'Y')	Umfrageforschung		de			Y					
+SQ		dataprotection	(projectroleprojectal_roles.NAOK == 'Y')	Datenschutz		de			Y					
+SQ		resiliencementalheal	(projectroleprojectal_roles.NAOK == 'Y')	Resilienz und Mentale Gesundheit		de			Y					
+SQ		educationresearch	(projectroleprojectal_roles.NAOK == 'Y')	Bildungsforschung o.ä.		de			Y					
+A		begin		Anfänger:in		de								
+A		user		Benutzer:in		de								
+A		advan		Fortgeschrittene:r		de								
+A		exper		Expert:in		de								
+Q	F	ratingtopicsheader	1	Please rate your experience with the following topics:	"Read more about what the different experience labels mean for us: <a href=""https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"">https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</a>"	en								1
+SQ		wirkungsmessung	(projectroleprojectal_roles.NAOK == 'Y')	Impact Measurement		en			Y					
+SQ		researchdesign	(projectroleprojectal_roles.NAOK == 'Y')	Research Design		en			Y					
+SQ		surveyresearch	(projectroleprojectal_roles.NAOK == 'Y')	Survey Research		en			Y					
+SQ		dataprotection	(projectroleprojectal_roles.NAOK == 'Y')	Data protection		en			Y					
+SQ		resiliencementalheal	(projectroleprojectal_roles.NAOK == 'Y')	Resilience and mental health		en			Y					
+SQ		educationresearch	(projectroleprojectal_roles.NAOK == 'Y')	Education research (or similar)		en			Y					
+A		begin		Beginner		en								
+A		user		User		en								
+A		advan		Advanced		en								
+A		exper		Expert		en								
+G	6	Du und das Projekt	1			de								
+G	6	You and the project	1			en								
+Q	T	motivationskills	1	Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.	Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.	de			Y					1
+Q	T	motivationwhy	1	Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.	Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.	de			Y					1
+Q	L	pastapplications	1	Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?	Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.	de			Y					1
+A		succe		Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.		de								
+A		notsu		Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.		de								
+A		first		Nein, das ist meine erste Bewerbung.		de								
+Q	S	pastapplicationsdeta	pastapplications == 'notsu'	Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.	Grobe Angaben helfen uns auch schon weiter.	de								1
+Q	T	motivationskills	1	Please describe here what skills and experiences you would bring to the project.	Please write maximum 5 sentences per project that you are applying to.	en			Y					1
+Q	T	motivationwhy	1	Please describe here why you want to get involved in this project.	Please write maximum 5 sentences per project that you are applying to.	en			Y					1
+Q	L	pastapplications	1	Have you applied to a CorrelAid project in the past?	In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project.	en			Y					1
+A		succe		Yes, and I have been successful / part of a project team at least once.		en								
+A		notsu		Yes, but I have not been successful / all my applications have been rejected so far.		en								
+A		first		No, this is my first application.		en								
+Q	S	pastapplicationsdeta	pastapplications == 'notsu'	If you can remember, please specify which project(s) you have applied for.	Any information is helpful to us.	en								1
+G	7	Über dich	1			de								
+G	7	About you	1			en								
+Q	S	firstname	1	Wie lautet dein Vorname?		de			Y					1
+Q	S	lastname	1	Wie lautet dein Nachname?		de			Y					1
+Q	S	emailaddress	1	Unter welcher E-Mail Adresse können wir dich erreichen?		de		regexMatch(self, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')	Y					1
+Q	L	gender	1	Was ist dein Geschlecht?	Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.	de			Y					1
+A		femal		Weiblich		de								
+A		male		Männlich		de								
+A		nonbi		Nicht-binär / non-binary		de								
+A		notdi		Das möchte ich nicht angeben		de								
+A		selfi		Mein Geschlecht ist (eigene Angabe):		de								
+Q	S	genderselfidentifica	gender == 'selfi'	Mein Geschlecht ist:	Bitte gebe hier dein Geschlecht an.	de			Y					1
+Q	S	firstname	1	What is your first name?		en			Y					1
+Q	S	lastname	1	What is your last name?		en			Y					1
+Q	S	emailaddress	1	Which email address can we use to contact you?		en		regexMatch(self, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')	Y					1
+Q	L	gender	1	What is your gender?	Note: We ask this question because we want to foster gender diversity within CorrelAid.	en			Y					1
+A		femal		Female		en								
+A		male		Male		en								
+A		nonbi		Non-binary		en								
+A		notdi		I do not want to disclose my gender		en								
+A		selfi		My gender is (manually specify):		en								
+Q	S	genderselfidentifica	gender == 'selfi'	My gender is:	Please specify your gender here.	en			Y					1
+G	8	G7	1	G7		de								
+G	8	G7	1	G7		en								
+Q	L	consentprivacypolicy	1	Einwilligung in die Datenschutzerklärung	Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.	de			Y					1
+A		yes		Ja		de								
+Q	L	consentprivacypolicy	1	Consent to privacy policy	I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful.	en			Y					1
+A		yes		Yes		en								

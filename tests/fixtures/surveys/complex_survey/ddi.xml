@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>complex_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_favorite_colors" name="favorite_colors" type="multipleResp" var="V_favorite_colors_red V_favorite_colors_blue V_favorite_colors_green V_favorite_colors_yellow">
+      <txt>What are your favorite colors?</txt>
+      <concept>What are your favorite colors?</concept>
+    </varGrp>
+    <var ID="V_favorite_colors_red" name="favorite_colors_red" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>What are your favorite colors?</preQTxt>
+        <qstnLit>Red</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>What are your favorite colors?: Red</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_favorite_colors_blue" name="favorite_colors_blue" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>What are your favorite colors?</preQTxt>
+        <qstnLit>Blue</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>What are your favorite colors?: Blue</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_favorite_colors_green" name="favorite_colors_green" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>What are your favorite colors?</preQTxt>
+        <qstnLit>Green</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>What are your favorite colors?: Green</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_favorite_colors_yellow" name="favorite_colors_yellow" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>What are your favorite colors?</preQTxt>
+        <qstnLit>Yellow</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>What are your favorite colors?: Yellow</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_full_name" name="full_name" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Full Name</qstnLit>
+      </qstn>
+      <concept>Full Name</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Age</qstnLit>
+      </qstn>
+      <concept>Age</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Gender</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>male</catValu>
+        <labl>Male</labl>
+      </catgry>
+      <catgry>
+        <catValu>feml</catValu>
+        <labl>Woman</labl>
+      </catgry>
+      <catgry>
+        <catValu>othr</catValu>
+        <labl>Other</labl>
+      </catgry>
+      <concept>Gender</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_satisfaction_level" name="satisfaction_level" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>How satisfied are you?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>happ</catValu>
+        <labl>Happy</labl>
+      </catgry>
+      <catgry>
+        <catValu>unhp</catValu>
+        <labl>Unhappy</labl>
+      </catgry>
+      <concept>How satisfied are you?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_other_comments" name="other_comments" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Any other comments?</qstnLit>
+      </qstn>
+      <concept>Any other comments?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_survey_date" name="survey_date" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Date of survey</qstnLit>
+      </qstn>
+      <concept>Date of survey</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

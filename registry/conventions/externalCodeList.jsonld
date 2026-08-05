@@ -1,0 +1,47 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:externalCodeList",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "External code list (long-list) pattern",
+      "rule": {
+        "xlsformTypePattern": "^select_(one|multiple)_from_file (?P<filename>[^ ]+\\.csv)$",
+        "ddiVocabFromFilename": "stripExtension",
+        "ddiEmission": "concept[@vocab='<vocab>'] in place of inline catgry; catgry MUST NOT be emitted",
+        "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import)",
+        "structuralNote": "select_multiple_from_file emits a flat <var> with concept/@vocab, NOT a varGrp[@type='multipleResp'] with binary children. This differs from select_multiple.",
+        "appliesTo": [
+          "select_one_from_file",
+          "select_multiple_from_file"
+        ],
+        "vocabularyCsvHeader": "code,label",
+        "vocabularyDeclaration": "Vocabularies are open-ended: this convention defines only how one is declared and handled, never which ones exist. To add one, put its options in registry/vocab/<name>.csv with a 'code,label' header and add a '@type': 'Vocabulary' node to the graph with xlsformFilename/ddiVocab/vocabURI/standard/skos:prefLabel. Every consumer discovers vocabularies by filtering '@type' == 'Vocabulary', so no code, convention or emitter needs editing. vocab:iso_3166_1 is one example, not a special case."
+      }
+    }
+  ]
+}

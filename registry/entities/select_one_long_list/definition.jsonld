@@ -1,0 +1,28 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "variant:select_one_long_list",
+      "@type": "QuestionTypeVariant",
+      "skos:prefLabel": "Select One (Long List)",
+      "skos:broader": {
+        "@id": "type:select_one"
+      },
+      "presentation": {
+        "appearanceString": "minimal",
+        "withOther": false,
+        "withLongList": true
+      },
+      "examplePath": "registry/entities/select_one_long_list/xlsform.json",
+      "exampleDir": "registry/entities/select_one_long_list",
+      "useWhen": "When selecting one answer from a long closed list (typically 15+ options) such as countries or occupations, where a dropdown or autocomplete interface is preferable to many radio buttons."
+    }
+  ]
+}

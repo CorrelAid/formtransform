@@ -1,0 +1,7 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	date_format
+S		language	1	en		en									
+S		format	1	A		en									
+S		shownoanswer	1	N		en									
+SL		surveyls_title	1	Untitled Survey		en									
+G		Questions	1	Questions		en									
+Q	D	aufstehzeit	1	Um wie viel Uhr stehen Sie werktags normalerweise auf?		en								1	HH:MM

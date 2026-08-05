@@ -1,0 +1,85 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>grid</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-07-22">2026-07-22</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_institutionen" name="institutionen" type="grid" var="V_vertrauenparlament V_vertrauenpolizei">
+      <txt>Vertrauen in Institutionen</txt>
+      <concept>Vertrauen in Institutionen</concept>
+    </varGrp>
+    <var ID="V_vertrauenparlament" name="vertrauenparlament" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Vertrauen in Institutionen</preQTxt>
+        <qstnLit>Das Parlament</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>2</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>3</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>4</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Vollständig</labl>
+      </catgry>
+      <concept>Das Parlament</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_vertrauenpolizei" name="vertrauenpolizei" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Vertrauen in Institutionen</preQTxt>
+        <qstnLit>Die Polizei</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>2</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>3</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>4</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Vollständig</labl>
+      </catgry>
+      <concept>Die Polizei</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: limesurvey
+      MYSQL_USER: limesurvey
+      MYSQL_PASSWORD: limesurvey
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  limesurvey:
+    image: adamzammit/limesurvey:${LIMESURVEY_VERSION:-6.16.4}
+    ports:
+      - "8080:80"
+    environment:
+      LIMESURVEY_DB_TYPE: mysql
+      LIMESURVEY_DB_HOST: mysql
+      LIMESURVEY_DB_PORT: 3306
+      LIMESURVEY_DB_NAME: limesurvey
+      LIMESURVEY_DB_USER: limesurvey
+      LIMESURVEY_DB_PASSWORD: limesurvey
+      LIMESURVEY_ADMIN_USER: admin
+      LIMESURVEY_ADMIN_PASSWORD: admin
+      LIMESURVEY_ADMIN_NAME: "Administrator"
+      LIMESURVEY_ADMIN_EMAIL: admin@example.com
+      LIMESURVEY_BASE_URL: http://localhost:8080
+      LIMESURVEY_API_MODE: json
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/index.php/admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  mysql_data:

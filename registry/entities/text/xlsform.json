@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "text",
+      "name": "anmerkungen",
+      "label": "Haben Sie weitere Anmerkungen?"
+    }
+  ],
+  "choices": []
+}

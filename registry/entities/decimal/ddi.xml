@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>decimal</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-07-22">2026-07-22</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_schlafdauer" name="schlafdauer" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</qstnLit>
+      </qstn>
+      <concept>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

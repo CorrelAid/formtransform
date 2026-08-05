@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "variant:select_multiple_other",
+      "@type": "QuestionTypeVariant",
+      "skos:prefLabel": "Select Multiple with Other",
+      "skos:broader": {
+        "@id": "type:select_multiple"
+      },
+      "presentation": {
+        "withOther": true,
+        "withLongList": false
+      },
+      "examplePath": "registry/entities/select_multiple_other/xlsform.json",
+      "exampleDir": "registry/entities/select_multiple_other",
+      "useWhen": "When a multi-select question has an open-ended 'other' response option for unlisted selections."
+    }
+  ]
+}

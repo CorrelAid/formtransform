@@ -1,0 +1,58 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:languageTagging",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "XLSForm `label::<lang>` ↔ LS TSV `language` cell ↔ DDI `xml:lang`",
+      "rule": {
+        "xlsformColumnPattern": "^(?P<base>label|hint|constraint_message|guidance_hint|media::image|media::audio|media::video)::(?P<lang>.+)$",
+        "xlsformLanguageList": {
+          "setting": "settings.default_language",
+          "fallback": "first language encountered in label columns",
+          "note": "Each language code SHOULD be a valid IETF BCP 47 tag (e.g. 'de', 'en', 'fr-BE'). Tools may warn on non-BCP47 codes."
+        },
+        "lsTsvHandling": {
+          "column": "language",
+          "emission": "one row per language per question — same name/type, different language column + text/help cells",
+          "baseLanguage": "first emitted; subsequent languages reference same question name"
+        },
+        "ddiHandling": {
+          "attribute": "xml:lang",
+          "appliesToElements": [
+            "txt",
+            "qstnLit",
+            "labl",
+            "preQTxt",
+            "postQTxt"
+          ],
+          "emission": "one child element per language with xml:lang attr"
+        }
+      }
+    }
+  ]
+}

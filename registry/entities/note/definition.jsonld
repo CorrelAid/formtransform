@@ -1,0 +1,35 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:note",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Note (Display Text)",
+      "xlsform": {
+        "typeString": "note"
+      },
+      "limesurvey": {
+        "typeCode": "X",
+        "supportsOther": false,
+        "answerClass": null
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "exampleDir": "registry/entities/note",
+      "examplePath": "registry/entities/note/xlsform.json",
+      "useWhen": "When displaying non-interactive informational text, instructions, or section headers that require no respondent answer."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "globs": ["**/*.md"],
+  "ignores": [
+    "**/node_modules/**",
+    "**/.venv/**",
+    "_xlsform2lstsv/**",
+    "docs/**",
+    "dist/**"
+  ],
+  "config": {
+    "MD013": false,
+    "MD040": false,
+    "MD059": false,
+    "MD060": false
+  }
+}

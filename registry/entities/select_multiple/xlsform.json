@@ -1,0 +1,21 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple wochenendtage",
+      "name": "wochenende",
+      "label": "An welchen Tagen des Wochenendes sind Sie erreichbar?"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "wochenendtage",
+      "name": "sa",
+      "label": "Samstag"
+    },
+    {
+      "list_name": "wochenendtage",
+      "name": "so",
+      "label": "Sonntag"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "name": "@correlaid/formtransform",
+  "version": "0.1.0",
+  "description": "Transform surveys between XLSForm, LimeSurvey TSV, and DDI Codebook via the CDL canonical survey model",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "formtransform": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:contract": "vitest run --project contract",
+    "test:py": "uv run pytest",
+    "test:live": "bash scripts/test-live.sh",
+    "test:all": "npm run test && npm run test:py && npm run test:live",
+    "bless": "bash scripts/bless.sh",
+    "fixtures:generate": "npm run build && node dist/generateFixtures.js",
+    "lint": "eslint src --max-warnings 20",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "typecheck": "tsc --noEmit",
+    "knip": "knip",
+    "dup": "jscpd src",
+    "arch": "madge --circular --extensions ts src",
+    "markdownlint": "markdownlint-cli2",
+    "validate": "concurrently -n lint,types,format,knip,dup,arch,md \"npm:lint\" \"npm:typecheck\" \"npm:format:check\" \"npm:knip\" \"npm:dup\" \"npm:arch\" \"npm:markdownlint\"",
+    "prepare": "husky || true; npm run build"
+  },
+  "dependencies": {
+    "js-xpath": "github:jstet/js-xpath",
+    "marked": "^17.0.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --max-warnings 20 --fix",
+      "prettier --write"
+    ],
+    "*.{js,mjs,json}": [
+      "prettier --write"
+    ],
+    "*.py": [
+      "uv run ruff check --fix",
+      "uv run ruff format"
+    ],
+    "*.md": [
+      "markdownlint-cli2"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.0.10",
+    "@vitest/coverage-v8": "^3.0.0",
+    "concurrently": "^10.0.3",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "husky": "^9.1.7",
+    "jscpd": "^5.0.12",
+    "knip": "^6.27.0",
+    "lint-staged": "^17.1.0",
+    "madge": "^8.0.0",
+    "markdownlint-cli2": "^0.23.1",
+    "prettier": "^3.9.5",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^3.0.0"
+  }
+}

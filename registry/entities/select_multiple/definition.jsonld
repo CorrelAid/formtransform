@@ -1,0 +1,71 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:select_multiple",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Select Multiple",
+      "xlsform": {
+        "typeString": "select_multiple",
+        "requiresListName": true
+      },
+      "limesurvey": {
+        "typeCode": "M",
+        "supportsOther": true,
+        "answerClass": "SQ"
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "numeric",
+        "responseDomainType": "multiple",
+        "structure": {
+          "container": "varGrp[@type='multipleResp']",
+          "containerAttrs": {
+            "name": "<question name>",
+            "var": "space-separated IDs of member binary vars"
+          },
+          "memberVars": "one <var> per choice, name=<qname>_<choicecode>, intrvl='discrete', responseDomainType='multiple', binary catgry codes 0/1",
+          "otherVariant": "if `or_other` flag present: parent varGrp[@type='other'] wraps the multipleResp group + a sibling _other text var; see convention:other"
+        }
+      },
+      "lsTsv": {
+        "row": "Q-class row, type/scale=M, answerClass=SQ",
+        "answerRows": "one A-class row per choice"
+      },
+      "schematronPatterns": [
+        "essentials",
+        "logic"
+      ],
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$",
+        "maxChoiceCodeLength": 5,
+        "choiceCodePattern": "^[a-zA-Z0-9]+$",
+        "warnings": [
+          "Choice codes > 5 chars will be truncated in LimeSurvey",
+          "Avoid choice codes with identical 5-char prefixes"
+        ]
+      },
+      "variants": [
+        "variant:select_multiple_other",
+        "variant:select_multiple_long_list"
+      ],
+      "tests": [
+        "tests/types/select_multiple/"
+      ],
+      "exampleDir": "registry/entities/select_multiple",
+      "examplePath": "registry/entities/select_multiple/xlsform.json",
+      "useWhen": "When options are not mutually exclusive and respondents may select any number of applicable answers (e.g. languages spoken, devices owned)."
+    }
+  ]
+}

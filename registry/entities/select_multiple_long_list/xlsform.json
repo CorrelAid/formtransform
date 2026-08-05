@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple_from_file iso_3166_1.csv",
+      "name": "besuchtelaender",
+      "label": "Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich."
+    }
+  ],
+  "choices": []
+}

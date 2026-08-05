@@ -1,0 +1,48 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:other",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "Or-Other Pattern",
+      "rule": {
+        "companionSuffix": "_other",
+        "companionType": "text",
+        "relevanceTemplate": "${{${name}}} = 'other'",
+        "choiceCode": "other",
+        "appliesTo": [
+          "select_one",
+          "select_multiple"
+        ],
+        "labels": {
+          "en": "Other",
+          "de": "Sonstiges"
+        }
+      }
+    }
+  ]
+}

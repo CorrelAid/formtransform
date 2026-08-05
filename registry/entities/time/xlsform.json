@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "time",
+      "name": "aufstehzeit",
+      "label": "Um wie viel Uhr stehen Sie werktags normalerweise auf?"
+    }
+  ],
+  "choices": []
+}

@@ -1,0 +1,74 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "composite:grid",
+      "@type": "Composite",
+      "skos:prefLabel": "Grid / Matrix Group",
+      "skos:broader": [
+        {
+          "@id": "type:begin_group"
+        },
+        {
+          "@id": "type:select_one"
+        }
+      ],
+      "trigger": {
+        "xlsformPattern": "begin_group row with appearance=table-list (or name contains 'grid', or label contains 'matrix')",
+        "applyTo": "begin_group + all rows until matching end_group"
+      },
+      "input": {
+        "rows": [
+          {
+            "role": "header",
+            "match": "type=begin_group, appearance=table-list",
+            "cardinality": 1
+          },
+          {
+            "role": "item",
+            "match": "type=select_one <listname> — all items MUST share the same listname",
+            "cardinality": "1..*"
+          },
+          {
+            "role": "closer",
+            "match": "type=end_group",
+            "cardinality": 1
+          }
+        ]
+      },
+      "output": {
+        "ddi": {
+          "container": "varGrp[@type='grid']",
+          "containerAttrs": {
+            "name": "<group name>",
+            "var": "space-separated member IDs"
+          },
+          "memberVars": "one <var> per item row. Each var carries the full <catgry> set repeated (responseDomainType='category')."
+        },
+        "lsTsv": {
+          "headerRow": "F-type question (matrix header) with answerClass=A; answer codes from shared list",
+          "itemRows": "SQ-class rows, one per item",
+          "note": "LS represents the matrix as a single question with sub-questions; categories not re-emitted per row"
+        }
+      },
+      "schematronPatterns": [
+        "essentials",
+        "logic"
+      ],
+      "notes": [
+        "If `appearance=table-list` is absent, the group is flattened — children become top-level vars in DDI, group is lost.",
+        "Items SHOULD share the same `listname` so the matrix is rectangular."
+      ],
+      "exampleDir": "registry/entities/grid",
+      "examplePath": "registry/entities/grid/xlsform.json",
+      "useWhen": "When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements)."
+    }
+  ]
+}

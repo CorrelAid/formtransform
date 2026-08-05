@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>multipage_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="thankyou">Thank you!</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_name" name="name" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Your name</qstnLit>
+      </qstn>
+      <concept>Your name</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_age" name="age" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Your age</qstnLit>
+      </qstn>
+      <concept>Your age</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_favcolor" name="favcolor" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Favourite colour</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>red</catValu>
+        <labl>Red</labl>
+      </catgry>
+      <catgry>
+        <catValu>blue</catValu>
+        <labl>Blue</labl>
+      </catgry>
+      <catgry>
+        <catValu>green</catValu>
+        <labl>Green</labl>
+      </catgry>
+      <concept>Favourite colour</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

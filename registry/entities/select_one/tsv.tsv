@@ -1,0 +1,12 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	en		en								
+S		format	1	A		en								
+S		shownoanswer	1	N		en								
+SL		surveyls_title	1	Untitled Survey		en								
+G		Questions	1	Questions		en								
+Q	L	bildungsgrad	1	Was ist Ihr höchster Bildungsabschluss?		en								1
+A		1		Kein Abschluss		en								
+A		2		Haupt- oder Realschulabschluss		en								
+A		3		Fachhochschulreife / Abitur		en								
+A		4		Abgeschlossene Berufsausbildung		en								
+A		5		Hochschulabschluss		en								

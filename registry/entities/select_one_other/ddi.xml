@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>select_one_other</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-07-22">2026-07-22</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_aufmerksam" name="aufmerksam" type="other" var="V_aufmerksam V_aufmerksam_other">
+      <txt>Wie sind Sie auf unser Angebot aufmerksam geworden?</txt>
+      <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
+    </varGrp>
+    <var ID="V_aufmerksam" name="aufmerksam" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie sind Sie auf unser Angebot aufmerksam geworden?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>such</catValu>
+        <labl>Suchmaschine</labl>
+      </catgry>
+      <catgry>
+        <catValu>empf</catValu>
+        <labl>Persönliche Empfehlung</labl>
+      </catgry>
+      <catgry>
+        <catValu>sozme</catValu>
+        <labl>Soziale Medien</labl>
+      </catgry>
+      <catgry>
+        <catValu>other</catValu>
+        <labl>Sonstiges</labl>
+      </catgry>
+      <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_aufmerksam_other" name="aufmerksam_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Sonstiges (bitte angeben)</qstnLit>
+      </qstn>
+      <concept>Sonstiges (bitte angeben)</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

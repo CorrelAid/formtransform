@@ -1,0 +1,118 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:logicMapping",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "Relevance & validation logic: XLSForm ↔ LimeSurvey ↔ DDI",
+      "rule": {
+        "description": "XLSForm expresses survey logic in an XPath subset; LimeSurvey uses ExpressionScript (EM). The transformation transpiles between them (implemented in src/pipelines/xlsform2lstsv/xpathTranspiler.ts). DDI Codebook has no machine-readable expression syntax — logic fields are dropped when emitting DDI and tools MUST report this as loss.",
+        "fields": [
+          {
+            "concept": "relevance (conditional display)",
+            "xlsformColumn": "relevant",
+            "xlsformSyntax": "XPath subset",
+            "lsTsvColumn": "relevance",
+            "lsSyntax": "ExpressionScript (EM)",
+            "ddi": {
+              "closestElement": "var/universe",
+              "note": "DDI universe describes the subpopulation as prose, not as machine syntax. Currently NOT emitted — relevance is dropped in DDI output.",
+              "lossy": true
+            }
+          },
+          {
+            "concept": "validation (answer constraint)",
+            "xlsformColumn": "constraint",
+            "xlsformSyntax": "XPath subset, `.` refers to the answer",
+            "lsTsvColumn": "em_validation_q",
+            "lsSyntax": "ExpressionScript (EM)",
+            "ddi": {
+              "closestElement": "var/valrng",
+              "note": "DDI valrng can express simple numeric ranges only. Currently NOT emitted — constraints are dropped in DDI output.",
+              "lossy": true
+            }
+          },
+          {
+            "concept": "validation message",
+            "xlsformColumn": "constraint_message",
+            "xlsformSyntax": "plain text (translatable)",
+            "lsTsvColumn": "validation",
+            "lsSyntax": "plain text",
+            "ddi": {
+              "closestElement": null,
+              "note": "No DDI counterpart; dropped.",
+              "lossy": true
+            }
+          }
+        ],
+        "syntaxMappings": [
+          {
+            "xlsform": "${name}",
+            "ls": "{name} in labels; name / name.NAOK in expressions",
+            "note": "Variable reference; name is sanitized per convention:sanitization."
+          },
+          {
+            "xlsform": "selected(${f}, 'v')",
+            "ls": "select_one: (f == \"v\") — select_multiple: f_v.NAOK == \"Y\"",
+            "note": "select_multiple expands to per-choice binary subquestions, so membership becomes a check on the choice column."
+          },
+          {
+            "xlsform": "regex(., '...')",
+            "ls": "regexMatch(...)"
+          }
+        ],
+        "supportedXPathFunctions": [
+          "and",
+          "or",
+          "not",
+          "if",
+          "selected",
+          "contains",
+          "starts-with",
+          "ends-with",
+          "regex",
+          "string",
+          "number",
+          "concat",
+          "substring",
+          "string-length",
+          "normalize-space",
+          "count",
+          "sum",
+          "round",
+          "floor",
+          "ceiling",
+          "div",
+          "mod",
+          "today",
+          "now"
+        ],
+        "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions"
+      }
+    }
+  ]
+}

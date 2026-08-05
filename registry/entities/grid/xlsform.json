@@ -1,0 +1,50 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "institutionen",
+      "label": "Vertrauen in Institutionen",
+      "appearance": "table-list"
+    },
+    {
+      "type": "select_one skala5",
+      "name": "vertrauenparlament",
+      "label": "Das Parlament"
+    },
+    {
+      "type": "select_one skala5",
+      "name": "vertrauenpolizei",
+      "label": "Die Polizei"
+    },
+    {
+      "type": "end_group"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "skala5",
+      "name": "1",
+      "label": "Gar nicht"
+    },
+    {
+      "list_name": "skala5",
+      "name": "2",
+      "label": "2"
+    },
+    {
+      "list_name": "skala5",
+      "name": "3",
+      "label": "3"
+    },
+    {
+      "list_name": "skala5",
+      "name": "4",
+      "label": "4"
+    },
+    {
+      "list_name": "skala5",
+      "name": "5",
+      "label": "Vollständig"
+    }
+  ]
+}

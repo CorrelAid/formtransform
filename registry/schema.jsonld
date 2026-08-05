@@ -1,0 +1,989 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "meta:schema",
+      "@type": "RegistrySchema",
+      "skos:prefLabel": "CDL Survey Registry — Schema Declaration",
+      "description": "Explicit declaration of the classes in this registry and the structural rules that hold between them. Enforced by codegen._validate_registry() at build time. The registry registers authoring-addressable things only (XLSForm rows, appearances, composites, conventions, vocabularies); derived presentation concepts like Pages are documented in the spec site prose, not here.",
+      "consumedByLegend": {
+        "ls-transformer": "Read into src/generated/TypeMappings.ts / Appearances.ts (LimeSurvey TSV).",
+        "ddi-emitter": "Read into src/generated/DdiMappings.ts (DDI-Codebook 2.5 XML emitter).",
+        "schematron": "Feeds ddi-validation/schematron/ddi_custom_rules.sch (DDI validation rules).",
+        "conventions": "Read at runtime by the library via src/generated/conventions.json.",
+        "examples": "Feeds the per-entity fixtures under registry/entities/<slug>/ (xlsform.xlsx + blessed snapshots).",
+        "validation": "Read only by codegen._validate_registry / conformance tests (structural integrity, no output).",
+        "docs": "No runtime effect — rendered only into registry/entities/<slug>/docs.md, skills/cdl-survey-types/ and the docs site."
+      },
+      "classes": {
+        "QuestionType": {
+          "description": "Primitive: one XLSForm row → one rendered question → 1+ dataset variables.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^type:",
+              "description": "Registry-unique id, prefix `type:`."
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "QuestionType"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "Canonical human-readable name in English."
+            },
+            "useWhen": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "One-sentence guidance on when a survey author should pick this type — the kind of question/data it fits. Source for the survey-generator overview (skill/doc)."
+            },
+            "xlsform": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "typeString": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer",
+                    "ddi-emitter",
+                    "schematron",
+                    "examples"
+                  ],
+                  "description": "The exact XLSForm survey-sheet type value (e.g. `select_one`)."
+                },
+                "aliases": {
+                  "type": "string[]",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer",
+                    "ddi-emitter"
+                  ],
+                  "description": "Alternative XLSForm strings that resolve to this same canonical type."
+                },
+                "requiresListName": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "True for select_* variants where the type cell needs a choice list name."
+                }
+              }
+            },
+            "limesurvey": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "typeCode": {
+                  "type": "string | null",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "LimeSurvey question type code, or null if unsupported."
+                },
+                "supported": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "Explicit false marks types LimeSurvey TSV cannot express."
+                },
+                "supportsOther": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ]
+                },
+                "answerClass": {
+                  "type": "string | null",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "LS 'answerClass' TSV column (e.g. `SQ`, `A`)."
+                },
+                "dateFormat": {
+                  "type": "string",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "LS `date_format` question attribute for type-D questions. Set only where LimeSurvey's locale default is wrong for the semantic: `time` needs `HH:MM` (LS has no native time type). `date` omits it (locale default is correct). Other tools render date/time semantically."
+                },
+                "externalCodeList": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "ddi": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "intrvl": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ddi-emitter",
+                    "schematron"
+                  ],
+                  "allowedValues": [
+                    "discrete",
+                    "contin"
+                  ],
+                  "description": "DDI-Codebook `<var>` interval type."
+                },
+                "formatType": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ddi-emitter"
+                  ],
+                  "allowedValues": [
+                    "numeric",
+                    "character"
+                  ],
+                  "description": "DDI `<varFormat>` @type."
+                },
+                "responseDomainType": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ddi-emitter",
+                    "schematron"
+                  ],
+                  "allowedValues": [
+                    "text",
+                    "category",
+                    "multiple",
+                    "numeric"
+                  ],
+                  "description": "DDI `<qstn>` @responseDomainType."
+                },
+                "structure": {
+                  "type": "object",
+                  "required": false,
+                  "description": "For types that expand to a multi-var DDI shape (currently only select_multiple).",
+                  "fields": {
+                    "container": {
+                      "type": "string",
+                      "required": true,
+                      "consumedBy": [
+                        "schematron"
+                      ],
+                      "description": "Enclosing element predicate (e.g. `varGrp[@type='multipleResp']`)."
+                    },
+                    "containerAttrs": {
+                      "type": "object",
+                      "required": false,
+                      "consumedBy": [
+                        "docs"
+                      ]
+                    },
+                    "memberVars": {
+                      "type": "string",
+                      "required": false,
+                      "consumedBy": [
+                        "docs"
+                      ]
+                    }
+                  }
+                },
+                "externalCodeList": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "ddi-emitter"
+                  ],
+                  "description": "True for select_*_from_file: `<catgry>` is replaced by `concept/@vocab` reference."
+                },
+                "conceptVocabFrom": {
+                  "type": "string",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "Where the vocab name is drawn from (`filename` for select_*_from_file)."
+                }
+              }
+            },
+            "kobo": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "nativeSupport": {
+                  "type": "boolean",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "True when Kobo Toolbox handles the type natively."
+                }
+              }
+            },
+            "constraints": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "maxNameLength": {
+                  "type": "integer",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                },
+                "namePattern": {
+                  "type": "regex",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                },
+                "maxChoiceCodeLength": {
+                  "type": "integer",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                },
+                "choiceCodePattern": {
+                  "type": "regex",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                },
+                "warnings": {
+                  "type": "string[]",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "lsTsv": {
+              "type": "object",
+              "required": false,
+              "description": "LS TSV emission shape when the type expands (currently only select_multiple).",
+              "fields": {
+                "row": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                },
+                "answerRows": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "schematronPatterns": {
+              "type": "string[]",
+              "required": false,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "Names of schematron rule patterns applicable to this type."
+            },
+            "variants": {
+              "type": "string[]",
+              "required": false,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "Optional @id list of QuestionTypeVariants under this type."
+            },
+            "tests": {
+              "type": "string[]",
+              "required": false,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "Paths of test suites exercising this type."
+            },
+            "examplePath": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Path to this type's worked-example xlsform.json fixture (the type's own default example — no separate variant)."
+            },
+            "exampleDir": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Self-contained folder holding this type's definition.jsonld + xlsform.json / ddi.xml / tsv.tsv / meta.json."
+            }
+          }
+        },
+        "StructuralType": {
+          "description": "XLSForm row that groups other rows (begin_group / end_group). No dataset variable of its own.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^type:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "StructuralType"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "xlsform": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "typeString": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer",
+                    "ddi-emitter"
+                  ]
+                }
+              }
+            },
+            "limesurvey": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "typeCode": {
+                  "type": "string | null",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ]
+                },
+                "supported": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ]
+                },
+                "emitsGroupRow": {
+                  "type": "boolean",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "pairedWith": {
+              "type": "reference",
+              "required": false,
+              "consumedBy": [
+                "validation"
+              ],
+              "target": "StructuralType",
+              "description": "@id of the counterpart marker (begin_group ↔ end_group)."
+            }
+          }
+        },
+        "Composite": {
+          "description": "Multi-row pattern that reads as one question but spans several XLSForm rows or produces multiple vars in a structural DDI shape.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^composite:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "Composite"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "skos:broader": {
+              "type": "reference | reference[]",
+              "required": true,
+              "consumedBy": [
+                "validation",
+                "docs"
+              ],
+              "target": "QuestionType | StructuralType",
+              "description": "Row-level types the composite is made of."
+            },
+            "useWhen": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "One-sentence guidance on when an author should reach for this composite — the survey design situation it fits."
+            },
+            "trigger": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "xlsformPattern": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "Human-readable rule for spotting the composite in a survey sheet."
+                },
+                "applyTo": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "input": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "rows": {
+                  "type": "object[]",
+                  "required": true,
+                  "itemFields": {
+                    "role": {
+                      "type": "string",
+                      "required": true,
+                      "consumedBy": [
+                        "docs"
+                      ],
+                      "allowedValues": [
+                        "header",
+                        "item",
+                        "closer",
+                        "base",
+                        "companion",
+                        "question"
+                      ]
+                    },
+                    "match": {
+                      "type": "string",
+                      "required": true,
+                      "consumedBy": [
+                        "docs"
+                      ]
+                    },
+                    "cardinality": {
+                      "type": "integer | string",
+                      "required": true,
+                      "consumedBy": [
+                        "docs"
+                      ],
+                      "description": "Numeric count or `1..*` for open cardinality."
+                    }
+                  }
+                }
+              }
+            },
+            "output": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "ddi": {
+                  "type": "object",
+                  "required": true,
+                  "consumedBy": [
+                    "schematron",
+                    "docs"
+                  ],
+                  "description": "DDI shape produced by the composite (container + child structure)."
+                },
+                "lsTsv": {
+                  "type": "object",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ]
+                }
+              }
+            },
+            "schematronPatterns": {
+              "type": "string[]",
+              "required": false,
+              "consumedBy": [
+                "validation"
+              ]
+            },
+            "notes": {
+              "type": "string[]",
+              "required": false,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "examplePath": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Path to this composite's worked-example xlsform.json fixture."
+            },
+            "exampleDir": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Self-contained folder holding this composite's definition.jsonld + fixtures."
+            }
+          }
+        },
+        "QuestionTypeVariant": {
+          "description": "A QuestionType under one or more orthogonal presentation modifiers (currently `other` = or_other convention, `long_list` = controlled-vocabulary long list). A variant exists only where a modifier changes behaviour — the plain, unmodified case is the QuestionType's own example, not a variant. The @id/slug is the base type slug plus its active modifier tokens in alphabetical order (`long_list` before `other`, e.g. `select_one_long_list_other`); codegen validates slug ↔ presentation flags. Ships a self-contained folder with xlsform.json + ddi.xml (+ tsv.tsv where LS-supported).",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^variant:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "QuestionTypeVariant"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "examples",
+                "docs"
+              ],
+              "description": "English canonical variant kind name (e.g. `Single Choice with Other`). NOT the fixture subject."
+            },
+            "skos:broader": {
+              "type": "reference",
+              "required": true,
+              "consumedBy": [
+                "validation",
+                "examples",
+                "docs"
+              ],
+              "target": "QuestionType | Composite"
+            },
+            "useWhen": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ],
+              "description": "One-sentence guidance on when an author should pick this variant rather than the base type."
+            },
+            "presentation": {
+              "type": "object",
+              "required": false,
+              "fields": {
+                "withOther": {
+                  "type": "boolean",
+                  "required": true,
+                  "consumedBy": [
+                    "examples",
+                    "docs"
+                  ]
+                },
+                "withLongList": {
+                  "type": "boolean",
+                  "required": true,
+                  "consumedBy": [
+                    "examples",
+                    "docs"
+                  ]
+                },
+                "appearanceString": {
+                  "type": "string",
+                  "required": false,
+                  "consumedBy": [
+                    "examples",
+                    "docs"
+                  ],
+                  "description": "Optional XLSForm appearance value applied by this variant."
+                }
+              }
+            },
+            "examplePath": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Path to the example xlsform.json fixture."
+            },
+            "exampleDir": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "examples"
+              ],
+              "description": "Directory holding xlsform.json / ddi.xml / tsv.tsv / meta.json."
+            }
+          }
+        },
+        "Appearance": {
+          "description": "An XLSForm `appearance` column value that modifies rendering and/or data emission.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^appearance:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "Appearance"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "xlsform": {
+              "type": "object",
+              "required": true,
+              "fields": {
+                "appearanceString": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "Verbatim XLSForm appearance column value."
+                }
+              }
+            },
+            "supported": {
+              "type": "boolean",
+              "required": true,
+              "consumedBy": [
+                "ls-transformer",
+                "validation"
+              ],
+              "description": "Kept for the registry-loader; must be true."
+            },
+            "behavior": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "ls-transformer"
+              ],
+              "allowedValues": [
+                "handled"
+              ],
+              "description": "Only 'handled' entries are registered."
+            },
+            "validForTypes": {
+              "type": "string[]",
+              "required": true,
+              "consumedBy": [
+                "ls-transformer",
+                "validation"
+              ],
+              "description": "xlsform.typeString values (QuestionType or StructuralType) this appearance is valid on. Every entry must resolve to an existing row-level type."
+            },
+            "lsEffect": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "ls-transformer"
+              ],
+              "description": "Human-readable summary of what this appearance does in LimeSurvey emission."
+            },
+            "lsTypeOverride": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "ls-transformer"
+              ],
+              "description": "LimeSurvey type code to substitute when this appearance is present."
+            },
+            "carriesData": {
+              "type": "boolean",
+              "required": false,
+              "consumedBy": [
+                "ddi-emitter"
+              ],
+              "description": "False when a row bearing this appearance is presentation-only and stores no response (the matrix header row): it must not become a DDI variable. Absent means the row carries data as usual."
+            }
+          }
+        },
+        "GlobalConvention": {
+          "description": "Cross-cutting rule not scoped to a single type (e.g. choice-code style, list_name format).",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^convention:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "GlobalConvention"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "rule": {
+              "type": "object",
+              "required": true,
+              "consumedBy": [
+                "conventions",
+                "schematron"
+              ],
+              "description": "Free-form rule payload; shape depends on the convention."
+            }
+          }
+        },
+        "Vocabulary": {
+          "description": "External code list referenced by select_*_from_file rows via concept/@vocab in DDI.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^vocab:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "Vocabulary"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "ddi-emitter"
+              ]
+            },
+            "xlsformFilename": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "ddi-emitter"
+              ],
+              "description": "CSV filename referenced by `select_*_from_file <filename>.csv`."
+            },
+            "ddiVocab": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "ddi-emitter"
+              ],
+              "description": "Value emitted in DDI `concept/@vocab`."
+            },
+            "vocabURI": {
+              "type": "uri",
+              "required": true,
+              "consumedBy": [
+                "ddi-emitter"
+              ],
+              "description": "Persistent URI for the code list."
+            },
+            "standard": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "ddi-emitter"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "required": false,
+              "consumedBy": [
+                "docs"
+              ]
+            }
+          }
+        },
+        "XLSFormColumnMap": {
+          "description": "Column-level mapping between XLSForm and LimeSurvey / DDI. One entry aggregates the mappings for one column axis.",
+          "fields": {
+            "@id": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "pattern": "^convention:"
+            },
+            "@type": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "validation"
+              ],
+              "allowedValues": [
+                "XLSFormColumnMap"
+              ]
+            },
+            "skos:prefLabel": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "docs"
+              ]
+            },
+            "map": {
+              "type": "object[]",
+              "required": true,
+              "description": "Per-column mapping entries.",
+              "itemFields": {
+                "xlsform": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "XLSForm survey-sheet column name."
+                },
+                "lsTsv": {
+                  "type": "string | null",
+                  "required": true,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "LimeSurvey TSV column name (null if not represented)."
+                },
+                "transform": {
+                  "type": "string",
+                  "required": false,
+                  "consumedBy": [
+                    "docs"
+                  ],
+                  "description": "Human-readable transform rule applied when crossing formats."
+                }
+              }
+            }
+          }
+        }
+      },
+      "relations": {
+        "skos:broader": "Points from a specialization to its parent concept. Used by QuestionTypeVariant → QuestionType|Composite, and by Composite → QuestionType|StructuralType (the row types it composes).",
+        "validForTypes": "On Appearance: list of xlsform.typeString values (QuestionType or StructuralType) this appearance is valid on.",
+        "pairedWith": "On StructuralType: @id of the counterpart marker (begin_group ↔ end_group)."
+      }
+    }
+  ]
+}

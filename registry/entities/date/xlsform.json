@@ -1,0 +1,10 @@
+{
+  "survey": [
+    {
+      "type": "date",
+      "name": "geburtsdatum",
+      "label": "Wann wurden Sie geboren?"
+    }
+  ],
+  "choices": []
+}

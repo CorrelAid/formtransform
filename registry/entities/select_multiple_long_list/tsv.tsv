@@ -1,0 +1,256 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	cssclass	hide_tip
+S		language	1	en		en									
+S		format	1	A		en									
+S		shownoanswer	1	N		en									
+SL		surveyls_title	1	Untitled Survey		en									
+G		Questions	1	Questions		en									
+Q	M	besuchtelaender	1	Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich.		en								cdlvocab-iso_3166_1	1
+SQ		AF		Afghanistan		en									
+SQ		AX		Åland Islands		en									
+SQ		AL		Albania		en									
+SQ		DZ		Algeria		en									
+SQ		AS		American Samoa		en									
+SQ		AD		Andorra		en									
+SQ		AO		Angola		en									
+SQ		AI		Anguilla		en									
+SQ		AQ		Antarctica		en									
+SQ		AG		Antigua and Barbuda		en									
+SQ		AR		Argentina		en									
+SQ		AM		Armenia		en									
+SQ		AW		Aruba		en									
+SQ		AU		Australia		en									
+SQ		AT		Austria		en									
+SQ		AZ		Azerbaijan		en									
+SQ		BS		Bahamas		en									
+SQ		BH		Bahrain		en									
+SQ		BD		Bangladesh		en									
+SQ		BB		Barbados		en									
+SQ		BY		Belarus		en									
+SQ		BE		Belgium		en									
+SQ		BZ		Belize		en									
+SQ		BJ		Benin		en									
+SQ		BM		Bermuda		en									
+SQ		BT		Bhutan		en									
+SQ		BO		&quot;Bolivia		en									
+SQ		BQ		&quot;Bonaire		en									
+SQ		BA		Bosnia and Herzegovina		en									
+SQ		BW		Botswana		en									
+SQ		BV		Bouvet Island		en									
+SQ		BR		Brazil		en									
+SQ		IO		British Indian Ocean Territory		en									
+SQ		BN		Brunei Darussalam		en									
+SQ		BG		Bulgaria		en									
+SQ		BF		Burkina Faso		en									
+SQ		BI		Burundi		en									
+SQ		CV		Cabo Verde		en									
+SQ		KH		Cambodia		en									
+SQ		CM		Cameroon		en									
+SQ		CA		Canada		en									
+SQ		KY		Cayman Islands		en									
+SQ		CF		Central African Republic		en									
+SQ		TD		Chad		en									
+SQ		CL		Chile		en									
+SQ		CN		China		en									
+SQ		CX		Christmas Island		en									
+SQ		CC		Cocos (Keeling) Islands		en									
+SQ		CO		Colombia		en									
+SQ		KM		Comoros		en									
+SQ		CG		Congo		en									
+SQ		CD		&quot;Congo		en									
+SQ		CK		Cook Islands		en									
+SQ		CR		Costa Rica		en									
+SQ		CI		Côte d&#39;Ivoire		en									
+SQ		HR		Croatia		en									
+SQ		CU		Cuba		en									
+SQ		CW		Curaçao		en									
+SQ		CY		Cyprus		en									
+SQ		CZ		Czechia		en									
+SQ		DK		Denmark		en									
+SQ		DJ		Djibouti		en									
+SQ		DM		Dominica		en									
+SQ		DO		Dominican Republic		en									
+SQ		EC		Ecuador		en									
+SQ		EG		Egypt		en									
+SQ		SV		El Salvador		en									
+SQ		GQ		Equatorial Guinea		en									
+SQ		ER		Eritrea		en									
+SQ		EE		Estonia		en									
+SQ		SZ		Eswatini		en									
+SQ		ET		Ethiopia		en									
+SQ		FK		Falkland Islands (Malvinas)		en									
+SQ		FO		Faroe Islands		en									
+SQ		FJ		Fiji		en									
+SQ		FI		Finland		en									
+SQ		FR		France		en									
+SQ		GF		French Guiana		en									
+SQ		PF		French Polynesia		en									
+SQ		TF		French Southern Territories		en									
+SQ		GA		Gabon		en									
+SQ		GM		Gambia		en									
+SQ		GE		Georgia		en									
+SQ		DE		Germany		en									
+SQ		GH		Ghana		en									
+SQ		GI		Gibraltar		en									
+SQ		GR		Greece		en									
+SQ		GL		Greenland		en									
+SQ		GD		Grenada		en									
+SQ		GP		Guadeloupe		en									
+SQ		GU		Guam		en									
+SQ		GT		Guatemala		en									
+SQ		GG		Guernsey		en									
+SQ		GN		Guinea		en									
+SQ		GW		Guinea-Bissau		en									
+SQ		GY		Guyana		en									
+SQ		HT		Haiti		en									
+SQ		HM		Heard Island and McDonald Islands		en									
+SQ		VA		Holy See		en									
+SQ		HN		Honduras		en									
+SQ		HK		Hong Kong		en									
+SQ		HU		Hungary		en									
+SQ		IS		Iceland		en									
+SQ		IN		India		en									
+SQ		ID		Indonesia		en									
+SQ		IR		&quot;Iran		en									
+SQ		IQ		Iraq		en									
+SQ		IE		Ireland		en									
+SQ		IM		Isle of Man		en									
+SQ		IL		Israel		en									
+SQ		IT		Italy		en									
+SQ		JM		Jamaica		en									
+SQ		JP		Japan		en									
+SQ		JE		Jersey		en									
+SQ		JO		Jordan		en									
+SQ		KZ		Kazakhstan		en									
+SQ		KE		Kenya		en									
+SQ		KI		Kiribati		en									
+SQ		KP		&quot;Korea		en									
+SQ		KR		&quot;Korea		en									
+SQ		KW		Kuwait		en									
+SQ		KG		Kyrgyzstan		en									
+SQ		LA		Lao People&#39;s Democratic Republic		en									
+SQ		LV		Latvia		en									
+SQ		LB		Lebanon		en									
+SQ		LS		Lesotho		en									
+SQ		LR		Liberia		en									
+SQ		LY		Libya		en									
+SQ		LI		Liechtenstein		en									
+SQ		LT		Lithuania		en									
+SQ		LU		Luxembourg		en									
+SQ		MO		Macao		en									
+SQ		MG		Madagascar		en									
+SQ		MW		Malawi		en									
+SQ		MY		Malaysia		en									
+SQ		MV		Maldives		en									
+SQ		ML		Mali		en									
+SQ		MT		Malta		en									
+SQ		MH		Marshall Islands		en									
+SQ		MQ		Martinique		en									
+SQ		MR		Mauritania		en									
+SQ		MU		Mauritius		en									
+SQ		YT		Mayotte		en									
+SQ		MX		Mexico		en									
+SQ		FM		&quot;Micronesia		en									
+SQ		MD		&quot;Moldova		en									
+SQ		MC		Monaco		en									
+SQ		MN		Mongolia		en									
+SQ		ME		Montenegro		en									
+SQ		MS		Montserrat		en									
+SQ		MA		Morocco		en									
+SQ		MZ		Mozambique		en									
+SQ		MM		Myanmar		en									
+SQ		NA		Namibia		en									
+SQ		NR		Nauru		en									
+SQ		NP		Nepal		en									
+SQ		NL		&quot;Netherlands		en									
+SQ		NC		New Caledonia		en									
+SQ		NZ		New Zealand		en									
+SQ		NI		Nicaragua		en									
+SQ		NE		Niger		en									
+SQ		NG		Nigeria		en									
+SQ		NU		Niue		en									
+SQ		NF		Norfolk Island		en									
+SQ		MK		North Macedonia		en									
+SQ		MP		Northern Mariana Islands		en									
+SQ		NO		Norway		en									
+SQ		OM		Oman		en									
+SQ		PK		Pakistan		en									
+SQ		PW		Palau		en									
+SQ		PS		&quot;Palestine		en									
+SQ		PA		Panama		en									
+SQ		PG		Papua New Guinea		en									
+SQ		PY		Paraguay		en									
+SQ		PE		Peru		en									
+SQ		PH		Philippines		en									
+SQ		PN		Pitcairn		en									
+SQ		PL		Poland		en									
+SQ		PT		Portugal		en									
+SQ		PR		Puerto Rico		en									
+SQ		QA		Qatar		en									
+SQ		RE		Réunion		en									
+SQ		RO		Romania		en									
+SQ		RU		Russian Federation		en									
+SQ		RW		Rwanda		en									
+SQ		BL		Saint Barthélemy		en									
+SQ		SH		&quot;Saint Helena		en									
+SQ		KN		Saint Kitts and Nevis		en									
+SQ		LC		Saint Lucia		en									
+SQ		MF		Saint Martin (French part)		en									
+SQ		PM		Saint Pierre and Miquelon		en									
+SQ		VC		Saint Vincent and the Grenadines		en									
+SQ		WS		Samoa		en									
+SQ		SM		San Marino		en									
+SQ		ST		Sao Tome and Principe		en									
+SQ		SA		Saudi Arabia		en									
+SQ		SN		Senegal		en									
+SQ		RS		Serbia		en									
+SQ		SC		Seychelles		en									
+SQ		SL		Sierra Leone		en									
+SQ		SG		Singapore		en									
+SQ		SX		Sint Maarten (Dutch part)		en									
+SQ		SK		Slovakia		en									
+SQ		SI		Slovenia		en									
+SQ		SB		Solomon Islands		en									
+SQ		SO		Somalia		en									
+SQ		ZA		South Africa		en									
+SQ		GS		South Georgia and the South Sandwich Islands		en									
+SQ		SS		South Sudan		en									
+SQ		ES		Spain		en									
+SQ		LK		Sri Lanka		en									
+SQ		SD		Sudan		en									
+SQ		SR		Suriname		en									
+SQ		SJ		Svalbard and Jan Mayen		en									
+SQ		SE		Sweden		en									
+SQ		CH		Switzerland		en									
+SQ		SY		Syrian Arab Republic		en									
+SQ		TW		&quot;Taiwan		en									
+SQ		TJ		Tajikistan		en									
+SQ		TZ		&quot;Tanzania		en									
+SQ		TH		Thailand		en									
+SQ		TL		Timor-Leste		en									
+SQ		TG		Togo		en									
+SQ		TK		Tokelau		en									
+SQ		TO		Tonga		en									
+SQ		TT		Trinidad and Tobago		en									
+SQ		TN		Tunisia		en									
+SQ		TR		Türkiye		en									
+SQ		TM		Turkmenistan		en									
+SQ		TC		Turks and Caicos Islands		en									
+SQ		TV		Tuvalu		en									
+SQ		UG		Uganda		en									
+SQ		UA		Ukraine		en									
+SQ		AE		United Arab Emirates		en									
+SQ		GB		United Kingdom of Great Britain and Northern Ireland		en									
+SQ		US		United States of America		en									
+SQ		UM		United States Minor Outlying Islands		en									
+SQ		UY		Uruguay		en									
+SQ		UZ		Uzbekistan		en									
+SQ		VU		Vanuatu		en									
+SQ		VE		&quot;Venezuela		en									
+SQ		VN		Viet Nam		en									
+SQ		VG		Virgin Islands (British)		en									
+SQ		VI		Virgin Islands (U.S.)		en									
+SQ		WF		Wallis and Futuna		en									
+SQ		EH		Western Sahara		en									
+SQ		YE		Yemen		en									
+SQ		ZM		Zambia		en									
+SQ		ZW		Zimbabwe		en									

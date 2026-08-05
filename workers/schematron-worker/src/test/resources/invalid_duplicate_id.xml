@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>Test Study</titl>
+      </titlStmt>
+    </citation>
+  </stdyDscr>
+  <dataDscr>
+    <var ID="V1" name="q1" intrvl="discrete">
+      <qstn responseDomainType="category">
+        <qstnLit>Question one</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <!-- Duplicate ID: V1 -->
+    <var ID="V1" name="q2" intrvl="discrete">
+      <qstn responseDomainType="category">
+        <qstnLit>Question two</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>
