@@ -11,37 +11,19 @@ import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TSVGenerator } from '../../lstsv/serialize.js';
 import { TypeMapper, TypeInfo, LSType, TYPE_MAPPINGS } from './typeMapper.js';
 import { deduplicateNames } from '../../utils/helpers.js';
-import { getBaseLanguage } from '../../utils/languageUtils.js';
-import { markdownToHtml } from '../../utils/markdownRenderer.js';
-import conventions from '../../generated/conventions.json' with { type: 'json' };
 
-// Derived from registry convention:unregisteredRows — device/session metadata
-// rows are silently skipped; any other unregistered type is an error.
-const SKIP_TYPES: string[] =
-  conventions.conventions.unregisteredRows.metadataRowTypes;
-
-// Derived from registry: registered types LimeSurvey TSV cannot express
-// (supported: false) throw an error. begin_group/end_group are special-cased
-// in processRow before this check.
-const UNIMPLEMENTED_TYPES: string[] = Object.entries(TYPE_MAPPINGS)
-  .filter(([k, v]) => !v.supported && k !== 'begin_group' && k !== 'end_group')
-  .map(([k]) => k);
-
-// select_*_from_file has no native LimeSurvey representation, but when the
-// referenced CSV is supplied (via convert()'s fileChoices) we emit it as the
-// base select with the vocabulary's options inlined + a `cdl_vocab` attribute
-// recording the source vocabulary (see convention:externalCodeList).
-const FROM_FILE_BASE: Record<string, string> = {
-  select_one_from_file: 'select_one',
-  select_multiple_from_file: 'select_multiple',
-};
-
-// Canonical per-language "other" labels (convention:other). Used to verify an
-// author's `other` choice label so the DDI round-trip (which rebuilds this
-// label from the convention) stays faithful.
-const OTHER_LABELS: Record<string, string> =
-  (conventions.conventions.other as { labels?: Record<string, string> })
-    .labels ?? {};
+// Import extracted constants
+import {
+  SKIP_TYPES,
+  UNIMPLEMENTED_TYPES,
+  FROM_FILE_BASE,
+  OTHER_LABELS,
+  TSVRowData,
+  GroupStackItem,
+} from './constants.js';
+import { ChoiceManager } from './choiceManager.js';
+import { GroupProcessor } from './groupProcessor.js';
+import { LanguageHandler } from './languageHandler.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -52,59 +34,30 @@ const OTHER_LABELS: Record<string, string> =
 // - xfTypeInfo: Parsed XLSForm type information (TypeInfo interface)
 // - lsType: LimeSurvey type information (LSType interface)
 
-interface TSVRowData {
-  class: string;
-  'type/scale': string;
-  name: string;
-  relevance: string;
-  text: string;
-  help: string;
-  language: string;
-  validation: string;
-  em_validation_q: string;
-  mandatory: string;
-  other: string;
-  default: string;
-  same_default: string;
-  hidden?: string;
-  cssclass?: string;
-  hide_tip?: string;
-  date_format?: string;
-}
-
 export class XLSFormToTSVConverter {
   private configManager: ConfigManager;
   private fieldSanitizer: FieldSanitizer;
   private typeMapper: TypeMapper;
   private tsvGenerator: TSVGenerator;
-  private choicesMap: Map<string, ChoiceRow[]>;
+  private choiceManager: ChoiceManager;
+  private groupProcessor: GroupProcessor;
+  private languageHandler: LanguageHandler;
   private fileChoices: Record<string, ChoiceRow[]> = {};
   private currentGroup: string | null;
-  private groupStack: Array<{
-    originalName: string;
-    sanitizedName: string;
-    emittedAsGroup: boolean;
-  }>;
-  private parentOnlyGroups: Set<string>;
+  private groupStack: GroupStackItem[];
   private pendingGroupNotes: SurveyRow[];
   private groupSeq: number;
   private questionSeq: number;
   private answerSeq: number;
   private subquestionSeq: number;
-  private availableLanguages: string[];
-  private baseLanguage: string;
   private inMatrix: boolean;
   private matrixListName: string | null;
   // True while inside a `table-list` group emitted as a LimeSurvey array (F):
   // its select_one children become subquestions of one array question.
   private inTableListMatrix: boolean;
   private groupContentBuffer: TSVRowData[];
-  private answerCodeMap: Map<string, Map<string, string>>;
-  private questionToListMap: Map<string, string>;
-  private questionBaseTypeMap: Map<string, string>;
   private welcomeNote: SurveyRow | null = null;
   private endNote: SurveyRow | null = null;
-  private messageOnlyGroups: Set<string> = new Set();
   private surveyDataCache: SurveyRow[] = [];
 
   constructor(config?: Partial<ConversionConfig>) {
@@ -112,28 +65,24 @@ export class XLSFormToTSVConverter {
     this.configManager.validateConfig();
 
     this.fieldSanitizer = new FieldSanitizer();
+    this.choiceManager = new ChoiceManager(this.fieldSanitizer);
+    this.groupProcessor = new GroupProcessor(this.configManager);
+    this.languageHandler = new LanguageHandler(this.configManager);
 
     this.typeMapper = new TypeMapper();
 
     this.tsvGenerator = new TSVGenerator();
-    this.choicesMap = new Map();
     this.currentGroup = null;
     this.groupStack = [];
-    this.parentOnlyGroups = new Set();
     this.pendingGroupNotes = [];
     this.groupSeq = 0;
     this.questionSeq = 0;
     this.answerSeq = 0;
     this.subquestionSeq = 0;
-    this.availableLanguages = ['en']; // Default to English
-    this.baseLanguage = 'en'; // Default to English
     this.inMatrix = false;
     this.matrixListName = null;
     this.inTableListMatrix = false;
     this.groupContentBuffer = [];
-    this.answerCodeMap = new Map();
-    this.questionToListMap = new Map();
-    this.questionBaseTypeMap = new Map();
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
@@ -150,7 +99,7 @@ export class XLSFormToTSVConverter {
       relevance: '1',
       text: '',
       help: '',
-      language: this.baseLanguage,
+      language: this.languageHandler.getBaseLanguage(),
       validation: '',
       em_validation_q: '',
       mandatory: '',
@@ -173,7 +122,7 @@ export class XLSFormToTSVConverter {
     target?: 'buffer' | 'direct',
   ): void {
     if (!target) target = 'buffer';
-    for (const lang of this.availableLanguages) {
+    for (const lang of this.languageHandler.getAvailableLanguages()) {
       const row = this.row({ language: lang, ...buildRow(lang) });
       if (target === 'direct') {
         this.tsvGenerator.addRow(row);
@@ -212,7 +161,7 @@ export class XLSFormToTSVConverter {
   ): Promise<string> {
     // Reset state
     this.fileChoices = fileChoices;
-    this.choicesMap.clear();
+    this.choiceManager.clear();
     this.currentGroup = null;
     this.groupStack = [];
     this.pendingGroupNotes = [];
@@ -241,32 +190,40 @@ export class XLSFormToTSVConverter {
     }
 
     // Pre-scan to identify parent-only groups (no direct questions, only child groups)
-    this.parentOnlyGroups = this.identifyParentOnlyGroups(surveyData);
+    this.groupProcessor.identifyParentOnlyGroups(surveyData);
 
     // Pre-scan to identify groups whose only content is a welcome/end note
-    this.messageOnlyGroups = this.identifyMessageOnlyGroups(surveyData);
+    this.groupProcessor.identifyMessageOnlyGroups(surveyData);
 
     // Cache survey data for pattern detection
     this.surveyDataCache = surveyData;
 
     // Set base language from settings first
-    this.baseLanguage = getBaseLanguage(settingsData[0] || {});
+    this.languageHandler.setBaseLanguage(settingsData[0] || {});
 
     // Detect available languages from survey data (will use baseLanguage for ordering)
-    this.detectAvailableLanguages(surveyData, choicesData, settingsData);
+    this.languageHandler.detectAvailableLanguages(
+      surveyData,
+      choicesData,
+      settingsData,
+    );
 
     // Build choices map, then overlay external-file lists (keyed by filename).
-    this.buildChoicesMap(choicesData);
-    for (const [filename, choices] of Object.entries(this.fileChoices)) {
-      this.choicesMap.set(filename, choices);
-    }
+    this.choiceManager.buildChoicesMap(choicesData);
+    this.choiceManager.addFileChoices(this.fileChoices);
 
     // Pre-scan: register all field names to detect and resolve collisions
     this.registerFieldNames(surveyData);
 
     // Build answer code and question-to-list maps for relevance rewriting
-    this.buildAnswerCodeMap();
-    this.buildQuestionToListMap(surveyData);
+    this.choiceManager.buildAnswerCodeMap((code) =>
+      this.sanitizeAnswerCode(code),
+    );
+    this.choiceManager.buildQuestionToListMap(
+      surveyData,
+      (type) => this.parseType(type),
+      (name) => this.sanitizeName(name),
+    );
 
     // Add survey row (class S)
     this.addSurveyRow(settingsData[0] || {});
@@ -341,7 +298,7 @@ export class XLSFormToTSVConverter {
   private removeOtherChoiceFromList(row: SurveyRow, typeInfo: TypeInfo): void {
     if (!typeInfo.listName) return;
 
-    const choices = this.choicesMap.get(typeInfo.listName);
+    const choices = this.choiceManager.getChoices(typeInfo.listName);
     if (!choices) return;
 
     const otherNames = new Set([
@@ -362,7 +319,7 @@ export class XLSFormToTSVConverter {
         `Removed "other" choice(s) from list "${typeInfo.listName}" for question "${row.name}" when using _other question pattern`,
       );
       this.verifyOtherLabel(removed, row);
-      this.choicesMap.set(typeInfo.listName, filteredChoices);
+      this.choiceManager.setChoices(typeInfo.listName, filteredChoices);
     }
   }
 
@@ -372,229 +329,22 @@ export class XLSFormToTSVConverter {
    * rebuilds this label from the convention, so a mismatch is silently lost.
    */
   private verifyOtherLabel(removed: ChoiceRow[], row: SurveyRow): void {
-    const expected = OTHER_LABELS[this.baseLanguage];
+    const expected = OTHER_LABELS[this.languageHandler.getBaseLanguage()];
     if (!expected) return;
     for (const choice of removed) {
-      const label = this.getLanguageSpecificValue(
+      const label = this.languageHandler.getLanguageSpecificValue(
         choice.label,
-        this.baseLanguage,
+        this.languageHandler.getBaseLanguage(),
       );
       if (label && label.trim() && label.trim() !== expected) {
         console.warn(
-          `"other" choice label "${label}" on "${row.name}" is not the canonical ${this.baseLanguage} label "${expected}"; the DDI round-trip will use "${expected}".`,
+          `"other" choice label "${label}" on "${row.name}" is not the canonical ${this.languageHandler.getBaseLanguage()} label "${expected}"; the DDI round-trip will use "${expected}".`,
         );
       }
     }
   }
 
   // ── Language detection ────────────────────────────────────────────────
-
-  private detectAvailableLanguages(
-    surveyData: SurveyRow[],
-    choicesData: ChoiceRow[],
-    settingsData: SettingsRow[],
-  ): void {
-    const languageCodes = new Set<string>();
-
-    // Check survey data for language codes
-    for (const row of surveyData) {
-      if (row._languages) {
-        row._languages.forEach((lang: string) => languageCodes.add(lang));
-      } else {
-        for (const field of [row.label, row.hint]) {
-          if (typeof field === 'object' && field !== null) {
-            for (const lang of Object.keys(field)) languageCodes.add(lang);
-          }
-        }
-      }
-    }
-
-    // Check choices data for language codes
-    for (const row of choicesData) {
-      if (row._languages) {
-        row._languages.forEach((lang: string) => languageCodes.add(lang));
-      } else {
-        if (typeof row.label === 'object' && row.label !== null) {
-          for (const lang of Object.keys(row.label)) languageCodes.add(lang);
-        }
-      }
-    }
-
-    // Check settings data for language-specific fields
-    const settings = settingsData[0] || {};
-    for (const [, value] of Object.entries(settings)) {
-      if (
-        typeof value === 'object' &&
-        value !== null &&
-        !Array.isArray(value)
-      ) {
-        for (const lang of Object.keys(value)) {
-          languageCodes.add(lang);
-        }
-      }
-    }
-
-    // Only use multiple languages if we actually have language-specific data
-    const hasLanguageSpecificData =
-      surveyData.some(
-        (row) =>
-          row._languages ||
-          (typeof row.label === 'object' && row.label !== null) ||
-          (typeof row.hint === 'object' && row.hint !== null),
-      ) ||
-      choicesData.some(
-        (row) =>
-          row._languages ||
-          (typeof row.label === 'object' && row.label !== null),
-      ) ||
-      Object.values(settings).some(
-        (value) =>
-          typeof value === 'object' && value !== null && !Array.isArray(value),
-      );
-
-    if (hasLanguageSpecificData && languageCodes.size > 0) {
-      const languagesArray = Array.from(languageCodes);
-      const defaultLang = this.baseLanguage;
-      this.availableLanguages = [
-        defaultLang,
-        ...languagesArray.filter((lang) => lang !== defaultLang).sort(),
-      ];
-    } else {
-      // Monolingual survey: use its declared base language (from
-      // settings.default_language), not a hardcoded 'en'.
-      this.availableLanguages = [this.baseLanguage];
-    }
-  }
-
-  // ── Map building ─────────────────────────────────────────────────────
-
-  private buildChoicesMap(choices: ChoiceRow[]): void {
-    for (const choice of choices) {
-      const listName = choice.list_name;
-      if (!listName) continue;
-
-      if (!this.choicesMap.has(listName)) {
-        this.choicesMap.set(listName, []);
-      }
-      this.choicesMap.get(listName)!.push(choice);
-    }
-  }
-
-  private buildAnswerCodeMap(): void {
-    this.answerCodeMap = new Map();
-    for (const [listName, choices] of this.choicesMap) {
-      const codeMap = new Map<string, string>();
-      const sanitized = choices.map((c) => {
-        const raw = c.name?.trim() || '';
-        return raw ? this.sanitizeAnswerCode(raw) : '';
-      });
-      const deduplicated = deduplicateNames(sanitized, 5);
-      for (let i = 0; i < choices.length; i++) {
-        const originalName = choices[i].name?.trim() || '';
-        if (originalName && deduplicated[i]) {
-          codeMap.set(originalName, deduplicated[i]);
-        }
-      }
-      this.answerCodeMap.set(listName, codeMap);
-    }
-  }
-
-  private buildQuestionToListMap(surveyData: SurveyRow[]): void {
-    this.questionToListMap = new Map();
-    this.questionBaseTypeMap = new Map();
-    for (const row of surveyData) {
-      const typeInfo = this.parseType(row.type || '');
-      if (typeInfo.listName && row.name) {
-        const sanitizedName = this.sanitizeName(row.name.trim());
-        this.questionToListMap.set(sanitizedName, typeInfo.listName);
-        this.questionBaseTypeMap.set(sanitizedName, typeInfo.base);
-      }
-    }
-  }
-
-  // ── Pre-scanning ─────────────────────────────────────────────────────
-
-  /**
-   * Pre-scan survey data to identify groups whose only direct content is a
-   * welcome or end note. These groups are silently suppressed.
-   */
-  private identifyMessageOnlyGroups(surveyData: SurveyRow[]): Set<string> {
-    const messageOnly = new Set<string>();
-    const stack: string[] = [];
-    const groupInfo = new Map<
-      string,
-      { hasMessageNote: boolean; hasOtherContent: boolean }
-    >();
-
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      const baseType = type.split(/\s+/)[0];
-
-      if (type === 'begin_group' || type === 'begin group') {
-        const name = (row.name || '').trim();
-        stack.push(name);
-        groupInfo.set(name, { hasMessageNote: false, hasOtherContent: false });
-      } else if (type === 'end_group' || type === 'end group') {
-        const name = stack.pop();
-        if (name !== undefined) {
-          const info = groupInfo.get(name);
-          if (info && info.hasMessageNote && !info.hasOtherContent) {
-            messageOnly.add(name);
-          }
-        }
-      } else if (type && stack.length > 0 && !SKIP_TYPES.includes(baseType)) {
-        const groupName = stack[stack.length - 1];
-        const info = groupInfo.get(groupName);
-        if (info) {
-          const rowName = (row.name || '').trim().toLowerCase();
-          const cfg = this.configManager.getConfig();
-          const isMessageNote =
-            type === 'note' &&
-            ((cfg.convertWelcomeNote && rowName === 'welcome') ||
-              (cfg.convertEndNote && rowName === 'end'));
-          if (isMessageNote) {
-            info.hasMessageNote = true;
-          } else {
-            info.hasOtherContent = true;
-          }
-        }
-      }
-    }
-
-    return messageOnly;
-  }
-
-  /**
-   * Pre-scan survey data to identify parent-only groups.
-   * A parent-only group contains no direct questions — only child groups.
-   */
-  private identifyParentOnlyGroups(surveyData: SurveyRow[]): Set<string> {
-    const parentOnly = new Set<string>();
-    const stack: string[] = [];
-    const hasDirectContent = new Map<string, boolean>();
-
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      const baseType = type.split(/\s+/)[0];
-
-      if (type === 'begin_group' || type === 'begin group') {
-        const name = (row.name || '').trim();
-        stack.push(name);
-        hasDirectContent.set(name, false);
-      } else if (type === 'end_group' || type === 'end group') {
-        const name = stack.pop();
-        if (name !== undefined && !hasDirectContent.get(name)) {
-          parentOnly.add(name);
-        }
-      } else if (type && !SKIP_TYPES.includes(baseType)) {
-        if (stack.length > 0) {
-          hasDirectContent.set(stack[stack.length - 1], true);
-        }
-      }
-    }
-
-    return parentOnly;
-  }
 
   // ── Field name handling ──────────────────────────────────────────────
 
@@ -632,43 +382,6 @@ export class XLSFormToTSVConverter {
     });
   }
 
-  // ── Label rendering ──────────────────────────────────────────────────
-
-  private getLanguageSpecificValue(
-    value: unknown,
-    languageCode: string,
-  ): string | undefined {
-    if (!value) return undefined;
-
-    if (typeof value === 'string') return value;
-
-    if (typeof value === 'object' && value !== null) {
-      const valueObj: Record<string, unknown> = value as Record<
-        string,
-        unknown
-      >;
-      if (languageCode in valueObj) {
-        return valueObj[languageCode] as string;
-      }
-      for (const lang of this.availableLanguages) {
-        if (lang in valueObj) return valueObj[lang] as string;
-      }
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Resolve a multilingual label/hint value for the given language and optionally
-   * convert it from markdown to HTML. Falls back to `fallback` when no value is found.
-   */
-  private renderLabel(value: unknown, lang: string, fallback = ''): string {
-    const raw = this.getLanguageSpecificValue(value, lang) || fallback;
-    return this.configManager.getConfig().convertMarkdown
-      ? markdownToHtml(raw)
-      : raw;
-  }
-
   // ── Buffering / flushing ─────────────────────────────────────────────
 
   /**
@@ -688,14 +401,15 @@ export class XLSFormToTSVConverter {
   private flushGroupContent(): void {
     if (this.groupContentBuffer.length === 0) return;
 
+    const baseLanguage = this.languageHandler.getBaseLanguage();
     for (const row of this.groupContentBuffer) {
-      if (row.language === this.baseLanguage) {
+      if (row.language === baseLanguage) {
         this.tsvGenerator.addRow(row);
       }
     }
 
-    for (const lang of this.availableLanguages) {
-      if (lang === this.baseLanguage) continue;
+    for (const lang of this.languageHandler.getAvailableLanguages()) {
+      if (lang === baseLanguage) continue;
       for (const row of this.groupContentBuffer) {
         if (row.language === lang) {
           this.tsvGenerator.addRow(row);
@@ -717,13 +431,14 @@ export class XLSFormToTSVConverter {
       this.row({
         class: 'S',
         name: 'language',
-        text: this.baseLanguage,
+        text: this.languageHandler.getBaseLanguage(),
       }),
     );
 
-    if (this.availableLanguages.length > 1) {
-      const additionalLanguages = this.availableLanguages
-        .filter((lang) => lang !== this.baseLanguage)
+    if (this.languageHandler.getAvailableLanguages().length > 1) {
+      const additionalLanguages = this.languageHandler
+        .getAvailableLanguages()
+        .filter((lang) => lang !== this.languageHandler.getBaseLanguage())
         .join(' ');
       this.tsvGenerator.addRow(
         this.row({
@@ -762,15 +477,20 @@ export class XLSFormToTSVConverter {
           class: 'SL',
           name: 'surveyls_title',
           language: lang,
-          text: this.renderLabel(settings.form_title, lang, surveyTitle),
+          text: this.languageHandler.renderLabel(
+            settings.form_title,
+            lang,
+            surveyTitle,
+          ),
         }),
       );
       this.addSLMessageRows(lang);
     };
 
-    emitSLRows(this.baseLanguage);
-    for (const lang of this.availableLanguages
-      .filter((l) => l !== this.baseLanguage)
+    emitSLRows(this.languageHandler.getBaseLanguage());
+    for (const lang of this.languageHandler
+      .getAvailableLanguages()
+      .filter((l) => l !== this.languageHandler.getBaseLanguage())
       .sort()) {
       emitSLRows(lang);
     }
@@ -786,7 +506,7 @@ export class XLSFormToTSVConverter {
           class: 'SL',
           name: 'surveyls_welcometext',
           language: lang,
-          text: this.renderLabel(this.welcomeNote.label, lang),
+          text: this.languageHandler.renderLabel(this.welcomeNote.label, lang),
         }),
       );
     }
@@ -796,7 +516,7 @@ export class XLSFormToTSVConverter {
           class: 'SL',
           name: 'surveyls_endtext',
           language: lang,
-          text: this.renderLabel(this.endNote.label, lang),
+          text: this.languageHandler.renderLabel(this.endNote.label, lang),
         }),
       );
     }
@@ -856,9 +576,9 @@ export class XLSFormToTSVConverter {
       (lang) => ({
         class: 'G',
         'type/scale': groupSeqKey,
-        name: this.renderLabel(row.label, lang, groupName),
+        name: this.languageHandler.renderLabel(row.label, lang, groupName),
         relevance,
-        text: this.renderLabel(row.hint, lang),
+        text: this.languageHandler.renderLabel(row.hint, lang),
       }),
       'direct',
     );
@@ -882,8 +602,8 @@ export class XLSFormToTSVConverter {
         'type/scale': 'X',
         name: noteName,
         relevance,
-        text: this.renderLabel(noteRow.label, lang, noteName),
-        help: this.renderLabel(noteRow.hint, lang),
+        text: this.languageHandler.renderLabel(noteRow.label, lang, noteName),
+        help: this.languageHandler.renderLabel(noteRow.hint, lang),
       }));
     }
     this.pendingGroupNotes = [];
@@ -964,13 +684,13 @@ export class XLSFormToTSVConverter {
         return;
       }
 
-      if (this.messageOnlyGroups.has(originalName)) {
+      if (this.groupProcessor.getMessageOnlyGroups().has(originalName)) {
         this.groupStack.push({
           originalName,
           sanitizedName,
           emittedAsGroup: false,
         });
-      } else if (this.parentOnlyGroups.has(originalName)) {
+      } else if (this.groupProcessor.getParentOnlyGroups().has(originalName)) {
         this.groupStack.push({
           originalName,
           sanitizedName,
@@ -1138,11 +858,11 @@ export class XLSFormToTSVConverter {
       if (isCalculate) {
         text = `{${calculationExpr}}`;
       } else {
-        text = this.renderLabel(row.label, lang, questionName);
+        text = this.languageHandler.renderLabel(row.label, lang, questionName);
       }
       text = this.convertVariableReferences(text);
       const help = this.convertVariableReferences(
-        this.renderLabel(row.hint, lang),
+        this.languageHandler.renderLabel(row.hint, lang),
       );
 
       return {
@@ -1210,8 +930,8 @@ export class XLSFormToTSVConverter {
       name: questionName,
       relevance,
       mandatory,
-      text: this.renderLabel(row.label, lang, questionName),
-      help: this.renderLabel(row.hint, lang),
+      text: this.languageHandler.renderLabel(row.label, lang, questionName),
+      help: this.languageHandler.renderLabel(row.hint, lang),
       ...(hideTip ? { hide_tip: hideTip } : {}),
     }));
   }
@@ -1242,8 +962,8 @@ export class XLSFormToTSVConverter {
       name: questionName,
       relevance,
       mandatory,
-      text: this.renderLabel(row.label, lang, questionName),
-      help: this.renderLabel(row.hint, lang),
+      text: this.languageHandler.renderLabel(row.label, lang, questionName),
+      help: this.languageHandler.renderLabel(row.hint, lang),
       ...(hideTip ? { hide_tip: hideTip } : {}),
     }));
   }
@@ -1264,7 +984,7 @@ export class XLSFormToTSVConverter {
       name: sqName,
       relevance,
       mandatory,
-      text: this.renderLabel(row.label, lang, sqName),
+      text: this.languageHandler.renderLabel(row.label, lang, sqName),
     }));
   }
 
@@ -1275,7 +995,7 @@ export class XLSFormToTSVConverter {
       return;
     }
 
-    const choices = this.choicesMap.get(this.matrixListName);
+    const choices = this.choiceManager.getChoices(this.matrixListName);
     if (choices) {
       let seq = 0;
       for (const choice of choices) {
@@ -1288,7 +1008,11 @@ export class XLSFormToTSVConverter {
           class: 'A',
           name: choiceName,
           relevance: '',
-          text: this.renderLabel(choice.label, lang, choiceName),
+          text: this.languageHandler.renderLabel(
+            choice.label,
+            lang,
+            choiceName,
+          ),
         }));
       }
     }
@@ -1301,7 +1025,7 @@ export class XLSFormToTSVConverter {
   // ── Answer emission ──────────────────────────────────────────────────
 
   private addAnswers(xfTypeInfo: TypeInfo, lsType: LSType): void {
-    const choices = this.choicesMap.get(xfTypeInfo.listName!);
+    const choices = this.choiceManager.getChoices(xfTypeInfo.listName!);
     if (!choices) {
       console.warn(`Choice list not found: ${xfTypeInfo.listName}`);
       return;
@@ -1344,38 +1068,30 @@ export class XLSFormToTSVConverter {
               relevance: `({${this.currentGroup || 'parent'}} == "${choice.filter}")`,
             }
           : {}),
-        text: this.renderLabel(choice.label, lang, choiceName),
+        text: this.languageHandler.renderLabel(choice.label, lang, choiceName),
       }));
     }
   }
 
   // ── Expression transpilation ─────────────────────────────────────────
 
-  private lookupAnswerCode(
-    fieldName: string,
-    choiceValue: string,
-  ): { code: string; listName: string | undefined } {
-    const stripped = fieldName.replace(/[_-]/g, '');
-    const resolved = this.fieldSanitizer.resolveStrippedName(stripped);
-    const listName = this.questionToListMap.get(resolved);
-    if (!listName) return { code: choiceValue, listName: undefined };
-    const codeMap = this.answerCodeMap.get(listName);
-    if (!codeMap) return { code: choiceValue, listName };
-    return { code: codeMap.get(choiceValue) ?? choiceValue, listName };
-  }
-
   private buildTranspilerContext(): TranspilerContext {
     return {
       lookupAnswerCode: (fieldName: string, choiceValue: string) => {
-        return this.lookupAnswerCode(fieldName, choiceValue).code;
+        return this.choiceManager.lookupAnswerCode(fieldName, choiceValue).code;
       },
       getTruncatedFieldName: (fieldName: string) => {
         return this.fieldSanitizer.resolveStrippedName(fieldName);
       },
       buildSelectedExpr: (fieldName: string, choiceValue: string) => {
         const resolved = this.fieldSanitizer.resolveStrippedName(fieldName);
-        const { code } = this.lookupAnswerCode(fieldName, choiceValue);
-        const baseType = this.questionBaseTypeMap.get(resolved);
+        const { code } = this.choiceManager.lookupAnswerCode(
+          fieldName,
+          choiceValue,
+        );
+        const baseType = this.choiceManager
+          .getQuestionBaseTypeMap()
+          .get(resolved);
         if (baseType === 'select_multiple') {
           return `(${resolved}_${code}.NAOK == 'Y')`;
         }
