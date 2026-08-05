@@ -5,6 +5,20 @@ ecosystem — **XLSForm** (Kobo Toolbox), **LimeSurvey TSV**, and **DDI
 Codebook** — built on a canonical survey type registry (`registry/`) that
 defines exactly what is supported and how the standards map onto each other.
 
+## What this repo ships
+
+Four things other projects consume — all derived from the one registry:
+
+| Artifact | Where | Consumed by |
+|---|---|---|
+| **`@correlaid/formtransform`** — TypeScript library + `formtransform` CLI | npm package (`github:CorrelAid/formtransform`) | formtransform-app, qwacback, direct CLI use |
+| **schematron-worker image** — Java NATS service validating DDI against the XSDs + CDL rules, baked in | `ghcr.io/correlaid/schematron-worker:<version>`, built from `workers/schematron-worker/` | qwacback (runs the image, does not build it) |
+| **DDI validation assets** — DDI 2.5 XSDs + the codegen-written `ddi_custom_rules.sch` | `ddi-validation/{xsd,schematron}/` | qwacback, synced via its `.registry-version` pin |
+| **`cdl-survey-types` skill** — self-contained Agent Skill (`SKILL.md` + `references/`), generated from the registry; portable to any agent runtime that reads the format  | `skills/cdl-survey-types/` | formulaid's `generating-xlsforms` skill, which owns the workflow and includes this as the type reference |
+
+Everything else here (`docs/` spec site, `screenshots/`, tests, fixtures) is
+in-repo only.
+
 ## Installation
 
 ### As a library

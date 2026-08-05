@@ -48,6 +48,7 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 ### Code Generation (`codegen/`)
 
 Python package (run `uv run codegen` or `python -m codegen`) that validates the registry, then emits generated artifacts:
+
 - `src/generated/` — `TypeMappings.ts`, `DdiMappings.ts`, `Appearances.ts`, `conventions.json` (consumed by the library)
 - `registry/entities/<slug>/` — `docs.md` + `xlsform.xlsx` per entity
 - `skills/cdl-survey-types/` — the generated sub-skill
