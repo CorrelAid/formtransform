@@ -54,7 +54,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 20
+max-complexity = 15
 
 [tool.ruff.format]
 quote-style = "double"

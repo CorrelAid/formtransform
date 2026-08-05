@@ -19,6 +19,9 @@
     "dist",
     "!dist/generateFixtures.*"
   ],
+  "workspaces": [
+    "docs"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
@@ -32,7 +35,7 @@
     "test:all": "npm run test && npm run test:py && npm run test:live",
     "bless": "bash scripts/bless.sh",
     "fixtures:generate": "npm run build && node dist/generateFixtures.js",
-    "lint": "eslint src --max-warnings 20",
+    "lint": "eslint src --max-warnings 12",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",

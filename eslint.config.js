@@ -58,7 +58,7 @@ export default defineConfig([
   {
     files: ['**/*.{ts,js,mjs}'],
     rules: {
-      complexity: ['warn', 20],
+      complexity: ['warn', 15],
       'max-depth': ['warn', 4],
       'max-params': ['warn', 5],
     },
