@@ -34,6 +34,7 @@ import {
 } from './matrixHandler.js';
 import { Counters } from './counters.js';
 import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
+import { TranspilerHelper } from './transpilerHelper.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -57,6 +58,7 @@ export class XLSFormToTSVConverter {
   private groupEmitter: GroupEmitter;
   private matrixHandler: MatrixHandler;
   private answerEmitter: AnswerEmitter;
+  private transpilerHelper: TranspilerHelper;
   private counters: Counters;
   private fileChoices: Record<string, ChoiceRow[]> = {};
   private surveySettingsEmitter: SurveySettingsEmitter;
@@ -105,6 +107,10 @@ export class XLSFormToTSVConverter {
       this.groupEmitter,
       this.counters,
     );
+    this.transpilerHelper = new TranspilerHelper(
+      this.fieldSanitizer,
+      this.choiceManager,
+    );
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
@@ -114,7 +120,8 @@ export class XLSFormToTSVConverter {
     return {
       sanitizeName: (name) => this.sanitizeName(name),
       sanitizeAnswerCode: (code) => this.sanitizeAnswerCode(code),
-      convertRelevance: (relevant) => this.convertRelevance(relevant),
+      convertRelevance: (relevant) =>
+        this.transpilerHelper.convertRelevance(relevant),
     };
   }
 
@@ -345,11 +352,11 @@ export class XLSFormToTSVConverter {
         await this.groupEmitter.addGroup(
           row,
           (name) => this.sanitizeName(name),
-          (relevant) => this.convertRelevance(relevant),
+          (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.groupEmitter.emitPendingGroupNotes(
           (name) => this.sanitizeName(name),
-          (relevant) => this.convertRelevance(relevant),
+          (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.matrixHandler.addTableListHeader(
           row,
@@ -382,11 +389,11 @@ export class XLSFormToTSVConverter {
         await this.groupEmitter.addGroup(
           row,
           (name) => this.sanitizeName(name),
-          (relevant) => this.convertRelevance(relevant),
+          (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.groupEmitter.emitPendingGroupNotes(
           (name) => this.sanitizeName(name),
-          (relevant) => this.convertRelevance(relevant),
+          (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
       }
       return;
@@ -515,13 +522,17 @@ export class XLSFormToTSVConverter {
 
     let calculationExpr = '';
     if (isCalculate && row.calculation) {
-      calculationExpr = await this.convertCalculation(row.calculation);
+      calculationExpr = await this.transpilerHelper.convertCalculation(
+        row.calculation,
+      );
     }
 
-    const relevance = await this.convertRelevance(row.relevant);
+    const relevance = await this.transpilerHelper.convertRelevance(
+      row.relevant,
+    );
     const emValidation = isNoteOrCalc
       ? ''
-      : await convertConstraint(row.constraint || '');
+      : await this.transpilerHelper.convertConstraint(row.constraint || '');
     const mandatory = isNoteOrCalc
       ? ''
       : row.required === 'yes' || row.required === 'true'
@@ -590,42 +601,6 @@ export class XLSFormToTSVConverter {
     if (!isNote && xfTypeInfo.listName) {
       this.answerEmitter.addAnswers(xfTypeInfo, lsType, this.answerHelpers());
     }
-  }
-
-  // ── Expression transpilation ─────────────────────────────────────────
-
-  private buildTranspilerContext(): TranspilerContext {
-    return {
-      lookupAnswerCode: (fieldName: string, choiceValue: string) => {
-        return this.choiceManager.lookupAnswerCode(fieldName, choiceValue).code;
-      },
-      getTruncatedFieldName: (fieldName: string) => {
-        return this.fieldSanitizer.resolveStrippedName(fieldName);
-      },
-      buildSelectedExpr: (fieldName: string, choiceValue: string) => {
-        const resolved = this.fieldSanitizer.resolveStrippedName(fieldName);
-        const { code } = this.choiceManager.lookupAnswerCode(
-          fieldName,
-          choiceValue,
-        );
-        const baseType = this.choiceManager
-          .getQuestionBaseTypeMap()
-          .get(resolved);
-        if (baseType === 'select_multiple') {
-          return `(${resolved}_${code}.NAOK == 'Y')`;
-        }
-        return `(${resolved}.NAOK=='${code}')`;
-      },
-    };
-  }
-
-  private async convertRelevance(relevant?: string): Promise<string> {
-    if (!relevant) return '1';
-    return await convertRelevance(relevant, this.buildTranspilerContext());
-  }
-
-  private async convertCalculation(calculation: string): Promise<string> {
-    return await xpathToLimeSurvey(calculation, this.buildTranspilerContext());
   }
 
   // ── Type helpers ─────────────────────────────────────────────────────
