@@ -383,16 +383,14 @@ export class XLSFormToTSVConverter {
 
     const fields = await this.computeQuestionFields(row, xfTypeInfo, lsType);
 
+    const ctx: QuestionRowContext = {
+      lsType,
+      fields,
+      cdlVocab,
+    };
+
     this.rowEmitter.emitForEachLanguage((lang) =>
-      this.buildQuestionRow(
-        row,
-        lang,
-        questionName,
-        xfTypeInfo,
-        lsType,
-        fields,
-        cdlVocab,
-      ),
+      this.buildQuestionRow(row, lang, questionName, ctx),
     );
 
     // Reset answer sequence for this question
@@ -485,22 +483,9 @@ export class XLSFormToTSVConverter {
     row: SurveyRow,
     lang: string,
     questionName: string,
-    xfTypeInfo: { base: string },
-    lsType: { type: string; dateFormat?: string },
-    fields: {
-      calculationExpr: string;
-      relevance: string;
-      emValidation: string;
-      mandatory: string;
-      other: string;
-      defaultVal: string;
-      hidden: string;
-      hideTip: string;
-      isNote: boolean;
-      isCalculate: boolean;
-    },
-    cdlVocab: string,
+    ctx: QuestionRowContext,
   ): Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'> {
+    const { lsType, fields, cdlVocab } = ctx;
     let text: string;
     if (fields.isCalculate) {
       text = `{${fields.calculationExpr}}`;
@@ -538,4 +523,22 @@ export class XLSFormToTSVConverter {
   }
 
   // ── Type helpers ─────────────────────────────────────────────────────
+}
+
+/** Per-question context passed to buildQuestionRow. */
+interface QuestionRowContext {
+  lsType: { type: string; dateFormat?: string };
+  fields: {
+    calculationExpr: string;
+    relevance: string;
+    emValidation: string;
+    mandatory: string;
+    other: string;
+    defaultVal: string;
+    hidden: string;
+    hideTip: string;
+    isNote: boolean;
+    isCalculate: boolean;
+  };
+  cdlVocab: string;
 }
