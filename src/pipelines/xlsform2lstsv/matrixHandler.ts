@@ -49,6 +49,57 @@ export class MatrixHandler {
     return this.inTableListMatrix;
   }
 
+  /**
+   * Dispatch a non-group row through the matrix cases. Returns true if the
+   * row was handled as part of an in-progress matrix (and the caller should
+   * stop processing it). The four cases:
+   *
+   *   - inTableListMatrix + select_one  → addMatrixSubquestion (capture list)
+   *   - appearance=label + select_one   → flush + addMatrixHeader
+   *   - appearance=list-nolabel + in matrix + select_one → addMatrixSubquestion
+   *   - otherwise                       → flush any pending matrix, return false
+   */
+  async dispatchRow(
+    row: SurveyRow,
+    xfTypeInfo: TypeInfo,
+    appearance: string,
+    helpers: MatrixHelpers,
+  ): Promise<boolean> {
+    // Inside a `table-list` group: each select_one child is a subquestion of
+    // the enclosing array. Capture the shared list from the first child so
+    // flushMatrix can emit its answer scale.
+    if (this.inTableListMatrix && xfTypeInfo.base === 'select_one') {
+      if (!this.matrixListName) this.matrixListName = xfTypeInfo.listName;
+      await this.addMatrixSubquestion(row, helpers);
+      return true;
+    }
+
+    // Matrix header: select_one with appearance "label"
+    if (
+      appearance === 'label' &&
+      xfTypeInfo.base === 'select_one' &&
+      xfTypeInfo.listName
+    ) {
+      this.flushMatrix(helpers);
+      await this.addMatrixHeader(row, xfTypeInfo, helpers);
+      return true;
+    }
+
+    // Matrix subquestion: select_one with appearance "list-nolabel" while in matrix mode
+    if (
+      appearance === 'list-nolabel' &&
+      this.inMatrix &&
+      xfTypeInfo.base === 'select_one'
+    ) {
+      await this.addMatrixSubquestion(row, helpers);
+      return true;
+    }
+
+    // Non-matrix question: flush any pending matrix first
+    this.flushMatrix(helpers);
+    return false;
+  }
+
   getMatrixListName(): string | null {
     return this.matrixListName;
   }

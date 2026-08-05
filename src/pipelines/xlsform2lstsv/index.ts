@@ -10,8 +10,6 @@ import {
   SKIP_TYPES,
   UNIMPLEMENTED_TYPES,
   FROM_FILE_BASE,
-  TSVRowData,
-  GroupStackItem,
 } from './constants.js';
 import { ChoiceManager } from './choiceManager.js';
 import { GroupProcessor } from './groupProcessor.js';
@@ -19,12 +17,8 @@ import { LanguageHandler } from './languageHandler.js';
 import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
-import { GroupEmitter, GroupCounters } from './groupEmitter.js';
-import {
-  MatrixHandler,
-  MatrixCounters,
-  MatrixHelpers,
-} from './matrixHandler.js';
+import { GroupEmitter } from './groupEmitter.js';
+import { MatrixHandler, MatrixHelpers } from './matrixHandler.js';
 import { Counters } from './counters.js';
 import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
@@ -399,46 +393,17 @@ export class XLSFormToTSVConverter {
     const appearance =
       typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
 
-    // Inside a `table-list` group: each select_one child is a subquestion of
-    // the enclosing array. Capture the shared list from the first child so
-    // flushMatrix can emit its answer scale.
-    if (
-      this.matrixHandler.isInTableListMatrix() &&
-      xfTypeInfo.base === 'select_one'
-    ) {
-      if (!this.matrixHandler.getMatrixListName())
-        this.matrixHandler.setMatrixListName(xfTypeInfo.listName);
-      await this.matrixHandler.addMatrixSubquestion(row, this.matrixHelpers());
-      return;
-    }
-
-    // Matrix header: select_one with appearance "label"
-    if (
-      appearance === 'label' &&
-      xfTypeInfo.base === 'select_one' &&
-      xfTypeInfo.listName
-    ) {
-      this.matrixHandler.flushMatrix(this.matrixHelpers());
-      await this.matrixHandler.addMatrixHeader(
-        row,
-        xfTypeInfo,
-        this.matrixHelpers(),
-      );
-      return;
-    }
-
-    // Matrix subquestion: select_one with appearance "list-nolabel" while in matrix mode
-    if (
-      appearance === 'list-nolabel' &&
-      this.matrixHandler.isInMatrix() &&
-      xfTypeInfo.base === 'select_one'
-    ) {
-      await this.matrixHandler.addMatrixSubquestion(row, this.matrixHelpers());
-      return;
-    }
-
-    // Non-matrix question: flush any pending matrix first
-    this.matrixHandler.flushMatrix(this.matrixHelpers());
+    // Dispatch through the matrix cases (in-table-list, label, list-nolabel).
+    // The handler returns true if it consumed the row as part of a matrix,
+    // false if it should be processed as a regular question (and the pending
+    // matrix has been flushed).
+    const handledByMatrix = await this.matrixHandler.dispatchRow(
+      row,
+      xfTypeInfo,
+      appearance,
+      this.matrixHelpers(),
+    );
+    if (handledByMatrix) return;
 
     // Warn on unsupported appearances: not in the registry allowlist, or
     // registered but not valid for this question type.
