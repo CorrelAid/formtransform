@@ -1,16 +1,9 @@
 import { ConfigManager, ConversionConfig } from '../../config/ConfigManager.js';
 import { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
-import {
-  convertRelevance,
-  convertConstraint,
-  xpathToLimeSurvey,
-  TranspilerContext,
-} from './xpathTranspiler.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TSVGenerator } from '../../lstsv/serialize.js';
-import { TypeMapper, TypeInfo, LSType, TYPE_MAPPINGS } from './typeMapper.js';
-import { deduplicateNames } from '../../utils/helpers.js';
+import { TypeMapper, TYPE_MAPPINGS } from './typeMapper.js';
 
 // Import extracted constants
 import {
@@ -35,6 +28,7 @@ import {
 import { Counters } from './counters.js';
 import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
+import { FieldNameHandler } from './fieldNameHandler.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -59,6 +53,7 @@ export class XLSFormToTSVConverter {
   private matrixHandler: MatrixHandler;
   private answerEmitter: AnswerEmitter;
   private transpilerHelper: TranspilerHelper;
+  private fieldNameHandler: FieldNameHandler;
   private counters: Counters;
   private fileChoices: Record<string, ChoiceRow[]> = {};
   private surveySettingsEmitter: SurveySettingsEmitter;
@@ -111,6 +106,7 @@ export class XLSFormToTSVConverter {
       this.fieldSanitizer,
       this.choiceManager,
     );
+    this.fieldNameHandler = new FieldNameHandler(this.fieldSanitizer);
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
@@ -118,8 +114,9 @@ export class XLSFormToTSVConverter {
   /** Helpers passed to the matrix handler so it can call back into the converter. */
   private matrixHelpers(): MatrixHelpers {
     return {
-      sanitizeName: (name) => this.sanitizeName(name),
-      sanitizeAnswerCode: (code) => this.sanitizeAnswerCode(code),
+      sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
+      sanitizeAnswerCode: (code) =>
+        this.fieldNameHandler.sanitizeAnswerCode(code),
       convertRelevance: (relevant) =>
         this.transpilerHelper.convertRelevance(relevant),
     };
@@ -128,7 +125,8 @@ export class XLSFormToTSVConverter {
   /** Helpers passed to the answer emitter. */
   private answerHelpers(): AnswerHelpers {
     return {
-      sanitizeAnswerCode: (code) => this.sanitizeAnswerCode(code),
+      sanitizeAnswerCode: (code) =>
+        this.fieldNameHandler.sanitizeAnswerCode(code),
     };
   }
 
@@ -196,16 +194,16 @@ export class XLSFormToTSVConverter {
     this.choiceManager.addFileChoices(this.fileChoices);
 
     // Pre-scan: register all field names to detect and resolve collisions
-    this.registerFieldNames(surveyData);
+    this.fieldNameHandler.registerFieldNames(surveyData);
 
     // Build answer code and question-to-list maps for relevance rewriting
     this.choiceManager.buildAnswerCodeMap((code) =>
-      this.sanitizeAnswerCode(code),
+      this.fieldNameHandler.sanitizeAnswerCode(code),
     );
     this.choiceManager.buildQuestionToListMap(
       surveyData,
-      (type) => this.parseType(type),
-      (name) => this.sanitizeName(name),
+      (type) => this.typeMapper.parseType(type),
+      (name) => this.fieldNameHandler.sanitizeName(name),
     );
 
     // Add survey row (class S)
@@ -243,40 +241,6 @@ export class XLSFormToTSVConverter {
   // ── Language detection ────────────────────────────────────────────────
 
   // ── Field name handling ──────────────────────────────────────────────
-
-  /**
-   * Pre-scan all survey rows and register every field name with the sanitizer,
-   * so that collisions after sanitization + truncation are detected early.
-   */
-  private registerFieldNames(surveyData: SurveyRow[]): void {
-    this.fieldSanitizer.resetNames();
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      if (type === 'end_group' || type === 'end_repeat') continue;
-      const name = row.name?.trim();
-      if (!name) continue;
-      this.fieldSanitizer.sanitizeNameUnique(name);
-    }
-  }
-
-  private sanitizeName(name: string): string {
-    const stripped = name.replace(/[_-]/g, '');
-    return this.fieldSanitizer.resolveStrippedName(stripped);
-  }
-
-  private sanitizeAnswerCode(code: string): string {
-    return this.fieldSanitizer.sanitizeAnswerCode(code);
-  }
-
-  /**
-   * Convert ${varname} references in text to LimeSurvey EM syntax {sanitizedname}.
-   */
-  private convertVariableReferences(text: string): string {
-    return text.replace(/\$\{([^}]+)\}/g, (_, name: string) => {
-      const sanitized = this.sanitizeName(name);
-      return `{${sanitized}}`;
-    });
-  }
 
   // ── Survey settings (S/SL rows) ─────────────────────────────────────
 
@@ -333,7 +297,7 @@ export class XLSFormToTSVConverter {
       this.matrixHandler.flushMatrix(this.matrixHelpers());
       const originalName = (row.name || '').trim();
       const sanitizedName = originalName
-        ? this.sanitizeName(originalName)
+        ? this.fieldNameHandler.sanitizeName(originalName)
         : `G${this.counters.getGroupSeq()}`;
 
       // A `table-list` group is a grid: emit it as one LimeSurvey array (F)
@@ -351,11 +315,11 @@ export class XLSFormToTSVConverter {
         this.rowEmitter.flushGroupContent();
         await this.groupEmitter.addGroup(
           row,
-          (name) => this.sanitizeName(name),
+          (name) => this.fieldNameHandler.sanitizeName(name),
           (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.groupEmitter.emitPendingGroupNotes(
-          (name) => this.sanitizeName(name),
+          (name) => this.fieldNameHandler.sanitizeName(name),
           (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.matrixHandler.addTableListHeader(
@@ -388,11 +352,11 @@ export class XLSFormToTSVConverter {
         this.rowEmitter.flushGroupContent();
         await this.groupEmitter.addGroup(
           row,
-          (name) => this.sanitizeName(name),
+          (name) => this.fieldNameHandler.sanitizeName(name),
           (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
         await this.groupEmitter.emitPendingGroupNotes(
-          (name) => this.sanitizeName(name),
+          (name) => this.fieldNameHandler.sanitizeName(name),
           (relevant) => this.transpilerHelper.convertRelevance(relevant),
         );
       }
@@ -420,7 +384,7 @@ export class XLSFormToTSVConverter {
   // ── Question emission ────────────────────────────────────────────────
 
   private async addQuestion(row: SurveyRow): Promise<void> {
-    let xfTypeInfo = this.parseType(row.type || '');
+    let xfTypeInfo = this.typeMapper.parseType(row.type || '');
 
     // select_*_from_file → emit as its base select with the referenced CSV's
     // options inlined. `cdl_vocab` records the source vocabulary (filename minus
@@ -494,12 +458,12 @@ export class XLSFormToTSVConverter {
 
     const questionName =
       row.name && row.name.trim() !== ''
-        ? this.sanitizeName(row.name.trim())
+        ? this.fieldNameHandler.sanitizeName(row.name.trim())
         : `Q${this.counters.getQuestionSeq()}`;
 
     this.counters.bumpQuestionSeq();
 
-    const lsType = this.mapType(xfTypeInfo);
+    const lsType = this.typeMapper.mapType(xfTypeInfo);
 
     // Appearance-based type overrides (driven by registry APPEARANCES)
     if (appearance) {
@@ -542,8 +506,8 @@ export class XLSFormToTSVConverter {
       ? this.otherPatternDetector.hasOtherQuestionPattern(
           row,
           this.surveyDataCache,
-          (type) => this.parseType(type),
-          (name) => this.sanitizeName(name),
+          (type) => this.typeMapper.parseType(type),
+          (name) => this.fieldNameHandler.sanitizeName(name),
         )
       : false;
     const other = isNoteOrCalc ? '' : lsType.other || otherPattern ? 'Y' : '';
@@ -563,8 +527,8 @@ export class XLSFormToTSVConverter {
       } else {
         text = this.languageHandler.renderLabel(row.label, lang, questionName);
       }
-      text = this.convertVariableReferences(text);
-      const help = this.convertVariableReferences(
+      text = this.fieldNameHandler.convertVariableReferences(text);
+      const help = this.fieldNameHandler.convertVariableReferences(
         this.languageHandler.renderLabel(row.hint, lang),
       );
 
@@ -604,12 +568,4 @@ export class XLSFormToTSVConverter {
   }
 
   // ── Type helpers ─────────────────────────────────────────────────────
-
-  private parseType(typeStr: string): TypeInfo {
-    return this.typeMapper.parseType(typeStr);
-  }
-
-  private mapType(xfTypeInfo: TypeInfo): LSType {
-    return this.typeMapper.mapType(xfTypeInfo);
-  }
 }
