@@ -26,6 +26,7 @@ import { LanguageHandler } from './languageHandler.js';
 import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
+import { GroupEmitter, GroupCounters } from './groupEmitter.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -46,10 +47,8 @@ export class XLSFormToTSVConverter {
   private languageHandler: LanguageHandler;
   private rowEmitter: RowEmitter;
   private otherPatternDetector: OtherPatternDetector;
+  private groupEmitter: GroupEmitter;
   private fileChoices: Record<string, ChoiceRow[]> = {};
-  private currentGroup: string | null;
-  private groupStack: GroupStackItem[];
-  private pendingGroupNotes: SurveyRow[];
   private groupSeq: number;
   private questionSeq: number;
   private answerSeq: number;
@@ -84,13 +83,22 @@ export class XLSFormToTSVConverter {
       this.rowEmitter,
       this.languageHandler,
     );
-    this.currentGroup = null;
-    this.groupStack = [];
-    this.pendingGroupNotes = [];
     this.groupSeq = 0;
     this.questionSeq = 0;
     this.answerSeq = 0;
     this.subquestionSeq = 0;
+    const counters: GroupCounters = {
+      getGroupSeq: () => this.groupSeq,
+      bumpGroupSeq: () => ++this.groupSeq,
+      getQuestionSeq: () => this.questionSeq,
+      bumpQuestionSeq: () => ++this.questionSeq,
+    };
+    this.groupEmitter = new GroupEmitter(
+      this.configManager,
+      this.rowEmitter,
+      this.languageHandler,
+      counters,
+    );
     this.inMatrix = false;
     this.matrixListName = null;
     this.inTableListMatrix = false;
@@ -128,9 +136,6 @@ export class XLSFormToTSVConverter {
     // Reset state
     this.fileChoices = fileChoices;
     this.choiceManager.clear();
-    this.currentGroup = null;
-    this.groupStack = [];
-    this.pendingGroupNotes = [];
     this.tsvGenerator.clear();
     this.groupSeq = 0;
     this.questionSeq = 0;
@@ -141,6 +146,7 @@ export class XLSFormToTSVConverter {
     this.inTableListMatrix = false;
     this.rowEmitter.clear();
     this.surveySettingsEmitter.clear();
+    this.groupEmitter.clear();
 
     // Pre-scan for welcome/end notes (must happen before group identification)
     this.surveySettingsEmitter.captureNotes(surveyData);
@@ -193,7 +199,7 @@ export class XLSFormToTSVConverter {
     // If no groups, add a default group
     const advancedOptions = this.configManager.getAdvancedOptions();
     if (!hasGroups && advancedOptions.autoCreateGroups) {
-      this.addDefaultGroup();
+      this.groupEmitter.addDefaultGroup();
     }
 
     // Process survey rows
@@ -252,93 +258,6 @@ export class XLSFormToTSVConverter {
   }
 
   // ── Survey settings (S/SL rows) ─────────────────────────────────────
-
-  // ── Group handling ───────────────────────────────────────────────────
-
-  private addDefaultGroup(): void {
-    const groupName = this.configManager.getDefaults().groupName;
-    this.currentGroup = groupName;
-
-    // Emit the group in every detected survey language, NOT the config default
-    // ('en'). A group row whose language differs from the survey base language
-    // fails LimeSurvey's activation consistency check (e.g. a German-base survey
-    // with an English-only "Questions" group).
-    this.rowEmitter.emitForEachLanguage(
-      () => ({ class: 'G', name: groupName, text: groupName }),
-      'direct',
-    );
-
-    this.groupSeq++;
-  }
-
-  private addAutoGroupForOrphans(): void {
-    const groupName = `G${this.groupSeq}`;
-    this.groupSeq++;
-    this.currentGroup = groupName;
-
-    const groupSeqKey = String(this.groupSeq);
-
-    this.rowEmitter.emitForEachLanguage(
-      () => ({
-        class: 'G',
-        'type/scale': groupSeqKey,
-        name: groupName,
-        text: groupName,
-      }),
-      'direct',
-    );
-  }
-
-  private async addGroup(row: SurveyRow): Promise<void> {
-    const groupName =
-      row.name && row.name.trim() !== ''
-        ? this.sanitizeName(row.name.trim())
-        : `G${this.groupSeq}`;
-
-    this.groupSeq++;
-    this.currentGroup = groupName;
-
-    // type/scale is used as a stable group sequence key for LimeSurvey's TSV importer
-    // to correctly match group translations across languages.
-    const groupSeqKey = String(this.groupSeq);
-    const relevance = await this.convertRelevance(row.relevant);
-
-    this.rowEmitter.emitForEachLanguage(
-      (lang) => ({
-        class: 'G',
-        'type/scale': groupSeqKey,
-        name: this.languageHandler.renderLabel(row.label, lang, groupName),
-        relevance,
-        text: this.languageHandler.renderLabel(row.hint, lang),
-      }),
-      'direct',
-    );
-  }
-
-  /**
-   * Emit pending parent-only group labels as note questions (type X).
-   */
-  private async emitPendingGroupNotes(): Promise<void> {
-    for (const noteRow of this.pendingGroupNotes) {
-      const noteName =
-        noteRow.name && noteRow.name.trim() !== ''
-          ? this.sanitizeName(noteRow.name.trim())
-          : `GN${this.questionSeq}`;
-
-      this.questionSeq++;
-      const relevance = await this.convertRelevance(noteRow.relevant);
-
-      this.rowEmitter.emitForEachLanguage((lang) => ({
-        class: 'Q',
-        'type/scale': 'X',
-        name: noteName,
-        relevance,
-        text: this.languageHandler.renderLabel(noteRow.label, lang, noteName),
-        help: this.languageHandler.renderLabel(noteRow.hint, lang),
-      }));
-    }
-    this.pendingGroupNotes = [];
-  }
 
   // ── Row processing ───────────────────────────────────────────────────
 
@@ -403,60 +322,71 @@ export class XLSFormToTSVConverter {
       const groupAppearance =
         typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
       if (groupAppearance.includes('table-list')) {
-        this.groupStack.push({
+        this.groupEmitter.pushStack({
           originalName,
           sanitizedName,
           emittedAsGroup: true,
         });
         this.rowEmitter.flushGroupContent();
-        await this.addGroup(row);
-        await this.emitPendingGroupNotes();
+        await this.groupEmitter.addGroup(
+          row,
+          (name) => this.sanitizeName(name),
+          (relevant) => this.convertRelevance(relevant),
+        );
+        await this.groupEmitter.emitPendingGroupNotes(
+          (name) => this.sanitizeName(name),
+          (relevant) => this.convertRelevance(relevant),
+        );
         await this.addTableListHeader(row, sanitizedName);
         return;
       }
 
       if (this.groupProcessor.getMessageOnlyGroups().has(originalName)) {
-        this.groupStack.push({
+        this.groupEmitter.pushStack({
           originalName,
           sanitizedName,
           emittedAsGroup: false,
         });
       } else if (this.groupProcessor.getParentOnlyGroups().has(originalName)) {
-        this.groupStack.push({
+        this.groupEmitter.pushStack({
           originalName,
           sanitizedName,
           emittedAsGroup: false,
         });
-        this.pendingGroupNotes.push(row);
+        this.groupEmitter.addPendingGroupNote(row);
       } else {
-        this.groupStack.push({
+        this.groupEmitter.pushStack({
           originalName,
           sanitizedName,
           emittedAsGroup: true,
         });
         this.rowEmitter.flushGroupContent();
-        await this.addGroup(row);
-        await this.emitPendingGroupNotes();
+        await this.groupEmitter.addGroup(
+          row,
+          (name) => this.sanitizeName(name),
+          (relevant) => this.convertRelevance(relevant),
+        );
+        await this.groupEmitter.emitPendingGroupNotes(
+          (name) => this.sanitizeName(name),
+          (relevant) => this.convertRelevance(relevant),
+        );
       }
       return;
     }
     if (xfType === 'end_group' || xfType === 'end group') {
       this.flushMatrix();
-      this.groupStack.pop();
-      this.currentGroup = null;
-      for (let i = this.groupStack.length - 1; i >= 0; i--) {
-        if (this.groupStack[i].emittedAsGroup) {
-          this.currentGroup = this.groupStack[i].sanitizedName;
-          break;
-        }
-      }
+      this.groupEmitter.popStack();
+      this.groupEmitter.restoreCurrentGroupFromStack();
       return;
     }
 
     // Auto-create a group for questions outside any explicit group.
-    if (this.currentGroup === null && this.groupStack.length === 0) {
+    if (
+      this.groupEmitter.getCurrentGroup() === null &&
+      this.groupEmitter.getGroupStack().length === 0
+    ) {
       this.rowEmitter.flushGroupContent();
-      this.addAutoGroupForOrphans();
+      this.groupEmitter.addAutoGroupForOrphans();
     }
 
     await this.addQuestion(row);
@@ -801,7 +731,7 @@ export class XLSFormToTSVConverter {
         relevance: '',
         ...(choice.filter
           ? {
-              relevance: `({${this.currentGroup || 'parent'}} == "${choice.filter}")`,
+              relevance: `({${this.groupEmitter.getCurrentGroup() || 'parent'}} == "${choice.filter}")`,
             }
           : {}),
         text: this.languageHandler.renderLabel(choice.label, lang, choiceName),
