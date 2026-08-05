@@ -322,8 +322,11 @@ export class XLSFormToTSVConverter {
       row,
       this.groupProcessor.getMessageOnlyGroups().has(originalName),
       this.groupProcessor.getParentOnlyGroups().has(originalName),
-      (name) => this.fieldNameHandler.sanitizeName(name),
-      (relevant) => this.transpilerHelper.convertRelevance(relevant),
+      {
+        sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
+        convertRelevance: (relevant) =>
+          this.transpilerHelper.convertRelevance(relevant),
+      },
       (sanitizedName) =>
         this.matrixHandler.addTableListHeader(
           row,

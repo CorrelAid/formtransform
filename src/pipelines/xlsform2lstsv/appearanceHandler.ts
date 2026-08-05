@@ -1,5 +1,5 @@
 import { APPEARANCES } from '../../generated/Appearances.js';
-import { LSType, TypeInfo } from './typeMapper.js';
+import { LSType } from './typeMapper.js';
 
 /**
  * Surfaces appearance-attribute handling: validates against the registry

@@ -13,6 +13,12 @@ import { Counters } from './counters.js';
  */
 export type GroupCounters = Counters;
 
+/** Helpers passed to handleBeginGroup for name resolution + relevance. */
+export interface GroupHelpers {
+  sanitizeName: (name: string) => string;
+  convertRelevance: (relevant?: string) => Promise<string>;
+}
+
 /**
  * Emits G (group) rows and the X-row (note) placeholders that parent-only
  * groups become. Owns the group stack, current-group pointer, and pending
@@ -182,10 +188,10 @@ export class GroupEmitter {
     row: SurveyRow,
     isMessageOnly: boolean,
     isParentOnly: boolean,
-    sanitizeName: (name: string) => string,
-    convertRelevance: (relevant?: string) => Promise<string>,
+    helpers: GroupHelpers,
     onTableList: (sanitizedName: string) => Promise<void>,
   ): Promise<void> {
+    const { sanitizeName, convertRelevance } = helpers;
     const originalName = (row.name || '').trim();
     const sanitizedName = originalName
       ? sanitizeName(originalName)
