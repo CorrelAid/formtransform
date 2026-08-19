@@ -127,7 +127,7 @@ function addBinaryVar(
   return varEl;
 }
 
-interface OtherPattern {
+export interface OtherPattern {
   base: Variable;
   otherVar: Variable;
   isMulti: boolean;
@@ -260,7 +260,7 @@ export interface BuildDdiOptions {
 }
 
 /** Returned by {@link splitDataVars}: every data var bucketed by its emit role. */
-interface DataVarBuckets {
+export interface DataVarBuckets {
   otherPatterns: Map<string, OtherPattern>;
   gridGroups: Map<string, Variable[]>;
   multiRespGroups: Map<string, Variable>;
@@ -268,7 +268,7 @@ interface DataVarBuckets {
 }
 
 /** Sort the flat data vars into the four emit roles `dataDscr` walks through. */
-function splitDataVars(dataVars: Variable[]): DataVarBuckets {
+export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
   const otherPatterns = detectOtherPatterns(dataVars);
   const baseNamesInOther = new Set(
     [...otherPatterns.values()].map((p) => p.base.name),

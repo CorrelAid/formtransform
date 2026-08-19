@@ -36,6 +36,13 @@ export function buildDdiXml(
 }
 
 export {
+  buildDataCsv,
+  getDdiColumnNames,
+  remapSubmissionsToDdi,
+} from './data.js';
+export type { Submission } from './data.js';
+
+export {
   extractVariables,
   choicesByListFromRows,
   normalizeChoices,
