@@ -217,9 +217,10 @@ function closeGroup(state: ExtractState): void {
 }
 
 /** Inner-most enclosing group's stored label/appearance (defaults if outside any group). */
-function currentGroupMeta(
-  state: ExtractState,
-): { label: string; appearance: string } {
+function currentGroupMeta(state: ExtractState): {
+  label: string;
+  appearance: string;
+} {
   const cur = state.groupStack[state.groupStack.length - 1] ?? '';
   return state.groupMeta[cur] ?? { label: '', appearance: '' };
 }
@@ -257,7 +258,7 @@ function pushQuestionRow(
   const group = state.groupStack.join('/');
   const gm = currentGroupMeta(state);
 
-  const baseChoices = listName ? state.choicesByList[listName] ?? [] : [];
+  const baseChoices = listName ? (state.choicesByList[listName] ?? []) : [];
   const choices = expandedChoices(baseChoices, stdType, rawType, state.lang);
 
   state.variables.push({
@@ -326,9 +327,7 @@ export function extractVariables(
     } else if (kind === 'skip') {
       continue;
     } else if (
-      NO_DATA_APPEARANCES.has(
-        toStr(row['appearance']).trim().toLowerCase(),
-      )
+      NO_DATA_APPEARANCES.has(toStr(row['appearance']).trim().toLowerCase())
     ) {
       continue;
     } else {

@@ -74,30 +74,21 @@ function scanString(
 }
 
 /** Numeric literal (digits + at most one dot) starting at `i`. */
-function scanNumber(
-  src: string,
-  i: number,
-): { token: Token; next: number } {
+function scanNumber(src: string, i: number): { token: Token; next: number } {
   let j = i;
   while (j < src.length && /[0-9.]/.test(src[j])) j++;
   return { token: { type: 'num', value: src.slice(i, j) }, next: j };
 }
 
 /** Identifier (`[A-Za-z_][A-Za-z0-9_.]*`) — possibly `.NAOK` suffixed. */
-function scanIdent(
-  src: string,
-  i: number,
-): { token: Token; next: number } {
+function scanIdent(src: string, i: number): { token: Token; next: number } {
   let j = i;
   while (j < src.length && /[A-Za-z0-9_.]/.test(src[j])) j++;
   return { token: { type: 'ident', value: src.slice(i, j) }, next: j };
 }
 
 /** Two-char operator if present, else single-char. Unknowns throw. */
-function scanOperator(
-  src: string,
-  i: number,
-): { token: Token; next: number } {
+function scanOperator(src: string, i: number): { token: Token; next: number } {
   const two = src.slice(i, i + 2);
   if (MULTI_CHAR_OPS.includes(two)) {
     return { token: { type: 'op', value: two }, next: i + 2 };

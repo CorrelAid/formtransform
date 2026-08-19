@@ -1,15 +1,21 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/generateFixtures.ts"],
-  "project": ["src/**/*.ts"],
-  "ignore": ["src/generated/**", "src/**/*.test.ts", "tests/**"],
-  "ignoreBinaries": ["docker-compose", "uv", "ruff"],
-  "ignoreDependencies": [],
+  "ignoreBinaries": ["uv"],
   "rules": {
     "exports": "off",
     "types": "off",
     "nsExports": "off",
     "nsTypes": "off",
     "enumMembers": "off"
+  },
+  "workspaces": {
+    ".": {
+      "entry": ["src/generateFixtures.ts"],
+      "project": ["src/**/*.ts"],
+      "ignore": ["src/generated/**"]
+    },
+    "docs": {
+      "ignoreDependencies": ["@registry/.*"]
+    }
   }
 }
