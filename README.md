@@ -142,6 +142,8 @@ npm run bless
 ## Documentation
 
 - [Architecture](ARCHITECTURE.md) — Technical architecture and internal structure
+- [formtransform-app handover](HANDOVER_FORMTRANSFORM_APP.md) — plan for moving the
+  frontend app onto this library (issue-by-issue)
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
 - [Pipeline Documentation](src/pipelines/README.md) — Transformation pipeline details
 - [Test Documentation](tests/README.md) — Test structure and running tests
