@@ -79,6 +79,31 @@ describe('QUESTION_TYPES', () => {
     );
   });
 
+  it('keeps per-key literal typeStrings, so consumers can derive unions', () => {
+    // The runtime half of the guarantee. The type-level half cannot be asserted
+    // here — widening leaves the payload identical — so it is enforced by
+    // `LiteralTypeStringsPreserved` in the generated module, which `npm run
+    // typecheck` compiles. This mirrors the derivation formulaid uses:
+    type DerivedQuestionType = {
+      [K in keyof typeof QUESTION_TYPES]: (typeof QUESTION_TYPES)[K] extends {
+        kind: 'question';
+        typeString: infer T;
+      }
+        ? T extends string
+          ? T
+          : never
+        : never;
+    }[keyof typeof QUESTION_TYPES];
+
+    const selectOne: DerivedQuestionType = 'select_one';
+    expect(selectOne).toBe(QUESTION_TYPES.select_one.typeString);
+
+    // A composite carries `typeString: undefined`, so the derivation drops it
+    // while the property stays reachable on every member.
+    expect('typeString' in QUESTION_TYPES.grid).toBe(true);
+    expect(QUESTION_TYPES.grid.typeString).toBeUndefined();
+  });
+
   it('exposes the authoring constraints for types that impose them', () => {
     const selectOne = QUESTION_TYPES.select_one;
     expect(selectOne.constraints?.maxNameLength).toBe(20);

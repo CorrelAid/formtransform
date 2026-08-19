@@ -371,14 +371,16 @@ def _entry_lines(
     lines = [
         f"  {_ts_key(key)}: {{",
         f"    id: {json.dumps(entry_id)},",
-        f"    label: {json.dumps(label)},",
+        f"    label: {json.dumps(label, ensure_ascii=False)},",
         f"    kind: {json.dumps(kind)},",
-        f"    useWhen: {json.dumps(use_when)},",
+        f"    useWhen: {json.dumps(use_when, ensure_ascii=False)},",
         f"    isVariant: {'true' if is_variant else 'false'},",
         f"    isComposite: {'true' if is_composite else 'false'},",
     ]
-    if type_string is not None:
-        lines.append(f"    typeString: {json.dumps(type_string)},")
+    # Composites get an explicit `undefined` rather than an omitted key: under
+    # `as const` an omitted key does not exist on that member's type, and a
+    # consumer iterating `Object.values()` then cannot touch `.typeString` at all.
+    lines.append(f"    typeString: {json.dumps(type_string) if type_string is not None else 'undefined'},")
     if len(bases) == 1:
         lines.append(f"    base: {json.dumps(bases[0])},")
     elif len(bases) > 1:
@@ -420,7 +422,7 @@ def generate_question_types(registry: dict[str, Any], output: Path):
         "  namePattern?: string;",
         "  maxChoiceCodeLength?: number;",
         "  choiceCodePattern?: string;",
-        "  warnings?: string[];",
+        "  warnings?: readonly string[];",
         "  /** Registry constraints are open-ended; unlisted keys pass through. */",
         "  [key: string]: unknown;",
         "}",
@@ -443,15 +445,21 @@ def generate_question_types(registry: dict[str, Any], output: Path):
         "  /** Registry slug of the type a variant derives from (`skos:broader`). */",
         "  base?: string;",
         "  /** Composites derive from several types at once, e.g. grid. */",
-        "  bases?: string[];",
+        "  bases?: readonly string[];",
         "  isVariant: boolean;",
         "  isComposite: boolean;",
         "  /** Accepted alternative `type` strings (e.g. `string` for `text`). */",
-        "  aliases?: string[];",
+        "  aliases?: readonly string[];",
         "  constraints?: QuestionTypeConstraints;",
         "}",
         "",
-        "export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {",
+        "/**",
+        " * Keyed by registry slug. Emitted with `as const satisfies` rather than an",
+        " * annotation: an annotation would collapse every value to the uniform",
+        " * `QuestionTypeEntry` in the `.d.ts`, and consumers deriving a union of",
+        " * `typeString` literals would get `never`.",
+        " */",
+        "export const QUESTION_TYPES = {",
     ]
 
     def broader_slugs(data: dict[str, Any]) -> list[str]:
@@ -520,6 +528,32 @@ def generate_question_types(registry: dict[str, Any], output: Path):
             is_composite=False,
         )
 
-    lines.append("};")
+    lines.append("} as const satisfies Record<string, QuestionTypeEntry>;")
     lines.append("")
+
+    # Compile-time guard. A vitest assertion cannot see type widening — dropping
+    # `as const` leaves the runtime payload identical and only the .d.ts poorer —
+    # so the check lives here, where `npm run typecheck` (and therefore CI) fails
+    # on it. Keyed to a real registry slug so it cannot drift from the data.
+    guard = next(
+        (
+            (_slug(tid), d["xlsform"]["typeString"])
+            for tid, d in sorted(registry.items())
+            if d.get("@type") == "QuestionType"
+        ),
+        None,
+    )
+    if guard:
+        guard_slug, guard_type = guard
+        lines += [
+            "/** Fails to compile if the `as const` above is lost and the literals widen. */",
+            "type AssertTrue<T extends true> = T;",
+            "export type LiteralTypeStringsPreserved = AssertTrue<",
+            f"  (typeof QUESTION_TYPES)[{json.dumps(guard_slug)}]['typeString'] extends {json.dumps(guard_type)}",
+            "    ? true",
+            "    : false",
+            ">;",
+            "",
+        ]
+
     output.write_text("\n".join(lines))

@@ -13,7 +13,7 @@ export interface QuestionTypeConstraints {
   namePattern?: string;
   maxChoiceCodeLength?: number;
   choiceCodePattern?: string;
-  warnings?: string[];
+  warnings?: readonly string[];
   /** Registry constraints are open-ended; unlisted keys pass through. */
   [key: string]: unknown;
 }
@@ -36,15 +36,21 @@ export interface QuestionTypeEntry {
   /** Registry slug of the type a variant derives from (`skos:broader`). */
   base?: string;
   /** Composites derive from several types at once, e.g. grid. */
-  bases?: string[];
+  bases?: readonly string[];
   isVariant: boolean;
   isComposite: boolean;
   /** Accepted alternative `type` strings (e.g. `string` for `text`). */
-  aliases?: string[];
+  aliases?: readonly string[];
   constraints?: QuestionTypeConstraints;
 }
 
-export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
+/**
+ * Keyed by registry slug. Emitted with `as const satisfies` rather than an
+ * annotation: an annotation would collapse every value to the uniform
+ * `QuestionTypeEntry` in the `.d.ts`, and consumers deriving a union of
+ * `typeString` literals would get `never`.
+ */
+export const QUESTION_TYPES = {
   grid: {
     id: "composite:grid",
     label: "Grid / Matrix Group",
@@ -52,6 +58,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     useWhen: "When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements).",
     isVariant: false,
     isComposite: true,
+    typeString: undefined,
     bases: ["begin_group", "select_one"],
   },
   begin_group: {
@@ -218,7 +225,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:start",
     label: "start",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "start",
@@ -227,7 +234,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:end",
     label: "end",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "end",
@@ -236,7 +243,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:today",
     label: "today",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "today",
@@ -245,7 +252,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:deviceid",
     label: "deviceid",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "deviceid",
@@ -254,7 +261,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:username",
     label: "username",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "username",
@@ -263,7 +270,7 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:hidden",
     label: "hidden",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "hidden",
@@ -272,9 +279,17 @@ export const QUESTION_TYPES: Record<string, QuestionTypeEntry> = {
     id: "metadataRow:audit",
     label: "audit",
     kind: "metadata",
-    useWhen: "skip silently \u2014 device/session metadata rows carry no authored content",
+    useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
     isComposite: false,
     typeString: "audit",
   },
-};
+} as const satisfies Record<string, QuestionTypeEntry>;
+
+/** Fails to compile if the `as const` above is lost and the literals widen. */
+type AssertTrue<T extends true> = T;
+export type LiteralTypeStringsPreserved = AssertTrue<
+  (typeof QUESTION_TYPES)["date"]['typeString'] extends "date"
+    ? true
+    : false
+>;
