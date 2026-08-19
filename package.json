@@ -50,7 +50,7 @@
   "dependencies": {
     "js-xpath": "0.0.4",
     "marked": "^17.0.5",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "^0.18.5"
   },
   "lint-staged": {
     "*.ts": [
