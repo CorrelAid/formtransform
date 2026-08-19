@@ -1,5 +1,5 @@
 import { TYPE_MAPPINGS } from './typeMapper.js';
-import conventions from '../../generated/conventions.json' with { type: 'json' };
+import conventions from '../../generated/conventions.js';
 
 // Derived from registry convention:unregisteredRows — device/session metadata
 // rows are silently skipped; any other unregistered type is an error.

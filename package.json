@@ -23,7 +23,7 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-generated-json.mjs",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",

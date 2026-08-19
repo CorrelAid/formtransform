@@ -7,7 +7,7 @@
  */
 
 import { APPEARANCES } from '../../generated/Appearances.js';
-import conventions from '../../generated/conventions.json' with { type: 'json' };
+import conventions from '../../generated/conventions.js';
 import {
   TYPE_MAP,
   NON_DDI_EMITTABLE_TYPES,

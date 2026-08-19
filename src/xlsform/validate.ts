@@ -1,4 +1,4 @@
-import conventions from '../generated/conventions.json' with { type: 'json' };
+import conventions from '../generated/conventions.js';
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 

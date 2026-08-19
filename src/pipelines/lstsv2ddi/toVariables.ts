@@ -16,7 +16,7 @@
  *   - `F` (array)          → grid group of `select_one` variables
  */
 
-import conventions from '../../generated/conventions.json' with { type: 'json' };
+import conventions from '../../generated/conventions.js';
 
 import { Choice, Variable } from '../../ddi/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
