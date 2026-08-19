@@ -22,8 +22,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      # Install from the repo root, not from docs/: the root is the workspace root,
+      # so npm installs the whole tree there and runs the root `prepare` (tsc).
+      # Installing inside docs/ leaves the root package's own dependencies absent,
+      # and that prepare then fails on missing `xlsx` / `marked`.
       - name: Install
-        working-directory: docs
         run: npm install --no-audit --no-fund
       - name: Build
         working-directory: docs
