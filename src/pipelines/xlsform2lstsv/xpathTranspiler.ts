@@ -67,10 +67,11 @@ function sanitizeName(name: string): string {
 }
 
 /** All positional args joined with `, ` (XPath variadic → EM list). */
-function joinArgs(args: unknown[] | undefined, ctx?: TranspilerContext): string {
-  return (args ?? [])
-    .map((a) => transpile(a as XPathNode, ctx))
-    .join(', ');
+function joinArgs(
+  args: unknown[] | undefined,
+  ctx?: TranspilerContext,
+): string {
+  return (args ?? []).map((a) => transpile(a as XPathNode, ctx)).join(', ');
 }
 
 /** Pass-through: every arg becomes `prefix(argN)`. */
@@ -103,9 +104,7 @@ const FUNCTION_HANDLERS: Record<
   // variadic
   count: (args, ctx) => wrapArgs('count', args, ctx),
   concat: (args, ctx) =>
-    (args ?? [])
-      .map((a) => transpile(a as XPathNode, ctx))
-      .join(' + ') || '',
+    (args ?? []).map((a) => transpile(a as XPathNode, ctx)).join(' + ') || '',
   regex: (args, ctx) => wrapArgs('regexMatch', args, ctx),
   // 2-arg
   contains: (args, ctx) =>
@@ -152,7 +151,10 @@ function rewriteWithAnswerLookup(
 }
 
 /** String-valued function calls that need custom logic beyond a single Map entry. */
-function transpileSelected(args: unknown[] | undefined, ctx?: TranspilerContext): string {
+function transpileSelected(
+  args: unknown[] | undefined,
+  ctx?: TranspilerContext,
+): string {
   if (args?.length !== 2) throw new Error('selected() needs 2 arguments');
   const fieldArg = args[0] as XPathNode;
   const valueArg = args[1] as XPathNode;
@@ -170,17 +172,20 @@ function transpileSubstring(
   args: unknown[] | undefined,
   ctx?: TranspilerContext,
 ): string {
-  if (!args || args.length < 2) throw new Error('substring() needs ≥2 arguments');
+  if (!args || args.length < 2)
+    throw new Error('substring() needs ≥2 arguments');
   const stringArg = transpile(args[0] as XPathNode, ctx);
   const startArg = transpile(args[1] as XPathNode, ctx);
-  const lengthArg =
-    args.length > 2 ? transpile(args[2] as XPathNode, ctx) : '';
+  const lengthArg = args.length > 2 ? transpile(args[2] as XPathNode, ctx) : '';
   return `substr(${stringArg}, ${startArg}${lengthArg ? ', ' + lengthArg : ''})`;
 }
 
 /** `selected(${field}, 'value')` and `substring(...)` need custom logic; dispatch
  * any other known function via the static table. */
-function transpileFunctionCall(node: XPathNode, ctx?: TranspilerContext): string {
+function transpileFunctionCall(
+  node: XPathNode,
+  ctx?: TranspilerContext,
+): string {
   const id = node.id!;
   const args = node.args;
   if (id === 'selected') return transpileSelected(args, ctx);
@@ -238,11 +243,16 @@ function transpileBinaryOp(node: XPathNode, ctx?: TranspilerContext): string {
 }
 
 /** Variable references become the sanitized, possibly truncated field name. */
-function transpileVariableRef(node: XPathNode, ctx?: TranspilerContext): string {
+function transpileVariableRef(
+  node: XPathNode,
+  ctx?: TranspilerContext,
+): string {
   const step = node.steps![0];
   if (!step.name) return 'self';
   const fieldName = sanitizeName(step.name);
-  return ctx?.getTruncatedFieldName ? ctx.getTruncatedFieldName(fieldName) : fieldName;
+  return ctx?.getTruncatedFieldName
+    ? ctx.getTruncatedFieldName(fieldName)
+    : fieldName;
 }
 
 /** Literal (string / numeric) values. `valueDisplay` carries the original quoted form. */
@@ -279,7 +289,8 @@ function transpile(node: XPathNode, ctx?: TranspilerContext): string {
   if (!node) return '';
   if (node.id) return transpileFunctionCall(node, ctx);
   if (node.type) return transpileBinaryOp(node, ctx);
-  if (node.steps && node.steps.length > 0) return transpileVariableRef(node, ctx);
+  if (node.steps && node.steps.length > 0)
+    return transpileVariableRef(node, ctx);
   if (node.value !== undefined) return transpileLiteral(node);
   throw new Error(`Unsupported node structure: ${JSON.stringify(node)}`);
 }
@@ -339,7 +350,8 @@ const LOGICAL_OPERATORS = ['>=', '<=', '>', '<', '=', '!=', 'and', 'or'];
 function firstArgLooksLogical(firstArg: string): boolean {
   return LOGICAL_OPERATORS.some(
     (op) =>
-      firstArg.includes(op) && !(firstArg.includes('[') && firstArg.includes(']')),
+      firstArg.includes(op) &&
+      !(firstArg.includes('[') && firstArg.includes(']')),
   );
 }
 
@@ -358,9 +370,13 @@ function firstArgLooksLikePattern(firstArg: string): boolean {
 }
 
 /** Apply the `regexMatch(<pattern>, <field>)` reconstruction rule to two parsed args. */
-function reconstructRegexMatch(firstArg: string, secondArg: string): string | null {
+function reconstructRegexMatch(
+  firstArg: string,
+  secondArg: string,
+): string | null {
   if (firstArgLooksLogical(firstArg)) return firstArg.replace(/^"|"$/g, '');
-  if (!secondArgIsFieldRef(secondArg) || !firstArgLooksLikePattern(firstArg)) return null;
+  if (!secondArgIsFieldRef(secondArg) || !firstArgLooksLikePattern(firstArg))
+    return null;
   const processedFieldArg = secondArg.replace(/\./g, 'self');
   const processedPatternArg = firstArg
     .replace(/^"|"$/g, "'")

@@ -5,7 +5,13 @@ from pathlib import Path
 
 from .emit_docs import generate_type_docs
 from .emit_skill import generate_skill
-from .emit_ts import generate_appearances, generate_conventions, generate_typescript, generate_typescript_ddi
+from .emit_ts import (
+    generate_appearances,
+    generate_conventions,
+    generate_conventions_ts,
+    generate_typescript,
+    generate_typescript_ddi,
+)
 from .examples import build_example_artifacts
 from .loader import load_registry
 from .schematron import generate_schematron
@@ -51,7 +57,10 @@ def main(argv: list[str] | None = None) -> None:
     print("  ✅ src/generated/Appearances.ts (transformer)")
 
     generate_conventions(registry, ts_out / "conventions.json")
-    print("  ✅ src/generated/conventions.json (transformer)")
+    print("  ✅ src/generated/conventions.json (artifact for non-TS consumers)")
+
+    generate_conventions_ts(registry, ts_out / "conventions.ts")
+    print("  ✅ src/generated/conventions.ts (transformer)")
 
     generate_schematron(registry, base_dir / "ddi-validation" / "schematron" / "ddi_custom_rules.sch")
     print("  ✅ ddi-validation/schematron/ddi_custom_rules.sch (DDI validation rules)")

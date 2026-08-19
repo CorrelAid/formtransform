@@ -49,7 +49,7 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 Python package (run `uv run codegen` or `python -m codegen`) that validates the registry, then emits generated artifacts:
 
-- `src/generated/` — `TypeMappings.ts`, `DdiMappings.ts`, `Appearances.ts`, `conventions.json` (consumed by the library)
+- `src/generated/` — `TypeMappings.ts`, `DdiMappings.ts`, `Appearances.ts`, `conventions.ts` (consumed by the library) plus `conventions.json`, the same payload for non-TypeScript consumers. The library imports the `.ts` twin, never the JSON: a runtime JSON import only reaches `dist/` if tsc copies it, and import attributes are not understood by every consumer's bundler. `npm run build` copies the JSON to `dist/generated/` after `tsc`.
 - `registry/entities/<slug>/` — `docs.md` + `xlsform.xlsx` per entity
 - `skills/cdl-survey-types/` — the generated sub-skill
 - `ddi-validation/ddi_custom_rules.sch` — the CDL Schematron rules
@@ -58,6 +58,7 @@ Python package (run `uv run codegen` or `python -m codegen`) that validates the 
 ### Tests (`tests/`)
 
 Everything that isn't a TypeScript unit test, split by subject:
+
 - `tests/validation/` — pytest: committed DDI snapshots vs XSD + CDL Schematron, XLSForm fixtures vs the pyxform oracle
 - `tests/live/` — pytest, docker: real survey engines — import, respond, read the stored data back
 - `tests/fixtures/surveys/` — hand-authored multi-question surveys shared by both
@@ -85,6 +86,7 @@ Both DDI pipelines converge on the same emitter: they produce `Variable[]` (`src
 Deliberate design decision. **DDI is the terminus of the pipeline graph** — it describes a *dataset*, not an *instrument*, so it does not carry the information a survey needs to run.
 
 The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit. Everything that makes a form behave is absent:
+
 - **no `relevant`** — DDI Codebook 2.5 has no machine-readable expression syntax at all, so skip logic is dropped on the way in
 - **no `constraint`** — same reason
 - **no `required`, `default`, `hint`, per-question `appearance`, `calculation`**

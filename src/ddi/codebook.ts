@@ -403,7 +403,8 @@ function addVars(
   for (const [groupName, members] of gridGroups) {
     const groupLabel = getGroupLabel(dataVars, groupName);
     members.forEach((v, i) => {
-      const pre = i === 0 ? combineNote(notePreqtxt, v.name, groupLabel) : groupLabel;
+      const pre =
+        i === 0 ? combineNote(notePreqtxt, v.name, groupLabel) : groupLabel;
       addVarElement(dataDscr, {
         varId: makeVarId(v.name),
         name: v.name,
@@ -417,7 +418,8 @@ function addVars(
 
   for (const [smName, smVar] of multiRespGroups) {
     smVar.choices.forEach((choice, i) => {
-      const stem = i === 0 ? combineNote(notePreqtxt, smName, smVar.label) : smVar.label;
+      const stem =
+        i === 0 ? combineNote(notePreqtxt, smName, smVar.label) : smVar.label;
       addBinaryVar(
         dataDscr,
         makeVarId(`${smName}_${choice.name}`),
@@ -481,13 +483,7 @@ export function buildDdiCodebook(
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
   addVarGroups(dataDscr, dataVars, buckets, buckets.otherPatterns);
-  addVars(
-    dataDscr,
-    dataVars,
-    inlinePreqtxt,
-    buckets,
-    buckets.otherPatterns,
-  );
+  addVars(dataDscr, dataVars, inlinePreqtxt, buckets, buckets.otherPatterns);
 
   return root;
 }

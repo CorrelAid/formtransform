@@ -1,4 +1,4 @@
-import conventions from '../generated/conventions.json' with { type: 'json' };
+import conventions from '../generated/conventions.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const NAME_STRIP_REGEX = new RegExp(NAME_RULES.stripCharsRegex, 'g');

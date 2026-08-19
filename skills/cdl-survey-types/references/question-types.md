@@ -37,7 +37,7 @@
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`; choice code ≤ 5 chars, `^[a-zA-Z0-9]+$`
 
 > ⚠️ Choice codes > 5 chars will be truncated in LimeSurvey
-
+>
 > ⚠️ Avoid choice codes with identical 5-char prefixes
 
 **Variants:**
@@ -89,4 +89,3 @@
 **Use when:** When capturing a time of day without an associated date (e.g. preferred appointment time).
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
-

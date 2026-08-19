@@ -97,7 +97,11 @@ export class GroupProcessor {
         }
         continue;
       }
-      if (!type || stack.length === 0 || SKIP_TYPES.includes(extractBaseType(row)))
+      if (
+        !type ||
+        stack.length === 0 ||
+        SKIP_TYPES.includes(extractBaseType(row))
+      )
         continue;
       const info = groupInfo.get(stack[stack.length - 1]);
       if (!info) continue;

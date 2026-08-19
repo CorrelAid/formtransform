@@ -1,4 +1,4 @@
-import conventions from '../generated/conventions.json' with { type: 'json' };
+import conventions from '../generated/conventions.js';
 import { sanitizeFieldName } from '../utils/helpers.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;

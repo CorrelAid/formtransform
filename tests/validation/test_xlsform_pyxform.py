@@ -24,18 +24,21 @@ from .fixtures import example_dir, examples
 pyxform = pytest.importorskip("pyxform", reason="pyxform not installed (dev dependency group)")
 from pyxform.xls2xform import convert  # noqa: E402  (after importorskip)
 
-# Only entities that ship an xlsx fixture.
-_ENTITIES = [(e["@id"], e) for e in examples() if (example_dir(e) / "xlsform.xlsx").exists()]
+# codegen renders each entity's xlsx into <exampleDir>/generated/ (gitignored).
+_XLSX = "generated/xlsform.xlsx"
+_ENTITIES = [(e["@id"], e) for e in examples() if (example_dir(e) / _XLSX).exists()]
 
 
 @pytest.mark.parametrize("entity_id,entity", _ENTITIES, ids=[eid for eid, _ in _ENTITIES])
 def test_xlsform_fixture_is_valid_xlsform(entity_id: str, entity: dict) -> None:
     """pyxform must accept the fixture and emit a non-empty XForm."""
-    xlsx = example_dir(entity) / "xlsform.xlsx"
+    xlsx = example_dir(entity) / _XLSX
     result = convert(str(xlsx))
     assert result.xform and result.xform.strip(), f"pyxform produced empty XForm for {entity_id} ({xlsx})"
 
 
 def test_at_least_one_fixture_checked() -> None:
     """Guard against the parametrization silently collapsing to zero cases."""
-    assert _ENTITIES, "No xlsform.xlsx fixtures discovered under registry/entities/"
+    if not any((example_dir(e) / "generated").is_dir() for e in examples()):
+        pytest.skip("no generated/ artifacts present -- run `python -m codegen` first")
+    assert _ENTITIES, f"No {_XLSX} fixtures discovered under registry/entities/"

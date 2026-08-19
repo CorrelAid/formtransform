@@ -16,7 +16,7 @@
  *   - `F` (array)          → grid group of `select_one` variables
  */
 
-import conventions from '../../generated/conventions.json' with { type: 'json' };
+import conventions from '../../generated/conventions.js';
 
 import { Choice, Variable } from '../../ddi/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
@@ -246,7 +246,13 @@ function processQuestionRow(
 
   const label = cell(row, 'text');
   const cdlVocab = vocabFromCssClass(cell(row, 'cssclass'));
-  const variable = buildQuestionVar(lsType, name, label, cdlVocab, currentGroup);
+  const variable = buildQuestionVar(
+    lsType,
+    name,
+    label,
+    cdlVocab,
+    currentGroup,
+  );
 
   if (cell(row, 'other') === 'Y' && isOtherEligibleSelect(variable)) {
     otherSelects.add(variable.name);
@@ -254,7 +260,11 @@ function processQuestionRow(
   renameOtherCompanion(variable, otherSelects);
 
   // from_file selects (vocab set) inline options in the TSV that DDI drops.
-  return { kind: 'question', variable, currentVar: variable.vocab ? null : variable };
+  return {
+    kind: 'question',
+    variable,
+    currentVar: variable.vocab ? null : variable,
+  };
 }
 
 /** Materialise `array` into one `select_one` Variable per subquestion. */
@@ -349,7 +359,12 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
     }
 
     if (cls === 'Q') {
-      const outcome = processQuestionRow(row, currentGroup, otherSelects, flushArray);
+      const outcome = processQuestionRow(
+        row,
+        currentGroup,
+        otherSelects,
+        flushArray,
+      );
       if (outcome.kind === 'array') {
         array = outcome.array;
         continue;

@@ -3,6 +3,7 @@ Integration tests for XLSX-based survey fixtures.
 Tests TSV generation from real-world XLSX files and validates structure.
 """
 
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -315,6 +316,55 @@ def test_testB_import(limesurvey_client: Client, generated_files_dir: Path):
         cleanup_survey(limesurvey_client, survey_id)
 
 
+def _field(obj, key, default=None):
+    """Read a field from a citric result that may be a dict or an object."""
+    return obj.get(key, default) if isinstance(obj, dict) else getattr(obj, key, default)
+
+
+def _gid_to_name(groups) -> dict[int, str]:
+    return {int(_field(g, "gid")): _field(g, "group_name") for g in groups}
+
+
+def _questions_by_group(questions) -> dict[int, list[dict]]:
+    """Parent questions (subquestions dropped) grouped by gid, each as {title, order}."""
+    by_group: dict[int, list[dict]] = {}
+    for q in questions:
+        parent_qid = _field(q, "parent_qid", 0)
+        if parent_qid and int(parent_qid) != 0:
+            continue  # skip subquestions
+        gid = int(_field(q, "gid"))
+        by_group.setdefault(gid, []).append({"title": _field(q, "title"), "order": int(_field(q, "question_order"))})
+    return by_group
+
+
+def _assert_strictly_increasing_orders(group_name: str, qs: list[dict]) -> list[int]:
+    """question_order in one group must be unique and strictly increasing."""
+    sorted_qs = sorted(qs, key=lambda x: x["order"])
+    orders = [q["order"] for q in sorted_qs]
+    titles = [q["title"] for q in sorted_qs]
+    pairs = list(zip(titles, orders, strict=False))
+
+    # Orders must be unique (no duplicates from counter reset bug)
+    assert len(set(orders)) == len(orders), f"Group '{group_name}' has duplicate question_order values: {pairs}"
+    for i in range(1, len(orders)):
+        assert orders[i] > orders[i - 1], f"Group '{group_name}' has non-increasing question_order: {pairs}"
+    return orders
+
+
+def _ordered_titles(gid_to_name: dict[int, str], by_group: dict[int, list[dict]], group_name: str) -> list[str]:
+    """Titles of one named group in question_order, or [] if the group is absent."""
+    for gid, gname in gid_to_name.items():
+        if gname == group_name:
+            return [q["title"] for q in sorted(by_group.get(gid, []), key=lambda x: x["order"])]
+    return []
+
+
+def _assert_title_sequence(titles: list[str], expected: list[str]) -> None:
+    """`expected` titles must appear in that relative order within `titles`."""
+    for earlier, later in pairwise(expected):
+        assert titles.index(earlier) < titles.index(later), f"{earlier} should come before {later}, got: {titles}"
+
+
 def test_testB_question_order_in_groups(limesurvey_client: Client, generated_files_dir: Path):
     """Verify that questions within each group have correct, incrementing order after import.
 
@@ -330,104 +380,32 @@ def test_testB_question_order_in_groups(limesurvey_client: Client, generated_fil
     survey_id = import_survey_from_tsv(limesurvey_client, tsv_path, "testB Question Order Test")
 
     try:
-        questions = limesurvey_client.list_questions(survey_id)
-        groups = limesurvey_client.list_groups(survey_id)
+        gid_to_name = _gid_to_name(limesurvey_client.list_groups(survey_id))
+        questions_by_group = _questions_by_group(limesurvey_client.list_questions(survey_id))
 
-        # Build group_id -> group_name mapping
-        gid_to_name = {}
-        for g in groups:
-            gid = g.get("gid") if isinstance(g, dict) else g.gid
-            gname = g.get("group_name") if isinstance(g, dict) else g.group_name
-            gid_to_name[int(gid)] = gname
-
-        # Build group_id -> sorted questions mapping (parent questions only)
-        questions_by_group = {}
-        for q in questions:
-            parent_qid = q.get("parent_qid") if isinstance(q, dict) else getattr(q, "parent_qid", 0)
-            if parent_qid and int(parent_qid) != 0:
-                continue  # skip subquestions
-
-            gid = int(q.get("gid") if isinstance(q, dict) else q.gid)
-            title = q.get("title") if isinstance(q, dict) else q.title
-            order = int(q.get("question_order") if isinstance(q, dict) else q.question_order)
-
-            if gid not in questions_by_group:
-                questions_by_group[gid] = []
-            questions_by_group[gid].append({"title": title, "order": order})
-
-        # For every group, verify question_order values are unique and incrementing
         for gid, qs in questions_by_group.items():
-            sorted_qs = sorted(qs, key=lambda x: x["order"])
-            orders = [q["order"] for q in sorted_qs]
-            titles = [q["title"] for q in sorted_qs]
             group_name = gid_to_name.get(gid, f"gid={gid}")
-
-            # Orders must be unique (no duplicates from counter reset bug)
-            assert len(set(orders)) == len(orders), (
-                f"Group '{group_name}' has duplicate question_order values: {list(zip(titles, orders, strict=False))}"
-            )
-
-            # Orders must be strictly increasing
-            for i in range(1, len(orders)):
-                assert orders[i] > orders[i - 1], (
-                    f"Group '{group_name}' has non-increasing question_order: {list(zip(titles, orders, strict=False))}"
-                )
-
+            orders = _assert_strictly_increasing_orders(group_name, qs)
             print(f"✓ Group '{group_name}': {len(qs)} questions with correct order {orders}")
 
-        # Verify specific expected ordering within key groups
-        # Group "groupgi4rv46": Hallo → Disclaimer (only notes, project questions are in auto-group)
-        g1_qs = None
-        for gid, gname in gid_to_name.items():
-            if gname == "groupgi4rv46":
-                g1_qs = sorted(questions_by_group.get(gid, []), key=lambda x: x["order"])
-                break
-
-        if g1_qs:
-            g1_titles = [q["title"] for q in g1_qs]
-            assert g1_titles.index("Hallo") < g1_titles.index("Disclaimer"), (
-                f"Hallo should come before Disclaimer, got: {g1_titles}"
-            )
+        # Verify specific expected ordering within key groups.
+        # Group "groupgi4rv46": only notes — project questions land in an auto-group.
+        g1_titles = _ordered_titles(gid_to_name, questions_by_group, "groupgi4rv46")
+        if g1_titles:
+            _assert_title_sequence(g1_titles, ["Hallo", "Disclaimer"])
             # projectid should NOT be in this group (it's in an auto-generated group)
             assert "projectid" not in g1_titles, f"projectid should not be in groupgi4rv46, got: {g1_titles}"
 
-        # Auto-generated group "G1": projectid → projectroleprojectal → projectroleprojectbe → projectroleprojectga
-        auto_g1_qs = None
-        for gid, gname in gid_to_name.items():
-            if gname == "G1":
-                auto_g1_qs = sorted(questions_by_group.get(gid, []), key=lambda x: x["order"])
-                break
-
-        if auto_g1_qs:
-            auto_titles = [q["title"] for q in auto_g1_qs]
-            assert auto_titles.index("projectid") < auto_titles.index("projectroleprojectal"), (
-                f"projectid should come before projectroleprojectal, got: {auto_titles}"
-            )
-            assert auto_titles.index("projectroleprojectal") < auto_titles.index("projectroleprojectbe"), (
-                f"projectroleprojectal should come before projectroleprojectbe, got: {auto_titles}"
-            )
-            assert auto_titles.index("projectroleprojectbe") < auto_titles.index("projectroleprojectga"), (
-                f"projectroleprojectbe should come before projectroleprojectga, got: {auto_titles}"
+        auto_titles = _ordered_titles(gid_to_name, questions_by_group, "G1")
+        if auto_titles:
+            _assert_title_sequence(
+                auto_titles,
+                ["projectid", "projectroleprojectal", "projectroleprojectbe", "projectroleprojectga"],
             )
 
-        # Group "demographics": firstname → lastname → emailaddress → gender → genderselfidentifica
-        demo_qs = None
-        for gid, gname in gid_to_name.items():
-            if gname == "demographics":
-                demo_qs = sorted(questions_by_group.get(gid, []), key=lambda x: x["order"])
-                break
-
-        if demo_qs:
-            demo_titles = [q["title"] for q in demo_qs]
-            assert demo_titles.index("firstname") < demo_titles.index("lastname"), (
-                f"firstname should come before lastname, got: {demo_titles}"
-            )
-            assert demo_titles.index("lastname") < demo_titles.index("emailaddress"), (
-                f"lastname should come before emailaddress, got: {demo_titles}"
-            )
-            assert demo_titles.index("emailaddress") < demo_titles.index("gender"), (
-                f"emailaddress should come before gender, got: {demo_titles}"
-            )
+        demo_titles = _ordered_titles(gid_to_name, questions_by_group, "demographics")
+        if demo_titles:
+            _assert_title_sequence(demo_titles, ["firstname", "lastname", "emailaddress", "gender"])
             # consentprivacypolicy is now in its own auto-generated group
             assert "consentprivacypolicy" not in demo_titles, (
                 f"consentprivacypolicy should not be in demographics, got: {demo_titles}"

@@ -23,7 +23,7 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-generated-json.mjs",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -35,7 +35,7 @@
     "test:all": "npm run test && npm run test:py && npm run test:live",
     "bless": "bash scripts/bless.sh",
     "fixtures:generate": "npm run build && node dist/generateFixtures.js",
-    "lint": "eslint src --max-warnings 12",
+    "lint": "eslint src --max-warnings 0",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",

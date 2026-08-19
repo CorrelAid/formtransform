@@ -11,6 +11,7 @@ Metadata rows (`start`, `end`, `today`, `deviceid`, `username`, `hidden`, `audit
 ## Names & choice codes
 
 Author names/codes in English `snake_case`. Downstream (LimeSurvey) sanitization strips `[_-]` to the pattern `^[a-zA-Z0-9]+$` and truncates, so keep the alphanumeric stem short and unambiguous:
+
 - **Variable `name`:** ≤ 20 chars after stripping. Must be unique — duplicates get a numeric suffix.
 - **Choice `name` (code):** ≤ 5 chars after stripping — longer codes are truncated in LimeSurvey, so short codes (or plain integers, as in the examples) are safest.
 - Labels/hints carry the human text; keep names/codes machine-stable.
@@ -27,7 +28,6 @@ Applies to: `select_one`, `select_multiple`. Add a choice with code `other`, the
 
 Type pattern: `^select_(one|multiple)_from_file (?P<filename>[^ ]+\.csv)$` — e.g. `select_one_from_file iso_3166_1.csv`. Use for long, standardised controlled vocabularies instead of hundreds of inline choices. Registered vocabularies:
 
-
 | File | Vocabulary | Standard |
 |---|---|---|
 | `iso_3166_1.csv` | ISO 3166-1 country codes (alpha-2) | ISO 3166-1 |
@@ -35,7 +35,6 @@ Type pattern: `^select_(one|multiple)_from_file (?P<filename>[^ ]+\.csv)$` — e
 ## Skip logic & validation (`relevant`, `constraint`)
 
 Written in the XLSForm XPath subset. `${name}` references another answer; `.` (in `constraint`) refers to this answer; `selected(${q}, 'code')` tests a choice. `constraint_message` holds the plain-text error.
-
 
 **Only these functions are supported** (anything else is rejected):
 
@@ -71,4 +70,3 @@ Add per-language columns `label::<lang>`, `hint::<lang>`, etc., where `<lang>` i
 
 - type=note + name=welcome → Body text from label promoted to survey-level intro. Convention only; opt-in via tool config.
 - type=note + name=end → End-of-survey thank-you. LS-only.
-

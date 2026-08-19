@@ -381,7 +381,9 @@ function collectSelectMultiples(
 ): Array<{ name: string; codes: string[] }> {
   const out: Array<{ name: string; codes: string[] }> = [];
   for (const bucket of buckets) {
-    const baseRows = bucket.rows.filter((r) => cell(r, 'language') === baseLanguage);
+    const baseRows = bucket.rows.filter(
+      (r) => cell(r, 'language') === baseLanguage,
+    );
     const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
     for (const item of items) {
       if (
@@ -580,7 +582,9 @@ function composeTypeWithList(
   const vocab = vocabFromCssClass(item.cssclass);
   if (vocab) {
     const fromFile =
-      base === 'select_one' ? 'select_one_from_file' : 'select_multiple_from_file';
+      base === 'select_one'
+        ? 'select_one_from_file'
+        : 'select_multiple_from_file';
     return { type: `${fromFile} ${vocab}.csv`, emittedChoices: false };
   }
   if (base === 'select_one' || base === 'select_multiple') {
