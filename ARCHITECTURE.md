@@ -49,7 +49,7 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 Python package (run `uv run codegen` or `python -m codegen`) that validates the registry, then emits generated artifacts:
 
-- `src/generated/` — `TypeMappings.ts`, `DdiMappings.ts`, `Appearances.ts`, `conventions.ts` (consumed by the library) plus `conventions.json`, the same payload for non-TypeScript consumers. The library imports the `.ts` twin, never the JSON: a runtime JSON import only reaches `dist/` if tsc copies it, and import attributes are not understood by every consumer's bundler. `npm run build` copies the JSON to `dist/generated/` after `tsc`.
+- `src/generated/` — `TypeMappings.ts`, `DdiMappings.ts`, `Appearances.ts`, `QuestionTypes.ts`, `conventions.ts` (consumed by the library) plus `conventions.json`, the same payload for non-TypeScript consumers. The library imports the `.ts` twin, never the JSON: a runtime JSON import only reaches `dist/` if tsc copies it, and import attributes are not understood by every consumer's bundler. `npm run build` copies the JSON to `dist/generated/` after `tsc`.
 - `registry/entities/<slug>/` — `docs.md` + `xlsform.xlsx` per entity
 - `skills/cdl-survey-types/` — the generated sub-skill
 - `ddi-validation/ddi_custom_rules.sch` — the CDL Schematron rules

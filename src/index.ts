@@ -17,6 +17,15 @@ export type {
   Variable,
 } from './ddi/index.js';
 
+// ── Registry catalogues (generated; the public "what exists" surface) ──
+export { QUESTION_TYPES } from './generated/QuestionTypes.js';
+export type {
+  QuestionTypeEntry,
+  QuestionTypeConstraints,
+} from './generated/QuestionTypes.js';
+export { APPEARANCES } from './generated/Appearances.js';
+export type { AppearanceSpec } from './generated/Appearances.js';
+
 // ── Pipelines (one per supported direction) ────────────────────────────
 export { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
 export {

@@ -9,6 +9,7 @@ from .emit_ts import (
     generate_appearances,
     generate_conventions,
     generate_conventions_ts,
+    generate_question_types,
     generate_typescript,
     generate_typescript_ddi,
 )
@@ -61,6 +62,9 @@ def main(argv: list[str] | None = None) -> None:
 
     generate_conventions_ts(registry, ts_out / "conventions.ts")
     print("  ✅ src/generated/conventions.ts (transformer)")
+
+    generate_question_types(registry, ts_out / "QuestionTypes.ts")
+    print("  ✅ src/generated/QuestionTypes.ts (labelled catalogue for consumers)")
 
     generate_schematron(registry, base_dir / "ddi-validation" / "schematron" / "ddi_custom_rules.sch")
     print("  ✅ ddi-validation/schematron/ddi_custom_rules.sch (DDI validation rules)")

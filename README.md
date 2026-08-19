@@ -57,6 +57,28 @@ formtransform xlsform2ddi survey.xlsx -o codebook.xml
 formtransform lstsv2xlsform survey.tsv -o recovered.xlsx
 ```
 
+### Asking the library what exists
+
+Two generated catalogues are part of the public API, for consumers that render or
+generate surveys rather than convert them:
+
+```typescript
+import { QUESTION_TYPES, APPEARANCES, TYPE_MAPPINGS } from '@correlaid/formtransform';
+
+QUESTION_TYPES.select_one.label;          // "Select One"
+QUESTION_TYPES.select_one.useWhen;        // when to reach for this type
+QUESTION_TYPES.select_one_other.base;     // "select_one" — a variant of it
+QUESTION_TYPES.grid.bases;                // composites span several types
+QUESTION_TYPES.select_one.constraints;    // name/choice-code limits
+APPEARANCES.label.carriesData;            // false — a matrix header stores no answer
+TYPE_MAPPINGS.select_one.limeSurveyType;  // "L" — how it converts
+```
+
+`QUESTION_TYPES` is keyed by registry slug and answers *what a row can be*
+(label, guidance, variant → base, authoring constraints, metadata rows);
+`TYPE_MAPPINGS` answers *how it converts*. Both are generated from `registry/` —
+never hardcode a type list or a label in a consumer.
+
 ## The Registry is the Source of Truth
 
 **`registry/` is the single source every other artifact in this repo derives
