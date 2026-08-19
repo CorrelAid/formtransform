@@ -44,6 +44,24 @@ const converter = new XLSFormToTSVConverter();
 const tsv = await converter.convert(survey, choices, settings);
 ```
 
+A DDI codebook and the data file it describes come from the same variable list,
+so the CSV headers match the XML `<var name="">` elements one-to-one:
+
+```typescript
+import {
+  buildDdiXml,
+  buildDataCsv,
+  extractVariables,
+  choicesByListFromRows,
+} from '@correlaid/formtransform';
+
+const xml = buildDdiXml(survey, choices, { settings: settings[0], submissions });
+const csv = buildDataCsv(
+  extractVariables(survey, choicesByListFromRows(choices)),
+  submissions,
+);
+```
+
 ### Command Line
 
 ```bash

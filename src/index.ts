@@ -32,6 +32,17 @@ export {
 } from './pipelines/xlsform2lstsv/typeMapper.js';
 
 export { buildDdiXml } from './pipelines/xlsform2ddi/index.js';
+export {
+  extractVariables,
+  choicesByListFromRows,
+  normalizeChoices,
+} from './pipelines/xlsform2ddi/variables.js';
+export {
+  buildDataCsv,
+  getDdiColumnNames,
+  remapSubmissionsToDdi,
+} from './pipelines/xlsform2ddi/data.js';
+export type { Submission } from './pipelines/xlsform2ddi/data.js';
 
 export {
   lstsvToDdiXml,

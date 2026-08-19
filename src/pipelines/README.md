@@ -15,6 +15,24 @@ Both DDI pipelines converge on the same emitter: they produce `Variable[]`
 (`src/ddi/types.ts`) and hand it to `buildDdiCodebook`. The variable model is the
 hub, not any one format.
 
+## The DDI data file
+
+`xlsform2ddi/data.ts` emits the response-data CSV that the codebook describes
+(`buildDataCsv`, plus `getDdiColumnNames` / `remapSubmissionsToDdi` for callers
+writing the file themselves). It is schema-side-agnostic in the same way the XML
+emitter is: it takes `Variable[]` and raw response rows, so either DDI pipeline
+can feed it.
+
+Its one hard contract is **column order equals `<var name="">` order**. The
+column plan walks the same buckets `dataDscr` does — grid-group members,
+`select_multiple` binaries, `_other` patterns, standalone variables — so every
+header matches a `<var>` in the XML, position for position, and schema↔data
+alignment stays a zip rather than a lookup. A `select_multiple` expands to one
+`0`/`1` column per choice; `note` variables get no column at all.
+
+Response rows are keyed by bare question name or by the slash-joined group path
+(`group/name`) Kobo's CSV export uses — both are accepted, bare name wins.
+
 ## Why there is no `ddi2xlsform` or `ddi2lstsv`
 
 Deliberate, not a gap. **DDI is the terminus of the pipeline graph** — it
