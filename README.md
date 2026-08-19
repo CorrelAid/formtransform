@@ -144,6 +144,8 @@ npm run bless
 - [Architecture](ARCHITECTURE.md) — Technical architecture and internal structure
 - [formtransform-app handover](HANDOVER_FORMTRANSFORM_APP.md) — plan for moving the
   frontend app onto this library (issue-by-issue)
+- [qwac + formulaid handover](HANDOVER_QWAC_FORMULAID.md) — plan for aligning the
+  question-bank browser and the survey generator with this registry
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
 - [Pipeline Documentation](src/pipelines/README.md) — Transformation pipeline details
 - [Test Documentation](tests/README.md) — Test structure and running tests
