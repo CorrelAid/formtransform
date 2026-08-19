@@ -148,6 +148,8 @@ npm run bless
   with this registry
 - [formulaid handover](HANDOVER_FORMULAID.md) — plan for aligning the survey
   generator and its Claude skill with this registry
+- [cdl-wp-eins handover](HANDOVER_CDL_WP_EINS.md) — plan for the website content
+  that advertises these tools and feeds agent-readable XLSForm docs
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
 - [Pipeline Documentation](src/pipelines/README.md) — Transformation pipeline details
 - [Test Documentation](tests/README.md) — Test structure and running tests
