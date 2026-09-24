@@ -1,4 +1,9 @@
-# Handover: aligning qwac with this registry
+# Handover: aligning qwac (and qwacback) with the formtransform registry
+
+Refreshed 2026-09-24 and being moved to `CorrelAid/qwac` as `HANDOVER.md`;
+this copy is deleted once qwac's issues link there. "This repo" /
+"this registry" below mean formtransform, and bare paths like `registry/` or
+`codegen/emit_ts.py` are formtransform paths.
 
 Audience: whoever (person or agent) picks up
 [`CorrelAid/qwac`](https://github.com/CorrelAid/qwac) next — the SvelteKit SPA
@@ -6,9 +11,8 @@ that browses the question bank. This document is the plan; the work is split int
 issues in that repo, linked below. Each issue stands on its own — an agent should
 be able to act on one without reading the others.
 
-Companion document:
-[`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) (the survey generator, which has
-the same upstream gap).
+Companion document: formulaid's `HANDOVER.md` (the survey generator, which
+consumes the same catalogue).
 
 ## The problem
 
@@ -46,43 +50,43 @@ explaining what is wrong with a file.
 This registry is an **allowlist**: unregistered question types, unregistered
 appearances, over-long identifiers, nesting deeper than three levels and selects
 without an explicit `list_name` are *rejected*, not approximated — see
-[Supported XLSForm Subset](README.md#supported-xlsform-subset).
+[Supported XLSForm Subset](https://github.com/CorrelAid/formtransform/blob/main/README.md#supported-xlsform-subset).
 
-## What this repo can and cannot hand over
+## What this repo hands over
 
-Available now from the package root (`github:CorrelAid/formtransform`):
+Available from the package root (`github:CorrelAid/formtransform`). Everything
+exported there is browser-safe: no filesystem, no network.
 
-- `TYPE_MAPPINGS` — per-type mapping facts: `kind`, `limeSurveyType`,
+- **`QUESTION_TYPES`**, the labelled catalogue (formtransform#6). Per type it
+  has `label` (from `skos:prefLabel`), `useWhen`, `base` / `bases` for variants
+  and composites, and `constraints`. It's emitted `as const`, so
+  `keyof typeof QUESTION_TYPES` is a literal union. This is what #9's module
+  gets swapped for in #10.
+- **`APPEARANCES`**, the appearance allowlist, with the types each is valid for
+  and a `carriesData` flag (false for matrix headers), which is what a preview UI
+  needs.
+- **`TYPE_MAPPINGS`**, per-type mapping facts: `kind`, `limeSurveyType`,
   `supported`, `requiresListName`, `answerClass`, `dateFormat`.
-- The four conversion directions (`XLSFormParser.convertXLSDataToTSV`,
-  `buildDdiXml`, `lstsvToDdiXml`, `lstsvToXlsform`) — qwac needs none of them
-  today, but `lstsvToDdiXml` is worth knowing about if the app ever grows an
-  export path.
-- `skills/cdl-survey-types/references/question-types.md` in this repo — not part
-  of the package, but its `##` headings carry the registry's `skos:prefLabel` for
-  every type, which is where the labels for issue #9 come from.
+- The conversion directions (`XLSFormParser.convertXLSDataToTSV`,
+  `buildDdiXml`, `lstsvToDdiXml`, `lstsvToXlsform`). qwac needs none of them
+  today.
 
-**Not available, and this is what shapes the plan:** there is no labelled,
-machine-readable type catalogue. `skos:prefLabel`, `useWhen` and the variant →
-base relation live in `registry/`, and the package sets `"files": ["dist"]`, so
-`registry/` never reaches a consumer's `node_modules`.
-`src/generated/Appearances.ts` — including the `carriesData` flag a preview UI
-wants, false for matrix headers — is generated but not re-exported from
-`src/index.ts`.
+**Status as of 2026-09-24:**
 
-Both gaps are an addition to `codegen/emit_ts.py` plus an export line: derived
-data, not a registry change. `CorrelAid/formulaid` needs the same catalogue, so
-**one upstream issue can serve both repos** — whoever files first should link the
-other.
+- #11 (upstream gaps) is **closed**: both shipped, so #10 is unblocked.
+- **No tags yet.** formtransform has never been tagged. Pin a commit SHA
+  (`github:CorrelAid/formtransform#<sha>`) until `v0.1.0` exists, which is
+  planned right after formtransform#23 (a browser-bundle bug in XLSForm → TSV
+  conversion, which qwac doesn't use).
 
 ## The issues
 
 | # | Issue | When |
 |---|---|---|
 | 1 | [#9 Centralise question-type knowledge in one module](https://github.com/CorrelAid/qwac/issues/9) | first; no new dependency |
-| 2 | [#10 Import the type catalogue from `@correlaid/formtransform`](https://github.com/CorrelAid/qwac/issues/10) | after #9 **and** after the upstream catalogue ships |
-| 3 | [#11 Upstream gaps: labelled catalogue, `APPEARANCES` export](https://github.com/CorrelAid/qwac/issues/11) | now; tracking only, blocks #10 |
-| — | [#12 Upload page: show why DDI validation failed](https://github.com/CorrelAid/qwac/issues/12) | any time; relates to existing #8 |
+| 2 | [#10 Import the type catalogue from `@correlaid/formtransform`](https://github.com/CorrelAid/qwac/issues/10) | after #9; upstream catalogue has shipped |
+| 3 | [#11 Upstream gaps: labelled catalogue, `APPEARANCES` export](https://github.com/CorrelAid/qwac/issues/11) | closed: both shipped |
+| — | [#12 Upload page: show why DDI validation failed](https://github.com/CorrelAid/qwac/issues/12) | any time; findings are already structured (see below) |
 
 Issue #9 is deliberately doable with no dependency at all: it collapses the
 scattered type knowledge into one `src/lib/questionTypes.ts`, whose contents #10
@@ -93,48 +97,58 @@ Issue #10 also adds the payoff test — when the registry gains a data-carrying
 question type that has no preview component, the suite fails and the app gets
 told, instead of quietly rendering a bare tag.
 
-## qwacback, while you are here
+## qwacback: what's current
 
-Two things worth filing against
-[`CorrelAid/qwacback`](https://github.com/CorrelAid/qwacback) rather than fixing
-in qwac:
+Checked against the qwacback code on 2026-09-24. Two things this plan used to
+suggest filing are **already solved**:
 
-- **`src/lib/ddi.ts` should not exist.** It is a ~100-line parser for Go
-  `fmt.Sprintf("%v", map)` output — `map[#text:value -attr:value]` — that
-  qwacback stores in PocketBase text fields. The app is reverse-engineering Go's
-  debug format to render DDI content. If the API returned JSON (or the DDI XML
-  itself), `ddi.ts` and its test could be deleted outright.
-- **Structured validation findings.** If `/api/validate` collapses XSD and
-  Schematron failures into one opaque blob, issue #12 cannot do its job properly;
-  ask for findings that distinguish the two.
+- **Go map strings.** qwacback's importer now extracts plain text itself
+  (`textAt`, and `#text` paths for elements with attributes), so new imports no
+  longer store `map[#text:… -attr:…]`. qwac's `src/lib/ddi.ts` (a parser for
+  that format) only matters for records imported before that change. Re-import
+  existing studies, then delete `ddi.ts` and its test from qwac. That's qwac
+  work, not a qwacback issue.
+- **Structured validation findings.** `POST /api/validate` answers
+  `400 {"valid": false, "errors": [{"rule", "test", "location", "message"}]}`.
+  The schematron-worker sets `rule` to `"xsd"` for schema failures and
+  `"schematron"` for CDL rule failures. #12 can group by `rule` directly.
 
-qwacback also has its own registry-consumption brief, currently untracked at
-`REGISTRY_SYNC.md` in that working copy — delete the vendored Go converter, the
-vendored XSDs/Schematron and the Java worker source; consume
-`@correlaid/formtransform` plus `ghcr.io/correlaid/schematron-worker` pinned to
-one version. The plan still holds, but three details in it went stale: the repo
-is `CorrelAid/formtransform` (not `survey-type-registry`), example fixtures live
-at `registry/entities/<slug>/fixtures/xlsform.json` (not
-`registry/types/<slug>/examples/<variant>/xlsform.json`), and `lstsv2ddi` /
-`lstsv2xlsform` now exist, which the brief predates.
+**qwacback's registry sync is not started, and it's blocked upstream.** The brief
+is `REGISTRY_SYNC.md`, untracked in the local qwacback checkout. It says to
+delete the vendored Go converter (`internal/converter/`), the XSDs (`xml/`),
+`schematron/` and the Java worker source (`schematron-worker/`), and to consume
+`@correlaid/formtransform` plus `ghcr.io/correlaid/schematron-worker`, both
+pinned to one version. The plan holds, but:
+
+- **Blocked:** `ghcr.io/correlaid/schematron-worker` **has never been
+  published** (GHCR 404). formtransform's `worker-image.yml` only runs on `v*`
+  tags, and there are none yet. The swap can't start until formtransform tags
+  `v0.1.0`.
+- **Stale details in the brief:** the repo is `CorrelAid/formtransform`, not
+  `survey-type-registry`. Example fixtures live at
+  `registry/entities/<slug>/fixtures/xlsform.json`, not
+  `registry/types/<slug>/examples/<variant>/xlsform.json`. And `lstsv2ddi` /
+  `lstsv2xlsform` now exist, which the brief predates.
+- **Coverage handoff:** survey2ddi's qwacback equivalence test is being ported
+  into formtransform (formtransform#14). qwacback's own converter tests go
+  with the Go converter.
 
 ## Hard rules for whoever does the work
 
-- **Do not modify this repo from qwac.** Missing capability → open an issue here
-  (that is what #11 is for).
+- **Do not modify formtransform from qwac or qwacback.** Missing capability →
+  open an issue on `CorrelAid/formtransform`.
 - **Do not vendor `registry/`.** A copied JSON-LD graph is drift with extra
   steps. If the data is not exported, the fix is an emitter change here.
 - **Do not hand-edit generated files.** Everything under `src/generated/` and
   `skills/cdl-survey-types/` carries a "DO NOT EDIT" header and is overwritten by
   the next `uv run codegen`.
-- **Pin to tags, not branches.** A registry change should never alter a deployed
-  UI without a commit in qwac.
+- **Pin to tags (a commit SHA until the first tag exists), never branches.** A
+  registry change should never alter a deployed UI without a commit in qwac.
 - **Unknown types must still render.** qwacback can hold data the app has not
   been taught about; degrade to a plain tag rather than throwing.
 
 ## Related documents
 
-- [`README.md`](README.md) — what this repo ships and to whom
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — registry → codegen → artifacts
-- [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) — the survey generator's plan,
-  sharing the catalogue gap
+- [formtransform `README.md`](https://github.com/CorrelAid/formtransform/blob/main/README.md) — what the registry repo ships and to whom
+- [formtransform `ARCHITECTURE.md`](https://github.com/CorrelAid/formtransform/blob/main/ARCHITECTURE.md) — registry → codegen →
+  artifacts, and the browser boundary
