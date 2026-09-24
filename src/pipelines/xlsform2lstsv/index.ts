@@ -24,7 +24,7 @@ import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
 import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
-import { registeredFileChoices } from '../../vocab.js';
+import { registeredFileChoices, registeredVocabFiles } from '../../vocab.js';
 import { parameterAttributes } from './parameters.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
@@ -267,7 +267,7 @@ export class XLSFormToTSVConverter {
     // Validate the type is registered and emittable. Two failure modes:
     //   1. registered but unsupported by LimeSurvey TSV (no native slot)
     //   2. not registered at all (convention:unregisteredRows)
-    this.validateRowType(xfType, baseType);
+    this.validateRowType(xfType, baseType, row.name);
 
     if (xfType === 'begin_group' || xfType === 'begin group') {
       await this.handleBeginGroup(row);
@@ -288,22 +288,24 @@ export class XLSFormToTSVConverter {
   }
 
   /**
-   * Throws if the row's type is not emittable. Two checks: registered-but-
-   * unsupported (with an exception for select_*_from_file when the
-   * referenced CSV is supplied), and not-registered-at-all.
+   * Throws if the row's type is not emittable: registered but unsupported,
+   * not registered at all, or a select whose options don't resolve.
    */
-  private validateRowType(xfType: string, baseType: string): void {
-    if (UNIMPLEMENTED_TYPES.includes(baseType)) {
-      const filename = xfType.split(/\s+/)[1];
-      const canInline =
-        baseType in FROM_FILE_BASE &&
-        !!filename &&
-        (this.fileChoices[filename]?.length ?? 0) > 0;
-      if (!canInline) {
-        throw new Error(
-          `Unimplemented XLSForm type: '${baseType}'. This type is not currently supported.`,
-        );
-      }
+  private validateRowType(
+    xfType: string,
+    baseType: string,
+    name: string | undefined,
+  ): void {
+    const where = name ? ` (question "${name}")` : '';
+    const target = xfType.split(/\s+/)[1];
+    if (baseType in FROM_FILE_BASE) {
+      this.assertFileChoices(xfType, baseType, target, where);
+    } else if (UNIMPLEMENTED_TYPES.includes(baseType)) {
+      throw new Error(
+        `Unimplemented XLSForm type: '${baseType}'. This type is not currently supported.`,
+      );
+    } else if (TYPE_MAPPINGS[baseType]?.requiresListName) {
+      this.assertChoiceList(xfType, baseType, target, where);
     }
 
     if (
@@ -314,6 +316,46 @@ export class XLSFormToTSVConverter {
     ) {
       throw new Error(
         `Unimplemented XLSForm type: '${baseType}'. This type is not registered in the survey type registry.`,
+      );
+    }
+  }
+
+  /** `select_*_from_file` is supported whenever its options resolve; say which part is missing. */
+  private assertFileChoices(
+    xfType: string,
+    baseType: string,
+    file: string | undefined,
+    where: string,
+  ): void {
+    if (!file) {
+      throw new Error(
+        `'${baseType}'${where} needs a vocabulary file: '${baseType} <file>.csv'`,
+      );
+    }
+    if ((this.fileChoices[file]?.length ?? 0) === 0) {
+      throw new Error(
+        `'${xfType}'${where}: '${file}' is not a registered vocabulary ` +
+          `(registered: ${registeredVocabFiles().join(', ')}) and no ` +
+          `fileChoices were supplied for it`,
+      );
+    }
+  }
+
+  /** A select without options would import as a question nobody can answer. */
+  private assertChoiceList(
+    xfType: string,
+    baseType: string,
+    list: string | undefined,
+    where: string,
+  ): void {
+    if (!list || list === 'or_other') {
+      throw new Error(
+        `'${baseType}'${where} needs a choice list: '${baseType} <list_name>'`,
+      );
+    }
+    if ((this.choiceManager.getChoices(list)?.length ?? 0) === 0) {
+      throw new Error(
+        `'${xfType}'${where}: list '${list}' has no rows on the choices sheet`,
       );
     }
   }

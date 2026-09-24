@@ -178,7 +178,10 @@ validates against this subset, rejecting:
 - **Out-of-subset names** — identifiers must be `[a-z][a-z0-9_]*` under 17 chars,
   codes under 6, groups under 21
 - **Deep nesting** — max 3 levels (`group/group/question`)
-- **Missing `list_name`** — selects require explicit lists
+- **Unresolvable answer options** — a `select_one`/`select_multiple` needs a
+  list name with rows on the choices sheet; a `select_*_from_file` needs a
+  registered vocabulary (e.g. `iso_3166_1.csv`) or a CSV passed as
+  `fileChoices` (the CLI reads CSVs beside the form)
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
 
 LimeSurvey's reverse-subset check (`lstsv2xlsform`) is narrower — no arrays,

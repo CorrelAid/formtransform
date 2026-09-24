@@ -93,6 +93,8 @@ describe('convert with select_*_from_file', () => {
         [],
         [],
       ),
-    ).rejects.toThrow(/Unimplemented XLSForm type: 'select_one_from_file'/);
+    ).rejects.toThrow(
+      /'own.csv' is not a registered vocabulary \(registered: iso_3166_1.csv\)/,
+    );
   });
 });
