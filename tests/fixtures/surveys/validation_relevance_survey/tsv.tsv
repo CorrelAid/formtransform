@@ -9,6 +9,8 @@ Q	S	username	1	Username		en		self != ''						1
 Q	N	age	1	Age		en		self >= 18 and self <= 120						1
 Q	N	price	1	Price		en		self > 0 and self < 1000						1
 Q	L	consent	1	Do you consent?		en								1
+A		yes		Yes		en								
+A		no		No		en								
 Q	S	adultinfo	age >= 18	Adult Information		en		self != ''						1
 Q	S	seniordiscount	age >= 65	Senior Discount Code		en								1
 Q	S	consentrequiredinfo	consent == 'yes'	Additional Information		en								1

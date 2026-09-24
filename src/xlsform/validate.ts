@@ -3,6 +3,7 @@ import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
 import { SurveyRow, ChoiceRow } from '../config/types.js';
+import { registeredVocabFiles } from '../vocab.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
@@ -29,6 +30,16 @@ const METADATA_TYPES = new Set<string>(
 export interface SubsetViolation {
   severity: 'error' | 'warning';
   message: string;
+}
+
+/** Options for {@link XLSValidator.validateSubset}. */
+export interface SubsetOptions {
+  /**
+   * Choices for `select_*_from_file` CSVs the caller will pass to `convert()`,
+   * keyed by filename. These count as resolvable next to the registered
+   * vocabularies.
+   */
+  fileChoices?: Record<string, ChoiceRow[]>;
 }
 
 /** Inputs for {@link XLSValidator.validateAll}. */
@@ -343,12 +354,17 @@ export class XLSValidator {
   static validateSubset(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
+    options: SubsetOptions = {},
   ): SubsetViolation[] {
     const violations: SubsetViolation[] = [];
 
     for (const msg of this.collectNameCodeErrors(surveyData, choicesData)) {
       violations.push({ severity: 'error', message: msg });
     }
+
+    const listNames = new Set(
+      choicesData.map((c) => String(c.list_name ?? '').trim()),
+    );
 
     for (const row of surveyData) {
       const rawType = (row.type || '').trim();
@@ -358,29 +374,73 @@ export class XLSValidator {
 
       const mapping = TYPE_MAPPINGS[baseType];
       const where = row.name ? ` (question "${row.name}")` : '';
-      if (!mapping) {
-        violations.push({
-          severity: 'error',
-          message: `type "${baseType}"${where} is not in the registry — not part of the supported XLSForm subset`,
-        });
-      } else if (
-        mapping.supported === false &&
-        mapping.limeSurveyType === null
-      ) {
-        // select_*_from_file is registered-but-not-natively-expressible; it is
-        // still supported (inlined from the CSV), so only flag other such types.
-        if (!baseType.endsWith('_from_file')) {
-          violations.push({
-            severity: 'error',
-            message: `type "${baseType}"${where} is registered but not expressible in LimeSurvey TSV`,
-          });
-        }
-      }
+      const problem =
+        this.typeProblem(baseType, where) ??
+        (mapping?.requiresListName
+          ? this.choiceListProblem(
+              rawType,
+              baseType,
+              where,
+              listNames,
+              options.fileChoices ?? {},
+            )
+          : null);
+      if (problem) violations.push({ severity: 'error', message: problem });
 
       this.collectAppearanceViolations(row, baseType, violations);
     }
 
     return violations;
+  }
+
+  /** Why a type is outside the subset, or `null` if it's in it. */
+  private static typeProblem(baseType: string, where: string): string | null {
+    const mapping = TYPE_MAPPINGS[baseType];
+    if (!mapping) {
+      return `type "${baseType}"${where} is not in the registry — not part of the supported XLSForm subset`;
+    }
+    // select_*_from_file is registered-but-not-natively-expressible; it is
+    // still supported (inlined from the CSV), so only flag other such types.
+    if (
+      mapping.supported === false &&
+      mapping.limeSurveyType === null &&
+      !baseType.endsWith('_from_file')
+    ) {
+      return `type "${baseType}"${where} is registered but not expressible in LimeSurvey TSV`;
+    }
+    return null;
+  }
+
+  /**
+   * Why a select's answer options can't be resolved, or `null` if they can.
+   * `select_one`/`select_multiple` need a list name with rows on the choices
+   * sheet; `select_*_from_file` needs a registered vocabulary or a file in
+   * `fileChoices`. Without options the converter emits a question with no
+   * answers, or fails.
+   */
+  private static choiceListProblem(
+    rawType: string,
+    baseType: string,
+    where: string,
+    listNames: Set<string>,
+    fileChoices: Record<string, ChoiceRow[]>,
+  ): string | null {
+    const target = rawType.split(/\s+/)[1];
+    if (baseType.endsWith('_from_file')) {
+      if (!target) {
+        return `"${baseType}"${where} needs a vocabulary file: "${baseType} <file>.csv"`;
+      }
+      if (registeredVocabFiles().includes(target)) return null;
+      if ((fileChoices[target]?.length ?? 0) > 0) return null;
+      return `"${rawType}"${where}: "${target}" is not a registered vocabulary (registered: ${registeredVocabFiles().join(', ')})`;
+    }
+    if (!target || target === 'or_other') {
+      return `"${baseType}"${where} needs a choice list: "${baseType} <list_name>"`;
+    }
+    if (!listNames.has(target)) {
+      return `"${rawType}"${where}: list "${target}" has no rows on the choices sheet`;
+    }
+    return null;
   }
 
   /** Flag appearances outside the registry allowlist or wrong for the type. */

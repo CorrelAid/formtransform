@@ -170,9 +170,13 @@ function cmdValidate(argv: string[]): void {
   const bytes = readInput(positionals, validateHelp);
   // Parse without the built-in strict gate so we can report all findings.
   const data = loadXlsform(bytes, true);
+  // CSVs beside the workbook count, as they do for xlsform2lstsv.
   const violations = XLSValidator.validateSubset(
     data.surveyData,
     data.choicesData,
+    {
+      fileChoices: resolveFileChoices(data.surveyData, dirname(positionals[0])),
+    },
   );
 
   if (violations.length === 0) {

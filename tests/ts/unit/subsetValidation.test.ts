@@ -69,3 +69,68 @@ describe('validateSubset', () => {
     ).toEqual([]);
   });
 });
+
+describe('validateSubset — unresolvable answer options (#41)', () => {
+  const errors = (
+    type: string,
+    choices: Record<string, unknown>[] = [],
+    fileChoices?: Record<
+      string,
+      { list_name: string; name: string; label: string }[]
+    >,
+  ) =>
+    XLSValidator.validateSubset([{ type, name: 'q', label: 'Q' }], choices, {
+      fileChoices,
+    })
+      .filter((v) => v.severity === 'error')
+      .map((v) => v.message);
+
+  const skala = [{ list_name: 'skala', name: 'a', label: 'A' }];
+
+  test.each(['select_one', 'select_multiple'])(
+    '%s without a list name',
+    (t) => {
+      expect(errors(t)).toEqual([
+        `"${t}" (question "q") needs a choice list: "${t} <list_name>"`,
+      ]);
+      expect(errors(`${t} or_other`)).toHaveLength(1);
+    },
+  );
+
+  test.each(['select_one', 'select_multiple'])(
+    '%s with a list that has no rows',
+    (t) => {
+      expect(errors(`${t} skala`)).toEqual([
+        `"${t} skala" (question "q"): list "skala" has no rows on the choices sheet`,
+      ]);
+      expect(errors(`${t} skala`, skala)).toEqual([]);
+    },
+  );
+
+  test.each(['select_one_from_file', 'select_multiple_from_file'])(
+    '%s without a file',
+    (t) => {
+      expect(errors(t)).toEqual([
+        `"${t}" (question "q") needs a vocabulary file: "${t} <file>.csv"`,
+      ]);
+    },
+  );
+
+  test.each(['select_one_from_file', 'select_multiple_from_file'])(
+    '%s with an unregistered file, unless supplied',
+    (t) => {
+      expect(errors(`${t} foo.csv`)).toEqual([
+        `"${t} foo.csv" (question "q"): "foo.csv" is not a registered vocabulary (registered: iso_3166_1.csv)`,
+      ]);
+      expect(
+        errors(`${t} foo.csv`, [], {
+          'foo.csv': [{ list_name: 'foo.csv', name: 'x', label: 'X' }],
+        }),
+      ).toEqual([]);
+    },
+  );
+
+  test('a registered vocabulary resolves', () => {
+    expect(errors('select_one_from_file iso_3166_1.csv')).toEqual([]);
+  });
+});

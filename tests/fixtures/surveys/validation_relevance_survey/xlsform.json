@@ -27,10 +27,9 @@
       "constraint_message": "Price must be between 0 and 1000"
     },
     {
-      "type": "select_one",
+      "type": "select_one yes_no",
       "name": "consent",
-      "label": "Do you consent?",
-      "list_name": "yes_no"
+      "label": "Do you consent?"
     },
     {
       "type": "text",

@@ -47,6 +47,14 @@
       <qstn responseDomainType="category">
         <qstnLit>Do you consent?</qstnLit>
       </qstn>
+      <catgry>
+        <catValu>yes</catValu>
+        <labl>Yes</labl>
+      </catgry>
+      <catgry>
+        <catValu>no</catValu>
+        <labl>No</labl>
+      </catgry>
       <concept>Do you consent?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>

@@ -2,7 +2,7 @@
 export { XLSLoader } from './xlsform/loader.js';
 export { XLSFormParser } from './xlsform/parser.js';
 export { XLSValidator } from './xlsform/validate.js';
-export type { SubsetViolation } from './xlsform/validate.js';
+export type { SubsetViolation, SubsetOptions } from './xlsform/validate.js';
 export { FieldSanitizer } from './xlsform/sanitize.js';
 
 export { parseLstsv } from './lstsv/parser.js';

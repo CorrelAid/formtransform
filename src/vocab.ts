@@ -52,6 +52,11 @@ export function parseVocabCsv(csvText: string, listName: string): ChoiceRow[] {
   return rows;
 }
 
+/** Filenames of the registered vocabularies (`registry/vocab/`). */
+export function registeredVocabFiles(): string[] {
+  return Object.keys(VOCABULARY_OPTIONS);
+}
+
 /**
  * Choices for every registered vocabulary the survey references, keyed by
  * filename. Unregistered filenames are left out; the caller supplies those.

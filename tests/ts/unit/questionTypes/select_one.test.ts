@@ -81,17 +81,15 @@ describe('Select One Question Type', () => {
     expect(question?.mandatory).toBe('Y');
   });
 
-  test('handles missing choice list gracefully', async () => {
+  test('rejects a choice list with no rows (#41)', async () => {
     const survey = [
       { type: 'select_one missing_list', name: 'q1', label: 'Question' },
     ];
 
-    // Don't provide the choice list
-    const rows = await convertAndParse(survey, []);
-    const question = findRowByName(rows, 'q1');
-
-    expect(question).toBeDefined();
-    expect(question?.['type/scale']).toBe('L');
+    // Without choices LimeSurvey would get a question nobody can answer.
+    await expect(convertAndParse(survey, [])).rejects.toThrow(
+      /list 'missing_list' has no rows on the choices sheet/,
+    );
   });
 
   test('converts select_one with relevance', async () => {
@@ -160,17 +158,15 @@ describe('Select One Question Type', () => {
     expect(question?.mandatory).toBe('Y');
   });
 
-  test('handles missing choice list gracefully', async () => {
+  test('rejects a choice list with no rows (#41)', async () => {
     const survey = [
       { type: 'select_one missing_list', name: 'q1', label: 'Question' },
     ];
 
-    // Don't provide the choice list
-    const rows = await convertAndParse(survey, []);
-    const question = findRowByName(rows, 'q1');
-
-    expect(question).toBeDefined();
-    expect(question?.['type/scale']).toBe('L');
+    // Without choices LimeSurvey would get a question nobody can answer.
+    await expect(convertAndParse(survey, [])).rejects.toThrow(
+      /list 'missing_list' has no rows on the choices sheet/,
+    );
   });
 
   test('converts select_one with relevance', async () => {
