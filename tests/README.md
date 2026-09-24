@@ -25,10 +25,12 @@ everything that needs a JVM, an external oracle, or a running engine.
 | XLSForm fixture inputs are valid XLSForm | external oracle ([pyxform](https://github.com/XLSForm/pyxform)) | pytest — `tests/validation/test_xlsform_pyxform.py` |
 | LimeSurvey accepts the blessed TSV snapshots | live LimeSurvey (docker) | pytest — `tests/live/limesurvey/test_registry_entities.py` |
 | What LimeSurvey *stores* when a respondent answers | live LimeSurvey (docker) + Playwright | pytest — `tests/live/limesurvey/test_response_roundtrip.py` |
+| qwacback's Go converter emits the same DDI shape as `buildDdiXml` | live qwacback (docker) | pytest — `tests/live/qwacback/test_qwacback_equivalence.py` |
 
-Downstream `qwacback` (Go) is no longer conformance-tested here: it consumes
-this library's DDI emitter through `@correlaid/formtransform`, installed from
-GitHub, rather than maintaining its own converter.
+qwacback still runs its own Go XLSForm → DDI converter. It plans to replace it
+with this library ([HANDOVER_QWAC.md](../HANDOVER_QWAC.md)), and the
+equivalence test is the parity check for that swap. After the swap it compares
+the library with itself and can go.
 
 ## Layout
 
@@ -62,6 +64,10 @@ tests/
       answers/<slug>.json                   #   what the respondent enters
       expected/<slug>.json                  #   blessed exported response
       output/                               #   generated TSVs (gitignored)
+    qwacback/
+      docker-compose.yml                    #   qwacback alone (QWACBACK_IMAGE; the ghcr image is private)
+      test_qwacback_equivalence.py          #   same XLSForm → buildDdiXml vs. qwacback, DDI shape compared
+      build_ddi.mjs                         #   buildDdiXml from dist/ over stdin/stdout
   fixtures/surveys/<name>/                  # one folder per whole survey, like a registry entity
     xlsform.json | xlsform.xlsx              #   authored source
     tsv.tsv  ddi.xml                         #   blessed forward snapshots
@@ -174,6 +180,21 @@ one — a note stores nothing, and the blessed snapshot records that).
 
 Needs node + Playwright/Chromium on top of the docker stack; skips if Playwright
 is not resolvable (locally or globally).
+
+### qwacback equivalence (`tests/live/qwacback/test_qwacback_equivalence.py`)
+
+Ported from survey2ddi (formtransform#14). For every answer type qwacback
+supports, the same XLSForm goes through `buildDdiXml` and qwacback's
+`POST /api/convert/xlsform-to-ddi`, and the `<var>`/`<varGrp>` shapes are
+compared. qwacback returns a bare `<var>` or `<varGrp>` when there's only one,
+so the test wraps it in a `<dataDscr>`. Two cases are strict xfails: `range`
+(#33) and `note` (by design: formtransform emits no `<var>` for a note).
+
+The fixture starts qwacback from its own compose file, or uses `QWACBACK_URL`.
+`ghcr.io/correlaid/qwacback` is private: log in to ghcr.io, or build it
+(`docker build -t qwacback:local ../qwacback`) and set
+`QWACBACK_IMAGE=qwacback:local`. If the image can't be pulled, the tests skip
+with that reason.
 
 ## Running
 
