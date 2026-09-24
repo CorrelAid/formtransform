@@ -16,7 +16,7 @@ that both went stale when `xlsform2lstsv` and `survey2ddi` were consolidated int
    skill build, and they teach the full XLSForm specification while the CDL
    pipeline accepts a strict subset.
 
-Companion documents: [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) (whose
+Companion documents: [formulaid's `HANDOVER.md`](https://github.com/CorrelAid/formulaid/blob/main/HANDOVER.md) (whose
 issue #10 is blocked on work item 4 below), and [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
 
 ## What the registry actually supports
@@ -226,6 +226,6 @@ before changing anything.
 ## Related documents
 
 - [`README.md`](README.md) — what this repo ships and to whom
-- [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) — the consumer whose skill
+- [formulaid's `HANDOVER.md`](https://github.com/CorrelAid/formulaid/blob/main/HANDOVER.md) — the consumer whose skill
   ingests this site's llm endpoints
 - [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md)
