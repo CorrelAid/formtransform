@@ -1,8 +1,8 @@
 # qwacback alone, for the DDI equivalence test (test_qwacback_equivalence.py).
 # Conversion runs in qwacback's Go code, so the schematron-worker isn't needed.
 #
-# ghcr.io/correlaid/qwacback is private. Log in to ghcr.io, or build it from a
-# qwacback checkout and point QWACBACK_IMAGE at it:
+# ghcr.io/correlaid/qwacback is public. To test an unreleased qwacback, build
+# it from a checkout and point QWACBACK_IMAGE at it:
 #   docker build -t qwacback:local ../qwacback
 #   QWACBACK_IMAGE=qwacback:local npm run test:live -- -k qwacback
 services:

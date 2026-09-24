@@ -2,8 +2,8 @@
 
 `QWACBACK_URL` reuses a running qwacback. Otherwise the fixture starts the
 container from docker-compose.yml and removes it afterwards. The tests are
-skipped when the qwacback image can't be pulled (it is private; see
-docker-compose.yml).
+skipped when the qwacback image can't be pulled (offline, or a
+`QWACBACK_IMAGE` that doesn't exist; see docker-compose.yml).
 """
 
 from __future__ import annotations
