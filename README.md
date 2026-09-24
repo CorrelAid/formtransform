@@ -75,6 +75,9 @@ formtransform xlsform2ddi survey.xlsx -o codebook.xml
 # JSON array). Writes data.csv beside codebook.xml and sets <caseQnty>.
 formtransform xlsform2ddi survey.xlsx -o codebook.xml --data responses.csv
 
+# Same for LimeSurvey: structure TSV + response export (question-code headings)
+formtransform lstsv2ddi survey.tsv -o codebook.xml --data responses.csv
+
 # Convert from LimeSurvey TSV back to XLSForm (emitted as JSON sheets)
 formtransform lstsv2xlsform survey.tsv -o recovered.json
 ```

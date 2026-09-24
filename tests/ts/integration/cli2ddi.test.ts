@@ -1,7 +1,7 @@
 /**
- * `formtransform xlsform2ddi --data` end to end: runs the built CLI against a
- * small workbook with groups and a `select_multiple`, so the bucketed `<var>`
- * order differs from survey order — the case where header/XML drift would show.
+ * `formtransform xlsform2ddi --data` and `lstsv2ddi --data` end to end: runs
+ * the built CLI against inputs whose bucketed `<var>` order differs from survey
+ * order — the case where header/XML drift would show.
  */
 import { spawnSync } from 'node:child_process';
 import {
@@ -46,12 +46,14 @@ const SHEETS = {
 let dir: string;
 let form: string;
 
-function run(...args: string[]) {
-  return spawnSync(process.execPath, [CLI, 'xlsform2ddi', ...args], {
+function runCmd(cmd: string, args: string[]) {
+  return spawnSync(process.execPath, [CLI, cmd, ...args], {
     cwd: dir,
     encoding: 'utf-8',
   });
 }
+
+const run = (...args: string[]) => runCmd('xlsform2ddi', args);
 
 function xmlVarNames(xml: string): string[] {
   return [...xml.matchAll(/<var ID="[^"]*" name="([^"]*)"/g)].map((m) => m[1]);
@@ -176,6 +178,64 @@ describe('xlsform2ddi --data', () => {
 
   test('--help documents both flags', () => {
     const r = run('--help');
+    expect(r.stdout).toMatch(/--data <file>/);
+    expect(r.stdout).toMatch(/--data-out <file>/);
+  });
+});
+
+describe('lstsv2ddi --data', () => {
+  const TSV = join(ROOT, 'tests/fixtures/surveys/all_types_survey/tsv.tsv');
+
+  beforeAll(() => {
+    writeFileSync(
+      join(dir, 'ls_export.csv'),
+      'id,submitdate,qtext,qselectmulti[red],qselectmulti[green],matrixheader[skilljs],qsel1other,qsel1other[other]\r\n' +
+        '1,2026-01-01,hi,Y,,adv,-oth-,teal\r\n' +
+        '2,2026-01-02,,,Y,none,red,\r\n',
+    );
+  });
+
+  test('LimeSurvey export → caseQnty, URI and a header matching the XML', () => {
+    const r = runCmd('lstsv2ddi', [
+      TSV,
+      '-o',
+      'ls.xml',
+      '--data',
+      'ls_export.csv',
+    ]);
+    expect(r.status, r.stderr).toBe(0);
+    const xml = readFileSync(join(dir, 'ls.xml'), 'utf-8');
+    const csv = readFileSync(join(dir, 'data.csv'), 'utf-8');
+    expect(caseQnty(xml)).toBe('2');
+    expect(fileUri(xml)).toBe('data.csv');
+    expect(csvHeader(csv)).toEqual(xmlVarNames(xml));
+
+    const cols = csvHeader(csv);
+    const row = csv.split('\r\n')[1].split(',');
+    const at = (n: string) => row[cols.indexOf(n)];
+    expect(at('skilljs')).toBe('adv');
+    expect(at('qselectmulti_red')).toBe('1');
+    expect(at('qselectmulti_green')).toBe('0');
+    expect(at('qsel1other')).toBe('other');
+    expect(at('qsel1other_other')).toBe('teal');
+    expect(at('qtext')).toBe('hi');
+  });
+
+  test('an unknown option code warns on stderr', () => {
+    writeFileSync(join(dir, 'ls_bad.csv'), 'qselectmulti[SQ001]\nY\n');
+    const r = runCmd('lstsv2ddi', [
+      TSV,
+      '--data',
+      'ls_bad.csv',
+      '--data-out',
+      'bad.csv',
+    ]);
+    expect(r.status, r.stderr).toBe(0);
+    expect(r.stderr).toMatch(/warning: .*qselectmulti\[SQ001\]/);
+  });
+
+  test('--help documents both flags', () => {
+    const r = runCmd('lstsv2ddi', ['--help']);
     expect(r.stdout).toMatch(/--data <file>/);
     expect(r.stdout).toMatch(/--data-out <file>/);
   });
