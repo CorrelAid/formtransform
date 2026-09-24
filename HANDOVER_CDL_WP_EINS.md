@@ -17,8 +17,7 @@ that both went stale when `xlsform2lstsv` and `survey2ddi` were consolidated int
    pipeline accepts a strict subset.
 
 Companion documents: [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) (whose
-issue #10 is blocked on work item 4 below), [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md)
-and [`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md).
+issue #10 is blocked on work item 4 below), and [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
 
 ## What the registry actually supports
 
@@ -229,5 +228,4 @@ before changing anything.
 - [`README.md`](README.md) — what this repo ships and to whom
 - [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) — the consumer whose skill
   ingests this site's llm endpoints
-- [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md),
-  [`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md)
+- [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md)

@@ -5,9 +5,8 @@ Audience: whoever (person or agent) picks up
 document is the plan; the work splits into issues in three repos, listed below.
 Each issue is written to stand on its own.
 
-Companion to [`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md),
-which is **done** — the app now runs entirely on this library, with no Pyodide
-and no `survey2ddi` wheel. That migration removed the app as a consumer of
+The formtransform-app migration is **done**: the app now runs entirely on this
+library, with no Pyodide and no `survey2ddi` wheel. That migration removed the app as a consumer of
 survey2ddi. This one addresses what is left: survey2ddi still ships its own
 implementation of the same DDI mapping, in Python.
 
@@ -201,8 +200,6 @@ touched until its replacement is on `main` here.
 
 ## Related documents
 
-- [`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md) — the completed
-  app migration that made this one possible
 - [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md) — qwacback's consumption of this repo,
   relevant to FT-5
 - [`HANDOVER_CDL_WP_EINS.md`](HANDOVER_CDL_WP_EINS.md) — how the docs site

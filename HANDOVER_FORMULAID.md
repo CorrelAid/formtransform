@@ -7,10 +7,8 @@ questionnaires. This document is the plan; the work is split into issues in that
 repo, linked below. Each issue stands on its own — an agent should be able to act
 on one without reading the others.
 
-Companion documents: [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md) (the question-bank
-browser, which shares the upstream gap described below) and
-[`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md) (the converter
-app, a dependency migration rather than a drift problem).
+Companion document: [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md) (the question-bank
+browser, which shares the upstream gap described below).
 
 ## The problem
 
