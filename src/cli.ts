@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { parseArgs, ParseArgsConfig } from 'node:util';
 
 import { ConversionConfig } from './config/ConfigManager.js';
@@ -8,8 +8,15 @@ import { XLSFormData } from './config/types.js';
 import { resolveFileChoices } from './fileChoices.js';
 import { lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
-import { buildDdiXml } from './pipelines/xlsform2ddi/index.js';
+import {
+  buildDataCsv,
+  buildDdiXml,
+  choicesByListFromRows,
+  extractVariables,
+} from './pipelines/xlsform2ddi/index.js';
+import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
+import { parseResponses } from './responseFile.js';
 import { XLSLoader } from './xlsform/loader.js';
 import { XLSValidator } from './xlsform/validate.js';
 
@@ -127,15 +134,21 @@ function xlsform2ddiHelp(): void {
     `${PROG} xlsform2ddi — XLSForm (.xlsx) → DDI-Codebook 2.5 XML
 
 Usage:
-  ${PROG} xlsform2ddi <input.xlsx> [-o output.xml] [options]
+  ${PROG} xlsform2ddi <input.xlsx> [-o output.xml] [--data responses] [options]
 
 Arguments:
   input.xlsx                 Path to the XLSForm workbook (survey/choices/settings sheets)
 
 Options:
   -o, --output <file>        Write XML to <file> (default: stdout)
+      --data <file>          Response records (.csv with a header of question names,
+                             ; or , delimited — or a Kobo submissions .json array).
+                             Sets <caseQnty> and writes the DDI data CSV
+      --data-out <file>      Where to write the data CSV (default: <dataset-filename>
+                             beside the -o file; required when the XML goes to stdout)
       --title <text>         Study title (default: settings form_title, then "Untitled")
-      --dataset-filename <n>  Data file URI recorded in <fileDscr> (default: data.csv)
+      --dataset-filename <n>  Data file URI recorded in <fileDscr> (default: data.csv,
+                             or the --data-out file name)
       --prod-date <date>     Override the prodDate (ISO YYYY-MM-DD; default: today)
       --skip-validation      Skip XLSForm sheet/column validation
   -h, --help                 Show this help
@@ -294,9 +307,55 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
   emit(tsv, values.output as string | undefined);
 }
 
+/** Read and parse a `--data` response file, exiting cleanly on failure. */
+function readResponses(path: string): Submission[] {
+  let text: string;
+  try {
+    text = readFileSync(path, 'utf-8');
+  } catch {
+    return die(`cannot read data file: ${path}`);
+  }
+  try {
+    return parseResponses(text, path);
+  } catch (err) {
+    return die(`failed to parse data file ${path}: ${(err as Error).message}`);
+  }
+}
+
+/**
+ * Resolve where the data CSV goes and which name `<fileDscr>` records, so the
+ * two cannot disagree: an explicit `--data-out` names the file (and, absent
+ * `--dataset-filename`, the URI); otherwise the file is the dataset filename
+ * placed beside the XML output.
+ */
+function resolveDataOutput(
+  dataOut: string | undefined,
+  datasetFilename: string | undefined,
+  xmlOutput: string | undefined,
+): { path: string; datasetFilename: string } {
+  if (dataOut) {
+    const name = datasetFilename ?? basename(dataOut);
+    if (basename(dataOut) !== basename(name)) {
+      process.stderr.write(
+        `${PROG}: warning: --data-out ${dataOut} does not match --dataset-filename ${name} recorded in <fileDscr>\n`,
+      );
+    }
+    return { path: dataOut, datasetFilename: name };
+  }
+  if (!xmlOutput) {
+    return die(
+      '--data with the XML on stdout needs an explicit --data-out <file>',
+    );
+  }
+  const name = datasetFilename ?? 'data.csv';
+  return { path: join(dirname(xmlOutput), name), datasetFilename: name };
+}
+
 function cmdXlsform2ddi(argv: string[]): void {
   const { values, positionals } = parse(argv, {
     output: { type: 'string', short: 'o' },
+    data: { type: 'string' },
+    'data-out': { type: 'string' },
     title: { type: 'string' },
     'dataset-filename': { type: 'string' },
     'prod-date': { type: 'string' },
@@ -306,22 +365,50 @@ function cmdXlsform2ddi(argv: string[]): void {
 
   if (values.help) return xlsform2ddiHelp();
 
+  const output = values.output as string | undefined;
+  const dataPath = values.data as string | undefined;
+  let datasetFilename = values['dataset-filename'] as string | undefined;
+  if (values['data-out'] && !dataPath) die('--data-out requires --data');
+
   const bytes = readInput(positionals, xlsform2ddiHelp);
   const data = loadXlsform(bytes, values['skip-validation'] as boolean);
 
+  let dataOut: string | undefined;
+  let submissions: Submission[] | undefined;
+  if (dataPath) {
+    const resolved = resolveDataOutput(
+      values['data-out'] as string | undefined,
+      datasetFilename,
+      output,
+    );
+    dataOut = resolved.path;
+    datasetFilename = resolved.datasetFilename;
+    submissions = readResponses(dataPath);
+  }
+
   let xml: string;
+  let csv: string | undefined;
   try {
     xml = buildDdiXml(data.surveyData, data.choicesData, {
       assetName: values.title as string | undefined,
       settings: data.settingsData[0],
-      datasetFilename: values['dataset-filename'] as string | undefined,
+      datasetFilename,
       prodDate: values['prod-date'] as string | undefined,
+      submissions,
     });
+    if (submissions) {
+      const variables = extractVariables(
+        data.surveyData,
+        choicesByListFromRows(data.choicesData),
+      );
+      csv = buildDataCsv(variables, submissions);
+    }
   } catch (err) {
     return die(`conversion failed: ${(err as Error).message}`);
   }
 
-  emit(xml, values.output as string | undefined);
+  emit(xml, output);
+  if (csv !== undefined && dataOut) emit(csv, dataOut);
 }
 
 function cmdLstsv2ddi(argv: string[]): void {

@@ -71,6 +71,10 @@ formtransform xlsform2lstsv survey.xlsx -o survey.tsv
 # Convert to DDI Codebook
 formtransform xlsform2ddi survey.xlsx -o codebook.xml
 
+# ...plus the response-data CSV (flat CSV, `;` or `,`, or a Kobo submissions
+# JSON array). Writes data.csv beside codebook.xml and sets <caseQnty>.
+formtransform xlsform2ddi survey.xlsx -o codebook.xml --data responses.csv
+
 # Convert from LimeSurvey TSV back to XLSForm
 formtransform lstsv2xlsform survey.tsv -o recovered.xlsx
 ```
