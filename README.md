@@ -25,9 +25,22 @@ in-repo only.
 
 ### As a library
 
+Each [release](https://github.com/CorrelAid/formtransform/releases) carries a
+prebuilt package. Installing it runs no build step:
+
 ```bash
-npm install github:CorrelAid/formtransform
+npm install https://github.com/CorrelAid/formtransform/releases/download/v0.1.0/correlaid-formtransform-0.1.0.tgz
 ```
+
+Installing from git also works, but builds `dist/` on install through the
+`prepare` script, which needs TypeScript and install scripts enabled:
+
+```bash
+npm install github:CorrelAid/formtransform#v0.1.0
+```
+
+Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
+[`skills/cdl-survey-types/`](skills/cdl-survey-types/) sub-skill.
 
 ### As a CLI tool
 
@@ -189,6 +202,16 @@ uv run codegen
 # Bless snapshots after registry changes
 npm run bless
 ```
+
+### Releasing
+
+1. Bump `version` in `package.json` in a PR and merge it.
+2. Publish a GitHub release tagged `v<version>` on that commit.
+
+Publishing the tag builds the `schematron-worker` image
+(`worker-image.yml`). Publishing the release attaches the package tarball and
+the skill archive (`release-assets.yml`). That job fails if the tag and
+`package.json` disagree.
 
 ## Documentation
 
