@@ -1,5 +1,7 @@
 # formtransform
 
+[![AI-Assisted](https://img.shields.io/badge/AI--assisted-Claude%20Code-blueviolet?logo=anthropic&logoColor=white)](./AI_DISCLOSURE.md)
+
 One library to transform surveys between the standards of the CDL survey
 ecosystem — **XLSForm** (Kobo Toolbox), **LimeSurvey TSV**, and **DDI
 Codebook** — built on a canonical survey type registry (`registry/`) that
@@ -202,6 +204,10 @@ npm run bless
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
 - [Pipeline Documentation](src/pipelines/README.md) — Transformation pipeline details
 - [Test Documentation](tests/README.md) — Test structure and running tests
+
+## AI Disclosure
+
+See [AI_DISCLOSURE.md](./AI_DISCLOSURE.md).
 
 ## License
 
