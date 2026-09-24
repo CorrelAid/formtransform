@@ -24,6 +24,7 @@ import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
 import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
+import { registeredFileChoices } from '../../vocab.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -148,14 +149,15 @@ export class XLSFormToTSVConverter {
     choicesData: ChoiceRow[],
     settingsData: SettingsRow[],
     // Choices for external-file lists (`select_*_from_file <name>.csv`), keyed by
-    // the referenced filename. Supplied by fs-aware callers (CLI/bless/tests) via
-    // resolveFileChoices; the core stays pure. When present, a from_file question
-    // is emitted as its base select with these choices inlined + a `cdl_vocab`
-    // attribute naming the source vocabulary.
+    // the referenced filename. Registered vocabularies (registry/vocab/) are
+    // built in; entries here add unregistered ones or override a registered one
+    // (the CLI reads CSVs beside the form via resolveFileChoices). A from_file
+    // question is emitted as its base select with these choices inlined + a
+    // `cdl_vocab` attribute naming the source vocabulary.
     fileChoices: Record<string, ChoiceRow[]> = {},
   ): Promise<string> {
     // Reset state
-    this.fileChoices = fileChoices;
+    this.fileChoices = { ...registeredFileChoices(surveyData), ...fileChoices };
     this.choiceManager.clear();
     this.tsvGenerator.clear();
     this.counters.clear();

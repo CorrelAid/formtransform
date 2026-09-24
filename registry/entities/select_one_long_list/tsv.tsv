@@ -31,8 +31,8 @@ A		BZ		Belize		en
 A		BJ		Benin		en									
 A		BM		Bermuda		en									
 A		BT		Bhutan		en									
-A		BO		&quot;Bolivia		en									
-A		BQ		&quot;Bonaire		en									
+A		BO		Bolivia, Plurinational State of		en									
+A		BQ		Bonaire, Sint Eustatius and Saba		en									
 A		BA		Bosnia and Herzegovina		en									
 A		BW		Botswana		en									
 A		BV		Bouvet Island		en									
@@ -56,7 +56,7 @@ A		CC		Cocos (Keeling) Islands		en
 A		CO		Colombia		en									
 A		KM		Comoros		en									
 A		CG		Congo		en									
-A		CD		&quot;Congo		en									
+A		CD		Congo, Democratic Republic of the		en									
 A		CK		Cook Islands		en									
 A		CR		Costa Rica		en									
 A		CI		Côte d&#39;Ivoire		en									
@@ -110,7 +110,7 @@ A		HU		Hungary		en
 A		IS		Iceland		en									
 A		IN		India		en									
 A		ID		Indonesia		en									
-A		IR		&quot;Iran		en									
+A		IR		Iran, Islamic Republic of		en									
 A		IQ		Iraq		en									
 A		IE		Ireland		en									
 A		IM		Isle of Man		en									
@@ -123,8 +123,8 @@ A		JO		Jordan		en
 A		KZ		Kazakhstan		en									
 A		KE		Kenya		en									
 A		KI		Kiribati		en									
-A		KP		&quot;Korea		en									
-A		KR		&quot;Korea		en									
+A		KP		Korea, Democratic People&#39;s Republic of		en									
+A		KR		Korea, Republic of		en									
 A		KW		Kuwait		en									
 A		KG		Kyrgyzstan		en									
 A		LA		Lao People&#39;s Democratic Republic		en									
@@ -149,8 +149,8 @@ A		MR		Mauritania		en
 A		MU		Mauritius		en									
 A		YT		Mayotte		en									
 A		MX		Mexico		en									
-A		FM		&quot;Micronesia		en									
-A		MD		&quot;Moldova		en									
+A		FM		Micronesia, Federated States of		en									
+A		MD		Moldova, Republic of		en									
 A		MC		Monaco		en									
 A		MN		Mongolia		en									
 A		ME		Montenegro		en									
@@ -161,7 +161,7 @@ A		MM		Myanmar		en
 A		NA		Namibia		en									
 A		NR		Nauru		en									
 A		NP		Nepal		en									
-A		NL		&quot;Netherlands		en									
+A		NL		Netherlands, Kingdom of the		en									
 A		NC		New Caledonia		en									
 A		NZ		New Zealand		en									
 A		NI		Nicaragua		en									
@@ -175,7 +175,7 @@ A		NO		Norway		en
 A		OM		Oman		en									
 A		PK		Pakistan		en									
 A		PW		Palau		en									
-A		PS		&quot;Palestine		en									
+A		PS		Palestine, State of		en									
 A		PA		Panama		en									
 A		PG		Papua New Guinea		en									
 A		PY		Paraguay		en									
@@ -191,7 +191,7 @@ A		RO		Romania		en
 A		RU		Russian Federation		en									
 A		RW		Rwanda		en									
 A		BL		Saint Barthélemy		en									
-A		SH		&quot;Saint Helena		en									
+A		SH		Saint Helena, Ascension and Tristan da Cunha		en									
 A		KN		Saint Kitts and Nevis		en									
 A		LC		Saint Lucia		en									
 A		MF		Saint Martin (French part)		en									
@@ -222,9 +222,9 @@ A		SJ		Svalbard and Jan Mayen		en
 A		SE		Sweden		en									
 A		CH		Switzerland		en									
 A		SY		Syrian Arab Republic		en									
-A		TW		&quot;Taiwan		en									
+A		TW		Taiwan, Province of China		en									
 A		TJ		Tajikistan		en									
-A		TZ		&quot;Tanzania		en									
+A		TZ		Tanzania, United Republic of		en									
 A		TH		Thailand		en									
 A		TL		Timor-Leste		en									
 A		TG		Togo		en									
@@ -245,7 +245,7 @@ A		UM		United States Minor Outlying Islands		en
 A		UY		Uruguay		en									
 A		UZ		Uzbekistan		en									
 A		VU		Vanuatu		en									
-A		VE		&quot;Venezuela		en									
+A		VE		Venezuela, Bolivarian Republic of		en									
 A		VN		Viet Nam		en									
 A		VG		Virgin Islands (British)		en									
 A		VI		Virgin Islands (U.S.)		en									

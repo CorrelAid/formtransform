@@ -56,9 +56,8 @@ def _validate_vocab_files(registry: dict[str, Any], vocab_dir: Path) -> None:
     Vocabularies are open-ended (see convention:externalCodeList's
     ``vocabularyDeclaration``): declaring one is the only step, so this is the
     check that keeps a declaration honest. Without it a typo'd or missing CSV
-    surfaces much later — the forward converter silently falls back to erroring
-    on an "unimplemented" from_file type when `resolveFileChoices` finds no
-    options to inline.
+    surfaces much later, as a missing file when `VocabularyOptions.ts` is
+    generated.
     """
     errors: list[str] = []
     for at_id, data in registry.items():

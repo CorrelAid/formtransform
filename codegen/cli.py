@@ -12,6 +12,7 @@ from .emit_ts import (
     generate_question_types,
     generate_typescript,
     generate_typescript_ddi,
+    generate_vocabulary_options,
 )
 from .examples import build_example_artifacts
 from .loader import load_registry
@@ -65,6 +66,9 @@ def main(argv: list[str] | None = None) -> None:
 
     generate_question_types(registry, ts_out / "QuestionTypes.ts")
     print("  ✅ src/generated/QuestionTypes.ts (labelled catalogue for consumers)")
+
+    generate_vocabulary_options(registry, base_dir / "registry" / "vocab", ts_out / "VocabularyOptions.ts")
+    print("  ✅ src/generated/VocabularyOptions.ts (registered vocabularies for select_*_from_file)")
 
     generate_schematron(registry, base_dir / "ddi-validation" / "schematron" / "ddi_custom_rules.sch")
     print("  ✅ ddi-validation/schematron/ddi_custom_rules.sch (DDI validation rules)")

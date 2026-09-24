@@ -67,7 +67,7 @@ function sniffDelimiter(text: string): string {
  * RFC 4180 tokenizer: quoted fields may hold the delimiter, doubled quotes and
  * line breaks (free-text answers routinely do). Accepts CRLF or LF.
  */
-function parseCsvRecords(text: string, delim: string): string[][] {
+export function parseCsvRecords(text: string, delim: string): string[][] {
   const records: string[][] = [];
   let record: string[] = [];
   let field = '';
