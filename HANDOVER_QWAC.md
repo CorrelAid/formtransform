@@ -74,10 +74,11 @@ exported there is browser-safe: no filesystem, no network.
 **Status as of 2026-09-24:**
 
 - #11 (upstream gaps) is **closed**: both shipped, so #10 is unblocked.
-- **Pin `v0.1.0`**, the first release (2026-09-24):
-  `github:CorrelAid/formtransform#v0.1.0`. It includes the fix for
-  formtransform#23 (browser bundles lost skip logic in XLSForm → TSV
-  conversion; qwac doesn't use that).
+- **Pin `v0.1.2`** (2026-09-24): `github:CorrelAid/formtransform#v0.1.2`, or
+  the prebuilt tarball
+  `https://github.com/CorrelAid/formtransform/releases/download/v0.1.2/correlaid-formtransform-0.1.2.tgz`.
+  It includes formtransform#23 (browser skip logic), #24 (`from_file` in the
+  browser) and #33 (`range` registered, so `QUESTION_TYPES` has 25 entries).
 
 ## The issues
 
@@ -120,9 +121,9 @@ delete the vendored Go converter (`internal/converter/`), the XSDs (`xml/`),
 `@correlaid/formtransform` plus `ghcr.io/correlaid/schematron-worker`, both
 pinned to one version. The plan holds, but:
 
-- **Unblocked:** `ghcr.io/correlaid/schematron-worker:v0.1.0` is published
-  (public, also tagged `0.1.0`, `0.1` and `latest`), built by `worker-image.yml`
-  from the `v0.1.0` release. Pin both artifacts to `v0.1.0`.
+- **Unblocked:** `ghcr.io/correlaid/schematron-worker` is published and public
+  for every release, built by `worker-image.yml` (current: `v0.1.2`, also
+  tagged `0.1.2`, `0.1` and `latest`). Pin both artifacts to `v0.1.2`.
 - **Stale details in the brief:** the repo is `CorrelAid/formtransform`, not
   `survey-type-registry`. Example fixtures live at
   `registry/entities/<slug>/fixtures/xlsform.json`, not
