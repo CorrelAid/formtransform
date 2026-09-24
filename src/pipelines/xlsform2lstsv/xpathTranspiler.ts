@@ -1,31 +1,24 @@
 /**
  * XPath to LimeSurvey Expression Transpiler
  *
- * This module provides functions to transpile XPath expressions from XLSForm
- * to LimeSurvey Expression Manager syntax using AST-based transformation.
+ * Transpiles XLSForm XPath expressions to LimeSurvey Expression Manager (EM)
+ * syntax: {@link parseXPath} builds an AST, and {@link transpile} walks it.
+ * Parentheses are re-inserted wherever EM would otherwise bind differently from
+ * the XPath source (the AST drops the source's own parentheses).
  *
- * The transpiler uses js-xpath library to parse XPath expressions into AST,
- * then recursively transforms the AST nodes to LimeSurvey-compatible syntax.
+ * A relevance or calculation that can't be parsed or uses an unsupported
+ * function **throws**: silently replacing it with `1` ("always shown") would
+ * drop skip logic from a TSV that still looks valid. Constraints keep their
+ * documented fallback (`''`, i.e. no validation) — see {@link convertConstraint}.
  */
 
-interface XPathNode {
-  id?: string;
-  type?: string;
-  args?: unknown[];
-  left?: unknown;
-  right?: unknown;
-  steps?: Array<{
-    name?: string;
-    axis?: string;
-  }>;
-  value?:
-    | {
-        _?: string;
-      }
-    | string;
-  valueDisplay?: string;
-  stringDelim?: string;
-}
+import {
+  PRECEDENCE,
+  UNARY_PRECEDENCE,
+  parseXPath,
+  type BinaryOp,
+  type XPathNode,
+} from './xpathParser.js';
 
 /**
  * Callback to look up a sanitized answer code given a question name and original choice value.
@@ -51,49 +44,75 @@ export interface TranspilerContext {
   getTruncatedFieldName?: (fieldName: string) => string;
 }
 
-function isVariableRef(node: XPathNode): boolean {
-  return !!(node.steps && node.steps.length > 0 && node.steps[0].name);
+function isVariableRef(
+  node: XPathNode,
+): node is { kind: 'path'; name: string } {
+  return node.kind === 'path' && node.name !== null;
 }
 
-function isStringLiteral(node: XPathNode): boolean {
-  return typeof node.value === 'string';
-}
-
-/**
- * Sanitize field names by removing underscores and hyphens to match LimeSurvey's naming conventions
- */
 function sanitizeName(name: string): string {
   return name.replace(/[_-]/g, '');
 }
 
-/** All positional args joined with `, ` (XPath variadic → EM list). */
-function joinArgs(
-  args: unknown[] | undefined,
-  ctx?: TranspilerContext,
-): string {
-  return (args ?? []).map((a) => transpile(a as XPathNode, ctx)).join(', ');
+/** How tightly a node binds when it appears as an operand. */
+function precedenceOf(node: XPathNode): number {
+  if (node.kind === 'bin') return PRECEDENCE[node.op];
+  if (node.kind === 'neg') return UNARY_PRECEDENCE;
+  return Infinity; // literals, paths, calls
 }
 
-/** Pass-through: every arg becomes `prefix(argN)`. */
+/** Ops where `a op (b op c)` equals `(a op b) op c`, so no right-side parens. */
+const ASSOCIATIVE = new Set<BinaryOp>(['+', '*', 'and', 'or']);
+
+/**
+ * Transpile `node` as an operand of an operator with precedence `parentPrec`,
+ * parenthesised when EM would otherwise regroup it.
+ */
+function operand(
+  node: XPathNode,
+  parentPrec: number,
+  ctx: TranspilerContext | undefined,
+  rightOf?: BinaryOp,
+): string {
+  const text = transpile(node, ctx);
+  const prec = precedenceOf(node);
+  const needsParens =
+    prec < parentPrec ||
+    (rightOf !== undefined && prec === parentPrec && !ASSOCIATIVE.has(rightOf));
+  return needsParens ? `(${text})` : text;
+}
+
+function joinArgs(args: XPathNode[], ctx?: TranspilerContext): string {
+  return args.map((a) => transpile(a, ctx)).join(', ');
+}
+
 function wrapArgs(
   prefix: string,
-  args: unknown[] | undefined,
+  args: XPathNode[],
   ctx?: TranspilerContext,
 ): string {
   return `${prefix}(${joinArgs(args, ctx)})`;
 }
 
+function arg(args: XPathNode[], i: number, fn: string): XPathNode {
+  const node = args[i];
+  if (!node) throw new Error(`${fn}() needs at least ${i + 1} argument(s)`);
+  return node;
+}
+
 const FUNCTION_HANDLERS: Record<
   string,
-  (args: unknown[] | undefined, ctx?: TranspilerContext) => string
+  (args: XPathNode[], ctx?: TranspilerContext) => string
 > = {
   // 0-arg
   today: () => 'today()',
   now: () => 'now()',
+  true: () => '1',
+  false: () => '0',
   // 1-arg pass-through
-  string: (args, ctx) => transpile(args![0] as XPathNode, ctx),
-  number: (args, ctx) => transpile(args![0] as XPathNode, ctx),
-  not: (args, ctx) => `!(${transpile(args![0] as XPathNode, ctx)})`,
+  string: (args, ctx) => transpile(arg(args, 0, 'string'), ctx),
+  number: (args, ctx) => transpile(arg(args, 0, 'number'), ctx),
+  not: (args, ctx) => `!(${transpile(arg(args, 0, 'not'), ctx)})`,
   // 1-arg with rename
   floor: (args, ctx) => wrapArgs('floor', args, ctx),
   ceiling: (args, ctx) => wrapArgs('ceil', args, ctx),
@@ -103,35 +122,36 @@ const FUNCTION_HANDLERS: Record<
   'normalize-space': (args, ctx) => wrapArgs('trim', args, ctx),
   // variadic
   count: (args, ctx) => wrapArgs('count', args, ctx),
-  concat: (args, ctx) =>
-    (args ?? []).map((a) => transpile(a as XPathNode, ctx)).join(' + ') || '',
+  // EM's `+` is also string concatenation, so any operator argument gets its
+  // own parentheses: `a + b - c` would join strings, then subtract.
+  concat: (args, ctx) => args.map((a) => operand(a, Infinity, ctx)).join(' + '),
   regex: (args, ctx) => wrapArgs('regexMatch', args, ctx),
   // 2-arg
   contains: (args, ctx) =>
-    `contains(${transpile(args![0] as XPathNode, ctx)}, ${transpile(args![1] as XPathNode, ctx)})`,
+    `contains(${transpile(arg(args, 0, 'contains'), ctx)}, ${transpile(arg(args, 1, 'contains'), ctx)})`,
   'starts-with': (args, ctx) =>
-    `startsWith(${transpile(args![0] as XPathNode, ctx)}, ${transpile(args![1] as XPathNode, ctx)})`,
+    `startsWith(${transpile(arg(args, 0, 'starts-with'), ctx)}, ${transpile(arg(args, 1, 'starts-with'), ctx)})`,
   'ends-with': (args, ctx) =>
-    `endsWith(${transpile(args![0] as XPathNode, ctx)}, ${transpile(args![1] as XPathNode, ctx)})`,
+    `endsWith(${transpile(arg(args, 0, 'ends-with'), ctx)}, ${transpile(arg(args, 1, 'ends-with'), ctx)})`,
 };
 
-const SIMPLE_BINARY_OPS: Record<string, string> = {
-  '<=': ' <= ',
-  '>=': ' >= ',
-  '<': ' < ',
-  '>': ' > ',
-  '+': ' + ',
-  '-': ' - ',
-  '*': ' * ',
-  div: ' / ',
-  mod: ' % ',
-  and: ' and ',
-  or: ' or ',
+/** XPath operator → EM operator. */
+const EM_OPS: Record<BinaryOp, string> = {
+  or: 'or',
+  and: 'and',
+  '=': '==',
+  '!=': '!=',
+  '<': '<',
+  '<=': '<=',
+  '>': '>',
+  '>=': '>=',
+  '+': '+',
+  '-': '-',
+  '*': '*',
+  div: '/',
+  mod: '%',
 };
 
-/** Equal-comparison helper: when a var-ref `==` (or `!=`) hits a string literal whose
- * value can be remapped to a sanitized answer code, emit `field == '<remapped>'`
- * (truncating the field name) instead of recursing on both sides. */
 function rewriteWithAnswerLookup(
   leftNode: XPathNode,
   rightNode: XPathNode,
@@ -139,9 +159,9 @@ function rewriteWithAnswerLookup(
   op: string,
 ): string | null {
   if (!ctx?.lookupAnswerCode) return null;
-  if (!isVariableRef(leftNode) || !isStringLiteral(rightNode)) return null;
-  const fieldName = sanitizeName(leftNode.steps![0].name!);
-  const rawValue = rightNode.value as string;
+  if (!isVariableRef(leftNode) || rightNode.kind !== 'str') return null;
+  const fieldName = sanitizeName(leftNode.name);
+  const rawValue = rightNode.value;
   const rewritten = ctx.lookupAnswerCode(fieldName, rawValue);
   if (rewritten === rawValue) return null;
   const truncated = ctx.getTruncatedFieldName
@@ -150,17 +170,10 @@ function rewriteWithAnswerLookup(
   return `${truncated} ${op} '${rewritten}'`;
 }
 
-/** String-valued function calls that need custom logic beyond a single Map entry. */
-function transpileSelected(
-  args: unknown[] | undefined,
-  ctx?: TranspilerContext,
-): string {
-  if (args?.length !== 2) throw new Error('selected() needs 2 arguments');
-  const fieldArg = args[0] as XPathNode;
-  const valueArg = args[1] as XPathNode;
-  const fieldName = transpile(fieldArg, ctx);
-  let value = transpile(valueArg, ctx);
-  value = value.replace(/^['"]|['"]$/g, '');
+function transpileSelected(args: XPathNode[], ctx?: TranspilerContext): string {
+  if (args.length !== 2) throw new Error('selected() needs 2 arguments');
+  const fieldName = transpile(args[0], ctx);
+  const value = transpile(args[1], ctx).replace(/^['"]|['"]$/g, '');
   const sanitizedField = sanitizeName(fieldName);
   if (ctx?.buildSelectedExpr) {
     return ctx.buildSelectedExpr(sanitizedField, value);
@@ -169,133 +182,73 @@ function transpileSelected(
 }
 
 function transpileSubstring(
-  args: unknown[] | undefined,
+  args: XPathNode[],
   ctx?: TranspilerContext,
 ): string {
-  if (!args || args.length < 2)
-    throw new Error('substring() needs ≥2 arguments');
-  const stringArg = transpile(args[0] as XPathNode, ctx);
-  const startArg = transpile(args[1] as XPathNode, ctx);
-  const lengthArg = args.length > 2 ? transpile(args[2] as XPathNode, ctx) : '';
+  if (args.length < 2) throw new Error('substring() needs ≥2 arguments');
+  const stringArg = transpile(args[0], ctx);
+  const startArg = transpile(args[1], ctx);
+  const lengthArg = args.length > 2 ? transpile(args[2], ctx) : '';
   return `substr(${stringArg}, ${startArg}${lengthArg ? ', ' + lengthArg : ''})`;
 }
 
-/** `selected(${field}, 'value')` and `substring(...)` need custom logic; dispatch
- * any other known function via the static table. */
 function transpileFunctionCall(
-  node: XPathNode,
+  node: { name: string; args: XPathNode[] },
   ctx?: TranspilerContext,
 ): string {
-  const id = node.id!;
-  const args = node.args;
-  if (id === 'selected') return transpileSelected(args, ctx);
-  if (id === 'substring') return transpileSubstring(args, ctx);
-  const handler = FUNCTION_HANDLERS[id];
+  const { name, args } = node;
+  if (name === 'selected') return transpileSelected(args, ctx);
+  if (name === 'substring') return transpileSubstring(args, ctx);
+  const handler = FUNCTION_HANDLERS[name];
   if (handler) return handler(args, ctx);
-  if (id === 'if') {
-    if (args?.length === 3) {
-      return `if(${transpile(args[0] as XPathNode, ctx)}, ${transpile(args[1] as XPathNode, ctx)}, ${transpile(args[2] as XPathNode, ctx)})`;
-    }
+  if (name === 'if' && args.length === 3) {
+    return `if(${transpile(args[0], ctx)}, ${transpile(args[1], ctx)}, ${transpile(args[2], ctx)})`;
   }
-  throw new Error(`Unsupported function: ${id}`);
+  throw new Error(`Unsupported function: ${name}()`);
 }
 
-/** Equality (`=` / `==`) — special-cases the answer-code lookup, otherwise recurses. */
-function transpileEquality(node: XPathNode, ctx?: TranspilerContext): string {
-  const leftNode = node.left as XPathNode;
-  const rightNode = node.right as XPathNode;
-  const rewritten = rewriteWithAnswerLookup(leftNode, rightNode, ctx, '==');
-  if (rewritten) return rewritten;
-  return `${transpile(leftNode, ctx)} == ${transpile(rightNode, ctx)}`;
-}
-
-/** Inequality (`!=`) — same lookup pattern as equality but with the inverted operator. */
-function transpileInequality(node: XPathNode, ctx?: TranspilerContext): string {
-  const leftNode = node.left as XPathNode;
-  const rightNode = node.right as XPathNode;
-  const rewritten = rewriteWithAnswerLookup(leftNode, rightNode, ctx, '!=');
-  if (rewritten) return rewritten;
-  return `${transpile(leftNode, ctx)} != ${transpile(rightNode, ctx)}`;
-}
-
-/** Plain `${left} <op> ${right}` for operators that don't need special handling. */
-function transpileSimpleBinaryOp(
-  node: XPathNode,
-  ctx: TranspilerContext | undefined,
-): string {
-  const op = SIMPLE_BINARY_OPS[node.type!];
-  if (!op) {
-    throw new Error(`Unsupported XPath operator: ${node.type}`);
-  }
-  return `${transpile(node.left as XPathNode, ctx)}${op}${transpile(node.right as XPathNode, ctx)}`;
-}
-
-function transpileBinaryOp(node: XPathNode, ctx?: TranspilerContext): string {
-  switch (node.type) {
-    case '=':
-    case '==':
-      return transpileEquality(node, ctx);
-    case '!=':
-      return transpileInequality(node, ctx);
-    default:
-      return transpileSimpleBinaryOp(node, ctx);
-  }
-}
-
-/** Variable references become the sanitized, possibly truncated field name. */
-function transpileVariableRef(
-  node: XPathNode,
+function transpileBinaryOp(
+  node: { op: BinaryOp; left: XPathNode; right: XPathNode },
   ctx?: TranspilerContext,
 ): string {
-  const step = node.steps![0];
-  if (!step.name) return 'self';
-  const fieldName = sanitizeName(step.name);
+  const { op, left, right } = node;
+  const emOp = EM_OPS[op];
+  if (op === '=' || op === '!=') {
+    const rewritten = rewriteWithAnswerLookup(left, right, ctx, emOp);
+    if (rewritten) return rewritten;
+  }
+  const prec = PRECEDENCE[op];
+  return `${operand(left, prec, ctx)} ${emOp} ${operand(right, prec, ctx, op)}`;
+}
+
+function transpileVariableRef(
+  name: string | null,
+  ctx?: TranspilerContext,
+): string {
+  if (name === null) return 'self';
+  const fieldName = sanitizeName(name);
   return ctx?.getTruncatedFieldName
     ? ctx.getTruncatedFieldName(fieldName)
     : fieldName;
 }
 
-/** Literal (string / numeric) values. `valueDisplay` carries the original quoted form. */
-function transpileLiteral(node: XPathNode): string {
-  if (typeof node.value === 'object' && node.value !== null) {
-    return node.value._ ?? '';
-  }
-  if (typeof node.value === 'string') {
-    return node.valueDisplay ?? node.value;
-  }
-  return '';
-}
-
-/**
- * Transpiles jsxpath AST nodes to LimeSurvey expression syntax
- *
- * This function takes the Abstract Syntax Tree (AST) nodes produced by the jsxpath library
- * and converts them to LimeSurvey-compatible expression syntax. The jsxpath library
- * returns different node structures depending on the type of XPath expression:
- *
- * - Function calls: Objects with 'id' property (e.g., count(), concat(), regex())
- * - Binary operations: Objects with 'type' property (e.g., <=, >=, =, and, or)
- * - Variable references: Objects with 'steps' arrays containing axis/name info
- * - Literal values: Objects with 'value' property containing the actual value
- *
- * The function recursively processes the AST, handling each node type appropriately
- * and converting XPath syntax to LimeSurvey Expression Manager syntax.
- *
- * @param node - The AST node from jsxpath.parse()
- * @returns The transpiled LimeSurvey expression string
- * @throws Error if an unsupported node structure is encountered
- */
 function transpile(node: XPathNode, ctx?: TranspilerContext): string {
-  if (!node) return '';
-  if (node.id) return transpileFunctionCall(node, ctx);
-  if (node.type) return transpileBinaryOp(node, ctx);
-  if (node.steps && node.steps.length > 0)
-    return transpileVariableRef(node, ctx);
-  if (node.value !== undefined) return transpileLiteral(node);
-  throw new Error(`Unsupported node structure: ${JSON.stringify(node)}`);
+  switch (node.kind) {
+    case 'num':
+      return node.text;
+    case 'str':
+      return `${node.delim}${node.value}${node.delim}`;
+    case 'path':
+      return transpileVariableRef(node.name, ctx);
+    case 'call':
+      return transpileFunctionCall(node, ctx);
+    case 'bin':
+      return transpileBinaryOp(node, ctx);
+    case 'neg':
+      return `-${operand(node.operand, UNARY_PRECEDENCE, ctx)}`;
+  }
 }
 
-/** Preprocess XLSForm `${field}` / `selected(${field}, 'v')` template syntax to bare XPath. */
 function preprocessExpression(expr: string): string {
   return expr
     .replace(/\$\{([^}]+)\}/g, (_m, name: string) => sanitizeName(name))
@@ -306,39 +259,31 @@ function preprocessExpression(expr: string): string {
     );
 }
 
-async function loadJxpath(): Promise<{
-  parse: (expr: string) => XPathNode;
-}> {
-  const jxpathModule = await import('js-xpath');
-  const jxpath = jxpathModule.default || jxpathModule;
-  if (!jxpath || !jxpath.parse) {
-    throw new Error('js-xpath module does not export parse function');
-  }
-  return jxpath;
-}
-
 /**
- * Convert XPath expression to LimeSurvey Expression Manager syntax
+ * Convert XPath expression to LimeSurvey Expression Manager syntax.
  *
  * @param xpathExpr - The XPath expression to convert
- * @returns LimeSurvey Expression Manager syntax, or null if conversion fails
+ * @returns LimeSurvey Expression Manager syntax; `'1'` for an empty expression
+ * @throws when the expression can't be parsed or uses an unsupported function —
+ *   never silently degrades to `'1'`, which would drop skip logic
  */
-export async function xpathToLimeSurvey(
+export function xpathToLimeSurvey(
   xpathExpr: string,
   ctx?: TranspilerContext,
 ): Promise<string> {
+  // Stays Promise-returning: it's public API, and callers await it.
   if (!xpathExpr || xpathExpr.trim() === '') {
-    return '1'; // Default relevance expression
+    return Promise.resolve('1'); // Default relevance expression
   }
-
   const processedExpr = preprocessExpression(xpathExpr);
-
   try {
-    const jxpath = await loadJxpath();
-    return transpile(jxpath.parse(processedExpr), ctx);
+    return Promise.resolve(transpile(parseXPath(processedExpr), ctx));
   } catch (error: unknown) {
-    console.error(`Transpilation error: ${(error as Error).message}`);
-    return '1';
+    const wrapped = new Error(
+      `Cannot convert XPath expression "${xpathExpr}" to LimeSurvey: ${(error as Error).message}`,
+    );
+    (wrapped as Error & { cause?: unknown }).cause = error;
+    return Promise.reject(wrapped);
   }
 }
 
@@ -390,7 +335,11 @@ function reconstructRegexMatch(
  * @param constraint - The XPath constraint expression
  * @returns Validation pattern (regex or EM equation)
  */
-export async function convertConstraint(constraint: string): Promise<string> {
+export function convertConstraint(constraint: string): Promise<string> {
+  return Promise.resolve(convertConstraintSync(constraint));
+}
+
+function convertConstraintSync(constraint: string): string {
   if (!constraint) return '';
 
   const processedExpr = preprocessExpression(constraint);
@@ -407,15 +356,11 @@ export async function convertConstraint(constraint: string): Promise<string> {
   }
 
   try {
-    const jxpath = await loadJxpath();
-    const parsed = jxpath.parse(processedExpr);
-    if (!parsed) {
-      throw new Error(
-        `jxpath.parse returned null/undefined for constraint: "${processedExpr}"`,
-      );
-    }
-    return transpile(parsed);
+    return transpile(parseXPath(processedExpr));
   } catch (error: unknown) {
+    // Documented fallback: a constraint that isn't XPath (e.g. a bare regex)
+    // is dropped rather than failing the conversion — the form then accepts
+    // more input, it never hides questions.
     console.error(`Constraint conversion error: ${(error as Error).message}`);
     return '';
   }
@@ -513,7 +458,7 @@ export async function convertRelevance(
 ): Promise<string> {
   if (!xpathExpr) return '1';
 
-  // Preprocess: normalize operators to lowercase for jsxpath compatibility
+  // XPath operators are lowercase; accept AND/OR as XLSForm authors write them
   const normalizedXPath = xpathExpr
     .replace(/\bAND\b/gi, 'and')
     .replace(/\bOR\b/gi, 'or');

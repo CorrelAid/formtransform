@@ -29,9 +29,10 @@ describe('Comprehensive Expression Conversion Tests', () => {
         const result = await xpathToLimeSurvey(
           'count(${items}) > 0 and (${age} >= 18 or ${parent} = "yes") and contains(${name}, "Dr")',
         );
-        // Note: Current transpiler doesn't preserve parentheses around OR expressions
+        // The OR group must stay grouped: without parentheses EM reads it as
+        // `(count > 0 and age >= 18) or (parent == "yes" and contains(...))`.
         expect(result).toBe(
-          'count(items) > 0 and age >= 18 or parent == "yes" and contains(name, "Dr")',
+          'count(items) > 0 and (age >= 18 or parent == "yes") and contains(name, "Dr")',
         );
       });
 
