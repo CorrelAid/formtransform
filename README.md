@@ -80,11 +80,6 @@ formtransform lstsv2ddi survey.tsv -o codebook.xml --data responses.csv
 
 # Convert from LimeSurvey TSV back to XLSForm (emitted as JSON sheets)
 formtransform lstsv2xlsform survey.tsv -o recovered.json
-
-# KoboToolbox API: list assets, pull form + submissions, or go straight to DDI
-# (token via --token or KOBO_API_TOKEN; server via KOBO_SERVER_URL)
-formtransform kobo list
-formtransform kobo transform <asset-uid> -o output/
 ```
 
 ### Asking the library what exists

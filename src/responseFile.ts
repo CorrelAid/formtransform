@@ -1,18 +1,17 @@
 /**
- * Response-file reader for `xlsform2ddi --data`.
+ * Response-file reader: the text of a survey platform's response export →
+ * `Submission[]` for `buildDataCsv` / `buildDdiXml` / `lstsvToDataCsv`.
  *
- * Turns the bytes of a response export into `Submission[]` for
- * `buildDataCsv` / `buildDdiXml`. Two shapes are accepted:
+ * Used by the CLI's `--data` flag and exported from `src/index.ts`, so a
+ * browser app can feed an uploaded export through the same parser. Pure — no
+ * filesystem or network. Two shapes are accepted:
  *
- * - **JSON** — Kobo's submissions array (what `kobo2ddi pull` writes as
- *   `submissions.json`), or the raw API page `{ results: [...] }`.
+ * - **JSON** — an array of submission objects (e.g. a Kobo or LimeSurvey JSON
+ *   export), or an API page `{ results: [...] }`.
  * - **CSV** — a header row of question names (bare or `group/name`), then one
  *   row per respondent. Kobo's CSV export defaults to `;`, so the delimiter is
  *   sniffed from the header: whichever of `;` / `,` occurs more often outside
  *   quotes wins.
- *
- * Node-only by convention (it is fed from the filesystem by the CLI) — kept out
- * of `src/index.ts` alongside `fileChoices.ts`.
  */
 
 import type { Submission } from './pipelines/xlsform2ddi/data.js';

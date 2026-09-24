@@ -52,6 +52,7 @@ export {
   remapSubmissionsToDdi,
 } from './pipelines/xlsform2ddi/data.js';
 export type { Submission } from './pipelines/xlsform2ddi/data.js';
+export { parseResponses } from './responseFile.js';
 
 export {
   lstsvToDataCsv,
