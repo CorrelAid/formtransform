@@ -74,10 +74,10 @@ exported there is browser-safe: no filesystem, no network.
 **Status as of 2026-09-24:**
 
 - #11 (upstream gaps) is **closed**: both shipped, so #10 is unblocked.
-- **No tags yet.** formtransform has never been tagged. Pin a commit SHA
-  (`github:CorrelAid/formtransform#<sha>`) until `v0.1.0` exists, which is
-  planned right after formtransform#23 (a browser-bundle bug in XLSForm → TSV
-  conversion, which qwac doesn't use).
+- **Pin `v0.1.0`**, the first release (2026-09-24):
+  `github:CorrelAid/formtransform#v0.1.0`. It includes the fix for
+  formtransform#23 (browser bundles lost skip logic in XLSForm → TSV
+  conversion; qwac doesn't use that).
 
 ## The issues
 
@@ -113,17 +113,16 @@ suggest filing are **already solved**:
   The schematron-worker sets `rule` to `"xsd"` for schema failures and
   `"schematron"` for CDL rule failures. #12 can group by `rule` directly.
 
-**qwacback's registry sync is not started, and it's blocked upstream.** The brief
+**qwacback's registry sync is not started, and it's no longer blocked.** The brief
 is `REGISTRY_SYNC.md`, untracked in the local qwacback checkout. It says to
 delete the vendored Go converter (`internal/converter/`), the XSDs (`xml/`),
 `schematron/` and the Java worker source (`schematron-worker/`), and to consume
 `@correlaid/formtransform` plus `ghcr.io/correlaid/schematron-worker`, both
 pinned to one version. The plan holds, but:
 
-- **Blocked:** `ghcr.io/correlaid/schematron-worker` **has never been
-  published** (GHCR 404). formtransform's `worker-image.yml` only runs on `v*`
-  tags, and there are none yet. The swap can't start until formtransform tags
-  `v0.1.0`.
+- **Unblocked:** `ghcr.io/correlaid/schematron-worker:v0.1.0` is published
+  (public, also tagged `0.1.0`, `0.1` and `latest`), built by `worker-image.yml`
+  from the `v0.1.0` release. Pin both artifacts to `v0.1.0`.
 - **Stale details in the brief:** the repo is `CorrelAid/formtransform`, not
   `survey-type-registry`. Example fixtures live at
   `registry/entities/<slug>/fixtures/xlsform.json`, not
@@ -142,7 +141,7 @@ pinned to one version. The plan holds, but:
 - **Do not hand-edit generated files.** Everything under `src/generated/` and
   `skills/cdl-survey-types/` carries a "DO NOT EDIT" header and is overwritten by
   the next `uv run codegen`.
-- **Pin to tags (a commit SHA until the first tag exists), never branches.** A
+- **Pin to tags, never branches.** A
   registry change should never alter a deployed UI without a commit in qwac.
 - **Unknown types must still render.** qwacback can hold data the app has not
   been taught about; degrade to a plain tag rather than throwing.
