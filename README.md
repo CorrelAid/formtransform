@@ -211,7 +211,8 @@ npm run bless
 Publishing the tag builds the `schematron-worker` image
 (`worker-image.yml`). Publishing the release attaches the package tarball and
 the skill archive (`release-assets.yml`). That job fails if the tag and
-`package.json` disagree.
+`package.json` disagree, and it never replaces an asset that already exists:
+consumers pin the checksums, so a fix ships as a new version.
 
 ## Documentation
 

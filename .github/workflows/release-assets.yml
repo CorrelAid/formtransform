@@ -14,7 +14,12 @@ name: Attach release assets
 # v<version>. The job fails if the tag and package.json disagree.
 #
 # Runs when a release is published. Run it manually with an existing tag to
-# (re)attach assets to an older release; --clobber replaces them.
+# attach assets an older release is missing.
+#
+# Published assets are immutable: consumers pin their checksums (formulaid
+# verifies the skill archive's SHA-256), so an asset that already exists is
+# never replaced and the job fails instead. To ship a fix, publish a new
+# version.
 
 on:
   release:
@@ -73,5 +78,13 @@ jobs:
           node -e "import('@correlaid/formtransform').then((m) => { if (!m.XLSFormToTSVConverter) process.exit(1); })"
           npx --no-install formtransform --help >/dev/null
 
-      - name: Upload to the release
-        run: gh release upload "$TAG" assets/* --clobber
+      - name: Upload to the release (never overwrite)
+        run: |
+          existing=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+          for f in assets/*; do
+            if grep -qxF "$(basename "$f")" <<<"$existing"; then
+              echo "::error::$(basename "$f") already exists on $TAG. Published assets are immutable; publish a new version instead."
+              exit 1
+            fi
+          done
+          gh release upload "$TAG" assets/*
