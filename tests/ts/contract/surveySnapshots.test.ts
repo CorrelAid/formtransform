@@ -58,6 +58,9 @@ const REVERSE_DDI_STRUCTURAL_DIFF: Record<string, string> = {
     '(`descriptivestatistics` → `descriptivestatistic`), 5-char answer-code truncation feeding ' +
     'multipleResp variable names (`projectidprojectalpha` → `projectidproje`), plus the ' +
     'metadata variables (`start`, `end`) the TSV never carries',
+  testA:
+    '5-char answer-code truncation feeding multipleResp variable names ' +
+    '(`bereichemetall` → `bereichemetal`)',
   all_types_survey:
     'metadata/hidden rows (start, end, today, deviceid, username, audit, hidden1) are ' +
     'variables in the forward DDI but are skipped by the TSV, so the reverse cannot know them',
@@ -105,7 +108,6 @@ function discoverCases(): SurveyCase[] {
   for (const name of fs.readdirSync(SURVEYS_DIR).sort()) {
     const dir = path.join(SURVEYS_DIR, name);
     if (!fs.statSync(dir).isDirectory()) continue;
-    // testA has no snapshots on purpose (unimplemented `range` type).
     if (!fs.existsSync(path.join(dir, 'tsv.tsv'))) continue;
     const fixture = loadFixture(dir);
     if (!fixture) continue;

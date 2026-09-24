@@ -1,0 +1,53 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:range",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Range",
+      "xlsform": {
+        "typeString": "range",
+        "parameters": {
+          "start": "1",
+          "end": "10",
+          "step": "1"
+        }
+      },
+      "limesurvey": {
+        "typeCode": "N",
+        "supportsOther": false,
+        "answerClass": null,
+        "parameterAttributes": {
+          "start": "min_num_value_n",
+          "end": "max_num_value_n"
+        },
+        "integerOnly": {
+          "attribute": "num_value_int_only",
+          "whenWhole": ["start", "step"]
+        }
+      },
+      "ddi": {
+        "intrvl": "contin",
+        "formatType": "numeric",
+        "responseDomainType": "numeric"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$"
+      },
+      "exampleDir": "registry/entities/range",
+      "examplePath": "registry/entities/range/xlsform.json",
+      "useWhen": "When collecting a number on a bounded scale set with `parameters` (`start`, `end`, `step`), e.g. a 0–100 percentage or a 1–10 rating. LimeSurvey enforces the bounds and, for whole-number steps, integers; it does not enforce the step itself."
+    }
+  ]
+}

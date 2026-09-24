@@ -22,13 +22,25 @@ from test_helpers import (
 # ===========================
 
 
-def test_testA_tsv_not_generated(generated_files_dir: Path):
-    """Verify that testA.tsv was NOT generated (contains unimplemented 'range' type)."""
+def test_testA_range_bounds_survive_import(limesurvey_client: Client, generated_files_dir: Path):
+    """testA's `range` question (start=0 end=100 step=5) imports as a numeric
+    input whose bounds LimeSurvey stores (formtransform#33)."""
     tsv_path = generated_files_dir / "testA.tsv"
-    assert not tsv_path.exists(), (
-        "testA.tsv should not be generated because testA.xlsx contains an unimplemented 'range' type"
-    )
-    print("✓ testA.tsv correctly not generated (unimplemented 'range' type)")
+    assert tsv_path.exists(), f"testA.tsv was not generated in {generated_files_dir}"
+    survey_id = import_survey_from_tsv(limesurvey_client, tsv_path, "testA range bounds")
+    try:
+        questions = limesurvey_client.list_questions(survey_id)
+        q = next(q for q in questions if q["title"] == "attributionberuf")
+        assert q["type"] == "N"
+        props = limesurvey_client.get_question_properties(q["qid"], settings=["attributes"])
+        attrs = props.get("attributes", {})
+        assert (attrs.get("min_num_value_n"), attrs.get("max_num_value_n"), attrs.get("num_value_int_only")) == (
+            "0",
+            "100",
+            "1",
+        ), f"range bounds lost on import: {attrs}"
+    finally:
+        cleanup_survey(limesurvey_client, survey_id)
 
 
 # ===========================

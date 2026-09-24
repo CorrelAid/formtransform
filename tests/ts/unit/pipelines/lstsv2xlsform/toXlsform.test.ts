@@ -355,3 +355,43 @@ describe('lstsvRowsToXlsform — multi-language', () => {
     });
   });
 });
+
+describe('lstsvRowsToXlsform — range (#33)', () => {
+  const numeric = (attrs: Partial<Row>) =>
+    lstsvRowsToXlsform([
+      LANG_EN,
+      DEFAULT_GROUP,
+      row({
+        class: 'Q',
+        'type/scale': 'N',
+        name: 'score',
+        text: 'Score',
+        ...attrs,
+      }),
+    ]).survey[0];
+
+  test('a bounded integer-only N becomes range with step=1', () => {
+    expect(
+      numeric({
+        min_num_value_n: '0',
+        max_num_value_n: '10',
+        num_value_int_only: '1',
+      }),
+    ).toMatchObject({ type: 'range', parameters: 'start=0 end=10 step=1' });
+  });
+
+  test('without the integer-only flag the step is left to the default', () => {
+    expect(
+      numeric({ min_num_value_n: '0', max_num_value_n: '1' }),
+    ).toMatchObject({
+      type: 'range',
+      parameters: 'start=0 end=1',
+    });
+  });
+
+  test('an N with only one bound stays decimal', () => {
+    const q = numeric({ min_num_value_n: '0' });
+    expect(q.type).toBe('decimal');
+    expect(q.parameters).toBeUndefined();
+  });
+});

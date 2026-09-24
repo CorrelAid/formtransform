@@ -1,0 +1,112 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	min_num_value_n	max_num_value_n	num_value_int_only
+S		language	1	en		en											
+S		format	1	A		en											
+S		shownoanswer	1	N		en											
+SL		surveyls_title	1	Untitled Survey		en											
+G	1	intro	1			en											
+Q	X	introtext	1	Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!		en											
+G	2	teilnahme	1			en											
+Q	L	dauer	1	Wie lange kommst du schon zu TestWerk?		en			Y					1			
+A		1		Erst seit Kurzem (1-2 Monate)		en											
+A		2		Ein halbes Jahr		en											
+A		3		Ca. ein Jahr		en											
+A		4		Länger als ein Jahr aber kürzer als drei Jahre		en											
+A		lnger		Länger als drei Jahre		en											
+Q	L	haeufigkeit	1	Wie oft kommst du ungefähr?		en			Y					1			
+A		1		1-2 Mal insgesamt		en											
+A		2		Ab und zu (1x im Monat)		en											
+A		3		Regelmäßig (mehrmals im Monat)		en											
+A		4		Sehr oft (jede Woche oder öfter)		en											
+Q	N	stundengesamt	1	Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)	z.B. 10, 50, 100...	en								1			
+Q	L	hauptwerkstatt	1	In welcher Werkstatt bist du hauptsächlich?		en			Y					1			
+A		holz		Holzwerkstatt		en											
+A		metal		Metallwerkstatt		en											
+A		texti		Textilwerkstatt		en											
+A		digit		Medienwerkstatt/Digital		en											
+A		keine		Ich wechsle gleichmäßig		en											
+Q	M	bereiche	1	Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)		en								1			
+SQ		holz		Holzwerkstatt		en											
+SQ		metal		Metallwerkstatt		en											
+SQ		texti		Textilwerkstatt		en											
+SQ		digit		Medienwerkstatt/Digital		en											
+Q	L	vorwissen	1	Hattest du vorher schon handwerkliche Erfahrung?		en			Y					1			
+A		nein		Nein, gar nicht		en											
+A		etwas		Ein bisschen		en											
+A		ja		Ja, viel		en											
+G	3	wirkung	1	Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):		en											
+Q	L	wohlfuehlen	1	Ich fühle mich bei TestWerk wohl und akzeptiert.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	L	freundschaften	1	Ich habe bei TestWerk Freund*innen gefunden.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	L	eigeneideen	1	Ich traue mir zu, eigene Ideen und Projekte umzusetzen.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	L	problemloesung	1	Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	L	skillsgelernt	1	Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	X	berufnote	1	Jetzt denk mal an deine berufliche Zukunft:		en											
+Q	L	berufpre	1	Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	L	berufpost	1	Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.		en			Y					1			
+A		1		Stimme gar nicht zu		en											
+A		2		Stimme eher nicht zu		en											
+A		3		Weder noch		en											
+A		4		Stimme eher zu		en											
+A		5		Stimme voll zu		en											
+Q	N	attributionberuf	berufpost != berufpre	Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?	0% = gar nicht, 100% = komplett	en								1	0	100	1
+G	4	erfahrungen	1			en											
+Q	S	projekte	1	Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)		en								1			
+Q	S	ammeistengebracht	1	Was hat dir bei TestWerk am meisten gebracht?		en								1			
+Q	S	verbesserungen	1	Was könnten wir besser machen?		en								1			
+G	5	empfehlung	1			en											
+Q	L	npsscore	1	Würdest du TestWerk Freund*innen empfehlen?	0 = auf keinen Fall, 10 = auf jeden Fall	en			Y					1			
+A		0		0		en											
+A		1		1		en											
+A		2		2		en											
+A		3		3		en											
+A		4		4		en											
+A		5		5		en											
+A		6		6		en											
+A		7		7		en											
+A		8		8		en											
+A		9		9		en											
+A		10		10		en											
+G	6	demografie	1			en											
+Q	L	alter	1	Wie alt bist du? (optional)		en								1			
+A		1		12-14 Jahre		en											
+A		2		15-17 Jahre		en											
+A		3		18-21 Jahre		en											
+A		4		Älter		en											
+Q	L	geschlecht	1	Geschlecht (optional)		en								1			
+A		w1		Weiblich		en											
+A		m		Männlich		en											
+A		nb		Nicht-binär		en											
+A		d		Divers		en											
+A		ander		Anderes Geschlecht		en											
+Q	S	geschlechtandere	geschlecht == 'ander'	Falls &quot;Anderes&quot;: Bitte angeben (optional)		en								1			
+G	7	G6	1	G6		en											
+Q	X	danke	1	Vielen Dank! Deine Meinung hilft uns sehr weiter!		en											

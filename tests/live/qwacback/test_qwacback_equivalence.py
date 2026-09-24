@@ -202,10 +202,6 @@ EQUIVALENT_TYPES = [
         [{"type": "range", "name": "score", "label": "Score", "required": "false", "appearance": None}],
         {},
         id="range",
-        marks=pytest.mark.xfail(
-            strict=True,
-            reason="range isn't a registered type: formtransform emits text, qwacback numeric (formtransform#33)",
-        ),
     ),
     pytest.param(
         "date",
@@ -281,8 +277,8 @@ EQUIVALENT_TYPES = [
 ]
 
 
-# Two cases are strict xfails, so a fix on either side shows up as XPASS:
-# `range` (formtransform#33) and `note` (intended; qwacback changes on the swap).
+# `note` is a strict xfail, so a change on either side shows up as XPASS: it's
+# intended here, and qwacback's output changes when it swaps converters.
 
 
 class TestXlsformToDdiEquivalence:

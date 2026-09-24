@@ -17,7 +17,9 @@
  *     array's name for a grid) — the original authored list name is not
  *     stored anywhere in the TSV.
  *   - `N` (integer vs decimal) has no distinguishing signal in LimeSurvey;
- *     `decimal` is the canonical default.
+ *     `decimal` is the canonical default. An `N` carrying the bound attributes
+ *     a parameterized type declares (`range`) becomes that type; its `step` is
+ *     only known to be 1 or fractional.
  *   - a plain (non-grid) group's machine `name` is not recoverable — only its
  *     rendered label is in the TSV — so it is slugified from the label.
  */
@@ -81,6 +83,36 @@ function canonicalTypeFor(lsCode: string): string {
   );
 }
 const CANONICAL_TEXT_TYPE = canonicalTypeFor('S');
+
+/** Types that write their XLSForm `parameters` into LS attributes (`range`). */
+const PARAMETERIZED_TYPES = Object.entries(TYPE_MAPPINGS).filter(
+  ([, m]) => m.parameterAttributes,
+);
+
+/**
+ * The parameterized type whose LS attributes this row carries, with its
+ * `parameters` cell rebuilt. `step` isn't stored: the integer-only flag means
+ * a whole step (written as 1), otherwise it's left to the default.
+ */
+function resolveParameterized(
+  lsCode: string,
+  row: Row,
+): ResolvedType | undefined {
+  for (const [xfType, m] of PARAMETERIZED_TYPES) {
+    if (m.limeSurveyType !== lsCode) continue;
+    const attrs = Object.entries(m.parameterAttributes ?? {});
+    if (!attrs.every(([, attr]) => cell(row, attr) !== '')) continue;
+    const params = attrs.map(([key, attr]) => `${key}=${cell(row, attr)}`);
+    const intOnly = m.integerOnly;
+    if (intOnly && cell(row, intOnly.attribute) === '1') {
+      for (const key of intOnly.whenWhole) {
+        if (!m.parameterAttributes?.[key]) params.push(`${key}=1`);
+      }
+    }
+    return { base: xfType, parameters: params.join(' ') };
+  }
+  return undefined;
+}
 const CANONICAL_NUMERIC_TYPE = canonicalTypeFor('N');
 
 /** Appearance name → LS type-override code it produces (e.g. `minimal` → `!`). */
@@ -92,10 +124,12 @@ for (const [name, spec] of Object.entries(APPEARANCES)) {
 interface ResolvedType {
   base: string;
   appearance?: string;
+  parameters?: string;
 }
 
-/** Resolve a Q-row's `type/scale` (+ `date_format` hint) to an XLSForm type. */
-function resolveType(lsCode: string, dateFormat: string): ResolvedType {
+/** Resolve a Q-row's `type/scale` (+ attribute hints) to an XLSForm type. */
+function resolveType(lsCode: string, row: Row): ResolvedType {
+  const dateFormat = cell(row, 'date_format');
   const overrideAppearance = APPEARANCE_BY_OVERRIDE[lsCode];
   if (overrideAppearance) {
     const spec = APPEARANCES[overrideAppearance];
@@ -110,7 +144,9 @@ function resolveType(lsCode: string, dateFormat: string): ResolvedType {
     case 'M':
       return { base: 'select_multiple' };
     case 'N':
-      return { base: CANONICAL_NUMERIC_TYPE };
+      return (
+        resolveParameterized(lsCode, row) ?? { base: CANONICAL_NUMERIC_TYPE }
+      );
     case 'D':
       return {
         base:
@@ -272,7 +308,8 @@ interface PlainQuestion {
   name: string;
   lsType: string;
   cssclass: string;
-  dateFormat: string;
+  /** The Q row itself, for type-resolving attributes (date_format, bounds). */
+  row: Row;
   mandatory: string;
   defaultVal: string;
   otherFlag: boolean;
@@ -315,7 +352,7 @@ function readLogicalQuestions(
           name,
           lsType,
           cssclass: cell(row, 'cssclass'),
-          dateFormat: cell(row, 'date_format'),
+          row,
           mandatory: cell(row, 'mandatory'),
           defaultVal: cell(row, 'default'),
           otherFlag: cell(row, 'other') === 'Y',
@@ -635,6 +672,7 @@ function buildPlainQuestionRow(
   if (item.mandatory === 'Y') row.required = 'yes';
   if (item.defaultVal) row.default = item.defaultVal;
   if (resolved.appearance) row.appearance = resolved.appearance;
+  if (resolved.parameters) row.parameters = resolved.parameters;
   const relevant = reverseRelevance(item.relevance, ctx.selectCtx);
   if (relevant) row.relevant = relevant;
   const constraint = reverseConstraint(item.emValidationQ);
@@ -656,7 +694,7 @@ function emitQuestions(
       emitArrayQuestion(item, choicesByName, ctx);
       continue;
     }
-    const resolved = resolveType(item.lsType, item.dateFormat);
+    const resolved = resolveType(item.lsType, item.row);
     const { type } = composeTypeWithList(
       resolved.base,
       item,

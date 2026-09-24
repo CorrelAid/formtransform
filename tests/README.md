@@ -148,8 +148,9 @@ reverse subset validator each hardcoded the appearance overrides they knew
 new override teaches both sides automatically. No registry entity uses
 `minimal`, which is exactly why single-question fixtures could not see it.
 
-`testA` ships no snapshots on purpose — it carries an unimplemented `range` type,
-so the bless script skips it and the suite skips it with it.
+`testA` is a real survey with a `range` question (`start=0 end=100 step=5`).
+Its reverse DDI renames three `select_multiple` variables through LimeSurvey's
+5-character answer codes, which `REVERSE_DDI_STRUCTURAL_DIFF` records.
 
 ### Live LimeSurvey import (`tests/live/limesurvey/test_registry_entities.py`)
 
@@ -187,8 +188,8 @@ Ported from survey2ddi (formtransform#14). For every answer type qwacback
 supports, the same XLSForm goes through `buildDdiXml` and qwacback's
 `POST /api/convert/xlsform-to-ddi`, and the `<var>`/`<varGrp>` shapes are
 compared. qwacback returns a bare `<var>` or `<varGrp>` when there's only one,
-so the test wraps it in a `<dataDscr>`. Two cases are strict xfails: `range`
-(#33) and `note` (by design: formtransform emits no `<var>` for a note).
+so the test wraps it in a `<dataDscr>`. `note` is a strict xfail, by design:
+formtransform emits no `<var>` for a note.
 
 The fixture starts qwacback from its own compose file, or uses `QWACBACK_URL`.
 `ghcr.io/correlaid/qwacback` is private: log in to ghcr.io, or build it

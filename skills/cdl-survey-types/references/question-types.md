@@ -28,6 +28,12 @@
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
+## `range` — Range
+
+**Use when:** When collecting a number on a bounded scale set with `parameters` (`start`, `end`, `step`), e.g. a 0–100 percentage or a 1–10 rating. LimeSurvey enforces the bounds and, for whole-number steps, integers; it does not enforce the step itself.
+
+**Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
+
 ## `select_multiple` — Select Multiple
 
 **Use when:** When options are not mutually exclusive and respondents may select any number of applicable answers (e.g. languages spoken, devices owned).

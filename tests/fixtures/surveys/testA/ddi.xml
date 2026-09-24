@@ -1,0 +1,516 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>testA</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="intro_text">Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!</notes>
+    <notes type="instruction" subject="danke">Vielen Dank! Deine Meinung hilft uns sehr weiter!</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_bereiche" name="bereiche" type="multipleResp" var="V_bereiche_holz V_bereiche_metall V_bereiche_textil V_bereiche_digital">
+      <txt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</txt>
+      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</concept>
+    </varGrp>
+    <var ID="V_bereiche_holz" name="bereiche_holz" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
+        <qstnLit>Holzwerkstatt</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Holzwerkstatt</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_bereiche_metall" name="bereiche_metall" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
+        <qstnLit>Metallwerkstatt</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Metallwerkstatt</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_bereiche_textil" name="bereiche_textil" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
+        <qstnLit>Textilwerkstatt</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Textilwerkstatt</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_bereiche_digital" name="bereiche_digital" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
+        <qstnLit>Medienwerkstatt/Digital</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Medienwerkstatt/Digital</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_dauer" name="dauer" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie lange kommst du schon zu TestWerk?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Erst seit Kurzem (1-2 Monate)</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Ein halbes Jahr</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Ca. ein Jahr</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Länger als ein Jahr aber kürzer als drei Jahre</labl>
+      </catgry>
+      <catgry>
+        <catValu>l_nger_als_drei_jahre</catValu>
+        <labl>Länger als drei Jahre</labl>
+      </catgry>
+      <concept>Wie lange kommst du schon zu TestWerk?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_haeufigkeit" name="haeufigkeit" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie oft kommst du ungefähr?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>1-2 Mal insgesamt</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Ab und zu (1x im Monat)</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Regelmäßig (mehrmals im Monat)</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Sehr oft (jede Woche oder öfter)</labl>
+      </catgry>
+      <concept>Wie oft kommst du ungefähr?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</qstnLit>
+      </qstn>
+      <concept>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_hauptwerkstatt" name="hauptwerkstatt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>In welcher Werkstatt bist du hauptsächlich?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>holz</catValu>
+        <labl>Holzwerkstatt</labl>
+      </catgry>
+      <catgry>
+        <catValu>metall</catValu>
+        <labl>Metallwerkstatt</labl>
+      </catgry>
+      <catgry>
+        <catValu>textil</catValu>
+        <labl>Textilwerkstatt</labl>
+      </catgry>
+      <catgry>
+        <catValu>digital</catValu>
+        <labl>Medienwerkstatt/Digital</labl>
+      </catgry>
+      <catgry>
+        <catValu>keine</catValu>
+        <labl>Ich wechsle gleichmäßig</labl>
+      </catgry>
+      <concept>In welcher Werkstatt bist du hauptsächlich?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_vorwissen" name="vorwissen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Hattest du vorher schon handwerkliche Erfahrung?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nein</catValu>
+        <labl>Nein, gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>etwas</catValu>
+        <labl>Ein bisschen</labl>
+      </catgry>
+      <catgry>
+        <catValu>ja</catValu>
+        <labl>Ja, viel</labl>
+      </catgry>
+      <concept>Hattest du vorher schon handwerkliche Erfahrung?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_wohlfuehlen" name="wohlfuehlen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Ich fühle mich bei TestWerk wohl und akzeptiert.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Ich fühle mich bei TestWerk wohl und akzeptiert.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_freundschaften" name="freundschaften" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Ich habe bei TestWerk Freund*innen gefunden.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Ich habe bei TestWerk Freund*innen gefunden.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_eigene_ideen" name="eigene_ideen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_problemloesung" name="problemloesung" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_skills_gelernt" name="skills_gelernt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_beruf_pre" name="beruf_pre" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Jetzt denk mal an deine berufliche Zukunft:</preQTxt>
+        <qstnLit>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_beruf_post" name="beruf_post" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Stimme gar nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Stimme eher nicht zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Weder noch</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Stimme eher zu</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>Stimme voll zu</labl>
+      </catgry>
+      <concept>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_attribution_beruf" name="attribution_beruf" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <qstnLit>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</qstnLit>
+      </qstn>
+      <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_projekte" name="projekte" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</qstnLit>
+      </qstn>
+      <concept>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_am_meisten_gebracht" name="am_meisten_gebracht" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Was hat dir bei TestWerk am meisten gebracht?</qstnLit>
+      </qstn>
+      <concept>Was hat dir bei TestWerk am meisten gebracht?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_verbesserungen" name="verbesserungen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Was könnten wir besser machen?</qstnLit>
+      </qstn>
+      <concept>Was könnten wir besser machen?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_nps_score" name="nps_score" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Würdest du TestWerk Freund*innen empfehlen?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+        <labl>0</labl>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>1</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>2</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>3</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>4</labl>
+      </catgry>
+      <catgry>
+        <catValu>5</catValu>
+        <labl>5</labl>
+      </catgry>
+      <catgry>
+        <catValu>6</catValu>
+        <labl>6</labl>
+      </catgry>
+      <catgry>
+        <catValu>7</catValu>
+        <labl>7</labl>
+      </catgry>
+      <catgry>
+        <catValu>8</catValu>
+        <labl>8</labl>
+      </catgry>
+      <catgry>
+        <catValu>9</catValu>
+        <labl>9</labl>
+      </catgry>
+      <catgry>
+        <catValu>10</catValu>
+        <labl>10</labl>
+      </catgry>
+      <concept>Würdest du TestWerk Freund*innen empfehlen?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_alter" name="alter" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie alt bist du? (optional)</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>12-14 Jahre</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>15-17 Jahre</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>18-21 Jahre</labl>
+      </catgry>
+      <catgry>
+        <catValu>4</catValu>
+        <labl>Älter</labl>
+      </catgry>
+      <concept>Wie alt bist du? (optional)</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_geschlecht" name="geschlecht" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Geschlecht (optional)</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>w_1</catValu>
+        <labl>Weiblich</labl>
+      </catgry>
+      <catgry>
+        <catValu>m</catValu>
+        <labl>Männlich</labl>
+      </catgry>
+      <catgry>
+        <catValu>nb</catValu>
+        <labl>Nicht-binär</labl>
+      </catgry>
+      <catgry>
+        <catValu>d</catValu>
+        <labl>Divers</labl>
+      </catgry>
+      <catgry>
+        <catValu>andere</catValu>
+        <labl>Anderes Geschlecht</labl>
+      </catgry>
+      <concept>Geschlecht (optional)</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_geschlecht_andere" name="geschlecht_andere" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Falls &quot;Anderes&quot;: Bitte angeben (optional)</qstnLit>
+      </qstn>
+      <concept>Falls &quot;Anderes&quot;: Bitte angeben (optional)</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

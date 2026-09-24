@@ -1,0 +1,11 @@
+{
+  "survey": [
+    {
+      "type": "range",
+      "name": "zufriedenheit",
+      "label": "Wie zufrieden sind Sie insgesamt? (0 = gar nicht, 10 = voll)",
+      "parameters": "start=0 end=10 step=1"
+    }
+  ],
+  "choices": []
+}

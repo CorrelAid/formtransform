@@ -130,13 +130,11 @@ pinned to one version. The plan holds, but:
   `lstsv2xlsform` now exist, which the brief predates.
 - **Coverage handoff:** survey2ddi's qwacback equivalence test now lives in
   formtransform (`tests/live/qwacback/`, formtransform#14). Against qwacback
-  `main` (`c99de96`), 13 of 15 types match. The two that differ change
-  qwacback's DDI when it swaps converters:
-  - `range`: qwacback emits numeric/`contin`, formtransform text (unregistered
-    type, formtransform#33).
-  - `note`: qwacback emits a `<var>`, formtransform none. This is intended: a
-    note stores no response, so formtransform folds it into
-    `<preQTxt>`/`<notes>`.
+  `main` (`c99de96`), 14 of 15 types match (`range` since formtransform#33).
+  The one that differs changes qwacback's DDI when it swaps converters:
+  `note`. qwacback emits a `<var>` for it, formtransform none. This is
+  intended: a note stores no response, so formtransform folds it into
+  `<preQTxt>`/`<notes>`.
 
   qwacback's own converter tests go with the Go converter.
 

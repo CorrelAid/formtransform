@@ -34,7 +34,8 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 
 | LimeSurvey input | XLSForm output | Notes |
 | --- | --- | --- |
-| type L/M/N/D/S/X, plus F | `select_one` / `select_multiple` / `integer`\|`decimal` / `date`\|`time` / `text` / `note`, plus grid | `N` is lossy — see below |
+| type L/M/N/D/S/X, plus F | `select_one` / `select_multiple` / `integer`\|`decimal`\|`range` / `date`\|`time` / `text` / `note`, plus grid | `N` is lossy — see below |
+| `N` with `min_num_value_n` + `max_num_value_n` | `range`, `parameters` rebuilt from the bounds | registry `limesurvey.parameterAttributes`; see below for `step` |
 | A / SQ rows | `choices` (list_name = question name) | codes exact under strict validation |
 | `other=Y` | re-add the `other` choice + `${base}_other` companion + relevance | shares `OTHER_CODE`/`OTHER_SUFFIX`/`otherLabelFor` with `lstsv/toVariables.ts` |
 | `cssclass=cdlvocab-<id>` | `select_*_from_file <id>.csv`, inlined A rows dropped | shares `vocabFromCssClass` with the DDI path |
@@ -93,6 +94,11 @@ listed here must match exactly.
    identical bar the key). No signal exists to read back without changing the
    LimeSurvey side. `lstsvRowsToXlsform` emits the canonical `decimal`;
    `integer` fixtures round-trip with `type` differing.
+
+   An `N` with both bound attributes is read back as `range` (the only type
+   that writes them). Its `step` is not stored: `num_value_int_only=1` comes
+   back as `step=1`, so `start=0 end=100 step=5` returns as
+   `start=0 end=100 step=1`, and a fractional step is dropped.
 2. **Choice `list_name` is synthesized, not recovered.** Applies to *every*
    `select_one`/`select_multiple`, not just grids: the authored list name
    (`"select_one quelle"`) is never written to the TSV at all — only the
