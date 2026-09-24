@@ -6,11 +6,9 @@ that browses the question bank. This document is the plan; the work is split int
 issues in that repo, linked below. Each issue stands on its own — an agent should
 be able to act on one without reading the others.
 
-Companion documents:
+Companion document:
 [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) (the survey generator, which has
-the same upstream gap) and
-[`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md) (the converter
-app, a dependency migration rather than a drift problem).
+the same upstream gap).
 
 ## The problem
 
@@ -140,5 +138,3 @@ at `registry/entities/<slug>/fixtures/xlsform.json` (not
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — registry → codegen → artifacts
 - [`HANDOVER_FORMULAID.md`](HANDOVER_FORMULAID.md) — the survey generator's plan,
   sharing the catalogue gap
-- [`HANDOVER_FORMTRANSFORM_APP.md`](HANDOVER_FORMTRANSFORM_APP.md) — the converter
-  app's migration

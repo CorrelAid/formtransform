@@ -186,8 +186,8 @@ npm run bless
 ## Documentation
 
 - [Architecture](ARCHITECTURE.md) — Technical architecture and internal structure
-- [formtransform-app handover](HANDOVER_FORMTRANSFORM_APP.md) — plan for moving the
-  frontend app onto this library (issue-by-issue)
+- [survey2ddi handover](https://github.com/CorrelAid/survey2ddi/blob/main/HANDOVER.md)
+  — plan for retiring survey2ddi in favour of this library (lives in survey2ddi)
 - [qwac handover](HANDOVER_QWAC.md) — plan for aligning the question-bank browser
   with this registry
 - [formulaid handover](HANDOVER_FORMULAID.md) — plan for aligning the survey
