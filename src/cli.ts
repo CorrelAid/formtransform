@@ -19,7 +19,6 @@ import {
   xlsformToDdi,
 } from './cliShared.js';
 import type { ParsedValues } from './cliShared.js';
-import { cmdKobo } from './remote/koboCommand.js';
 
 // ── Help text ──────────────────────────────────────────────────────────
 
@@ -36,7 +35,6 @@ Commands:
   xlsform2ddi     Convert an XLSForm (.xlsx) to a DDI-Codebook 2.5 XML
   lstsv2ddi       Convert a LimeSurvey structure TSV to a DDI-Codebook 2.5 XML
   lstsv2xlsform   Convert a LimeSurvey structure TSV to an XLSForm (.json)
-  kobo            KoboToolbox API: list assets, pull, transform to DDI
 
 Run "${PROG} <command> --help" for command options.
 `,
@@ -434,9 +432,6 @@ async function main(): Promise<void> {
       break;
     case 'lstsv2xlsform':
       cmdLstsv2xlsform(rest);
-      break;
-    case 'kobo':
-      await cmdKobo(rest);
       break;
     default:
       topHelp();

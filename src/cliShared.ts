@@ -1,7 +1,7 @@
 /**
- * Helpers shared by the CLI entry (`cli.ts`) and its command modules
- * (`remote/*Command.ts`): argument parsing, exit-on-error, file I/O, and the
- * XLSForm → DDI XML + data CSV step. Node-only; never imported by `src/index`.
+ * Helpers for the CLI entry (`cli.ts`): argument parsing, exit-on-error, file
+ * I/O, and the XLSForm → DDI XML + data CSV step. Node-only; never imported by
+ * `src/index`.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs, ParseArgsConfig } from 'node:util';
