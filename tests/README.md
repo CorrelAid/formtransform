@@ -65,7 +65,7 @@ tests/
       expected/<slug>.json                  #   blessed exported response
       output/                               #   generated TSVs (gitignored)
     qwacback/
-      docker-compose.yml                    #   qwacback alone (QWACBACK_IMAGE; the ghcr image is private)
+      docker-compose.yml                    #   qwacback alone (public ghcr image; QWACBACK_IMAGE overrides)
       test_qwacback_equivalence.py          #   same XLSForm → buildDdiXml vs. qwacback, DDI shape compared
       build_ddi.mjs                         #   buildDdiXml from dist/ over stdin/stdout
   fixtures/surveys/<name>/                  # one folder per whole survey, like a registry entity
@@ -192,8 +192,8 @@ so the test wraps it in a `<dataDscr>`. `note` is a strict xfail, by design:
 formtransform emits no `<var>` for a note.
 
 The fixture starts qwacback from its own compose file, or uses `QWACBACK_URL`.
-`ghcr.io/correlaid/qwacback` is private: log in to ghcr.io, or build it
-(`docker build -t qwacback:local ../qwacback`) and set
+It pulls the public `ghcr.io/correlaid/qwacback:latest`. To test an unreleased
+qwacback, build it (`docker build -t qwacback:local ../qwacback`) and set
 `QWACBACK_IMAGE=qwacback:local`. If the image can't be pulled, the tests skip
 with that reason.
 
