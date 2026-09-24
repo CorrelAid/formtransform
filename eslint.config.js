@@ -79,9 +79,10 @@ export default defineConfig([
     },
   },
 
-  // Ignore build output, generated code, vendored checkouts, and tests. Tests
-  // sit outside the tsconfig project (projectService can't type them) and are
-  // not shipped — Prettier still formats them via the format script.
+  // Ignore build output, generated code, vendored checkouts, tests and the
+  // vitest config. These sit outside the tsconfig project (projectService can't
+  // type them) and are not shipped — Prettier still formats them via the
+  // format script.
   {
     ignores: [
       'dist/**',
@@ -91,6 +92,8 @@ export default defineConfig([
       '_xlsform2lstsv/**',
       'docs/**',
       'src/test/**',
+      'tests/**',
+      'vitest.config.ts',
       '**/*.test.ts',
     ],
   },
