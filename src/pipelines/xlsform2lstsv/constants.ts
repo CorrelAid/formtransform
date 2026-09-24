@@ -48,6 +48,9 @@ export interface TSVRowData {
   cssclass?: string;
   hide_tip?: string;
   date_format?: string;
+  min_num_value_n?: string;
+  max_num_value_n?: string;
+  num_value_int_only?: string;
 }
 
 // Internal state interfaces

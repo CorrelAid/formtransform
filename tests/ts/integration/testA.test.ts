@@ -23,15 +23,27 @@ describe('Integration: testA.xlsx', () => {
     expect(settingsData.length).toBeGreaterThan(0);
   });
 
-  it('should throw on unimplemented range type during conversion', async () => {
+  it('converts its range question with bounds from parameters (#33)', async () => {
     const { surveyData, choicesData, settingsData } = XLSLoader.parseXLSData(
       testFileData,
       { skipValidation: true },
     );
 
-    const converter = new XLSFormToTSVConverter();
-    await expect(
-      converter.convert(surveyData, choicesData, settingsData),
-    ).rejects.toThrow(/Unimplemented XLSForm type: 'range'/);
+    const tsv = await new XLSFormToTSVConverter().convert(
+      surveyData,
+      choicesData,
+      settingsData,
+    );
+    const header = tsv.split('\n')[0].split('\t');
+    const row = tsv
+      .split('\n')
+      .map((l) => l.split('\t'))
+      .find((cells) => cells[2] === 'attributionberuf');
+    expect(row).toBeDefined();
+    const cell = (col: string) => row![header.indexOf(col)];
+    expect(cell('type/scale')).toBe('N');
+    expect(cell('min_num_value_n')).toBe('0');
+    expect(cell('max_num_value_n')).toBe('100');
+    expect(cell('num_value_int_only')).toBe('1');
   });
 });

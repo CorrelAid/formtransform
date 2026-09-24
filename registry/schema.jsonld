@@ -109,6 +109,15 @@
                     "ls-transformer"
                   ],
                   "description": "True for select_* variants where the type cell needs a choice list name."
+                },
+                "parameters": {
+                  "type": "object",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer",
+                    "docs"
+                  ],
+                  "description": "Keys this type reads from the XLSForm `parameters` column (`start=0 end=100 step=5`), mapped to the value used when the row omits the key (pyxform's defaults)."
                 }
               }
             },
@@ -161,6 +170,22 @@
                   "consumedBy": [
                     "docs"
                   ]
+                },
+                "parameterAttributes": {
+                  "type": "object",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "XLSForm parameter key → LS question attribute that receives its value, e.g. `range`'s `start` → `min_num_value_n`. Defaults from `xlsform.parameters` apply."
+                },
+                "integerOnly": {
+                  "type": "object",
+                  "required": false,
+                  "consumedBy": [
+                    "ls-transformer"
+                  ],
+                  "description": "`{attribute, whenWhole}`: set LS `attribute` to `1` when every parameter in `whenWhole` is a whole number, so the question accepts integers only (e.g. `range` with integer `start` and `step`)."
                 }
               }
             },

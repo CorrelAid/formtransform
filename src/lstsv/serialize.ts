@@ -26,6 +26,12 @@ interface TSVRow {
   // questions — controls whether the widget shows a date, a time, or both.
   // Sourced from the registry's limesurvey.dateFormat; empty elsewhere.
   date_format?: string;
+  // LimeSurvey numeric-input (N) attributes, from the XLSForm `parameters`
+  // column via the registry (limesurvey.parameterAttributes / integerOnly).
+  // Only `range` sets them.
+  min_num_value_n?: string;
+  max_num_value_n?: string;
+  num_value_int_only?: string;
 }
 
 export class TSVGenerator {
@@ -57,7 +63,14 @@ export class TSVGenerator {
     // Attribute columns are only emitted when at least one row carries them,
     // so surveys that don't use a given attribute keep a lean TSV. The order
     // here is the column order in the output.
-    for (const attr of ['cssclass', 'hide_tip', 'date_format'] as const) {
+    for (const attr of [
+      'cssclass',
+      'hide_tip',
+      'date_format',
+      'min_num_value_n',
+      'max_num_value_n',
+      'num_value_int_only',
+    ] as const) {
       if (this.rows.some((r) => r[attr])) {
         headers.push(attr);
       }

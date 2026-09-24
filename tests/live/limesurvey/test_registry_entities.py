@@ -38,12 +38,12 @@ _LONG_LIST_TSVS = [p for p in _ENTITY_TSVS if p.parent.name.endswith("_long_list
 def _expected_vocab(entity_dir: Path) -> tuple[str, int]:
     """Which vocabulary an entity references, and how many options it should inline.
 
-    Derived from the entity's own `xlsform.json` type string plus the referenced
+    Derived from the entity's own `fixtures/xlsform.json` type string plus the referenced
     CSV's row count — never a hardcoded vocabulary. Vocabularies are open-ended
     (convention:externalCodeList's `vocabularyDeclaration`), so adding one must
     not require editing this test.
     """
-    xlsform = json.loads((entity_dir / "xlsform.json").read_text())
+    xlsform = json.loads((entity_dir / "fixtures" / "xlsform.json").read_text())
     filenames = [
         row["type"].split(maxsplit=1)[1]
         for row in xlsform.get("survey", [])

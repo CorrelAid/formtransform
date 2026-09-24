@@ -23,11 +23,11 @@ Companion document: [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
 Check every content claim against this. From `src/generated/TypeMappings.ts` in
 this repo:
 
-| Supported question types | Registered but **not** convertible | Structural |
-|---|---|---|
-| `text` (alias `string`), `integer` (alias `int`), `decimal`, `date`, `time`, `note`, `select_one`, `select_multiple` | `select_one_from_file`, `select_multiple_from_file` | `begin_group` / `end_group` |
+| Supported question types | Structural |
+|---|---|
+| `text` (alias `string`), `integer` (alias `int`), `decimal`, `range`, `date`, `time`, `note`, `select_one`, `select_multiple`, `select_one_from_file`, `select_multiple_from_file` (registered vocabularies only, e.g. `iso_3166_1.csv`) | `begin_group` / `end_group` |
 
-Anything else — `rank`, `range`, `calculate`, `image`, `audio`, `geopoint`,
+Anything else — `rank`, `calculate`, `image`, `audio`, `geopoint`,
 `dateTime` — is **not registered at all**: the converters reject such a form
 rather than approximating it. Same for unregistered appearances, identifiers over
 the sanitisation limits, group nesting deeper than three levels, and selects
@@ -68,9 +68,10 @@ Everything below was checked against the working copy at the time of writing.
 `src/content/pages/xlsform-standard.mdx` (919 lines) documents, as if usable:
 `## Fragetypen` → `### Rang` (line 226), `### Bereich` (253),
 `### Mehrfachauswahl aus Datei` (187), `## Berechnung` (523), plus
-`### Externe CSV-Daten` (395). None of those convert: `rank`, `range` and
-`calculate` are not in the registry at all, and `select_*_from_file` is
-registered as *not* convertible.
+`### Externe CSV-Daten` (395). `rank` and `calculate` are not in the registry
+at all. `range` converts (since formtransform#33), but LimeSurvey enforces only
+its bounds, not its `step`. `select_*_from_file` converts only with a
+registered vocabulary, not an arbitrary external CSV.
 
 `src/content/pages/fragetypen.mdx` is in better shape — it pulls live examples
 from qwacback via `<QuestionTypeBlock exampleId="…" />` — but its ids

@@ -29,6 +29,12 @@ def generate_typescript(registry: dict[str, Any], output: Path):
         "  answerClass?: 'A' | 'SQ' | null;",
         "  requiresListName?: boolean;",
         "  dateFormat?: string;",
+        "  /** XLSForm `parameters` keys this type reads, with their defaults. */",
+        "  parameters?: Record<string, string>;",
+        "  /** XLSForm parameter key → LimeSurvey question attribute. */",
+        "  parameterAttributes?: Record<string, string>;",
+        "  /** Set `attribute` to 1 when all `whenWhole` parameters are whole numbers. */",
+        "  integerOnly?: { attribute: string; whenWhole: string[] };",
         "}",
         "",
         "export const TYPE_MAPPINGS: Record<string, TypeMapping> = {",
@@ -53,6 +59,12 @@ def generate_typescript(registry: dict[str, Any], output: Path):
             lines.append("    requiresListName: true,")
         if ls.get("dateFormat"):
             lines.append(f"    dateFormat: {json.dumps(ls['dateFormat'])},")
+        if xls.get("parameters"):
+            lines.append(f"    parameters: {json.dumps(xls['parameters'])},")
+        if ls.get("parameterAttributes"):
+            lines.append(f"    parameterAttributes: {json.dumps(ls['parameterAttributes'])},")
+        if ls.get("integerOnly"):
+            lines.append(f"    integerOnly: {json.dumps(ls['integerOnly'])},")
         lines.append("  },")
 
     kind_map = {

@@ -14,6 +14,12 @@ export interface TypeMapping {
   answerClass?: 'A' | 'SQ' | null;
   requiresListName?: boolean;
   dateFormat?: string;
+  /** XLSForm `parameters` keys this type reads, with their defaults. */
+  parameters?: Record<string, string>;
+  /** XLSForm parameter key → LimeSurvey question attribute. */
+  parameterAttributes?: Record<string, string>;
+  /** Set `attribute` to 1 when all `whenWhole` parameters are whole numbers. */
+  integerOnly?: { attribute: string; whenWhole: string[] };
 }
 
 export const TYPE_MAPPINGS: Record<string, TypeMapping> = {
@@ -63,6 +69,14 @@ export const TYPE_MAPPINGS: Record<string, TypeMapping> = {
     kind: "question",
     limeSurveyType: "X",
     supported: true,
+  },
+  range: {
+    kind: "question",
+    limeSurveyType: "N",
+    supported: true,
+    parameters: {"start": "1", "end": "10", "step": "1"},
+    parameterAttributes: {"start": "min_num_value_n", "end": "max_num_value_n"},
+    integerOnly: {"attribute": "num_value_int_only", "whenWhole": ["start", "step"]},
   },
   select_multiple: {
     kind: "question",

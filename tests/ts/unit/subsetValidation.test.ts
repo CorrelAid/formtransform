@@ -20,9 +20,12 @@ describe('validateSubset', () => {
   });
 
   test('flags an unregistered type as an error', () => {
-    const v = XLSValidator.validateSubset([{ type: 'range', name: 'r' }], []);
+    const v = XLSValidator.validateSubset(
+      [{ type: 'geopoint', name: 'r' }],
+      [],
+    );
     expect(v).toContainEqual(expect.objectContaining({ severity: 'error' }));
-    expect(v[0].message).toMatch(/range.*not in the registry/);
+    expect(v[0].message).toMatch(/geopoint.*not in the registry/);
   });
 
   test('flags an illegal name/code as an error', () => {

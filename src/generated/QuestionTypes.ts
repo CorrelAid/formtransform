@@ -120,6 +120,16 @@ export const QUESTION_TYPES = {
     typeString: "note",
     constraints: {"maxNameLength": 20, "namePattern": "^[a-zA-Z0-9]+$"},
   },
+  range: {
+    id: "type:range",
+    label: "Range",
+    kind: "question",
+    useWhen: "When collecting a number on a bounded scale set with `parameters` (`start`, `end`, `step`), e.g. a 0–100 percentage or a 1–10 rating. LimeSurvey enforces the bounds and, for whole-number steps, integers; it does not enforce the step itself.",
+    isVariant: false,
+    isComposite: false,
+    typeString: "range",
+    constraints: {"maxNameLength": 20, "namePattern": "^[a-zA-Z0-9]+$"},
+  },
   select_multiple: {
     id: "type:select_multiple",
     label: "Select Multiple",

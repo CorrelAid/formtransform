@@ -25,6 +25,7 @@ import { TranspilerHelper } from './transpilerHelper.js';
 import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
 import { registeredFileChoices } from '../../vocab.js';
+import { parameterAttributes } from './parameters.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -411,6 +412,11 @@ export class XLSFormToTSVConverter {
       lsType,
       fields,
       cdlVocab,
+      attributes: parameterAttributes(
+        xfTypeInfo.base,
+        row['parameters'],
+        questionName,
+      ),
     };
 
     this.rowEmitter.emitForEachLanguage((lang) =>
@@ -528,7 +534,7 @@ export class XLSFormToTSVConverter {
     questionName: string,
     ctx: QuestionRowContext,
   ): Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'> {
-    const { lsType, fields, cdlVocab } = ctx;
+    const { lsType, fields, cdlVocab, attributes } = ctx;
     let text: string;
     if (fields.isCalculate) {
       text = `{${fields.calculationExpr}}`;
@@ -562,6 +568,8 @@ export class XLSFormToTSVConverter {
       // It's a machine hook only (no styling effect); the faithful reference
       // still lives in DDI's concept/@vocab. Empty for all other questions.
       ...(cdlVocab ? { cssclass: `cdlvocab-${cdlVocab}` } : {}),
+      // Bounds etc. from the `parameters` column (range), per the registry.
+      ...attributes,
     };
   }
 
@@ -584,4 +592,6 @@ interface QuestionRowContext {
     isCalculate: boolean;
   };
   cdlVocab: string;
+  /** LS question attributes from the `parameters` column (parameters.ts). */
+  attributes: Record<string, string>;
 }
