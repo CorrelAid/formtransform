@@ -25,6 +25,7 @@ export default defineConfig({
           ...shared,
           name: 'integration',
           include: ['tests/ts/integration/**/*.test.ts'],
+          globalSetup: ['tests/ts/integration/buildCli.ts'],
         },
       },
       {

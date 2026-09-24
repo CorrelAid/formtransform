@@ -67,12 +67,6 @@ const fileName = (xml: string) =>
 const csvHeader = (csv: string) => csv.split('\r\n')[0].split(',');
 
 beforeAll(() => {
-  const build = spawnSync('npm', ['run', 'build'], {
-    cwd: ROOT,
-    encoding: 'utf-8',
-  });
-  if (build.status !== 0) throw new Error(`build failed:\n${build.stderr}`);
-
   dir = mkdtempSync(join(tmpdir(), 'ft-cli-'));
   const wb = XLSX.utils.book_new();
   for (const sheet of ['survey', 'choices', 'settings']) {
@@ -102,7 +96,7 @@ beforeAll(() => {
       { 'demo/fullname': 'Cy' },
     ]),
   );
-}, 120_000);
+});
 
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
