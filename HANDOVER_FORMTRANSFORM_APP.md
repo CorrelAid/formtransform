@@ -6,6 +6,32 @@ next. This document is the plan; the work is split into issues in that repo,
 linked below. Each issue is written to stand on its own — an agent should be able
 to act on one without reading the others.
 
+## Status (2026-09-24): migration done
+
+All issues below (#4–#10) are closed. The app runs entirely on this library:
+
+| Path in the app | Engine now |
+|---|---|
+| XLSForm → LimeSurvey TSV | `XLSFormParser.convertXLSDataToTSV` |
+| Kobo → DDI, metadata only | `buildDdiXml` |
+| Kobo → DDI, full (with responses CSV) | `buildDdiXml` + `buildDataCsv` (added in #8 here, `70f1dd0`) |
+| LimeSurvey → DDI | `lstsvToDdiXml` (tab implemented, not removed) |
+
+Pyodide, the `survey2ddi` wheel, `xlsform2lstsv` and the cross-origin headers are
+gone from the app. The scope notice is on the site.
+
+One acceptance rule was not met, by decision: **the TSV output is not
+byte-identical** with the app's default toggles. The library honours
+`hideNoAnswer` (adds `S shownoanswer N`) and `hideQuestionTips` (adds the
+`hide_tip` column and `hidden=1` on question rows); the old package ignored
+both. With both off the output is byte-identical. Details in app issue #5.
+
+The library also rejects forms the old package converted with a warning, e.g.
+answer codes longer than LimeSurvey's 5 characters (the old package truncated
+them). That is the intended CDL-only scope.
+
+The rest of this document is the original plan, kept for reference.
+
 ## Goal
 
 The app is a SvelteKit static site (bun, `adapter-static`, 100% client-side) that
@@ -15,7 +41,7 @@ today converts surveys with **two unrelated engines**:
 |---|---|---|
 | XLSForm → LimeSurvey TSV | `xlsform2lstsv@0.3.0` (old npm package) | `@correlaid/formtransform` |
 | Kobo → DDI, metadata only | Pyodide + `survey2ddi` wheel (CPython in WASM) | `@correlaid/formtransform` |
-| Kobo → DDI, full (with responses CSV) | Pyodide + `survey2ddi` wheel | blocked — see [gap](#the-one-real-gap) |
+| Kobo → DDI, full (with responses CSV) | Pyodide + `survey2ddi` wheel | blocked — see [gap](#the-one-real-gap-resolved) |
 | LimeSurvey → DDI | Pyodide, backend only, unreachable in the UI | decide: implement or delete |
 
 End state: one dependency, `@correlaid/formtransform`, installed from
@@ -55,7 +81,10 @@ Config parity: the app's five conversion toggles (`convertWelcomeNote`,
 exist in `ConversionConfig` with the same names. The library additionally offers
 `hideQuestionTips` (default `true`), which the app does not expose yet.
 
-## The one real gap
+## The one real gap (resolved)
+
+*Resolved by `buildDataCsv` in `70f1dd0` (#8 in this repo). The text below
+describes the state before that.*
 
 `buildDdiXml` emits DDI **metadata**. Given `submissions` it uses only their
 *count*, for `<caseQnty>`:
