@@ -16,8 +16,7 @@ that both went stale when `xlsform2lstsv` and `survey2ddi` were consolidated int
    skill build, and they teach the full XLSForm specification while the CDL
    pipeline accepts a strict subset.
 
-Companion documents: [formulaid's `HANDOVER.md`](https://github.com/CorrelAid/formulaid/blob/main/HANDOVER.md) (whose
-issue #10 is blocked on work item 4 below), and [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
+Companion document: [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
 
 ## What the registry actually supports
 
@@ -163,7 +162,7 @@ and lets item 4 find these blocks programmatically.
 Verify: every heading listed above carries the marker; `bun run build` succeeds;
 the marker text appears in `dist/llm-xlsform.txt` (agents must see it too).
 
-### 4. A methodology-only llm endpoint — unblocks formulaid #10
+### 4. A methodology-only llm endpoint — lets formulaid drop its heading strip
 
 Add `src/pages/llm-phases12.txt.ts` — `buildLlmTxt('none', 2)`, i.e. phases 1–2
 **without** the XLSForm examples and without the `xlsform-standard` page. The
@@ -173,13 +172,16 @@ which is a small change in `getSlugsForPhases()` / `buildLlmTxt()` in
 `src/lib/utils/llm-txt.ts`.
 
 Why: formulaid ships the CDL-generated `cdl-survey-types` sub-skill as its
-authoritative type reference (its issue #9) and must stop ingesting the general
-spec (its issue #10). Today its only options are to fetch the combined file and
-strip sections by heading — brittle — or to keep the contradiction. A dedicated
-endpoint removes the guesswork.
+authoritative type reference and no longer ingests the general spec (its #9/#10,
+done 2026-09-24). It gets there by fetching the combined
+`llm-phases12-xlsform.txt` and deleting the `# XLSForm-Dokumentation` … `# Fragen
+formulieren` range by heading (`scripts/build_skill.sh`), which breaks silently
+if those headings change. A dedicated endpoint removes the guesswork.
 
-Coordinate: tell formulaid's issue #10 the new URL once it is live. Keep the old
-endpoints working; other consumers may rely on them.
+Coordinate: once it is live, open an issue on `CorrelAid/formulaid` to switch
+`LLM_METHODOLOGY_URL` to it and drop the strip. Keep the old endpoints working;
+other consumers may rely on them. **Until then, don't rename those two
+headings.**
 
 Verify: `curl` the new path in `bun run dev`; assert it contains the Datenschutz
 and Operationalisierung sections and **no** `# XLSForm-Dokumentation` heading.
@@ -226,6 +228,4 @@ before changing anything.
 ## Related documents
 
 - [`README.md`](README.md) — what this repo ships and to whom
-- [formulaid's `HANDOVER.md`](https://github.com/CorrelAid/formulaid/blob/main/HANDOVER.md) — the consumer whose skill
-  ingests this site's llm endpoints
 - [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md)

@@ -197,8 +197,6 @@ npm run bless
   — plan for retiring survey2ddi in favour of this library (lives in survey2ddi)
 - [qwac handover](HANDOVER_QWAC.md) — plan for aligning the question-bank browser
   with this registry
-- [formulaid handover](https://github.com/CorrelAid/formulaid/blob/main/HANDOVER.md) — plan for aligning the survey
-  generator and its Claude skill with this registry (lives in formulaid; done)
 - [cdl-wp-eins handover](HANDOVER_CDL_WP_EINS.md) — plan for the website content
   that advertises these tools and feeds agent-readable XLSForm docs
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
