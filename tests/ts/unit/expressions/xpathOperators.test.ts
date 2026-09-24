@@ -79,8 +79,8 @@ describe('XPath Operator Conversion', () => {
 
     test('respects operator precedence with parentheses', async () => {
       const result = await xpathToLimeSurvey('(${a} + ${b}) * ${c}');
-      // Note: Current transpiler doesn't preserve parentheses, flattens to: a + b * c
-      expect(result).toBe('a + b * c');
+      // Grouping that changes the result must survive into EM.
+      expect(result).toBe('(a + b) * c');
     });
 
     test('respects boolean operator precedence', async () => {
