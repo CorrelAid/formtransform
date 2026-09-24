@@ -67,6 +67,6 @@ jobs:
         run: bash scripts/build-worker.sh
       - name: Install registry test deps
         run: uv sync
-      - name: Validate blessed DDI snapshots (XSD + schematron)
-        run: uv run pytest tests/validation/test_ddi_schema.py -v
+      - name: Validate blessed DDI snapshots (XSD + schematron) and the Python reader
+        run: uv run pytest tests/validation/test_ddi_schema.py tests/validation/test_ddi_reader.py -v
 

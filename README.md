@@ -45,7 +45,9 @@ const tsv = await converter.convert(survey, choices, settings);
 ```
 
 A DDI codebook and the data file it describes come from the same variable list,
-so the CSV headers match the XML `<var name="">` elements one-to-one:
+so the CSV headers match the XML `<var name="">` elements one-to-one. For the
+whole path from a Kobo or LimeSurvey export, see
+[RESPONSE_DATA.md](RESPONSE_DATA.md):
 
 ```typescript
 import {
@@ -189,6 +191,8 @@ npm run bless
 ## Documentation
 
 - [Architecture](ARCHITECTURE.md) — Technical architecture and internal structure
+- [Response data](RESPONSE_DATA.md) — Kobo/LimeSurvey export → DDI codebook +
+  data CSV (CLI and browser), and reading the codebook back in Python
 - [survey2ddi handover](https://github.com/CorrelAid/survey2ddi/blob/main/HANDOVER.md)
   — plan for retiring survey2ddi in favour of this library (lives in survey2ddi)
 - [qwac handover](HANDOVER_QWAC.md) — plan for aligning the question-bank browser

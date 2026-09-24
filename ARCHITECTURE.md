@@ -45,6 +45,21 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 - **`src/generated/`** holds registry-derived artifacts written by codegen
 - **`src/config/`, `src/utils/`, `src/types/`** are shared utilities
 
+#### The browser boundary
+
+Everything reachable from **`src/index.ts`** runs in a browser: no filesystem,
+no network, no Node built-ins (a `Buffer` type in a signature also accepts an
+`ArrayBuffer`). That includes `parseResponses` (`src/responseFile.ts`), so an
+app can parse an uploaded Kobo/LimeSurvey export with the same code the CLI
+uses. The library ships **no survey-platform API clients**: getting data out of
+Kobo or LimeSurvey is the platform's own export step (see
+[RESPONSE_DATA.md](RESPONSE_DATA.md)).
+
+Node-only, and never imported by `src/index.ts`: `src/cli.ts` (the
+`formtransform` binary), `src/cliShared.ts` (its argument parsing and file
+I/O), `src/fileChoices.ts` (loads `select_*_from_file` CSVs from disk) and
+`src/generateFixtures.ts`.
+
 ### Code Generation (`codegen/`)
 
 Python package (run `uv run codegen` or `python -m codegen`) that validates the registry, then emits generated artifacts:
