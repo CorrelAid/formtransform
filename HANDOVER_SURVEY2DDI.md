@@ -115,13 +115,13 @@ through the `citric` Python client via `codegen.limesurvey_stack`, which is a
 reference for the call sequence (and a reason to consider whether the live suite
 should exercise the new TS client instead).
 
-**[FT-5](https://github.com/CorrelAid/formtransform/issues/14) — adopt the parity tests that currently live in survey2ddi.**
+**[FT-5](https://github.com/CorrelAid/formtransform/issues/14) — adopt the qwacback equivalence test that currently lives in survey2ddi.**
 `tests/integration/test_conversion_equivalence.py` compares survey2ddi's DDI
 against **qwacback's** for every type qwacback supports. Deleting survey2ddi's
 emitter deletes that coverage, and qwacback is a real consumer of this library.
-Port it to compare `buildDdiXml` against qwacback. Separately, add a temporary
-Python↔TS byte-parity script over the fixture corpus — it is the gate for S2D-2
-and gets deleted with the Python emitter.
+Port it to compare `buildDdiXml` against qwacback. (The temporary Python↔TS
+parity script originally planned here moved to S2D-1: it runs the Python
+emitter and is deleted with it.)
 
 **[FT-6](https://github.com/CorrelAid/formtransform/issues/15) — docs.** README's ecosystem table gains the Kobo/LimeSurvey pull
 commands; `src/pipelines/README.md` gets the LimeSurvey data path from FT-2;
@@ -129,8 +129,8 @@ state survey2ddi's new reader-only scope wherever it is named.
 
 ### In `CorrelAid/survey2ddi`
 
-**[S2D-1](https://github.com/CorrelAid/survey2ddi/issues/3) — run the parity gate and record the divergences.** Using FT-5's script:
-every fixture, both emitters, byte-compare XML and CSV. Expect exactly one class
+**[S2D-1](https://github.com/CorrelAid/survey2ddi/issues/3) — build and run the parity gate, record the divergences.** A temporary
+script in survey2ddi (not a CI job) runs both emitters over every fixture, both emitters, byte-compare XML and CSV. Expect exactly one class
 of difference (CSV column order, where Python is wrong). Anything else is a
 finding that must be triaged before deletion — a Python behaviour this library
 lacks is a bug in this library, not a reason to keep the Python.
@@ -173,13 +173,14 @@ FT-1 (ft#10) ─┐
 FT-2 (ft#11) ─┼─► S2D-3 (s2d#5): 0.6.0 deprecate ─► 1.0.0 removal
 FT-3 (ft#12) ─┤
 FT-4 (ft#13) ─┘
-FT-5 (ft#14) ───► S2D-1 (s2d#3) ───► S2D-2 (s2d#4) ───► S2D-4 (s2d#6) ───► WP-1 (wp#26)
+S2D-1 (s2d#3) ───► S2D-2 (s2d#4) ───► S2D-4 (s2d#6) ───► WP-1 (wp#26)
+FT-5 (ft#14)   (independent: permanent qwacback coverage here)
 ```
 
 `ft` = `CorrelAid/formtransform`, `s2d` = `CorrelAid/survey2ddi`,
 `wp` = `CorrelAid/cdl-wp-eins`.
 
-FT-1 and FT-5 are independent and can run in parallel. Nothing in survey2ddi is
+S2D-1 needs nothing from this repo that is not already on `main`, so it can start now. FT-5 runs in parallel. Nothing in survey2ddi is
 touched until its replacement is on `main` here.
 
 ## Hard rules for whoever does the work
