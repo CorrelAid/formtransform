@@ -23,7 +23,7 @@ gone from the app. The scope notice is on the site.
 One acceptance rule was not met, by decision: **the TSV output is not
 byte-identical** with the app's default toggles. The library honours
 `hideNoAnswer` (adds `S shownoanswer N`) and `hideQuestionTips` (adds the
-`hide_tip` column and `hidden=1` on question rows); the old package ignored
+`hide_tip` column, set to `1` on question rows); the old package ignored
 both. With both off the output is byte-identical. Details in app issue #5.
 
 The library also rejects forms the old package converted with a warning, e.g.
