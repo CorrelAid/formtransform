@@ -33,6 +33,23 @@ alignment stays a zip rather than a lookup. A `select_multiple` expands to one
 Response rows are keyed by bare question name or by the slash-joined group path
 (`group/name`) Kobo's CSV export uses — both are accepted, bare name wins.
 
+A LimeSurvey response export is keyed differently, so `lstsv2ddi/data.ts`
+(`normalizeLimeSurveyResponses`, used by `lstsvToDataCsv`) re-keys it first and
+then hands the rows to the same `buildDataCsv`:
+
+- keys are matched with underscores stripped and case folded (`beruf_post` is
+  exported as `berufpost`)
+- a multiple-choice question is one `q[code]` column per option holding `Y`;
+  codes truncated to 5 characters are recovered by unique prefix, and an
+  ambiguous prefix throws
+- an array (`F`) is one `array[sq]` column per subquestion holding the answer
+  code, which fills the grid variable named after the subquestion
+- native "other": a list stores `-oth-` (mapped to `other`), and the free text
+  in `q[other]` (or an authored `qother`) fills the `<base>_other` companion
+
+These LimeSurvey quirks stay in `lstsv2ddi/`; the shared emitter and the Kobo
+path never guess at them.
+
 ## Why there is no `ddi2xlsform` or `ddi2lstsv`
 
 Deliberate, not a gap. **DDI is the terminus of the pipeline graph** — it

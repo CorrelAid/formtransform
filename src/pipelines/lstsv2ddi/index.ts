@@ -11,12 +11,18 @@ import { buildDdiCodebook } from '../../ddi/codebook.js';
 import type { BuildDdiOptions } from '../../ddi/codebook.js';
 
 import { parseLstsv } from '../../lstsv/parser.js';
-import { lstsvToVariables } from './toVariables.js';
 import { validateLstsvSubset } from '../../lstsv/validate.js';
+import { buildDataCsv } from '../xlsform2ddi/data.js';
+import type { Submission } from '../xlsform2ddi/data.js';
+import { normalizeLimeSurveyResponses } from './data.js';
+import type { NormalizeResponsesOptions } from './data.js';
+import { lstsvToVariables } from './toVariables.js';
 
 export { parseLstsv } from '../../lstsv/parser.js';
 export { lstsvToVariables } from './toVariables.js';
 export { validateLstsvSubset } from '../../lstsv/validate.js';
+export { normalizeLimeSurveyResponses } from './data.js';
+export type { NormalizeResponsesOptions } from './data.js';
 
 /** Options for {@link lstsvToDdiXml} beyond the DDI build options. */
 export interface LstsvToDdiOptions extends BuildDdiOptions {
@@ -25,6 +31,24 @@ export interface LstsvToDdiOptions extends BuildDdiOptions {
    * default: an unsupported code would otherwise silently mis-type a variable.
    */
   skipValidation?: boolean;
+}
+
+/** Parse a TSV and apply the reverse subset check unless skipped. */
+function parseChecked(
+  tsv: string,
+  skipValidation: boolean | undefined,
+): Record<string, string>[] {
+  const rows = parseLstsv(tsv);
+  if (skipValidation) return rows;
+  const violations = validateLstsvSubset(rows);
+  const errors = violations.filter((v) => v.severity === 'error');
+  if (errors.length > 0) {
+    throw new Error(
+      `LimeSurvey TSV uses ${errors.length} feature(s) outside the transformable subset:\n  - ` +
+        errors.map((e) => e.message).join('\n  - '),
+    );
+  }
+  return rows;
 }
 
 /**
@@ -40,18 +64,7 @@ export function lstsvToDdiXml(
   options: LstsvToDdiOptions = {},
 ): string {
   const { skipValidation, ...ddiOptions } = options;
-  const rows = parseLstsv(tsv);
-
-  if (!skipValidation) {
-    const violations = validateLstsvSubset(rows);
-    const errors = violations.filter((v) => v.severity === 'error');
-    if (errors.length > 0) {
-      throw new Error(
-        `LimeSurvey TSV uses ${errors.length} feature(s) outside the transformable subset:\n  - ` +
-          errors.map((e) => e.message).join('\n  - '),
-      );
-    }
-  }
+  const rows = parseChecked(tsv, skipValidation);
 
   const title = rows.find(
     (r) => r.class?.trim() === 'SL' && r.name?.trim() === 'surveyls_title',
@@ -64,4 +77,29 @@ export function lstsvToDdiXml(
 
   const variables = lstsvToVariables(rows);
   return buildDdiCodebook(variables, opts).toDocument();
+}
+
+/** Options for {@link lstsvToDataCsv}. */
+export interface LstsvToDataCsvOptions extends NormalizeResponsesOptions {
+  /** Skip the reverse subset check, as for {@link lstsvToDdiXml}. */
+  skipValidation?: boolean;
+}
+
+/**
+ * Build the DDI response-data CSV from a LimeSurvey structure TSV and a
+ * LimeSurvey response export (question-code headings). Columns match the
+ * `<var name="">` order {@link lstsvToDdiXml} emits for the same TSV; see
+ * {@link normalizeLimeSurveyResponses} for how export keys are matched.
+ */
+export function lstsvToDataCsv(
+  tsv: string,
+  responses: Submission[],
+  options: LstsvToDataCsvOptions = {},
+): string {
+  const { skipValidation, ...normalizeOptions } = options;
+  const variables = lstsvToVariables(parseChecked(tsv, skipValidation));
+  return buildDataCsv(
+    variables,
+    normalizeLimeSurveyResponses(variables, responses, normalizeOptions),
+  );
 }

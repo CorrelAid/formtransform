@@ -54,10 +54,16 @@ export {
 export type { Submission } from './pipelines/xlsform2ddi/data.js';
 
 export {
+  lstsvToDataCsv,
   lstsvToDdiXml,
   lstsvToVariables,
+  normalizeLimeSurveyResponses,
 } from './pipelines/lstsv2ddi/index.js';
-export type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
+export type {
+  LstsvToDataCsvOptions,
+  LstsvToDdiOptions,
+  NormalizeResponsesOptions,
+} from './pipelines/lstsv2ddi/index.js';
 
 export {
   lstsvToXlsform,
