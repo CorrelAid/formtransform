@@ -174,7 +174,14 @@ def _type_section(d: dict[str, Any], variants: list[dict], base_dir: Path) -> li
     aliases = d["xlsform"].get("aliases")
     if aliases:
         out.append(f"**Accepted aliases:** {', '.join(f'`{a}`' for a in aliases)}\n")
-    if d["xlsform"].get("requiresListName"):
+    if d.get("ddi", {}).get("externalCodeList"):
+        out.append(
+            "**Requires a registered vocabulary:** write the type cell as "
+            f"`{ts} <file>.csv` with a file from the registered-vocabularies table in "
+            "[xlsform-syntax.md](xlsform-syntax.md). The options come from that "
+            "vocabulary; add no rows to the `choices` sheet.\n"
+        )
+    elif d["xlsform"].get("requiresListName"):
         out.append(
             "**Requires a choice list:** write the type cell as "
             f"`{ts} <list_name>` and define the options on the `choices` sheet under "

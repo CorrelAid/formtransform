@@ -49,7 +49,7 @@
 
 **Use when:** When selecting from a long non-exclusive list of options maintained as a controlled vocabulary, allowing multiple selections.
 
-**Requires a choice list:** write the type cell as `select_multiple_from_file <list_name>` and define the options on the `choices` sheet under that `list_name`.
+**Requires a registered vocabulary:** write the type cell as `select_multiple_from_file <file>.csv` with a file from the registered-vocabularies table in [xlsform-syntax.md](xlsform-syntax.md). The options come from that vocabulary; add no rows to the `choices` sheet.
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
@@ -72,7 +72,7 @@
 
 **Use when:** When selecting from a long closed list of exhaustive, mutually exclusive options maintained as a controlled vocabulary (e.g. country, occupation), presented via dropdown or autocomplete.
 
-**Requires a choice list:** write the type cell as `select_one_from_file <list_name>` and define the options on the `choices` sheet under that `list_name`.
+**Requires a registered vocabulary:** write the type cell as `select_one_from_file <file>.csv` with a file from the registered-vocabularies table in [xlsform-syntax.md](xlsform-syntax.md). The options come from that vocabulary; add no rows to the `choices` sheet.
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 

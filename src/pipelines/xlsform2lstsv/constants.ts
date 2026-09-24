@@ -14,8 +14,8 @@ export const UNIMPLEMENTED_TYPES: string[] = Object.entries(TYPE_MAPPINGS)
   .map(([k]) => k);
 
 // select_*_from_file has no native LimeSurvey representation, but when the
-// referenced CSV is supplied (via convert()'s fileChoices) we emit it as the
-// base select with the vocabulary's options inlined + a `cdl_vocab` attribute
+// referenced vocabulary is registered or supplied (via convert()'s fileChoices)
+// we emit it as the base select with the vocabulary's options inlined + a `cdl_vocab` attribute
 // recording the source vocabulary (see convention:externalCodeList).
 export const FROM_FILE_BASE: Record<string, string> = {
   select_one_from_file: 'select_one',

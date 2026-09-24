@@ -22,10 +22,6 @@ if (!fs.existsSync(entry)) {
   process.exit(1);
 }
 const { XLSFormToTSVConverter } = await import(pathToFileURL(entry).href);
-const { resolveFileChoices } = await import(
-	pathToFileURL(path.join(REPO_ROOT, 'dist', 'fileChoices.js')).href
-);
-const VOCAB_DIR = path.join(REPO_ROOT, 'registry', 'vocab');
 
 // Same registry walk as codegen.load_registry: root graph + every split source
 // (schema.jsonld + conventions/*.jsonld + registry/<slug>/definition.jsonld).
@@ -68,7 +64,6 @@ for (const variant of variants) {
       survey,
       xlsform.choices ?? [],
       xlsform.settings ?? [],
-      resolveFileChoices(survey, VOCAB_DIR),
     );
     fs.writeFileSync(path.join(exDir, 'tsv.tsv'), tsv);
     console.log(

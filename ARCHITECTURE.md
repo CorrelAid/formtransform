@@ -58,7 +58,10 @@ Kobo or LimeSurvey is the platform's own export step (see
 Node-only, and never imported by `src/index.ts`: `src/cli.ts` (the
 `formtransform` binary), `src/cliShared.ts` (its argument parsing and file
 I/O), `src/fileChoices.ts` (loads `select_*_from_file` CSVs from disk) and
-`src/generateFixtures.ts`.
+`src/generateFixtures.ts`. The registered vocabularies don't need
+`fileChoices.ts`: codegen emits their options to
+`src/generated/VocabularyOptions.ts`, and the converter inlines them in the
+browser too.
 
 ### Code Generation (`codegen/`)
 

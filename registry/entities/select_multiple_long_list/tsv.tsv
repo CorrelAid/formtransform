@@ -31,8 +31,8 @@ SQ		BZ		Belize		en
 SQ		BJ		Benin		en									
 SQ		BM		Bermuda		en									
 SQ		BT		Bhutan		en									
-SQ		BO		&quot;Bolivia		en									
-SQ		BQ		&quot;Bonaire		en									
+SQ		BO		Bolivia, Plurinational State of		en									
+SQ		BQ		Bonaire, Sint Eustatius and Saba		en									
 SQ		BA		Bosnia and Herzegovina		en									
 SQ		BW		Botswana		en									
 SQ		BV		Bouvet Island		en									
@@ -56,7 +56,7 @@ SQ		CC		Cocos (Keeling) Islands		en
 SQ		CO		Colombia		en									
 SQ		KM		Comoros		en									
 SQ		CG		Congo		en									
-SQ		CD		&quot;Congo		en									
+SQ		CD		Congo, Democratic Republic of the		en									
 SQ		CK		Cook Islands		en									
 SQ		CR		Costa Rica		en									
 SQ		CI		Côte d&#39;Ivoire		en									
@@ -110,7 +110,7 @@ SQ		HU		Hungary		en
 SQ		IS		Iceland		en									
 SQ		IN		India		en									
 SQ		ID		Indonesia		en									
-SQ		IR		&quot;Iran		en									
+SQ		IR		Iran, Islamic Republic of		en									
 SQ		IQ		Iraq		en									
 SQ		IE		Ireland		en									
 SQ		IM		Isle of Man		en									
@@ -123,8 +123,8 @@ SQ		JO		Jordan		en
 SQ		KZ		Kazakhstan		en									
 SQ		KE		Kenya		en									
 SQ		KI		Kiribati		en									
-SQ		KP		&quot;Korea		en									
-SQ		KR		&quot;Korea		en									
+SQ		KP		Korea, Democratic People&#39;s Republic of		en									
+SQ		KR		Korea, Republic of		en									
 SQ		KW		Kuwait		en									
 SQ		KG		Kyrgyzstan		en									
 SQ		LA		Lao People&#39;s Democratic Republic		en									
@@ -149,8 +149,8 @@ SQ		MR		Mauritania		en
 SQ		MU		Mauritius		en									
 SQ		YT		Mayotte		en									
 SQ		MX		Mexico		en									
-SQ		FM		&quot;Micronesia		en									
-SQ		MD		&quot;Moldova		en									
+SQ		FM		Micronesia, Federated States of		en									
+SQ		MD		Moldova, Republic of		en									
 SQ		MC		Monaco		en									
 SQ		MN		Mongolia		en									
 SQ		ME		Montenegro		en									
@@ -161,7 +161,7 @@ SQ		MM		Myanmar		en
 SQ		NA		Namibia		en									
 SQ		NR		Nauru		en									
 SQ		NP		Nepal		en									
-SQ		NL		&quot;Netherlands		en									
+SQ		NL		Netherlands, Kingdom of the		en									
 SQ		NC		New Caledonia		en									
 SQ		NZ		New Zealand		en									
 SQ		NI		Nicaragua		en									
@@ -175,7 +175,7 @@ SQ		NO		Norway		en
 SQ		OM		Oman		en									
 SQ		PK		Pakistan		en									
 SQ		PW		Palau		en									
-SQ		PS		&quot;Palestine		en									
+SQ		PS		Palestine, State of		en									
 SQ		PA		Panama		en									
 SQ		PG		Papua New Guinea		en									
 SQ		PY		Paraguay		en									
@@ -191,7 +191,7 @@ SQ		RO		Romania		en
 SQ		RU		Russian Federation		en									
 SQ		RW		Rwanda		en									
 SQ		BL		Saint Barthélemy		en									
-SQ		SH		&quot;Saint Helena		en									
+SQ		SH		Saint Helena, Ascension and Tristan da Cunha		en									
 SQ		KN		Saint Kitts and Nevis		en									
 SQ		LC		Saint Lucia		en									
 SQ		MF		Saint Martin (French part)		en									
@@ -222,9 +222,9 @@ SQ		SJ		Svalbard and Jan Mayen		en
 SQ		SE		Sweden		en									
 SQ		CH		Switzerland		en									
 SQ		SY		Syrian Arab Republic		en									
-SQ		TW		&quot;Taiwan		en									
+SQ		TW		Taiwan, Province of China		en									
 SQ		TJ		Tajikistan		en									
-SQ		TZ		&quot;Tanzania		en									
+SQ		TZ		Tanzania, United Republic of		en									
 SQ		TH		Thailand		en									
 SQ		TL		Timor-Leste		en									
 SQ		TG		Togo		en									
@@ -245,7 +245,7 @@ SQ		UM		United States Minor Outlying Islands		en
 SQ		UY		Uruguay		en									
 SQ		UZ		Uzbekistan		en									
 SQ		VU		Vanuatu		en									
-SQ		VE		&quot;Venezuela		en									
+SQ		VE		Venezuela, Bolivarian Republic of		en									
 SQ		VN		Viet Nam		en									
 SQ		VG		Virgin Islands (British)		en									
 SQ		VI		Virgin Islands (U.S.)		en									

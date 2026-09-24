@@ -12,14 +12,17 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 import { XLSFormToTSVConverter } from '../../../src/pipelines/xlsform2lstsv/index';
-import { resolveFileChoices } from '../../../src/fileChoices';
-import { parseTSV, findRowsByClass, findRowByName, TSVRow } from '../unit/helpers';
+import {
+  parseTSV,
+  findRowsByClass,
+  findRowByName,
+  TSVRow,
+} from '../unit/helpers';
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../../..',
 );
-const VOCAB_DIR = path.join(REPO_ROOT, 'registry', 'vocab');
 
 // ---------------------------------------------------------------------------
 // Registry loading — root graph + per-type definition.jsonld (same walk as codegen)
@@ -111,7 +114,10 @@ function minimalForm(qt: RegistryEntry): XLSFormInput {
 /** Load the source xlsform.json from a QuestionTypeVariant's example dir. */
 function loadExample(variant: RegistryEntry): XLSFormInput {
   const raw = JSON.parse(
-    fs.readFileSync(path.join(REPO_ROOT, variant.exampleDir, 'fixtures', 'xlsform.json'), 'utf-8'),
+    fs.readFileSync(
+      path.join(REPO_ROOT, variant.exampleDir, 'fixtures', 'xlsform.json'),
+      'utf-8',
+    ),
   );
   return {
     survey: raw.survey ?? [],
@@ -123,12 +129,7 @@ function loadExample(variant: RegistryEntry): XLSFormInput {
 /** Convert with the same call shape the blessed snapshots use. */
 async function convertRaw(input: XLSFormInput): Promise<string> {
   const converter = new XLSFormToTSVConverter();
-  return converter.convert(
-    input.survey,
-    input.choices,
-    input.settings ?? [],
-    resolveFileChoices(input.survey, VOCAB_DIR),
-  );
+  return converter.convert(input.survey, input.choices, input.settings ?? []);
 }
 
 async function convertRows(input: XLSFormInput): Promise<TSVRow[]> {

@@ -53,6 +53,7 @@ export {
 } from './pipelines/xlsform2ddi/data.js';
 export type { Submission } from './pipelines/xlsform2ddi/data.js';
 export { parseResponses } from './responseFile.js';
+export { parseVocabCsv } from './vocab.js';
 
 export {
   lstsvToDataCsv,
