@@ -25,6 +25,18 @@ jobs:
       - name: Python format check (ruff)
         run: uv run ruff format --check .
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install node deps (prepare builds dist/, which the CLI test runs)
+        run: npm ci
+      - name: Unit, integration and contract tests (vitest)
+        run: npm test
+
   drift-guard:
     runs-on: ubuntu-latest
     steps:
