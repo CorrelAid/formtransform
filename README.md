@@ -230,8 +230,9 @@ consumers pin the checksums, so a fix ships as a new version.
 - Question-bank alignment: tracked in [qwac](https://github.com/CorrelAid/qwac/issues)
   (#9, #10, #12, #13) and [qwacback](https://github.com/CorrelAid/qwacback/issues)
   (#3 converter, #4 validation worker)
-- [cdl-wp-eins handover](HANDOVER_CDL_WP_EINS.md) — plan for the website content
-  that advertises these tools and feeds agent-readable XLSForm docs
+- Website content (umfragen.civic-data.de) that advertises these tools and feeds
+  agent-readable XLSForm docs: tracked in
+  [cdl-wp-eins](https://github.com/CorrelAid/cdl-wp-eins/issues) #26–#31
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
 - [Pipeline Documentation](src/pipelines/README.md) — Transformation pipeline details
 - [Test Documentation](tests/README.md) — Test structure and running tests
