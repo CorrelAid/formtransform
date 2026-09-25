@@ -134,3 +134,79 @@ describe('validateSubset — unresolvable answer options (#41)', () => {
     expect(errors('select_one_from_file iso_3166_1.csv')).toEqual([]);
   });
 });
+
+describe('validateSubset — choice lists (#48)', () => {
+  const survey = [{ type: 'select_one c', name: 'q', label: 'Q' }];
+  const run = (choices: Record<string, unknown>[]) =>
+    XLSValidator.validateSubset(survey, choices).map(
+      (v) => `${v.severity}: ${v.message}`,
+    );
+
+  test('a duplicate code within one list is an error', () => {
+    expect(
+      run([
+        { list_name: 'c', name: 'a', label: 'A' },
+        { list_name: 'c', name: 'a', label: 'A again' },
+      ]),
+    ).toEqual(['error: answer code "a" is used more than once in list "c"']);
+  });
+
+  test('the same code in different lists is fine', () => {
+    expect(
+      run([
+        { list_name: 'c', name: 'a', label: 'A' },
+        { list_name: 'd', name: 'a', label: 'A' },
+      ]),
+    ).toEqual([]);
+  });
+
+  test('a choice row with a list but no code is an error', () => {
+    expect(
+      run([
+        { list_name: 'c', name: 'a', label: 'A' },
+        { list_name: 'c', name: '', label: 'Orphan' },
+      ]),
+    ).toEqual(['error: a choice in list "c" has no code (name)']);
+  });
+
+  test('an empty label is a warning', () => {
+    expect(run([{ list_name: 'c', name: 'a', label: ' ' }])).toEqual([
+      'warning: choice "a" (list "c") has no label',
+    ]);
+    expect(run([{ list_name: 'c', name: 'a' }])).toEqual([
+      'warning: choice "a" (list "c") has no label',
+    ]);
+  });
+
+  test('a multilingual label names the languages it is missing in', () => {
+    expect(
+      run([
+        {
+          list_name: 'c',
+          name: 'a',
+          label: { de: 'Ja', en: '' },
+          _languages: ['de', 'en'],
+        },
+      ]),
+    ).toEqual(['warning: choice "a" (list "c") has no label in: en']);
+    expect(
+      run([
+        {
+          list_name: 'c',
+          name: 'a',
+          label: { de: '', en: '' },
+          _languages: ['de', 'en'],
+        },
+      ]),
+    ).toEqual(['warning: choice "a" (list "c") has no label']);
+  });
+
+  test('the strict loader gate rejects duplicate codes too', () => {
+    expect(() =>
+      XLSValidator.validateNamesAndCodes(survey, [
+        { list_name: 'c', name: 'a', label: 'A' },
+        { list_name: 'c', name: 'a', label: 'B' },
+      ]),
+    ).toThrow(/used more than once in list "c"/);
+  });
+});
