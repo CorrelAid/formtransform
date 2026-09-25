@@ -28,7 +28,7 @@ everything that needs a JVM, an external oracle, or a running engine.
 | qwacback's Go converter emits the same DDI shape as `buildDdiXml` | live qwacback (docker) | pytest — `tests/live/qwacback/test_qwacback_equivalence.py` |
 
 qwacback still runs its own Go XLSForm → DDI converter. It plans to replace it
-with this library ([HANDOVER_QWAC.md](../HANDOVER_QWAC.md)), and the
+with this library ([qwacback#3](https://github.com/CorrelAid/qwacback/issues/3)), and the
 equivalence test is the parity check for that swap. After the swap it compares
 the library with itself and can go.
 

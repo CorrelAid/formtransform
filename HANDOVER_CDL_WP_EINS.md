@@ -16,7 +16,7 @@ that both went stale when `xlsform2lstsv` and `survey2ddi` were consolidated int
    skill build, and they teach the full XLSForm specification while the CDL
    pipeline accepts a strict subset.
 
-Companion document: [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md).
+The qwac/qwacback alignment is tracked in their own issues: qwac #9, #10, #12, #13 and qwacback #3, #4.
 
 ## What the registry actually supports
 
@@ -229,4 +229,4 @@ before changing anything.
 ## Related documents
 
 - [`README.md`](README.md) — what this repo ships and to whom
-- [`HANDOVER_QWAC.md`](HANDOVER_QWAC.md)
+- [qwac issues](https://github.com/CorrelAid/qwac/issues) and [qwacback issues](https://github.com/CorrelAid/qwacback/issues): the question-bank alignment
