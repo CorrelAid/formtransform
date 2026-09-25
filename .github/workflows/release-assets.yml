@@ -9,6 +9,10 @@ name: Attach release assets
 # - cdl-survey-types-<version>.tar.gz: the generated skills/cdl-survey-types/
 #   sub-skill, unpacking to cdl-survey-types/, so formulaid needn't know this
 #   repo's layout.
+# - formtransform-fixtures-<version>.tar.gz: the example fixtures and blessed
+#   snapshots (registry/entities/, tests/fixtures/surveys/), unpacking to those
+#   same repo paths. For consumers that run golden tests against them
+#   (formtransform-app), since the npm tarball ships dist/ only.
 #
 # package.json is the version source: bump it in a PR, then publish release
 # v<version>. The job fails if the tag and package.json disagree.
@@ -68,6 +72,8 @@ jobs:
           npm pack --ignore-scripts --pack-destination assets
           tar czf "assets/cdl-survey-types-${{ steps.version.outputs.version }}.tar.gz" \
             -C skills cdl-survey-types
+          tar czf "assets/formtransform-fixtures-${{ steps.version.outputs.version }}.tar.gz" \
+            registry/entities tests/fixtures/surveys
 
       - name: Smoke-test the tarball without install scripts
         run: |

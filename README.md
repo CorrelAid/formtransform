@@ -40,7 +40,11 @@ npm install github:CorrelAid/formtransform#v0.1.5
 ```
 
 Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
-[`skills/cdl-survey-types/`](skills/cdl-survey-types/) sub-skill.
+[`skills/cdl-survey-types/`](skills/cdl-survey-types/) sub-skill, and
+`formtransform-fixtures-<version>.tar.gz`, the example fixtures and blessed
+snapshots (`registry/entities/`, `tests/fixtures/surveys/`, same paths) for
+golden tests. Assets never change after publishing, so their checksums can be
+pinned.
 
 ### As a CLI tool
 
