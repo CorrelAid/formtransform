@@ -435,17 +435,39 @@ export class XLSValidator {
     const code = (choice.name ?? '').toString().trim();
     if (!code) return null; // reported as a missing code
     const where = `choice "${code}" (list "${String(choice.list_name ?? '').trim()}")`;
+    const labels = this.choiceLabels(choice);
+    if (labels.size === 0) return `${where} has no label`;
+    const missing = [...labels]
+      .filter(([, text]) => text === '')
+      .map(([k]) => k);
+    if (missing.length === 0) return null;
+    if (missing.length === labels.size) return `${where} has no label`;
+    return `${where} has no label in: ${missing.join(', ')}`;
+  }
+
+  /**
+   * A choice's label text per language, trimmed (`''` = empty). Covers the
+   * loader's shape (`label` as a string, or `{lang: text}` with `_languages`)
+   * and raw rows that keep `label::<lang>` columns (Kobo's layout once a form
+   * declares a language). A plain `label` is keyed `''`.
+   */
+  private static choiceLabels(choice: ChoiceRow): Map<string, string> {
+    const out = new Map<string, string>();
+    const text = (v: unknown) =>
+      typeof v === 'string' || typeof v === 'number' ? String(v).trim() : '';
     const label = choice.label;
     if (label !== null && typeof label === 'object') {
-      const langs = choice._languages ?? Object.keys(label);
-      const missing = langs.filter(
-        (lang) => String(label[lang] ?? '').trim() === '',
-      );
-      if (missing.length === 0) return null;
-      if (missing.length === langs.length) return `${where} has no label`;
-      return `${where} has no label in: ${missing.join(', ')}`;
+      for (const lang of choice._languages ?? Object.keys(label)) {
+        out.set(lang, text(label[lang]));
+      }
+    } else if (label !== undefined) {
+      out.set('', text(label));
     }
-    return String(label ?? '').trim() === '' ? `${where} has no label` : null;
+    for (const [key, value] of Object.entries(choice)) {
+      if (key.startsWith('label::'))
+        out.set(key.slice('label::'.length), text(value));
+    }
+    return out;
   }
 
   /** Type, choice-list and appearance findings for one survey row. */
