@@ -273,19 +273,31 @@ export function xpathToLimeSurvey(
   xpathExpr: string,
   ctx?: TranspilerContext,
 ): Promise<string> {
-  // Stays Promise-returning: it's public API, and callers await it.
-  if (!xpathExpr || xpathExpr.trim() === '') {
-    return Promise.resolve('1'); // Default relevance expression
+  // Promise-returning public API; the converter uses the sync core.
+  try {
+    return Promise.resolve(xpathToLimeSurveySync(xpathExpr, ctx));
+  } catch (error: unknown) {
+    return Promise.reject(
+      error instanceof Error ? error : new Error(String(error)),
+    );
   }
+}
+
+/** Synchronous core of {@link xpathToLimeSurvey}; throws on failure. */
+export function xpathToLimeSurveySync(
+  xpathExpr: string,
+  ctx?: TranspilerContext,
+): string {
+  if (!xpathExpr || xpathExpr.trim() === '') return '1'; // default relevance
   const processedExpr = preprocessExpression(xpathExpr);
   try {
-    return Promise.resolve(transpile(parseXPath(processedExpr), ctx));
+    return transpile(parseXPath(processedExpr), ctx);
   } catch (error: unknown) {
     const wrapped = new Error(
       `Cannot convert XPath expression "${xpathExpr}" to LimeSurvey: ${(error as Error).message}`,
     );
     (wrapped as Error & { cause?: unknown }).cause = error;
-    return Promise.reject(wrapped);
+    throw wrapped;
   }
 }
 
@@ -341,7 +353,8 @@ export function convertConstraint(constraint: string): Promise<string> {
   return Promise.resolve(convertConstraintSync(constraint));
 }
 
-function convertConstraintSync(constraint: string): string {
+/** Synchronous core of {@link convertConstraint}. */
+export function convertConstraintSync(constraint: string): string {
   if (!constraint) return '';
 
   const processedExpr = preprocessExpression(constraint);
@@ -454,10 +467,24 @@ function parseRegexMatchArguments(argsString: string): string[] {
  * @param xpath - The XPath relevance expression
  * @returns LimeSurvey Expression Manager syntax
  */
-export async function convertRelevance(
+export function convertRelevance(
   xpathExpr: string,
   ctx?: TranspilerContext,
 ): Promise<string> {
+  try {
+    return Promise.resolve(convertRelevanceSync(xpathExpr, ctx));
+  } catch (error: unknown) {
+    return Promise.reject(
+      error instanceof Error ? error : new Error(String(error)),
+    );
+  }
+}
+
+/** Synchronous core of {@link convertRelevance}. */
+export function convertRelevanceSync(
+  xpathExpr: string,
+  ctx?: TranspilerContext,
+): string {
   if (!xpathExpr) return '1';
 
   // XPath operators are lowercase; accept AND/OR as XLSForm authors write them
@@ -465,7 +492,7 @@ export async function convertRelevance(
     .replace(/\bAND\b/gi, 'and')
     .replace(/\bOR\b/gi, 'or');
 
-  const result = await xpathToLimeSurvey(normalizedXPath, ctx);
+  const result = xpathToLimeSurveySync(normalizedXPath, ctx);
 
   // Handle edge case: selected() with just {field} (without $)
   if (result && typeof result === 'string' && result.includes('selected(')) {

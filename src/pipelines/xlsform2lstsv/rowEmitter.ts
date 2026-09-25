@@ -14,10 +14,6 @@ export class RowEmitter {
     private languageHandler: LanguageHandler,
   ) {}
 
-  clear(): void {
-    this.buffer = [];
-  }
-
   /**
    * Build a TSVRowData with sensible defaults. Only `class` and `name` are required;
    * all other fields default to empty strings (relevance defaults to '1').

@@ -10,13 +10,6 @@ export class Counters {
   answerSeq = 0;
   subquestionSeq = 0;
 
-  clear(): void {
-    this.groupSeq = 0;
-    this.questionSeq = 0;
-    this.answerSeq = 0;
-    this.subquestionSeq = 0;
-  }
-
   setAnswerSeq(value: number): void {
     this.answerSeq = value;
   }
