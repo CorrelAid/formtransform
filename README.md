@@ -193,6 +193,11 @@ validates against this subset, rejecting:
   `fileChoices` (the CLI reads CSVs beside the form)
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
 
+An exclusive answer in a `select_multiple` ("Keine Angabe", "Nichts davon")
+is marked with an `exclusive` column (`yes`) on the choices sheet, not a
+`count-selected()` constraint. LimeSurvey enforces it through
+`exclude_all_others`; DDI has no field for it.
+
 The name and code limits are LimeSurvey's. For DDI, check with
 `validateSubset(survey, choices, { target: 'ddi' })` (CLI: `validate --target
 ddi`; `xlsform2ddi` does it by default): same rules without those limits, since

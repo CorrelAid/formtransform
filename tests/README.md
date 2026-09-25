@@ -58,6 +58,7 @@ tests/
       docker-compose.yml                    #   the repo's single LimeSurvey stack
       test_registry_entities.py             #   each blessed tsv.tsv imports into LimeSurvey
       test_response_roundtrip.py            #   answer each entity, snapshot what gets stored
+      test_exclusive_choice.py              #   `exclusive` choices import as exclude_all_others
       test_*.py                             #   structure/settings/multilingual scenarios
       respondent.py                         #   export + snapshot helpers (citric)
       fill_limesurvey.mjs                   #   Playwright: fill + submit a live survey page

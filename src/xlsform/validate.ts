@@ -4,6 +4,7 @@ import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
 import { SurveyRow, ChoiceRow } from '../config/types.js';
 import { registeredVocabFiles } from '../vocab.js';
+import { EXCLUSIVE_RULE, exclusiveCell, isExclusive } from './exclusive.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
@@ -215,6 +216,7 @@ export class XLSValidator {
       'name',
       'label',
       'filter',
+      EXCLUSIVE_RULE.choicesColumn,
     ];
     const unexpectedColumns = [...allColumns].filter(
       (col) => !expectedColumns.includes(col) && !col.startsWith('_'),
@@ -413,6 +415,9 @@ export class XLSValidator {
       const message = this.emptyChoiceLabel(choice);
       if (message) violations.push({ severity: 'warning', message });
     }
+    for (const message of this.exclusiveProblems(surveyData, choicesData)) {
+      violations.push({ severity: 'warning', message });
+    }
 
     return violations;
   }
@@ -465,6 +470,40 @@ export class XLSValidator {
     if (problem) violations.push({ severity: 'error', message: problem });
 
     this.collectAppearanceViolations(row, baseType, violations);
+  }
+
+  /**
+   * `exclusive` marks that have no effect: an unrecognised value, or a list
+   * that no `select_multiple` uses (convention:exclusiveChoice).
+   */
+  private static exclusiveProblems(
+    surveyData: SurveyRow[],
+    choicesData: ChoiceRow[],
+  ): string[] {
+    const multiLists = new Set<string>();
+    for (const row of surveyData) {
+      const [base, list] = String(row.type ?? '')
+        .trim()
+        .split(/\s+/);
+      if (list && EXCLUSIVE_RULE.appliesTo.includes(base)) multiLists.add(list);
+    }
+    const col = EXCLUSIVE_RULE.choicesColumn;
+    const problems: string[] = [];
+    for (const choice of choicesData) {
+      const cell = exclusiveCell(choice);
+      if (!cell || cell === 'no' || cell === 'false' || cell === '0') continue;
+      const where = `choice "${String(choice.name ?? '').trim()}" (list "${String(choice.list_name ?? '').trim()}")`;
+      if (!isExclusive(choice)) {
+        problems.push(
+          `${where}: "${col}" value "${cell}" isn't recognised (use ${EXCLUSIVE_RULE.trueValues.join('/')}) and is ignored`,
+        );
+      } else if (!multiLists.has(String(choice.list_name ?? '').trim())) {
+        problems.push(
+          `${where} is marked "${col}", but no ${EXCLUSIVE_RULE.appliesTo.join('/')} uses this list, so it has no effect`,
+        );
+      }
+    }
+    return problems;
   }
 
   /** Why a type is outside the subset, or `null` if it's in it. */

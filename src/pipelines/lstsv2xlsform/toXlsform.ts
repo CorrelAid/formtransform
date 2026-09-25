@@ -28,6 +28,7 @@ import { defaultConfig } from '../../config/types.js';
 import type { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
+import { EXCLUSIVE_RULE } from '../../xlsform/exclusive.js';
 import {
   OTHER_CODE,
   OTHER_SUFFIX,
@@ -626,7 +627,12 @@ function composeTypeWithList(
   }
   if (base === 'select_one' || base === 'select_multiple') {
     const listName = item.name;
-    emitChoiceList(listName, choicesByName.get(item.name) ?? [], ctx);
+    emitChoiceList(
+      listName,
+      choicesByName.get(item.name) ?? [],
+      ctx,
+      exclusiveCodes(item.row),
+    );
     if (otherBaseNames.has(item.name)) {
       ctx.choices.push({
         list_name: listName,
@@ -720,14 +726,33 @@ function perLanguageOtherLabel(languages: string[]): LabelValue {
   return obj;
 }
 
-function emitChoiceList(listName: string, codes: string[], ctx: EmitCtx): void {
+function emitChoiceList(
+  listName: string,
+  codes: string[],
+  ctx: EmitCtx,
+  exclusive: Set<string> = new Set(),
+): void {
   for (const code of codes) {
     ctx.choices.push({
       list_name: listName,
       name: code,
       label: htmlLabel(ctx.label(`A:${code}`) || ctx.label(`SQ:${code}`)),
+      ...(exclusive.has(code)
+        ? { [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0] }
+        : {}),
     });
   }
+}
+
+/** Codes in a Q row's `exclude_all_others` attribute (convention:exclusiveChoice). */
+function exclusiveCodes(row: Row): Set<string> {
+  const cellValue = cell(row, EXCLUSIVE_RULE.limesurveyAttribute);
+  return new Set(
+    cellValue
+      .split(EXCLUSIVE_RULE.limesurveySeparator)
+      .map((c) => c.trim())
+      .filter(Boolean),
+  );
 }
 
 /** Emit a `table-list` grid: one `select_one` per subquestion, sharing the

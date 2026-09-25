@@ -273,6 +273,20 @@ def _other_section(other: dict) -> list[str]:
     ]
 
 
+def _exclusive_section(ex: dict) -> list[str]:
+    col = ex.get("choicesColumn", "exclusive")
+    yes = ex.get("trueValues", ["yes"])[0]
+    applies = ", ".join(f"`{t}`" for t in ex.get("appliesTo", []))
+    return [
+        "## Exclusive answers (`exclusive` column)\n",
+        f"Applies to: {applies}. For an answer that rules out all others "
+        "(\u201cKeine Angabe\u201d, \u201cNichts davon\u201d, \u201cWei\u00df nicht\u201d), "
+        f"add the `{col}` column to the `choices` sheet and set it to `{yes}` on that "
+        "choice. Leave it empty on every other row. Don't write a `count-selected()` "
+        "constraint for this; it isn't converted.\n",
+    ]
+
+
 def _external_list_section(ext: dict, vocabs: list[dict]) -> list[str]:
     # Example filename comes from the registry, not a hardcoded vocabulary:
     # vocabularies are open-ended (convention:externalCodeList's
@@ -369,6 +383,7 @@ def _syntax_md(registry: dict[str, Any]) -> str:
         (conv("convention:sanitization"), _naming_section),
         (True, lambda _: _CHOICES_SECTION),
         (conv("convention:other"), _other_section),
+        (conv("convention:exclusiveChoice"), _exclusive_section),
         (conv("convention:externalCodeList"), lambda ext: _external_list_section(ext, vocabs)),
         (conv("convention:logicMapping"), _logic_section),
         (appearances, lambda _: _appearances_section(appearances)),

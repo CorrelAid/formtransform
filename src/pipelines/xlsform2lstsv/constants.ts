@@ -51,6 +51,7 @@ export interface TSVRowData {
   min_num_value_n?: string;
   max_num_value_n?: string;
   num_value_int_only?: string;
+  exclude_all_others?: string;
 }
 
 // Internal state interfaces
