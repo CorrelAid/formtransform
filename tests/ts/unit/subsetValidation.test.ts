@@ -270,3 +270,37 @@ describe("validateSubset — target 'ddi' (#52)", () => {
     ).toContainEqual(expect.objectContaining({ severity: 'error' }));
   });
 });
+
+describe('validateSubset — label::<lang> choice columns (#75)', () => {
+  const warn = (choices: Record<string, unknown>[]) =>
+    XLSValidator.validateSubset(
+      [{ type: 'select_one g', name: 'q', 'label::English': 'Q' }],
+      choices,
+      { target: 'ddi' },
+    ).map((v) => v.message);
+
+  test('a label::<lang> column counts as a label', () => {
+    expect(
+      warn([{ list_name: 'g', name: 'm', 'label::English': 'Male' }]),
+    ).toEqual([]);
+  });
+
+  test('names the language columns that are empty', () => {
+    expect(
+      warn([
+        {
+          list_name: 'g',
+          name: 'm',
+          'label::English': 'Male',
+          'label::Deutsch': '',
+        },
+      ]),
+    ).toEqual(['choice "m" (list "g") has no label in: Deutsch']);
+  });
+
+  test('still warns when every label column is empty', () => {
+    expect(
+      warn([{ list_name: 'g', name: 'm', 'label::English': ' ' }]),
+    ).toEqual(['choice "m" (list "g") has no label']);
+  });
+});
