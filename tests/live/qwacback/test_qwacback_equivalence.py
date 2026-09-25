@@ -6,7 +6,7 @@ the same XLSForm goes through formtransform's `buildDdiXml` and qwacback's
 
 Ported from survey2ddi's tests/integration/test_conversion_equivalence.py, with
 the same cases. qwacback plans to drop its Go converter for this library
-(HANDOVER_QWAC.md); until then this is the parity check for that swap.
+(CorrelAid/qwacback#3); until then this is the parity check for that swap.
 
 Runs with the live suite: `npm run test:live -- -k qwacback`. See
 docker-compose.yml for the qwacback image.
@@ -224,7 +224,7 @@ EQUIVALENT_TYPES = [
             strict=True,
             reason=(
                 "by design: a note stores no response, so formtransform folds it into <preQTxt>/<notes> "
-                "and emits no <var>; qwacback's Go converter emits one (see HANDOVER_QWAC.md)"
+                "and emits no <var>; qwacback's Go converter emits one (CorrelAid/qwacback#3)"
             ),
         ),
     ),

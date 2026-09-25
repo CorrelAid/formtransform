@@ -227,8 +227,9 @@ consumers pin the checksums, so a fix ships as a new version.
   data CSV (CLI and browser), and reading the codebook back in Python
 - [survey2ddi handover](https://github.com/CorrelAid/survey2ddi/blob/main/HANDOVER.md)
   — plan for retiring survey2ddi in favour of this library (lives in survey2ddi)
-- [qwac handover](HANDOVER_QWAC.md) — plan for aligning the question-bank browser
-  with this registry
+- Question-bank alignment: tracked in [qwac](https://github.com/CorrelAid/qwac/issues)
+  (#9, #10, #12, #13) and [qwacback](https://github.com/CorrelAid/qwacback/issues)
+  (#3 converter, #4 validation worker)
 - [cdl-wp-eins handover](HANDOVER_CDL_WP_EINS.md) — plan for the website content
   that advertises these tools and feeds agent-readable XLSForm docs
 - [Claude Code Integration](CLAUDE.md) — Claude-specific features and skills
