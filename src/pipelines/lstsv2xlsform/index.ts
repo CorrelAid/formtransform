@@ -9,7 +9,7 @@
 
 import { parseLstsv } from '../../lstsv/parser.js';
 import { validateLstsvSubset } from '../../lstsv/validate.js';
-import type { SubsetViolation } from '../../xlsform/validate.js';
+import type { SubsetViolation } from '../../diagnostics.js';
 
 import { lstsvRowsToXlsform } from './toXlsform.js';
 import type { XlsformOutput } from './toXlsform.js';

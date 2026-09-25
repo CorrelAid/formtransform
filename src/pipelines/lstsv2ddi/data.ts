@@ -1,7 +1,7 @@
 /**
  * LimeSurvey response export → submissions keyed by DDI variable name.
  *
- * `buildDataCsv` (`xlsform2ddi/data.ts`) reads rows keyed by bare question name
+ * `buildDataCsv` (`ddi/data.ts`) reads rows keyed by bare question name
  * or `group/name`. A LimeSurvey response export (question-code headings, as the
  * RemoteControl `export_responses` call and the admin CSV export produce) is
  * keyed differently, so this adapter re-keys each row onto the variables
@@ -23,7 +23,7 @@
  */
 
 import type { Variable } from '../../ddi/types.js';
-import type { Submission } from '../xlsform2ddi/data.js';
+import type { Submission } from '../../ddi/data.js';
 
 import { OTHER_CODE, OTHER_SUFFIX } from '../../conventions/other.js';
 

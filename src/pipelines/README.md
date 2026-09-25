@@ -17,7 +17,7 @@ hub, not any one format.
 
 ## The DDI data file
 
-`xlsform2ddi/data.ts` emits the response-data CSV that the codebook describes
+`src/ddi/data.ts` emits the response-data CSV that the codebook describes
 (`buildDataCsv`, plus `getDdiColumnNames` / `remapSubmissionsToDdi` for callers
 writing the file themselves). It is schema-side-agnostic in the same way the XML
 emitter is: it takes `Variable[]` and raw response rows, so either DDI pipeline

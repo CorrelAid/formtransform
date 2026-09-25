@@ -39,8 +39,8 @@ export {
   buildDataCsv,
   getDdiColumnNames,
   remapSubmissionsToDdi,
-} from './data.js';
-export type { Submission } from './data.js';
+} from '../../ddi/data.js';
+export type { Submission } from '../../ddi/data.js';
 
 export {
   extractVariables,

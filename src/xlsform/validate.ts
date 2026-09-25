@@ -1,4 +1,5 @@
 import conventions from '../generated/conventions.js';
+import type { SubsetViolation } from '../diagnostics.js';
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
@@ -34,10 +35,7 @@ const STRUCTURAL = new Set([
 const METADATA_TYPES = new Set<string>(METADATA_ROW_TYPES);
 
 /** A single subset-validation finding. */
-export interface SubsetViolation {
-  severity: 'error' | 'warning';
-  message: string;
-}
+export type { SubsetViolation } from '../diagnostics.js';
 
 /** Options for {@link XLSValidator.validateSubset}. */
 export interface SubsetOptions {

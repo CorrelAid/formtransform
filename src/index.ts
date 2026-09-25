@@ -1,6 +1,6 @@
 // ── Format modules ─────────────────────────────────────────────────────
 export { XLSLoader } from './xlsform/loader.js';
-export { XLSFormParser } from './xlsform/parser.js';
+export { XLSFormParser } from './pipelines/xlsform2lstsv/xlsformParser.js';
 export { XLSValidator } from './xlsform/validate.js';
 export type {
   SubsetViolation,
@@ -54,8 +54,8 @@ export {
   buildDataCsv,
   getDdiColumnNames,
   remapSubmissionsToDdi,
-} from './pipelines/xlsform2ddi/data.js';
-export type { Submission } from './pipelines/xlsform2ddi/data.js';
+} from './ddi/data.js';
+export type { Submission } from './ddi/data.js';
 export { parseResponses } from './responseFile.js';
 export { parseVocabCsv } from './vocab.js';
 

@@ -1,11 +1,14 @@
 /**
- * @file Main entrypoint of this library.
+ * Convenience wrapper: load an XLSForm workbook and convert it to LimeSurvey
+ * TSV in one call. Pipeline code, so it lives in the pipeline (a format module
+ * must not import one).
  */
 
-import { ConversionConfig } from '../config/ConfigManager.js';
-import type { ChoiceRow } from './types.js';
+import type { LstsvConfig } from '../../config/types.js';
+import type { ChoiceRow } from '../../xlsform/types.js';
+import { XLSLoader } from '../../xlsform/loader.js';
 
-import { XLSLoader } from './loader.js';
+import { XLSFormToTSVConverter } from './index.js';
 
 export class XLSFormParser {
   /**
@@ -18,12 +21,9 @@ export class XLSFormParser {
    */
   static async convertXLSFileToTSV(
     filePath: string,
-    config?: Partial<ConversionConfig>,
+    config?: Partial<LstsvConfig>,
     fileChoices?: Record<string, ChoiceRow[]>,
   ): Promise<string> {
-    const { XLSFormToTSVConverter } =
-      await import('../pipelines/xlsform2lstsv/index.js');
-
     // Load data (validation is included by default)
     const { surveyData, choicesData, settingsData } =
       XLSLoader.parseXLSFile(filePath);
@@ -47,12 +47,9 @@ export class XLSFormParser {
    */
   static async convertXLSDataToTSV(
     data: Buffer | ArrayBuffer,
-    config?: Partial<ConversionConfig>,
+    config?: Partial<LstsvConfig>,
     fileChoices?: Record<string, ChoiceRow[]>,
   ): Promise<string> {
-    const { XLSFormToTSVConverter } =
-      await import('../pipelines/xlsform2lstsv/index.js');
-
     // Load data (validation is included by default)
     const { surveyData, choicesData, settingsData } =
       XLSLoader.parseXLSData(data);

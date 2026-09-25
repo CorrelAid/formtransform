@@ -5,13 +5,13 @@ import {
   buildDataCsv,
   getDdiColumnNames,
   remapSubmissionsToDdi,
-} from '../../../../../src/pipelines/xlsform2ddi/data.js';
+} from '../../../../src/ddi/data.js';
 import {
   buildDdiXml,
   extractVariables,
   choicesByListFromRows,
-} from '../../../../../src/pipelines/xlsform2ddi/index.js';
-import type { Variable } from '../../../../../src/ddi/types.js';
+} from '../../../../src/pipelines/xlsform2ddi/index.js';
+import type { Variable } from '../../../../src/ddi/types.js';
 
 type Row = Record<string, unknown>;
 
