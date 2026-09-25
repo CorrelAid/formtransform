@@ -1,0 +1,51 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:exclusiveChoice",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "Exclusive Answer in Multiple Choice",
+      "rule": {
+        "choicesColumn": "exclusive",
+        "trueValues": [
+          "yes",
+          "true",
+          "1"
+        ],
+        "appliesTo": [
+          "select_multiple"
+        ],
+        "limesurveyAttribute": "exclude_all_others",
+        "limesurveySeparator": ";",
+        "limesurveyEmission": "the select_multiple Q row gets exclude_all_others = the exclusive choices' codes joined by ';'. LimeSurvey then unticks every other answer when one of them is picked, and vice versa",
+        "xlsformEquivalent": "constraint: not(selected(., '<code>') and count-selected(.) > 1). The exclusive column is the declarative form; the TSV converter does not translate count-selected()",
+        "ddiEmission": "none: DDI-Codebook 2.5 has no field for it (catgry/@excls is about classification hierarchies). The choice is emitted as its normal binary variable",
+        "notes": "Typical use: 'Keine Angabe', 'Nichts davon', 'Weiß nicht'. On a list used only by select_one the column has no effect and is reported as a warning"
+      }
+    }
+  ]
+}

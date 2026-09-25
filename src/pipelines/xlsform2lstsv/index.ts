@@ -26,6 +26,7 @@ import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
 import { registeredFileChoices, registeredVocabFiles } from '../../vocab.js';
 import { parameterAttributes } from './parameters.js';
+import { EXCLUSIVE_RULE, isExclusive } from '../../xlsform/exclusive.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -320,6 +321,26 @@ export class XLSFormToTSVConverter {
     }
   }
 
+  /**
+   * `exclude_all_others` for a select_multiple whose list marks choices
+   * `exclusive` (convention:exclusiveChoice): their answer codes, `;`-joined.
+   */
+  private exclusiveAttribute(
+    baseType: string,
+    listName: string | null,
+  ): Record<string, string> {
+    if (!listName || !EXCLUSIVE_RULE.appliesTo.includes(baseType)) return {};
+    const codes = (this.choiceManager.getChoices(listName) ?? [])
+      .filter(isExclusive)
+      .map((c) => this.fieldNameHandler.sanitizeAnswerCode(String(c.name)));
+    if (codes.length === 0) return {};
+    return {
+      [EXCLUSIVE_RULE.limesurveyAttribute]: codes.join(
+        EXCLUSIVE_RULE.limesurveySeparator,
+      ),
+    };
+  }
+
   /** `select_*_from_file` is supported whenever its options resolve; say which part is missing. */
   private assertFileChoices(
     xfType: string,
@@ -454,11 +475,14 @@ export class XLSFormToTSVConverter {
       lsType,
       fields,
       cdlVocab,
-      attributes: parameterAttributes(
-        xfTypeInfo.base,
-        row['parameters'],
-        questionName,
-      ),
+      attributes: {
+        ...parameterAttributes(
+          xfTypeInfo.base,
+          row['parameters'],
+          questionName,
+        ),
+        ...this.exclusiveAttribute(xfTypeInfo.base, xfTypeInfo.listName),
+      },
     };
 
     this.rowEmitter.emitForEachLanguage((lang) =>

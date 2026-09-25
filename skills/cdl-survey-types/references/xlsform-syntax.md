@@ -24,6 +24,10 @@ Write names and choice codes as letters and digits only (`^[a-zA-Z0-9]+$`), e.g.
 
 Applies to: `select_one`, `select_multiple`. Add a choice with code `other`, then a companion row of type `text` named `<question>_other` shown only when the “other” choice is picked — set its `relevant` to `${<question>} = 'other'`. See the `select_one_other` example.
 
+## Exclusive answers (`exclusive` column)
+
+Applies to: `select_multiple`. For an answer that rules out all others (“Keine Angabe”, “Nichts davon”, “Weiß nicht”), add the `exclusive` column to the `choices` sheet and set it to `yes` on that choice. Leave it empty on every other row. Don't write a `count-selected()` constraint for this; it isn't converted.
+
 ## Long lists from a file (`select_*_from_file`)
 
 Type pattern: `^select_(one|multiple)_from_file (?P<filename>[^ ]+\.csv)$` — e.g. `select_one_from_file iso_3166_1.csv`. Use for long, standardised controlled vocabularies instead of hundreds of inline choices. Registered vocabularies:

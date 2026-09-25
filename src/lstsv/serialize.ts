@@ -32,6 +32,9 @@ interface TSVRow {
   min_num_value_n?: string;
   max_num_value_n?: string;
   num_value_int_only?: string;
+  // Multiple choice (M): answer codes that exclude all others, `;`-joined
+  // (convention:exclusiveChoice, from the choices sheet's `exclusive` column).
+  exclude_all_others?: string;
 }
 
 export class TSVGenerator {
@@ -70,6 +73,7 @@ export class TSVGenerator {
       'min_num_value_n',
       'max_num_value_n',
       'num_value_int_only',
+      'exclude_all_others',
     ] as const) {
       if (this.rows.some((r) => r[attr])) {
         headers.push(attr);

@@ -10,6 +10,23 @@
 const conventions = {
   "$comment": "GENERATED - DO NOT EDIT. Source: registry/root.jsonld",
   "conventions": {
+    "exclusiveChoice": {
+      "choicesColumn": "exclusive",
+      "trueValues": [
+        "yes",
+        "true",
+        "1"
+      ],
+      "appliesTo": [
+        "select_multiple"
+      ],
+      "limesurveyAttribute": "exclude_all_others",
+      "limesurveySeparator": ";",
+      "limesurveyEmission": "the select_multiple Q row gets exclude_all_others = the exclusive choices' codes joined by ';'. LimeSurvey then unticks every other answer when one of them is picked, and vice versa",
+      "xlsformEquivalent": "constraint: not(selected(., '<code>') and count-selected(.) > 1). The exclusive column is the declarative form; the TSV converter does not translate count-selected()",
+      "ddiEmission": "none: DDI-Codebook 2.5 has no field for it (catgry/@excls is about classification hierarchies). The choice is emitted as its normal binary variable",
+      "notes": "Typical use: 'Keine Angabe', 'Nichts davon', 'Weiß nicht'. On a list used only by select_one the column has no effect and is reported as a warning"
+    },
     "externalCodeList": {
       "xlsformTypePattern": "^select_(one|multiple)_from_file (?P<filename>[^ ]+\\.csv)$",
       "ddiVocabFromFilename": "stripExtension",
