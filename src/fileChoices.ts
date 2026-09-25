@@ -11,7 +11,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { ChoiceRow, SurveyRow } from './config/types.js';
+import type { ChoiceRow, SurveyRow } from './xlsform/types.js';
 import { parseVocabCsv, referencedVocabFiles } from './vocab.js';
 
 /**

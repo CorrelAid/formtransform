@@ -2,7 +2,7 @@ import conventions from '../generated/conventions.js';
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
-import { SurveyRow, ChoiceRow } from '../config/types.js';
+import { SurveyRow, ChoiceRow } from './types.js';
 import { registeredVocabFiles } from '../vocab.js';
 import { EXCLUSIVE_RULE, exclusiveCell, isExclusive } from './exclusive.js';
 

@@ -1,4 +1,4 @@
-import { SurveyRow } from '../../config/types.js';
+import { SurveyRow } from '../../xlsform/types.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { SKIP_TYPES } from './constants.js';
 

@@ -1,4 +1,4 @@
-import { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
+import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { getBaseLanguage } from '../../utils/languageUtils.js';
 import { markdownToHtml } from '../../utils/markdownRenderer.js';
 import { ConfigManager } from '../../config/ConfigManager.js';

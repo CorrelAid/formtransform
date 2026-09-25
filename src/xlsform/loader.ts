@@ -1,11 +1,6 @@
 import * as XLSX from 'xlsx';
 
-import {
-  SurveyRow,
-  ChoiceRow,
-  SettingsRow,
-  XLSFormData,
-} from '../config/types.js';
+import { SurveyRow, ChoiceRow, SettingsRow, XLSFormData } from './types.js';
 import {
   extractBaseColumnName,
   extractLanguageCode,

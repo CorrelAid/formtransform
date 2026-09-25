@@ -7,7 +7,7 @@ import { lstsvToDataCsv, lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
 import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
-import type { XLSFormData } from './config/types.js';
+import type { XLSFormData } from './xlsform/types.js';
 import { XLSValidator } from './xlsform/validate.js';
 import type { SubsetTarget } from './xlsform/validate.js';
 import {

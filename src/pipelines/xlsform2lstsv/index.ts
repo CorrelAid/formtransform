@@ -1,5 +1,6 @@
-import { ConfigManager, ConversionConfig } from '../../config/ConfigManager.js';
-import { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
+import { ConfigManager } from '../../config/ConfigManager.js';
+import type { LstsvConfig } from '../../config/types.js';
+import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TSVGenerator } from '../../lstsv/serialize.js';
 import { TypeMapper, TYPE_MAPPINGS } from './typeMapper.js';
@@ -58,9 +59,8 @@ export class XLSFormToTSVConverter {
   private surveySettingsEmitter: SurveySettingsEmitter;
   private surveyDataCache: SurveyRow[] = [];
 
-  constructor(config?: Partial<ConversionConfig>) {
+  constructor(config?: Partial<LstsvConfig>) {
     this.configManager = new ConfigManager(config);
-    this.configManager.validateConfig();
 
     this.fieldSanitizer = new FieldSanitizer();
     this.choiceManager = new ChoiceManager(this.fieldSanitizer);
@@ -135,14 +135,14 @@ export class XLSFormToTSVConverter {
   /**
    * Get the current configuration
    */
-  getConfig(): ConversionConfig {
+  getConfig(): Readonly<LstsvConfig> {
     return this.configManager.getConfig();
   }
 
   /**
    * Update configuration at runtime
    */
-  updateConfig(partialConfig: Partial<ConversionConfig>): void {
+  updateConfig(partialConfig: Partial<LstsvConfig>): void {
     this.configManager.updateConfig(partialConfig);
   }
 
@@ -216,9 +216,8 @@ export class XLSFormToTSVConverter {
       return xfType === 'begin_group';
     });
 
-    // If no groups, add a default group
-    const advancedOptions = this.configManager.getAdvancedOptions();
-    if (!hasGroups && advancedOptions.autoCreateGroups) {
+    // LimeSurvey needs every question in a group; add one if the form has none.
+    if (!hasGroups) {
       this.groupEmitter.addDefaultGroup();
     }
 

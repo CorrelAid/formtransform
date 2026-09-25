@@ -5,7 +5,7 @@
  * `exclude_all_others` question attribute.
  */
 import conventions from '../generated/conventions.js';
-import type { ChoiceRow } from '../config/types.js';
+import type { ChoiceRow } from './types.js';
 
 export const EXCLUSIVE_RULE = conventions.conventions.exclusiveChoice;
 

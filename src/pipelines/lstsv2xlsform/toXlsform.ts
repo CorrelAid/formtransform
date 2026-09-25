@@ -25,7 +25,7 @@
  */
 
 import { defaultConfig } from '../../config/types.js';
-import type { SurveyRow, ChoiceRow, SettingsRow } from '../../config/types.js';
+import type { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
 import { EXCLUSIVE_RULE } from '../../xlsform/exclusive.js';

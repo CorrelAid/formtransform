@@ -1,4 +1,4 @@
-import { SurveyRow } from '../../config/types.js';
+import { SurveyRow } from '../../xlsform/types.js';
 import { normalizeName } from '../../xlsform/identifiers.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 

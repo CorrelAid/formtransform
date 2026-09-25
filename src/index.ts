@@ -83,3 +83,11 @@ export type {
 // ── Config ─────────────────────────────────────────────────────────────
 export { ConfigManager, ConversionConfig } from './config/ConfigManager.js';
 export { defaultConfig } from './config/types.js';
+export type { LstsvConfig } from './config/types.js';
+export { resolveConfig } from './config/resolveConfig.js';
+export type {
+  SurveyRow,
+  ChoiceRow,
+  SettingsRow,
+  XLSFormData,
+} from './xlsform/types.js';

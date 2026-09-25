@@ -11,7 +11,7 @@ import { describe, test, expect } from 'vitest';
 
 import { XLSFormToTSVConverter } from '../../../src/pipelines/xlsform2lstsv/index.js';
 import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
-import type { SurveyRow, ChoiceRow } from '../../../src/config/types.js';
+import type { SurveyRow, ChoiceRow } from '../../../src/xlsform/types.js';
 
 async function roundTrip(
   survey: SurveyRow[],
