@@ -7,7 +7,9 @@ import { lstsvToDataCsv, lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
 import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
+import type { XLSFormData } from './config/types.js';
 import { XLSValidator } from './xlsform/validate.js';
+import type { SubsetTarget } from './xlsform/validate.js';
 import {
   PROG,
   die,
@@ -87,7 +89,9 @@ Options:
       --dataset-filename <n>  Data file URI recorded in <fileDscr> (default: data.csv,
                              or the --data-out file name)
       --prod-date <date>     Override the prodDate (ISO YYYY-MM-DD; default: today)
-      --skip-validation      Skip XLSForm sheet/column validation
+      --skip-validation      Skip the subset check (types, choice lists, unique
+                             names/codes). LimeSurvey's name limits never apply
+                             here: DDI keeps names as authored
   -h, --help                 Show this help
 `,
   );
@@ -148,11 +152,13 @@ function validateHelp(): void {
 Usage:
   ${PROG} validate <input.xlsx>
 
-Reports every name/code/type/appearance that falls outside the registry-defined
-subset (field names alnum ≤20, answer codes alnum ≤5, registered types only,
-allowlisted appearances). Exits non-zero if any errors are found.
+Reports every name/code/type/appearance/choice-list problem outside the
+registry-defined subset. Exits non-zero if any errors are found.
 
 Options:
+      --target <t>        lstsv (default): every rule, including LimeSurvey's
+                          limits (field names alnum ≤20, answer codes alnum ≤5).
+                          ddi: without those limits; DDI keeps names as authored
   -h, --help              Show this help
 `,
   );
@@ -160,39 +166,56 @@ Options:
 
 // ── Commands ───────────────────────────────────────────────────────────
 
-function cmdValidate(argv: string[]): void {
-  const { values, positionals } = parse(argv, {
-    help: { type: 'boolean', short: 'h', default: false },
-  });
-
-  if (values.help) return validateHelp();
-
-  const bytes = readInput(positionals, validateHelp);
-  // Parse without the built-in strict gate so we can report all findings.
-  const data = loadXlsform(bytes, true);
-  // CSVs beside the workbook count, as they do for xlsform2lstsv.
+/**
+ * Check a loaded form against the subset for `target`, with CSVs beside the
+ * workbook counting as resolved (as they do for xlsform2lstsv). Prints every
+ * finding to stderr and returns the number of errors.
+ */
+function checkSubset(
+  data: XLSFormData,
+  inputPath: string,
+  target: SubsetTarget,
+): number {
   const violations = XLSValidator.validateSubset(
     data.surveyData,
     data.choicesData,
     {
-      fileChoices: resolveFileChoices(data.surveyData, dirname(positionals[0])),
+      target,
+      fileChoices: resolveFileChoices(data.surveyData, dirname(inputPath)),
     },
   );
-
-  if (violations.length === 0) {
-    process.stderr.write(`${positionals[0]}: OK — within the XLSForm subset\n`);
-    return;
-  }
-
   for (const v of violations) {
     process.stderr.write(
       `  ${v.severity === 'error' ? '✗' : '⚠'} ${v.message}\n`,
     );
   }
-  const errors = violations.filter((v) => v.severity === 'error').length;
-  const warnings = violations.length - errors;
-  process.stderr.write(`${errors} error(s), ${warnings} warning(s)\n`);
-  if (errors > 0) process.exit(1);
+  return violations.filter((v) => v.severity === 'error').length;
+}
+
+function cmdValidate(argv: string[]): void {
+  const { values, positionals } = parse(argv, {
+    target: { type: 'string', default: 'lstsv' },
+    help: { type: 'boolean', short: 'h', default: false },
+  });
+
+  if (values.help) return validateHelp();
+  const target = values.target as string;
+  if (target !== 'lstsv' && target !== 'ddi') {
+    return die(`--target must be "lstsv" or "ddi", got "${target}"`);
+  }
+
+  const bytes = readInput(positionals, validateHelp);
+  // Parse without the built-in strict gate so we can report all findings.
+  const data = loadXlsform(bytes, true);
+  const errors = checkSubset(data, positionals[0], target);
+  if (errors === 0) {
+    process.stderr.write(
+      `${positionals[0]}: OK — within the XLSForm subset (${target})\n`,
+    );
+    return;
+  }
+  process.stderr.write(`${errors} error(s)\n`);
+  process.exit(1);
 }
 
 async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
@@ -333,7 +356,17 @@ function cmdXlsform2ddi(argv: string[]): void {
   if (values.help) return xlsform2ddiHelp();
 
   const bytes = readInput(positionals, xlsform2ddiHelp);
-  const data = loadXlsform(bytes, values['skip-validation'] as boolean);
+  // DDI keeps names as authored, so LimeSurvey's name/code limits don't apply
+  // (a Kobo `full_name` is fine); types, lists and uniqueness still do.
+  const data = loadXlsform(bytes, true);
+  if (!values['skip-validation']) {
+    const errors = checkSubset(data, positionals[0], 'ddi');
+    if (errors > 0) {
+      return die(
+        `${errors} error(s): outside the XLSForm subset for DDI (--skip-validation to convert anyway)`,
+      );
+    }
+  }
   const { submissions, dataOut, datasetFilename } = planData(values);
 
   let xml: string;

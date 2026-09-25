@@ -210,3 +210,63 @@ describe('validateSubset — choice lists (#48)', () => {
     ).toThrow(/used more than once in list "c"/);
   });
 });
+
+describe("validateSubset — target 'ddi' (#52)", () => {
+  const ddi = (
+    survey: Record<string, unknown>[],
+    choices: Record<string, unknown>[] = [],
+  ) =>
+    XLSValidator.validateSubset(survey, choices, { target: 'ddi' }).map(
+      (v) => `${v.severity}: ${v.message}`,
+    );
+
+  test("ignores LimeSurvey's name and code limits", () => {
+    expect(
+      ddi(
+        [
+          {
+            type: 'select_one freq',
+            name: 'how_often_do_you_visit_us',
+            label: 'Q',
+          },
+        ],
+        [{ list_name: 'freq', name: 'sometimes', label: 'Sometimes' }],
+      ),
+    ).toEqual([]);
+  });
+
+  test('still rejects unregistered types', () => {
+    expect(ddi([{ type: 'geopoint', name: 'loc', label: 'Where' }])).toEqual([
+      'error: type "geopoint" (question "loc") is not in the registry — not part of the supported XLSForm subset',
+    ]);
+  });
+
+  test('still requires unique names and codes, and resolvable lists', () => {
+    expect(
+      ddi(
+        [
+          { type: 'select_one freq', name: 'full_name', label: 'A' },
+          { type: 'text', name: 'full_name', label: 'B' },
+          { type: 'select_one nolist', name: 'x', label: 'C' },
+        ],
+        [
+          { list_name: 'freq', name: 'often', label: 'Often' },
+          { list_name: 'freq', name: 'often', label: 'Often again' },
+        ],
+      ),
+    ).toEqual([
+      'error: field name "full_name" is used more than once',
+      'error: answer code "often" is used more than once in list "freq"',
+      'error: "select_one nolist" (question "x"): list "nolist" has no rows on the choices sheet',
+    ]);
+  });
+
+  test("the default target is still 'lstsv'", () => {
+    expect(
+      XLSValidator.validateSubset(
+        [{ type: 'text', name: 'full_name', label: 'N' }],
+        [],
+      ),
+    ).toContainEqual(expect.objectContaining({ severity: 'error' }));
+  });
+});

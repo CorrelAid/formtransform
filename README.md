@@ -189,6 +189,11 @@ validates against this subset, rejecting:
   `fileChoices` (the CLI reads CSVs beside the form)
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
 
+The name and code limits are LimeSurvey's. For DDI, check with
+`validateSubset(survey, choices, { target: 'ddi' })` (CLI: `validate --target
+ddi`; `xlsform2ddi` does it by default): same rules without those limits, since
+DDI keeps names as authored. `buildDdiXml` itself does not validate.
+
 LimeSurvey's reverse-subset check (`lstsv2xlsform`) is narrower — no arrays,
 no ranking, no numeric/date expressions.
 
