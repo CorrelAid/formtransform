@@ -1,8 +1,3 @@
-import conventions from '../generated/conventions.js';
-
-const NAME_RULES = conventions.conventions.sanitization.name;
-const NAME_STRIP_REGEX = new RegExp(NAME_RULES.stripCharsRegex, 'g');
-
 /**
  * Deep merge objects - merges properties from source into target recursively
  */
@@ -59,23 +54,5 @@ export function deduplicateNames(names: string[], maxLength: number): string[] {
     }
     used.add(result[i]);
   }
-  return result;
-}
-
-/**
- * Sanitize field names for LimeSurvey compatibility per registry conventions.
- */
-export function sanitizeFieldName(name: string): string {
-  const result = name.replace(NAME_STRIP_REGEX, '');
-
-  const maxLength = NAME_RULES.maxLength;
-  if (result.length > maxLength) {
-    const truncated = result.substring(0, maxLength);
-    console.warn(
-      `Field name "${name}" exceeds maximum length of ${maxLength} characters and will be truncated to "${truncated}"`,
-    );
-    return truncated;
-  }
-
   return result;
 }

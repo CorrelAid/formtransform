@@ -175,8 +175,11 @@ validates against this subset, rejecting:
 
 - **Unregistered types** (no LimeSurvey equivalent — `image`, `audio`, `geopoint`, etc.)
 - **Unregistered appearances** (warn + ignore)
-- **Out-of-subset names** — identifiers must be `[a-z][a-z0-9_]*` under 17 chars,
-  codes under 6, groups under 21
+- **Out-of-subset names** — field names and answer codes must match
+  `^[a-zA-Z0-9]+$` (no underscores, except the `<question>_other` companion),
+  names at most 20 characters, codes at most 5. `FieldSanitizer` turns free
+  text into conforming names: it transliterates (`ä`→`ae`, `ß`→`ss`), drops
+  other diacritics and deletes the rest of the non-alphanumerics
 - **Deep nesting** — max 3 levels (`group/group/question`)
 - **Unresolvable answer options** — a `select_one`/`select_multiple` needs a
   list name with rows on the choices sheet; a `select_*_from_file` needs a

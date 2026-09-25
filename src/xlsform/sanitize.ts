@@ -1,18 +1,32 @@
 import conventions from '../generated/conventions.js';
-import { sanitizeFieldName } from '../utils/helpers.js';
+
+import { normalizeCode, normalizeName } from './identifiers.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
 const MAX_FIELD_LENGTH = NAME_RULES.maxLength;
-const NAME_STRIP_REGEX = new RegExp(NAME_RULES.stripCharsRegex, 'g');
-const CHOICE_STRIP_REGEX = new RegExp(CHOICE_RULES.stripCharsRegex, 'g');
 const MAX_CHOICE_LENGTH = CHOICE_RULES.maxLength;
+
+/** Normalize, refusing input that leaves nothing LimeSurvey can use. */
+function normalizeOrThrow(
+  value: string,
+  normalize: (s: string) => string,
+  what: string,
+): string {
+  const out = normalize(value);
+  if (out === '') {
+    throw new Error(
+      `${what} "${value}" has no letters or digits left after sanitization (${NAME_RULES.pattern})`,
+    );
+  }
+  return out;
+}
 
 export class FieldSanitizer {
   /** Set of unique sanitized names already assigned */
   private usedNames: Set<string> = new Set();
   /**
-   * Map from stripped name (underscores/hyphens removed, NOT truncated)
+   * Map from stripped name (normalized per convention:sanitization, NOT truncated)
    * to the unique sanitized name (truncated + deduplicated).
    * Used by the transpiler to resolve variable references.
    */
@@ -21,11 +35,20 @@ export class FieldSanitizer {
   constructor() {}
 
   /**
-   * Basic sanitization: remove underscores/hyphens and truncate to 20 chars.
-   * Does NOT check for duplicates. Use sanitizeNameUnique for that.
+   * Basic sanitization: transliterate, strip everything outside
+   * `[a-zA-Z0-9]`, truncate to 20 chars. Does NOT check for duplicates; use
+   * sanitizeNameUnique for that. Throws when nothing usable is left.
    */
   sanitizeName(name: string): string {
-    return sanitizeFieldName(name);
+    const result = normalizeOrThrow(name, normalizeName, 'Field name');
+    if (result.length > MAX_FIELD_LENGTH) {
+      const truncated = result.substring(0, MAX_FIELD_LENGTH);
+      console.warn(
+        `Field name "${name}" exceeds maximum length of ${MAX_FIELD_LENGTH} characters and will be truncated to "${truncated}"`,
+      );
+      return truncated;
+    }
+    return result;
   }
 
   /**
@@ -34,7 +57,7 @@ export class FieldSanitizer {
    * a numeric suffix is appended (e.g. "fieldname1").
    */
   sanitizeNameUnique(name: string): string {
-    const stripped = name.replace(NAME_STRIP_REGEX, '');
+    const stripped = normalizeOrThrow(name, normalizeName, 'Field name');
     const truncated =
       stripped.length > MAX_FIELD_LENGTH
         ? stripped.substring(0, MAX_FIELD_LENGTH)
@@ -65,7 +88,7 @@ export class FieldSanitizer {
   }
 
   /**
-   * Resolve a stripped field name (underscores already removed, not truncated)
+   * Resolve a stripped field name (already normalized, not truncated)
    * to its unique sanitized name. Falls back to simple truncation if the name
    * was never registered.
    */
@@ -87,7 +110,7 @@ export class FieldSanitizer {
   }
 
   sanitizeAnswerCode(code: string): string {
-    const result = code.replace(CHOICE_STRIP_REGEX, '');
+    const result = normalizeOrThrow(code, normalizeCode, 'Answer code');
 
     const maxLength = MAX_CHOICE_LENGTH;
     if (result.length > maxLength) {

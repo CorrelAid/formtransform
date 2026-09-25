@@ -1,4 +1,5 @@
 import { ChoiceRow, SurveyRow } from '../../config/types.js';
+import { normalizeName } from '../../xlsform/identifiers.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TypeInfo } from './typeMapper.js';
 import { deduplicateNames } from '../../utils/helpers.js';
@@ -91,7 +92,7 @@ export class ChoiceManager {
     fieldName: string,
     choiceValue: string,
   ): { code: string; listName: string | undefined } {
-    const stripped = fieldName.replace(/[_-]/g, '');
+    const stripped = normalizeName(fieldName);
     const resolved = this.fieldSanitizer.resolveStrippedName(stripped);
     const listName = this.questionToListMap.get(resolved);
     if (!listName) return { code: choiceValue, listName: undefined };
