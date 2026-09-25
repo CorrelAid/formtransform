@@ -44,7 +44,8 @@ Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
 `formtransform-fixtures-<version>.tar.gz`, the example fixtures and blessed
 snapshots (`registry/entities/`, `tests/fixtures/surveys/`, same paths) for
 golden tests. Assets never change after publishing, so their checksums can be
-pinned.
+pinned: each release also attaches `SHA256SUMS` and lists the checksums in its
+notes.
 
 ### As a CLI tool
 
