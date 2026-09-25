@@ -58,11 +58,6 @@ export class GroupProcessor {
 
   constructor(private configManager: ConfigManager) {}
 
-  clear(): void {
-    this.messageOnlyGroups.clear();
-    this.parentOnlyGroups.clear();
-  }
-
   getMessageOnlyGroups(): Set<string> {
     return this.messageOnlyGroups;
   }

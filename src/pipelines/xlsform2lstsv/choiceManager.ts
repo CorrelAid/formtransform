@@ -15,13 +15,6 @@ export class ChoiceManager {
 
   constructor(private fieldSanitizer: FieldSanitizer) {}
 
-  clear(): void {
-    this.choicesMap.clear();
-    this.answerCodeMap.clear();
-    this.questionToListMap.clear();
-    this.questionBaseTypeMap.clear();
-  }
-
   getChoicesMap(): Map<string, ChoiceRow[]> {
     return this.choicesMap;
   }

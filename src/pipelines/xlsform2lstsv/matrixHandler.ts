@@ -11,7 +11,7 @@ export type MatrixCounters = Counters;
 export interface MatrixHelpers {
   sanitizeName(name: string): string;
   sanitizeAnswerCode(code: string): string;
-  convertRelevance(relevant?: string): Promise<string>;
+  convertRelevance(relevant?: string): string;
 }
 
 /**
@@ -35,12 +35,6 @@ export class MatrixHandler {
     private counters: MatrixCounters,
   ) {}
 
-  clear(): void {
-    this.inMatrix = false;
-    this.matrixListName = null;
-    this.inTableListMatrix = false;
-  }
-
   isInMatrix(): boolean {
     return this.inMatrix;
   }
@@ -59,18 +53,18 @@ export class MatrixHandler {
    *   - appearance=list-nolabel + in matrix + select_one → addMatrixSubquestion
    *   - otherwise                       → flush any pending matrix, return false
    */
-  async dispatchRow(
+  dispatchRow(
     row: SurveyRow,
     xfTypeInfo: TypeInfo,
     appearance: string,
     helpers: MatrixHelpers,
-  ): Promise<boolean> {
+  ): boolean {
     // Inside a `table-list` group: each select_one child is a subquestion of
     // the enclosing array. Capture the shared list from the first child so
     // flushMatrix can emit its answer scale.
     if (this.inTableListMatrix && xfTypeInfo.base === 'select_one') {
       if (!this.matrixListName) this.matrixListName = xfTypeInfo.listName;
-      await this.addMatrixSubquestion(row, helpers);
+      this.addMatrixSubquestion(row, helpers);
       return true;
     }
 
@@ -81,7 +75,7 @@ export class MatrixHandler {
       xfTypeInfo.listName
     ) {
       this.flushMatrix(helpers);
-      await this.addMatrixHeader(row, xfTypeInfo, helpers);
+      this.addMatrixHeader(row, xfTypeInfo, helpers);
       return true;
     }
 
@@ -91,7 +85,7 @@ export class MatrixHandler {
       this.inMatrix &&
       xfTypeInfo.base === 'select_one'
     ) {
-      await this.addMatrixSubquestion(row, helpers);
+      this.addMatrixSubquestion(row, helpers);
       return true;
     }
 
@@ -114,18 +108,18 @@ export class MatrixHandler {
    * shared answer scale is emitted by flushMatrix (on end_group). No G row is
    * emitted — the group *is* the array.
    */
-  async addTableListHeader(
+  addTableListHeader(
     row: SurveyRow,
     questionName: string,
     helpers: MatrixHelpers,
-  ): Promise<void> {
+  ): void {
     this.counters.bumpGroupSeq();
     this.inMatrix = true;
     this.inTableListMatrix = true;
     this.matrixListName = null;
     this.counters.setSubquestionSeq(0);
 
-    const relevance = await helpers.convertRelevance(row.relevant);
+    const relevance = helpers.convertRelevance(row.relevant);
     const mandatory =
       row.required === 'yes' || row.required === 'true' ? 'Y' : '';
 
@@ -143,11 +137,11 @@ export class MatrixHandler {
     }));
   }
 
-  async addMatrixHeader(
+  addMatrixHeader(
     row: SurveyRow,
     xfTypeInfo: TypeInfo,
     helpers: MatrixHelpers,
-  ): Promise<void> {
+  ): void {
     const questionName =
       row.name && row.name.trim() !== ''
         ? helpers.sanitizeName(row.name.trim())
@@ -158,7 +152,7 @@ export class MatrixHandler {
     this.matrixListName = xfTypeInfo.listName;
     this.counters.setSubquestionSeq(0);
 
-    const relevance = await helpers.convertRelevance(row.relevant);
+    const relevance = helpers.convertRelevance(row.relevant);
     const mandatory =
       row.required === 'yes' || row.required === 'true' ? 'Y' : '';
 
@@ -176,17 +170,14 @@ export class MatrixHandler {
     }));
   }
 
-  async addMatrixSubquestion(
-    row: SurveyRow,
-    helpers: MatrixHelpers,
-  ): Promise<void> {
+  addMatrixSubquestion(row: SurveyRow, helpers: MatrixHelpers): void {
     const sqName =
       row.name && row.name.trim() !== ''
         ? helpers.sanitizeName(row.name.trim())
         : `SQ${this.counters.getSubquestionSeq()}`;
 
     this.counters.bumpSubquestionSeq();
-    const relevance = await helpers.convertRelevance(row.relevant);
+    const relevance = helpers.convertRelevance(row.relevant);
     const mandatory =
       row.required === 'yes' || row.required === 'true' ? 'Y' : '';
 

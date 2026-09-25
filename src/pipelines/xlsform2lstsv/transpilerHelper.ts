@@ -1,9 +1,9 @@
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { ChoiceManager } from './choiceManager.js';
 import {
-  convertRelevance,
-  convertConstraint,
-  xpathToLimeSurvey,
+  convertRelevanceSync,
+  convertConstraintSync,
+  xpathToLimeSurveySync,
   TranspilerContext,
 } from './xpathTranspiler.js';
 
@@ -44,16 +44,16 @@ export class TranspilerHelper {
     };
   }
 
-  async convertRelevance(relevant?: string): Promise<string> {
+  convertRelevance(relevant?: string): string {
     if (!relevant) return '1';
-    return await convertRelevance(relevant, this.buildTranspilerContext());
+    return convertRelevanceSync(relevant, this.buildTranspilerContext());
   }
 
-  async convertCalculation(calculation: string): Promise<string> {
-    return await xpathToLimeSurvey(calculation, this.buildTranspilerContext());
+  convertCalculation(calculation: string): string {
+    return xpathToLimeSurveySync(calculation, this.buildTranspilerContext());
   }
 
-  async convertConstraint(constraint: string): Promise<string> {
-    return await convertConstraint(constraint);
+  convertConstraint(constraint: string): string {
+    return convertConstraintSync(constraint);
   }
 }

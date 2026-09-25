@@ -17,7 +17,7 @@ export type GroupCounters = Counters;
 /** Helpers passed to handleBeginGroup for name resolution + relevance. */
 export interface GroupHelpers {
   sanitizeName: (name: string) => string;
-  convertRelevance: (relevant?: string) => Promise<string>;
+  convertRelevance: (relevant?: string) => string;
 }
 
 /**
@@ -36,12 +36,6 @@ export class GroupEmitter {
     private languageHandler: LanguageHandler,
     private counters: GroupCounters,
   ) {}
-
-  clear(): void {
-    this.currentGroup = null;
-    this.groupStack = [];
-    this.pendingGroupNotes = [];
-  }
 
   getCurrentGroup(): string | null {
     return this.currentGroup;
@@ -89,11 +83,11 @@ export class GroupEmitter {
     );
   }
 
-  async addGroup(
+  addGroup(
     row: SurveyRow,
     sanitizeName: (name: string) => string,
-    convertRelevance: (relevant?: string) => Promise<string>,
-  ): Promise<void> {
+    convertRelevance: (relevant?: string) => string,
+  ): void {
     const groupName =
       row.name && row.name.trim() !== ''
         ? sanitizeName(row.name.trim())
@@ -105,7 +99,7 @@ export class GroupEmitter {
     // type/scale is used as a stable group sequence key for LimeSurvey's TSV importer
     // to correctly match group translations across languages.
     const groupSeqKey = String(this.counters.getGroupSeq());
-    const relevance = await convertRelevance(row.relevant);
+    const relevance = convertRelevance(row.relevant);
 
     this.rowEmitter.emitForEachLanguage(
       (lang) => ({
@@ -149,10 +143,10 @@ export class GroupEmitter {
   /**
    * Emit pending parent-only group labels as note questions (type X).
    */
-  async emitPendingGroupNotes(
+  emitPendingGroupNotes(
     sanitizeName: (name: string) => string,
-    convertRelevance: (relevant?: string) => Promise<string>,
-  ): Promise<void> {
+    convertRelevance: (relevant?: string) => string,
+  ): void {
     for (const noteRow of this.pendingGroupNotes) {
       const noteName =
         noteRow.name && noteRow.name.trim() !== ''
@@ -160,7 +154,7 @@ export class GroupEmitter {
           : `GN${this.counters.getQuestionSeq()}`;
 
       this.counters.bumpQuestionSeq();
-      const relevance = await convertRelevance(noteRow.relevant);
+      const relevance = convertRelevance(noteRow.relevant);
 
       this.rowEmitter.emitForEachLanguage((lang) => ({
         class: 'Q',
@@ -185,13 +179,13 @@ export class GroupEmitter {
    *     note, do not emit.
    *   - otherwise: push, emit G row, flush pending notes.
    */
-  async handleBeginGroup(
+  handleBeginGroup(
     row: SurveyRow,
     isMessageOnly: boolean,
     isParentOnly: boolean,
     helpers: GroupHelpers,
-    onTableList: (sanitizedName: string) => Promise<void>,
-  ): Promise<void> {
+    onTableList: (sanitizedName: string) => void,
+  ): void {
     const { sanitizeName, convertRelevance } = helpers;
     const originalName = (row.name || '').trim();
     const sanitizedName = originalName
@@ -208,9 +202,9 @@ export class GroupEmitter {
         emittedAsGroup: true,
       });
       this.rowEmitter.flushGroupContent();
-      await this.addGroup(row, sanitizeName, convertRelevance);
-      await this.emitPendingGroupNotes(sanitizeName, convertRelevance);
-      await onTableList(sanitizedName);
+      this.addGroup(row, sanitizeName, convertRelevance);
+      this.emitPendingGroupNotes(sanitizeName, convertRelevance);
+      onTableList(sanitizedName);
       return;
     }
 
@@ -239,7 +233,7 @@ export class GroupEmitter {
       emittedAsGroup: true,
     });
     this.rowEmitter.flushGroupContent();
-    await this.addGroup(row, sanitizeName, convertRelevance);
-    await this.emitPendingGroupNotes(sanitizeName, convertRelevance);
+    this.addGroup(row, sanitizeName, convertRelevance);
+    this.emitPendingGroupNotes(sanitizeName, convertRelevance);
   }
 }

@@ -18,11 +18,6 @@ export class SurveySettingsEmitter {
     private languageHandler: LanguageHandler,
   ) {}
 
-  clear(): void {
-    this.welcomeNote = null;
-    this.endNote = null;
-  }
-
   /**
    * Pre-scan for welcome/end notes (must happen before group identification).
    * Promotes a row named "welcome"/"end" to its own SL row so the message

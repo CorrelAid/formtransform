@@ -1,4 +1,5 @@
 import { ConfigManager } from '../../config/ConfigManager.js';
+import { resolveConfig } from '../../config/resolveConfig.js';
 import type { LstsvConfig } from '../../config/types.js';
 import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
@@ -38,7 +39,14 @@ import {
 // - xfTypeInfo: Parsed XLSForm type information (TypeInfo interface)
 // - lsType: LimeSurvey type information (LSType interface)
 
-export class XLSFormToTSVConverter {
+/**
+ * One XLSForm → LimeSurvey TSV conversion. Every collaborator and all
+ * per-conversion state (choices, field names, counters, buffered rows,
+ * languages) belong to this object, which {@link XLSFormToTSVConverter.convert}
+ * creates fresh for each call and drops afterwards. So nothing leaks from one
+ * conversion into the next, and concurrent calls can't interfere.
+ */
+class Conversion {
   private configManager: ConfigManager;
   private fieldSanitizer: FieldSanitizer;
   private typeMapper: TypeMapper;
@@ -55,12 +63,13 @@ export class XLSFormToTSVConverter {
   private fieldNameHandler: FieldNameHandler;
   private appearanceHandler: AppearanceHandler;
   private counters: Counters;
-  private fileChoices: Record<string, ChoiceRow[]> = {};
+  private fileChoices: Record<string, ChoiceRow[]>;
   private surveySettingsEmitter: SurveySettingsEmitter;
   private surveyDataCache: SurveyRow[] = [];
 
-  constructor(config?: Partial<LstsvConfig>) {
+  constructor(config: Readonly<LstsvConfig>) {
     this.configManager = new ConfigManager(config);
+    this.fileChoices = {};
 
     this.fieldSanitizer = new FieldSanitizer();
     this.choiceManager = new ChoiceManager(this.fieldSanitizer);
@@ -130,43 +139,14 @@ export class XLSFormToTSVConverter {
     };
   }
 
-  // ── Public API ───────────────────────────────────────────────────────
-
-  /**
-   * Get the current configuration
-   */
-  getConfig(): Readonly<LstsvConfig> {
-    return this.configManager.getConfig();
-  }
-
-  /**
-   * Update configuration at runtime
-   */
-  updateConfig(partialConfig: Partial<LstsvConfig>): void {
-    this.configManager.updateConfig(partialConfig);
-  }
-
-  async convert(
+  /** Run the conversion; synchronous, throws on the first problem. */
+  run(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
     settingsData: SettingsRow[],
-    // Choices for external-file lists (`select_*_from_file <name>.csv`), keyed by
-    // the referenced filename. Registered vocabularies (registry/vocab/) are
-    // built in; entries here add unregistered ones or override a registered one
-    // (the CLI reads CSVs beside the form via resolveFileChoices). A from_file
-    // question is emitted as its base select with these choices inlined + a
-    // `cdl_vocab` attribute naming the source vocabulary.
-    fileChoices: Record<string, ChoiceRow[]> = {},
-  ): Promise<string> {
-    // Reset state
+    fileChoices: Record<string, ChoiceRow[]>,
+  ): string {
     this.fileChoices = { ...registeredFileChoices(surveyData), ...fileChoices };
-    this.choiceManager.clear();
-    this.tsvGenerator.clear();
-    this.counters.clear();
-    this.rowEmitter.clear();
-    this.surveySettingsEmitter.clear();
-    this.groupEmitter.clear();
-    this.matrixHandler.clear();
 
     // Pre-scan for welcome/end notes (must happen before group identification)
     this.surveySettingsEmitter.captureNotes(surveyData);
@@ -223,7 +203,7 @@ export class XLSFormToTSVConverter {
 
     // Process survey rows
     for (const row of surveyData) {
-      await this.processRow(row);
+      this.processRow(row);
     }
 
     // Flush any pending matrix at the end
@@ -246,7 +226,7 @@ export class XLSFormToTSVConverter {
 
   // ── Row processing ───────────────────────────────────────────────────
 
-  private async processRow(row: SurveyRow): Promise<void> {
+  private processRow(row: SurveyRow): void {
     const xfType = (row.type || '').trim();
 
     if (!xfType) return;
@@ -270,7 +250,7 @@ export class XLSFormToTSVConverter {
     this.validateRowType(xfType, baseType, row.name);
 
     if (xfType === 'begin_group' || xfType === 'begin group') {
-      await this.handleBeginGroup(row);
+      this.handleBeginGroup(row);
       return;
     }
     if (xfType === 'end_group' || xfType === 'end group') {
@@ -284,7 +264,7 @@ export class XLSFormToTSVConverter {
       this.groupEmitter.addAutoGroupForOrphans();
     }
 
-    await this.addQuestion(row);
+    this.addQuestion(row);
   }
 
   /**
@@ -380,10 +360,10 @@ export class XLSFormToTSVConverter {
     }
   }
 
-  private async handleBeginGroup(row: SurveyRow): Promise<void> {
+  private handleBeginGroup(row: SurveyRow): void {
     this.matrixHandler.flushMatrix(this.matrixHelpers());
     const originalName = (row.name || '').trim();
-    await this.groupEmitter.handleBeginGroup(
+    this.groupEmitter.handleBeginGroup(
       row,
       this.groupProcessor.getMessageOnlyGroups().has(originalName),
       this.groupProcessor.getParentOnlyGroups().has(originalName),
@@ -416,7 +396,7 @@ export class XLSFormToTSVConverter {
 
   // ── Question emission ────────────────────────────────────────────────
 
-  private async addQuestion(row: SurveyRow): Promise<void> {
+  private addQuestion(row: SurveyRow): void {
     let xfTypeInfo = this.typeMapper.parseType(row.type || '');
 
     // select_*_from_file → emit as its base select with the referenced CSV's
@@ -436,7 +416,7 @@ export class XLSFormToTSVConverter {
     // The handler returns true if it consumed the row as part of a matrix,
     // false if it should be processed as a regular question (and the pending
     // matrix has been flushed).
-    const handledByMatrix = await this.matrixHandler.dispatchRow(
+    const handledByMatrix = this.matrixHandler.dispatchRow(
       row,
       xfTypeInfo,
       appearance,
@@ -468,7 +448,7 @@ export class XLSFormToTSVConverter {
       xfTypeInfo.base,
     );
 
-    const fields = await this.computeQuestionFields(row, xfTypeInfo, lsType);
+    const fields = this.computeQuestionFields(row, xfTypeInfo, lsType);
 
     const ctx: QuestionRowContext = {
       lsType,
@@ -502,11 +482,11 @@ export class XLSFormToTSVConverter {
    * Compute the per-question fields that don't vary by language
    * (relevance, validation, mandatory, other, default, hidden, hide_tip).
    */
-  private async computeQuestionFields(
+  private computeQuestionFields(
     row: SurveyRow,
     xfTypeInfo: { base: string },
     lsType: { other?: boolean; dateFormat?: string },
-  ): Promise<{
+  ): {
     calculationExpr: string;
     relevance: string;
     emValidation: string;
@@ -517,18 +497,16 @@ export class XLSFormToTSVConverter {
     hideTip: string;
     isNote: boolean;
     isCalculate: boolean;
-  }> {
+  } {
     const isNote = xfTypeInfo.base === 'note';
     const isCalculate = xfTypeInfo.base === 'calculate';
     const isNoteOrCalc = isNote || isCalculate;
 
-    const calculationExpr = await this.computeCalculation(row, isCalculate);
-    const relevance = await this.transpilerHelper.convertRelevance(
-      row.relevant,
-    );
+    const calculationExpr = this.computeCalculation(row, isCalculate);
+    const relevance = this.transpilerHelper.convertRelevance(row.relevant);
     const emValidation = isNoteOrCalc
       ? ''
-      : await this.transpilerHelper.convertConstraint(row.constraint || '');
+      : this.transpilerHelper.convertConstraint(row.constraint || '');
     const mandatory = isNoteOrCalc ? '' : this.mandatoryValue(row);
     const other = this.computeOtherFlag(row, lsType, isNoteOrCalc);
     const defaultVal = isNoteOrCalc ? '' : row.default || '';
@@ -556,10 +534,7 @@ export class XLSFormToTSVConverter {
   }
 
   /** Transpile `row.calculation` to EM, only meaningful for `calculate` questions. */
-  private async computeCalculation(
-    row: SurveyRow,
-    isCalculate: boolean,
-  ): Promise<string> {
+  private computeCalculation(row: SurveyRow, isCalculate: boolean): string {
     if (!isCalculate || !row.calculation) return '';
     return this.transpilerHelper.convertCalculation(row.calculation);
   }
@@ -659,4 +634,58 @@ interface QuestionRowContext {
   cdlVocab: string;
   /** LS question attributes from the `parameters` column (parameters.ts). */
   attributes: Record<string, string>;
+}
+
+/**
+ * XLSForm → LimeSurvey structure TSV. The instance only holds its resolved
+ * options; each {@link convert} call runs in its own {@link Conversion}, so one
+ * instance can be reused, including for concurrent calls.
+ */
+export class XLSFormToTSVConverter {
+  private config: Readonly<LstsvConfig>;
+
+  constructor(config?: Partial<LstsvConfig>) {
+    this.config = resolveConfig(config);
+  }
+
+  /** The resolved options. */
+  getConfig(): Readonly<LstsvConfig> {
+    return this.config;
+  }
+
+  /** Replace the options: `partialConfig` merged over the defaults. */
+  updateConfig(partialConfig: Partial<LstsvConfig>): void {
+    this.config = resolveConfig(partialConfig);
+  }
+
+  /**
+   * Convert parsed XLSForm sheets to LimeSurvey TSV.
+   *
+   * @param fileChoices Choices for external-file lists
+   *   (`select_*_from_file <name>.csv`), keyed by the referenced filename.
+   *   Registered vocabularies (registry/vocab/) are built in; entries here add
+   *   unregistered ones or override a registered one (the CLI reads CSVs beside
+   *   the form via resolveFileChoices).
+   */
+  convert(
+    surveyData: SurveyRow[],
+    choicesData: ChoiceRow[],
+    settingsData: SettingsRow[],
+    fileChoices: Record<string, ChoiceRow[]> = {},
+  ): Promise<string> {
+    try {
+      return Promise.resolve(
+        new Conversion(this.config).run(
+          surveyData,
+          choicesData,
+          settingsData,
+          fileChoices,
+        ),
+      );
+    } catch (error: unknown) {
+      return Promise.reject(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+    }
+  }
 }
