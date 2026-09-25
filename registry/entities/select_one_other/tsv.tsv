@@ -3,7 +3,7 @@ S		language	1	de		de
 S		format	1	A		de								
 S		shownoanswer	1	N		de								
 SL		surveyls_title	1	Untitled Survey		de								
-G		Questions	1	Questions		de								
+G		Questions	1			de								
 Q	L	aufmerksam	1	Wie sind Sie auf unser Angebot aufmerksam geworden?		de				Y				1
 A		such		Suchmaschine		de								
 A		empf		Persönliche Empfehlung		de								

@@ -3,7 +3,7 @@ S		language	1	en		en
 S		format	1	A		en								
 S		shownoanswer	1	N		en								
 SL		surveyls_title	1	Untitled Survey		en								
-G		Questions	1	Questions		en								
+G		Questions	1			en								
 Q	M	wochenende	1	An welchen Tagen des Wochenendes sind Sie erreichbar?		en								1
 SQ		sa		Samstag		en								
 SQ		so		Sonntag		en								

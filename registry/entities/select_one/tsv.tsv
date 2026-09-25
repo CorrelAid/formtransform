@@ -3,7 +3,7 @@ S		language	1	en		en
 S		format	1	A		en								
 S		shownoanswer	1	N		en								
 SL		surveyls_title	1	Untitled Survey		en								
-G		Questions	1	Questions		en								
+G		Questions	1			en								
 Q	L	bildungsgrad	1	Was ist Ihr höchster Bildungsabschluss?		en								1
 A		1		Kein Abschluss		en								
 A		2		Haupt- oder Realschulabschluss		en								

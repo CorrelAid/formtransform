@@ -3,7 +3,7 @@ S		language	1	de		de
 S		format	1	A		de								
 S		shownoanswer	1	N		de								
 SL		surveyls_title	1	Untitled Survey		de								
-G		Questions	1	Questions		de								
+G		Questions	1			de								
 Q	M	geraetebesitz	1	Welche dieser Geräte besitzen Sie?		de				Y				1
 SQ		smart		Smartphone		de								
 SQ		lapt		Laptop		de								

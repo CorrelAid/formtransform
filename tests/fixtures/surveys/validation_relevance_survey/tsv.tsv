@@ -4,7 +4,7 @@ S		format	1	A		en
 S		shownoanswer	1	N		en								
 SL		surveyls_title	1	Validation and Relevance Test		en								
 SL		surveyls_welcometext	1	Validation and Relevance Test Survey		en								
-G		Questions	1	Questions		en								
+G		Questions	1			en								
 Q	S	username	1	Username		en		self != ''						1
 Q	N	age	1	Age		en		self >= 18 and self <= 120						1
 Q	N	price	1	Price		en		self > 0 and self < 1000						1

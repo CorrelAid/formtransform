@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { basename, dirname, join } from 'node:path';
 
-import { ConversionConfig } from './config/ConfigManager.js';
+import { defaultConfig } from './config/types.js';
+import type { LstsvConfig } from './config/types.js';
 import { resolveFileChoices } from './fileChoices.js';
 import { lstsvToDataCsv, lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
@@ -57,6 +58,8 @@ Options:
   -o, --output <file>     Write TSV to <file> (default: stdout)
       --title <text>      Override the survey title
       --language <code>   Default language code (default: en, or settings default_language)
+      --group-name <text> Name of the group created when the form has none
+                          (LimeSurvey needs one; default: "Questions")
       --no-markdown       Do not render markdown labels/hints to HTML
       --no-welcome-note   Do not promote a "welcome" note to surveyls_welcometext
       --no-end-note       Do not promote an "end" note to surveyls_endtext
@@ -223,6 +226,7 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     output: { type: 'string', short: 'o' },
     title: { type: 'string' },
     language: { type: 'string' },
+    'group-name': { type: 'string' },
     'no-markdown': { type: 'boolean', default: false },
     'no-welcome-note': { type: 'boolean', default: false },
     'no-end-note': { type: 'boolean', default: false },
@@ -236,18 +240,20 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
 
   const bytes = readInput(positionals, xlsform2lstsvHelp);
 
-  const config: Partial<ConversionConfig> = {
+  const config: Partial<LstsvConfig> = {
     convertMarkdown: !values['no-markdown'],
     convertWelcomeNote: !values['no-welcome-note'],
     convertEndNote: !values['no-end-note'],
     convertOtherPattern: !values['no-other-pattern'],
     hideNoAnswer: !values['show-no-answer'],
   };
-  if (values.language || values.title) {
+  if (values.language || values.title || values['group-name']) {
     config.defaults = {
-      language: (values.language as string) ?? 'en',
-      groupName: 'Questions',
-      surveyTitle: (values.title as string) ?? 'Untitled Survey',
+      language: (values.language as string) ?? defaultConfig.defaults.language,
+      groupName:
+        (values['group-name'] as string) ?? defaultConfig.defaults.groupName,
+      surveyTitle:
+        (values.title as string) ?? defaultConfig.defaults.surveyTitle,
       description: '',
     };
   }

@@ -57,8 +57,11 @@ export class GroupEmitter {
     // ('en'). A group row whose language differs from the survey base language
     // fails LimeSurvey's activation consistency check (e.g. a German-base survey
     // with an English-only "Questions" group).
+    // The group only exists because LimeSurvey needs one: give it the
+    // configured name (defaults.groupName) and no description, rather than
+    // repeating the name as a description nobody wrote.
     this.rowEmitter.emitForEachLanguage(
-      () => ({ class: 'G', name: groupName, text: groupName }),
+      () => ({ class: 'G', name: groupName, text: '' }),
       'direct',
     );
 

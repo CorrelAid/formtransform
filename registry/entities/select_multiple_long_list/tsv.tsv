@@ -3,7 +3,7 @@ S		language	1	en		en
 S		format	1	A		en									
 S		shownoanswer	1	N		en									
 SL		surveyls_title	1	Untitled Survey		en									
-G		Questions	1	Questions		en									
+G		Questions	1			en									
 Q	M	besuchtelaender	1	Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich.		en								cdlvocab-iso_3166_1	1
 SQ		AF		Afghanistan		en									
 SQ		AX		Åland Islands		en									
