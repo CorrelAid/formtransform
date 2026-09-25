@@ -12,6 +12,12 @@
 
 import { DDI_TYPE_MAP, RESPONSE_DOMAIN_MAP } from '../generated/DdiMappings.js';
 
+import {
+  OTHER_APPLIES_TO,
+  OTHER_CODE,
+  otherCompanionBase,
+} from '../conventions/other.js';
+import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
 import { Choice, Variable } from './types.js';
@@ -38,7 +44,7 @@ function makeGrpId(name: string): string {
 function isGridGroup(variables: Variable[], groupName: string): boolean {
   for (const v of variables) {
     if (v.group === groupName && v.groupAppearance) {
-      return v.groupAppearance.includes('table-list');
+      return isGridAppearance(v.groupAppearance);
     }
   }
   return false;
@@ -141,15 +147,11 @@ function detectOtherPatterns(variables: Variable[]): Map<string, OtherPattern> {
   const byName = new Map(variables.map((v) => [v.name, v]));
   const patterns = new Map<string, OtherPattern>();
   for (const v of variables) {
-    if (v.type !== 'text' || !v.name.endsWith('_other')) continue;
-    const baseName = v.name.slice(0, -'_other'.length);
+    const baseName = v.type === 'text' ? otherCompanionBase(v.name) : null;
+    if (!baseName) continue;
     const base = byName.get(baseName);
-    if (
-      !base ||
-      (base.type !== 'select_one' && base.type !== 'select_multiple')
-    )
-      continue;
-    if (!base.choices.some((c) => c.name === 'other')) continue;
+    if (!base || !OTHER_APPLIES_TO.includes(base.type)) continue;
+    if (!base.choices.some((c) => c.name === OTHER_CODE)) continue;
     patterns.set(baseName, {
       base,
       otherVar: v,
@@ -166,7 +168,7 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
   const baseName = base.name;
 
   if (p.isMulti) {
-    const nonOther = base.choices.filter((c) => c.name !== 'other');
+    const nonOther = base.choices.filter((c) => c.name !== OTHER_CODE);
     const childName = `${baseName}_choices`;
     const childId = makeGrpId(childName);
     const childMembers = nonOther
@@ -210,7 +212,7 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
 
   if (p.isMulti) {
     for (const choice of base.choices) {
-      if (choice.name === 'other') continue;
+      if (choice.name === OTHER_CODE) continue;
       addBinaryVar(
         dataDscr,
         makeVarId(`${baseName}_${choice.name}`),

@@ -3,6 +3,7 @@ import { ConfigManager } from '../../config/ConfigManager.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';
 import { GroupStackItem } from './constants.js';
+import { isGridAppearance } from '../../conventions/grid.js';
 import { Counters } from './counters.js';
 
 /**
@@ -200,7 +201,7 @@ export class GroupEmitter {
     const groupAppearance =
       typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
 
-    if (groupAppearance.includes('table-list')) {
+    if (isGridAppearance(groupAppearance)) {
       this.groupStack.push({
         originalName,
         sanitizedName,

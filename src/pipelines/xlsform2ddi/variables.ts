@@ -7,7 +7,17 @@
  */
 
 import { APPEARANCES } from '../../generated/Appearances.js';
-import conventions from '../../generated/conventions.js';
+import {
+  OTHER_APPLIES_TO,
+  OTHER_CODE,
+  OTHER_COMPANION_TYPE,
+  OTHER_SUFFIX,
+  otherLabelFor,
+} from '../../conventions/other.js';
+import {
+  isFromFileType,
+  vocabFromFilename,
+} from '../../conventions/fromFile.js';
 import {
   TYPE_MAP,
   NON_DDI_EMITTABLE_TYPES,
@@ -26,24 +36,11 @@ type Row = Record<string, unknown>;
 // expanded here — otherwise `or_other` produced no `other` category and no
 // free-text variable at all, silently dropping a column both LimeSurvey and ODK
 // store.
-const OTHER = conventions.conventions.other as {
-  choiceCode?: string;
-  companionSuffix?: string;
-  companionType?: string;
-  labels?: Record<string, string>;
-  appliesTo?: string[];
-};
-const OTHER_CODE = OTHER.choiceCode ?? 'other';
-const OTHER_SUFFIX = OTHER.companionSuffix ?? '_other';
-const OTHER_COMPANION_TYPE = OTHER.companionType ?? 'text';
-const OTHER_LABELS = OTHER.labels ?? {};
 /** XLSForm type-string token marking the shorthand form. */
 const OR_OTHER_TOKEN = 'or_other';
 
 /** Types the convention applies to (registry: `convention:other.appliesTo`). */
-const OTHER_TYPES = new Set(
-  OTHER.appliesTo ?? ['select_one', 'select_multiple'],
-);
+const OTHER_TYPES = new Set(OTHER_APPLIES_TO);
 
 /**
  * Language of the label column in use (`label::German (de)` → `de`), so the
@@ -56,11 +53,6 @@ function langFromLabelCol(labelCol: string): string {
     ? labelCol.slice('label::'.length).trim()
     : '';
   return /^[a-z]{2}$/i.test(suffix) ? suffix.toLowerCase() : 'en';
-}
-
-/** Canonical "other" label for a language, falling back to English. */
-function otherLabelFor(lang: string): string {
-  return OTHER_LABELS[lang] ?? OTHER_LABELS['en'] ?? 'Other';
 }
 
 /**
@@ -161,14 +153,9 @@ function resolveType(baseType: string, rawType: string): ResolvedType {
       vocab: '',
     };
   }
-  if (
-    baseType === 'select_one_from_file' ||
-    baseType === 'select_multiple_from_file'
-  ) {
+  if (isFromFileType(baseType)) {
     const filename = rawType.split(/\s+/).slice(1).join(' ');
-    const vocab = filename.toLowerCase().endsWith('.csv')
-      ? filename.slice(0, -'.csv'.length)
-      : filename;
+    const vocab = vocabFromFilename(filename);
     return { stdType: baseType, listName: '', vocab };
   }
   return { stdType: TYPE_MAP[baseType] ?? baseType, listName: '', vocab: '' };

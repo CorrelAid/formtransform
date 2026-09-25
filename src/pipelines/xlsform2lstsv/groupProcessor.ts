@@ -1,6 +1,7 @@
 import { SurveyRow } from '../../xlsform/types.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { SKIP_TYPES } from './constants.js';
+import { isGridAppearance } from '../../conventions/grid.js';
 
 export interface GroupInfo {
   originalName: string;
@@ -152,7 +153,7 @@ export class GroupProcessor {
     groupName: string,
     groupAppearance: string,
   ): { emit: boolean; isTableList: boolean } {
-    const isTableList = groupAppearance.includes('table-list');
+    const isTableList = isGridAppearance(groupAppearance);
     const isMessageOnly = this.messageOnlyGroups.has(groupName);
     const isParentOnly = this.parentOnlyGroups.has(groupName);
 

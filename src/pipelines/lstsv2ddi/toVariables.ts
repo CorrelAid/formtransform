@@ -16,30 +16,18 @@
  *   - `F` (array)          → grid group of `select_one` variables
  */
 
-import conventions from '../../generated/conventions.js';
-
 import { Choice, Variable } from '../../ddi/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
-
-// Semi-open "other" convention: LimeSurvey carries it as a native `other=Y`
-// flag (no code/label in the TSV), so the reverse path re-adds the `other`
-// category from these per-language labels and rebuilds the `<base>_other`
-// companion so the DDI emitter detects the pattern.
-const OTHER = conventions.conventions.other as {
-  choiceCode?: string;
-  companionSuffix?: string;
-  labels?: Record<string, string>;
-};
-/** LS answer code for the collapsed "other" choice (`convention:other`). */
-export const OTHER_CODE = OTHER.choiceCode ?? 'other';
-/** XLSForm companion-question suffix for the "other" free-text follow-up. */
-export const OTHER_SUFFIX = OTHER.companionSuffix ?? '_other';
-const OTHER_LABELS = OTHER.labels ?? {};
-
-/** Canonical "other" category label for a survey language (falls back to en). */
-export function otherLabelFor(lang: string): string {
-  return OTHER_LABELS[lang] ?? OTHER_LABELS['en'] ?? 'Other';
-}
+import {
+  OTHER_CODE,
+  OTHER_SUFFIX,
+  otherLabelFor,
+} from '../../conventions/other.js';
+import {
+  fromFileTypeFor,
+  vocabFromCssClass,
+} from '../../conventions/fromFile.js';
+import { GRID_APPEARANCE } from '../../conventions/grid.js';
 
 /** LimeSurvey question-type code → canonical standardized type slug. */
 const LS_TO_STD: Record<string, string> = {
@@ -69,24 +57,8 @@ for (const spec of Object.values(APPEARANCES)) {
 
 type Row = Record<string, string>;
 
-/** Prefix of the `cssclass` value carrying external-vocab provenance. */
-export const CDLVOCAB_PREFIX = 'cdlvocab-';
-
 function cell(row: Row, key: string): string {
   return (row[key] ?? '').trim();
-}
-
-/**
- * Extract the vocabulary id from a Q-row's `cssclass` attribute, or `''`.
- *
- * `select_*_from_file` questions inline their options as A/SQ rows and record
- * provenance as `cssclass="cdlvocab-<id>"` (a registered LimeSurvey attribute
- * that survives import) — see `xlsformConverter`.
- */
-export function vocabFromCssClass(cssclass: string): string {
-  return cssclass.startsWith(CDLVOCAB_PREFIX)
-    ? cssclass.slice(CDLVOCAB_PREFIX.length)
-    : '';
 }
 
 /**
@@ -108,8 +80,9 @@ function buildQuestionVar(
 
   if (cdlVocab) {
     vocab = cdlVocab;
-    if (type === 'select_one') type = 'select_one_from_file';
-    else if (type === 'select_multiple') type = 'select_multiple_from_file';
+    if (type === 'select_one' || type === 'select_multiple') {
+      type = fromFileTypeFor(type);
+    }
   } else if (type === 'select_one' || type === 'select_multiple') {
     // Synthetic list keyed by the question; choices fill from A/SQ rows.
     listName = name;
@@ -276,7 +249,7 @@ function drainArray(variables: Variable[], array: ArrayAccumulator): void {
       label: sq.label,
       group: array.group,
       groupLabel: array.label,
-      groupAppearance: 'table-list',
+      groupAppearance: GRID_APPEARANCE,
       listName: array.name,
       vocab: '',
       choices: array.answers.map((a) => ({ ...a })),

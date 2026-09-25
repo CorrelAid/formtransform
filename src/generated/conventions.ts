@@ -32,6 +32,7 @@ const conventions = {
       "ddiVocabFromFilename": "stripExtension",
       "ddiEmission": "concept[@vocab='<vocab>'] in place of inline catgry; catgry MUST NOT be emitted",
       "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import)",
+      "limesurveyCssClassPrefix": "cdlvocab-",
       "structuralNote": "select_multiple_from_file emits a flat <var> with concept/@vocab, NOT a varGrp[@type='multipleResp'] with binary children. This differs from select_multiple.",
       "appliesTo": [
         "select_one_from_file",
@@ -313,7 +314,8 @@ const conventions = {
         }
       ],
       "trigger": {
-        "xlsformPattern": "begin_group row with appearance=table-list (or name contains 'grid', or label contains 'matrix')",
+        "appearance": "table-list",
+        "xlsformPattern": "begin_group row with appearance=table-list",
         "applyTo": "begin_group + all rows until matching end_group"
       },
       "input": {
