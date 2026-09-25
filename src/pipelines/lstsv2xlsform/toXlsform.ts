@@ -433,9 +433,12 @@ function collectSelectMultiples(
         item.lsType === 'M' &&
         !vocabFromCssClass(item.cssclass)
       ) {
+        const codes = choicesByName.get(item.name) ?? [];
+        // LimeSurvey's native "other" (other=Y) is the implicit `other` code,
+        // which the forward path references as `<question>_other`.
         out.push({
           name: item.name,
-          codes: choicesByName.get(item.name) ?? [],
+          codes: item.otherFlag ? [...codes, OTHER_CODE] : codes,
         });
       }
     }
