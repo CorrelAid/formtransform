@@ -21,6 +21,9 @@ import {
   type BinaryOp,
   type XPathNode,
 } from './xpathParser.js';
+import { consoleWarning, warning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
+import { ConversionError } from '../../diagnostics.js';
 
 /**
  * Callback to look up a sanitized answer code given a question name and original choice value.
@@ -98,7 +101,11 @@ function wrapArgs(
 
 function arg(args: XPathNode[], i: number, fn: string): XPathNode {
   const node = args[i];
-  if (!node) throw new Error(`${fn}() needs at least ${i + 1} argument(s)`);
+  if (!node)
+    throw new ConversionError(
+      'xpath-syntax',
+      `${fn}() needs at least ${i + 1} argument(s)`,
+    );
   return node;
 }
 
@@ -173,7 +180,8 @@ function rewriteWithAnswerLookup(
 }
 
 function transpileSelected(args: XPathNode[], ctx?: TranspilerContext): string {
-  if (args.length !== 2) throw new Error('selected() needs 2 arguments');
+  if (args.length !== 2)
+    throw new ConversionError('xpath-syntax', 'selected() needs 2 arguments');
   const fieldName = transpile(args[0], ctx);
   const value = transpile(args[1], ctx).replace(/^['"]|['"]$/g, '');
   const sanitizedField = sanitizeName(fieldName);
@@ -187,7 +195,8 @@ function transpileSubstring(
   args: XPathNode[],
   ctx?: TranspilerContext,
 ): string {
-  if (args.length < 2) throw new Error('substring() needs ≥2 arguments');
+  if (args.length < 2)
+    throw new ConversionError('xpath-syntax', 'substring() needs ≥2 arguments');
   const stringArg = transpile(args[0], ctx);
   const startArg = transpile(args[1], ctx);
   const lengthArg = args.length > 2 ? transpile(args[2], ctx) : '';
@@ -206,7 +215,10 @@ function transpileFunctionCall(
   if (name === 'if' && args.length === 3) {
     return `if(${transpile(args[0], ctx)}, ${transpile(args[1], ctx)}, ${transpile(args[2], ctx)})`;
   }
-  throw new Error(`Unsupported function: ${name}()`);
+  throw new ConversionError(
+    'xpath-unsupported',
+    `Unsupported function: ${name}()`,
+  );
 }
 
 function transpileBinaryOp(
@@ -293,11 +305,11 @@ export function xpathToLimeSurveySync(
   try {
     return transpile(parseXPath(processedExpr), ctx);
   } catch (error: unknown) {
-    const wrapped = new Error(
+    throw new ConversionError(
+      error instanceof ConversionError ? error.code : 'xpath-syntax',
       `Cannot convert XPath expression "${xpathExpr}" to LimeSurvey: ${(error as Error).message}`,
+      { cause: error },
     );
-    (wrapped as Error & { cause?: unknown }).cause = error;
-    throw wrapped;
   }
 }
 
@@ -349,12 +361,18 @@ function reconstructRegexMatch(
  * @param constraint - The XPath constraint expression
  * @returns Validation pattern (regex or EM equation)
  */
-export function convertConstraint(constraint: string): Promise<string> {
-  return Promise.resolve(convertConstraintSync(constraint));
+export function convertConstraint(
+  constraint: string,
+  onWarning: WarningHandler = consoleWarning,
+): Promise<string> {
+  return Promise.resolve(convertConstraintSync(constraint, onWarning));
 }
 
 /** Synchronous core of {@link convertConstraint}. */
-export function convertConstraintSync(constraint: string): string {
+export function convertConstraintSync(
+  constraint: string,
+  onWarning: WarningHandler = consoleWarning,
+): string {
   if (!constraint) return '';
 
   const processedExpr = preprocessExpression(constraint);
@@ -376,7 +394,12 @@ export function convertConstraintSync(constraint: string): string {
     // Documented fallback: a constraint that isn't XPath (e.g. a bare regex)
     // is dropped rather than failing the conversion — the form then accepts
     // more input, it never hides questions.
-    console.error(`Constraint conversion error: ${(error as Error).message}`);
+    onWarning(
+      warning(
+        'constraint-dropped',
+        `Constraint "${constraint}" can't be converted and is dropped (the question accepts any answer): ${(error as Error).message}`,
+      ),
+    );
     return '';
   }
 }

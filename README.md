@@ -173,6 +173,30 @@ codebook describes a *dataset*, not an *instrument* — it carries no relevance,
 constraint, required, default or appearance, so reversing it would emit a survey
 that looks right and behaves wrongly.
 
+## Errors and warnings
+
+Every error the library throws is a `ConversionError` with a stable `code`
+(`type-unregistered`, `choice-list-empty`, `xpath-syntax`, …; see
+`DiagnosticCode`), a human `message`, and `subject`, the question it concerns.
+Branch on `code`, not on the message text.
+
+Warnings (a truncated name, an ignored appearance, a constraint that can't be
+converted) go to an `onWarning` callback. The default prints them to the
+console:
+
+```ts
+const warnings: Diagnostic[] = [];
+await new XLSFormToTSVConverter({ onWarning: (w) => warnings.push(w) }).convert(
+  survey,
+  choices,
+  settings,
+);
+XLSLoader.parseXLSData(buffer, { onWarning: (w) => warnings.push(w) });
+```
+
+`validateSubset` returns the same `Diagnostic` objects for every finding at
+once, instead of throwing on the first.
+
 ## Supported XLSForm Subset
 
 Not everything XLSForm allows is registered (supported). The library strictly

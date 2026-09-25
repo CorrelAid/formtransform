@@ -1,3 +1,4 @@
+import { ConversionError } from '../../diagnostics.js';
 /**
  * Parse the (bounded) LimeSurvey Expression Manager dialect the forward
  * transpiler emits (`src/converters/xpathTranspiler.ts`) and serialize it back
@@ -68,7 +69,10 @@ function scanString(
   let j = i + 1;
   while (j < src.length && src[j] !== quote) j++;
   if (j >= src.length) {
-    throw new Error(`unterminated string literal in: ${src}`);
+    throw new ConversionError(
+      'em-unsupported',
+      `unterminated string literal in: ${src}`,
+    );
   }
   return { token: { type: 'str', value: src.slice(i + 1, j) }, next: j + 1 };
 }
@@ -96,7 +100,10 @@ function scanOperator(src: string, i: number): { token: Token; next: number } {
   if (SINGLE_CHAR_OPS.includes(src[i])) {
     return { token: { type: 'op', value: src[i] }, next: i + 1 };
   }
-  throw new Error(`unsupported character "${src[i]}" in expression: ${src}`);
+  throw new ConversionError(
+    'em-unsupported',
+    `unsupported character "${src[i]}" in expression: ${src}`,
+  );
 }
 
 // ── AST ───────────────────────────────────────────────────────────────────
@@ -136,7 +143,11 @@ class Parser {
 
   private next(): Token {
     const tok = this.tokens[this.pos];
-    if (!tok) throw new Error('unexpected end of expression');
+    if (!tok)
+      throw new ConversionError(
+        'em-unsupported',
+        'unexpected end of expression',
+      );
     this.pos++;
     return tok;
   }
@@ -144,7 +155,10 @@ class Parser {
   private expect(type: TokenType): Token {
     const tok = this.next();
     if (tok.type !== type) {
-      throw new Error(`expected ${type}, got "${tok.value}"`);
+      throw new ConversionError(
+        'em-unsupported',
+        `expected ${type}, got "${tok.value}"`,
+      );
     }
     return tok;
   }
@@ -152,7 +166,10 @@ class Parser {
   parse(): EmNode {
     const node = this.parseBinary(1);
     if (this.pos < this.tokens.length) {
-      throw new Error(`unexpected trailing token "${this.peek()!.value}"`);
+      throw new ConversionError(
+        'em-unsupported',
+        `unexpected trailing token "${this.peek()!.value}"`,
+      );
     }
     return node;
   }
@@ -213,7 +230,10 @@ class Parser {
       const name = naok ? tok.value.slice(0, -'.NAOK'.length) : tok.value;
       return { t: 'ident', name, naok };
     }
-    throw new Error(`unexpected token "${tok.value}"`);
+    throw new ConversionError(
+      'em-unsupported',
+      `unexpected token "${tok.value}"`,
+    );
   }
 }
 

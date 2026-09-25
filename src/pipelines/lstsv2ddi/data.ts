@@ -26,6 +26,7 @@ import type { Variable } from '../../ddi/types.js';
 import type { Submission } from '../../ddi/data.js';
 
 import { OTHER_CODE, OTHER_SUFFIX } from '../../conventions/other.js';
+import { ConversionError } from '../../diagnostics.js';
 
 /** LimeSurvey's stored value for the "other" option of a list question. */
 const LS_OTHER_VALUE = '-oth-';
@@ -93,7 +94,8 @@ function matchChoice(subkey: string, variable: Variable): string | null {
   );
   if (prefixed.length === 1) return prefixed[0];
   if (prefixed.length > 1) {
-    throw new Error(
+    throw new ConversionError(
+      'response-ambiguous',
       `ambiguous LimeSurvey option column ${variable.name}[${subkey}]: matches ` +
         `choice codes ${prefixed.join(', ')}. Codes must be unique in their ` +
         'first 5 characters for a LimeSurvey export to be unambiguous.',

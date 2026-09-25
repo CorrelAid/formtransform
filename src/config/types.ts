@@ -4,6 +4,8 @@
  * The XLSForm row types used to live here; they are in `src/xlsform/types.ts`
  * now and re-exported below for compatibility.
  */
+import type { WarningHandler } from '../diagnostics.js';
+
 export type {
   SurveyRow,
   ChoiceRow,
@@ -55,6 +57,13 @@ export interface LstsvConfig {
    * unaffected.
    */
   hideQuestionTips?: boolean;
+
+  /**
+   * Receives the conversion's non-fatal findings (truncated names, ignored
+   * appearances, a dropped constraint, …) with a stable `code`. Defaults to
+   * printing them with `console.warn`.
+   */
+  onWarning?: WarningHandler;
 
   /**
    * Default values for survey elements

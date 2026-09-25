@@ -9,6 +9,7 @@
 import type { ChoiceRow, SurveyRow } from './xlsform/types.js';
 import { VOCABULARY_OPTIONS } from './generated/VocabularyOptions.js';
 import { parseCsvRecords } from './responseFile.js';
+import { ConversionError } from './diagnostics.js';
 
 const FROM_FILE_RE = /^select_(?:one|multiple)_from_file\s+(\S+)/;
 
@@ -38,7 +39,8 @@ export function parseVocabCsv(csvText: string, listName: string): ChoiceRow[] {
   const codeIdx = columns.indexOf('code');
   const labelIdx = columns.indexOf('label');
   if (codeIdx === -1 || labelIdx === -1) {
-    throw new Error(
+    throw new ConversionError(
+      'vocab-csv-invalid',
       `Vocabulary CSV ${listName} must have 'code' and 'label' columns; got: ${columns.join(',')}`,
     );
   }

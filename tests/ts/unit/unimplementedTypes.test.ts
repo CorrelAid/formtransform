@@ -8,25 +8,28 @@ describe('Unimplemented XLSForm Types Validation', () => {
         { type: 'geopoint', name: 'location', label: 'Location' },
       ];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'geopoint'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "geopoint"'),
+      });
     });
 
     test('throws error for unimplemented geotrace type', async () => {
       const survey = [{ type: 'geotrace', name: 'path', label: 'Path' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'geotrace'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "geotrace"'),
+      });
     });
 
     test('throws error for unimplemented geoshape type', async () => {
       const survey = [{ type: 'geoshape', name: 'area', label: 'Area' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'geoshape'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "geoshape"'),
+      });
     });
 
     test('throws error for unimplemented start-geopoint type', async () => {
@@ -34,9 +37,10 @@ describe('Unimplemented XLSForm Types Validation', () => {
         { type: 'start-geopoint', name: 'start_loc', label: 'Start Location' },
       ];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'start-geopoint'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "start-geopoint"'),
+      });
     });
   });
 
@@ -44,41 +48,46 @@ describe('Unimplemented XLSForm Types Validation', () => {
     test('throws error for unimplemented image type', async () => {
       const survey = [{ type: 'image', name: 'photo', label: 'Photo' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'image'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "image"'),
+      });
     });
 
     test('throws error for unimplemented audio type', async () => {
       const survey = [{ type: 'audio', name: 'recording', label: 'Recording' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'audio'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "audio"'),
+      });
     });
 
     test('throws error for unimplemented video type', async () => {
       const survey = [{ type: 'video', name: 'clip', label: 'Video' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'video'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "video"'),
+      });
     });
 
     test('throws error for unimplemented file type', async () => {
       const survey = [{ type: 'file', name: 'attachment', label: 'File' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'file'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "file"'),
+      });
     });
 
     test('throws error for unimplemented barcode type', async () => {
       const survey = [{ type: 'barcode', name: 'code', label: 'Barcode' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'barcode'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "barcode"'),
+      });
     });
   });
 
@@ -92,9 +101,10 @@ describe('Unimplemented XLSForm Types Validation', () => {
         },
       ];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'background-audio'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "background-audio"'),
+      });
     });
 
     test('throws error for unimplemented csv-external type', async () => {
@@ -102,25 +112,28 @@ describe('Unimplemented XLSForm Types Validation', () => {
         { type: 'csv-external', name: 'csv_data', label: 'CSV Data' },
       ];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'csv-external'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "csv-external"'),
+      });
     });
 
     test('throws error for unimplemented phonenumber type', async () => {
       const survey = [{ type: 'phonenumber', name: 'phone', label: 'Phone' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'phonenumber'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "phonenumber"'),
+      });
     });
 
     test('throws error for unimplemented email type', async () => {
       const survey = [{ type: 'email', name: 'email_addr', label: 'Email' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'email'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "email"'),
+      });
     });
   });
 
@@ -193,9 +206,10 @@ describe('Unimplemented XLSForm Types Validation', () => {
         { type: 'text', name: 'q1', label: 'Question 1' },
       ];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'calculate'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "calculate"'),
+      });
     });
 
     test('silently skips hidden type', async () => {
@@ -218,9 +232,10 @@ describe('Unimplemented XLSForm Types Validation', () => {
     test('throws error for unknown type (registry allowlist)', async () => {
       const survey = [{ type: 'unknown_type', name: 'q1', label: 'Question' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'unknown_type'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "unknown_type"'),
+      });
     });
   });
 });

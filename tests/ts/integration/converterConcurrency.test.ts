@@ -51,6 +51,6 @@ describe('XLSFormToTSVConverter concurrency', () => {
       [],
       [],
     );
-    await expect(p).rejects.toThrow(/list 'missing' has no rows/);
+    await expect(p).rejects.toMatchObject({ code: 'choice-list-empty' });
   });
 });

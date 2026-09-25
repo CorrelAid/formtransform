@@ -1,5 +1,15 @@
+// ── Diagnostics ────────────────────────────────────────────────────────
+export { ConversionError, consoleWarning } from './diagnostics.js';
+export type {
+  Diagnostic,
+  DiagnosticCode,
+  Severity,
+  WarningHandler,
+} from './diagnostics.js';
+
 // ── Format modules ─────────────────────────────────────────────────────
 export { XLSLoader } from './xlsform/loader.js';
+export type { LoadOptions } from './xlsform/loader.js';
 export { XLSFormParser } from './pipelines/xlsform2lstsv/xlsformParser.js';
 export { XLSValidator } from './xlsform/validate.js';
 export type {

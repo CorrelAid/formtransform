@@ -90,8 +90,7 @@ describe('Appearance Handling', () => {
       await convertAndParse(survey, choices);
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance'),
+          typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(0);
       warnSpy.mockRestore();
@@ -135,8 +134,7 @@ describe('Appearance Handling', () => {
       await convertAndParse(survey, choices);
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance'),
+          typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(0);
       warnSpy.mockRestore();
@@ -151,7 +149,7 @@ describe('Appearance Handling', () => {
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
           typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance "minimal"'),
+          call[0].includes('appearance "minimal"'),
       );
       expect(appearanceWarnings).toHaveLength(1);
       warnSpy.mockRestore();
@@ -176,8 +174,7 @@ describe('Appearance Handling', () => {
       await convertAndParse(survey, choices);
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance'),
+          typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(1);
       expect(appearanceWarnings[0][0]).toContain('"horizontal"');
@@ -197,8 +194,7 @@ describe('Appearance Handling', () => {
       await convertAndParse(survey);
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance'),
+          typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(1);
       expect(appearanceWarnings[0][0]).toContain('"compact"');
@@ -211,8 +207,7 @@ describe('Appearance Handling', () => {
       await convertAndParse(survey);
       const appearanceWarnings = warnSpy.mock.calls.filter(
         (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('Unsupported appearance'),
+          typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(0);
       warnSpy.mockRestore();

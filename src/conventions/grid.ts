@@ -4,9 +4,14 @@
  * DDI: `<varGrp type="grid">`.
  */
 import conventions from '../generated/conventions.js';
+import { ConversionError } from '../diagnostics.js';
 
 const GRID = conventions.composites.find((c) => c.id === 'grid');
-if (!GRID) throw new Error('registry has no grid composite');
+if (!GRID)
+  throw new ConversionError(
+    'registry-invalid',
+    'registry has no grid composite',
+  );
 
 /** The `begin_group` appearance that makes a group a grid. */
 export const GRID_APPEARANCE: string = GRID.trigger.appearance;
