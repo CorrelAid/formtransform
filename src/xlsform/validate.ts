@@ -40,7 +40,17 @@ export interface SubsetOptions {
    * vocabularies.
    */
   fileChoices?: Record<string, ChoiceRow[]>;
+  /**
+   * What the form is checked for. `'lstsv'` (default) applies every rule,
+   * including LimeSurvey's name/code limits. `'ddi'` drops those limits: DDI
+   * keeps names as authored, so a Kobo name like `full_name` is fine. Types,
+   * choice lists, appearances and uniqueness are still checked.
+   */
+  target?: SubsetTarget;
 }
+
+/** The conversion a subset check is for. */
+export type SubsetTarget = 'lstsv' | 'ddi';
 
 /** Inputs for {@link XLSValidator.validateAll}. */
 export interface ValidateAllOpts {
@@ -276,16 +286,18 @@ export class XLSValidator {
   static collectNameCodeErrors(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
+    target: SubsetTarget = 'lstsv',
   ): string[] {
     const errors: string[] = [];
     const seen = new Set<string>();
+    const lsRules = target === 'lstsv';
 
     for (const row of surveyData) {
-      this.collectSurveyNameError(row, seen, errors);
+      this.collectSurveyNameError(row, seen, lsRules, errors);
     }
     const codesByList = new Map<string, Set<string>>();
     for (const choice of choicesData) {
-      this.collectChoiceCodeError(choice, codesByList, errors);
+      this.collectChoiceCodeError(choice, codesByList, lsRules, errors);
     }
 
     return errors;
@@ -294,6 +306,7 @@ export class XLSValidator {
   private static collectSurveyNameError(
     row: SurveyRow,
     seen: Set<string>,
+    lsRules: boolean,
     errors: string[],
   ): void {
     const type = (row.type || '').trim();
@@ -307,7 +320,9 @@ export class XLSValidator {
     const base = isOther ? name.slice(0, -OTHER_SUFFIX.length) : name;
     const lsLength = isOther ? base.length + 'other'.length : name.length;
 
-    if (!NAME_RE.test(base)) {
+    if (!lsRules) {
+      // DDI keeps names as authored; only uniqueness below applies.
+    } else if (!NAME_RE.test(base)) {
       errors.push(
         `field name "${name}" must match ${NAME_RULES.pattern} (letters/digits only — no underscores, hyphens or spaces)`,
       );
@@ -326,6 +341,7 @@ export class XLSValidator {
   private static collectChoiceCodeError(
     choice: ChoiceRow,
     codesByList: Map<string, Set<string>>,
+    lsRules: boolean,
     errors: string[],
   ): void {
     const code = (choice.name ?? '').toString().trim();
@@ -346,6 +362,7 @@ export class XLSValidator {
     }
     seen.add(code);
     codesByList.set(listName, seen);
+    if (!lsRules) return;
     if (!CHOICE_RE.test(code)) {
       errors.push(
         `answer code "${code}" (list "${listName}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
@@ -375,7 +392,12 @@ export class XLSValidator {
   ): SubsetViolation[] {
     const violations: SubsetViolation[] = [];
 
-    for (const msg of this.collectNameCodeErrors(surveyData, choicesData)) {
+    const target = options.target ?? 'lstsv';
+    for (const msg of this.collectNameCodeErrors(
+      surveyData,
+      choicesData,
+      target,
+    )) {
       violations.push({ severity: 'error', message: msg });
     }
 
@@ -430,7 +452,7 @@ export class XLSValidator {
 
     const where = row.name ? ` (question "${row.name}")` : '';
     const problem =
-      this.typeProblem(baseType, where) ??
+      this.typeProblem(baseType, where, options.target ?? 'lstsv') ??
       (TYPE_MAPPINGS[baseType]?.requiresListName
         ? this.choiceListProblem(
             rawType,
@@ -446,7 +468,11 @@ export class XLSValidator {
   }
 
   /** Why a type is outside the subset, or `null` if it's in it. */
-  private static typeProblem(baseType: string, where: string): string | null {
+  private static typeProblem(
+    baseType: string,
+    where: string,
+    target: SubsetTarget,
+  ): string | null {
     const mapping = TYPE_MAPPINGS[baseType];
     if (!mapping) {
       return `type "${baseType}"${where} is not in the registry — not part of the supported XLSForm subset`;
@@ -454,6 +480,7 @@ export class XLSValidator {
     // select_*_from_file is registered-but-not-natively-expressible; it is
     // still supported (inlined from the CSV), so only flag other such types.
     if (
+      target === 'lstsv' &&
       mapping.supported === false &&
       mapping.limeSurveyType === null &&
       !baseType.endsWith('_from_file')

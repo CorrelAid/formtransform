@@ -234,3 +234,67 @@ describe('lstsv2ddi --data', () => {
     expect(r.stdout).toMatch(/--data-out <file>/);
   });
 });
+
+describe('xlsform2ddi subset check (#52)', () => {
+  function writeForm(
+    name: string,
+    survey: Record<string, unknown>[],
+    choices: Record<string, unknown>[],
+  ): string {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(survey),
+      'survey',
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(choices),
+      'choices',
+    );
+    const path = join(dir, name);
+    XLSX.writeFile(wb, path);
+    return path;
+  }
+
+  test('accepts Kobo names and long codes that LimeSurvey would reject', () => {
+    const f = writeForm(
+      'kobo.xlsx',
+      [{ type: 'select_one freq', name: 'how_often', label: 'How often' }],
+      [{ list_name: 'freq', name: 'sometimes', label: 'Sometimes' }],
+    );
+    const r = run(f, '-o', join(dir, 'kobo.xml'));
+    expect(r.status, r.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'kobo.xml'), 'utf-8')).toContain(
+      'name="how_often"',
+    );
+  });
+
+  test('rejects an unregistered type unless --skip-validation', () => {
+    const f = writeForm(
+      'geo.xlsx',
+      [{ type: 'geopoint', name: 'loc', label: 'Where' }],
+      [{ list_name: 'x', name: 'a', label: 'A' }],
+    );
+    const r = run(f, '-o', join(dir, 'geo.xml'));
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(
+      /type "geopoint" \(question "loc"\) is not in the registry/,
+    );
+    expect(existsSync(join(dir, 'geo.xml'))).toBe(false);
+
+    expect(run(f, '-o', join(dir, 'geo.xml'), '--skip-validation').status).toBe(
+      0,
+    );
+  });
+
+  test('validate --target ddi', () => {
+    const f = writeForm(
+      'kobo2.xlsx',
+      [{ type: 'text', name: 'full_name', label: 'Name' }],
+      [{ list_name: 'x', name: 'a', label: 'A' }],
+    );
+    expect(runCmd('validate', ['--target', 'ddi', f]).status).toBe(0);
+    expect(runCmd('validate', [f]).status).toBe(1);
+  });
+});

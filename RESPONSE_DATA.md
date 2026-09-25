@@ -61,9 +61,12 @@ Both write `codebook.xml` and `data.csv` beside it. Options:
 
 With the XML on stdout (no `-o`), `--data-out` is required.
 
-`xlsform2ddi` checks the form against the LimeSurvey-compatible name subset by
-default. A Kobo form with names like `full_name` needs `--skip-validation`. The
-DDI output does not rename anything.
+`xlsform2ddi` checks the form against the supported subset for DDI: registered
+types, resolvable choice lists, unique names and codes. LimeSurvey's name and
+code limits don't apply, because DDI keeps names as authored, so a Kobo form with
+names like `full_name` converts as is. A form with an unregistered type (e.g.
+`geopoint`) is rejected; `--skip-validation` converts it anyway. Check a form
+without converting with `formtransform validate --target ddi form.xlsx`.
 
 ### In the browser
 
@@ -73,6 +76,7 @@ filesystem, no network. With files from an `<input type="file">`:
 ```typescript
 import {
   XLSLoader,
+  XLSValidator,
   parseResponses,
   buildDdiXml,
   buildDataCsv,
@@ -86,6 +90,11 @@ import {
 const form = XLSLoader.parseXLSData(await formFile.arrayBuffer(), {
   skipValidation: true, // the LimeSurvey name subset doesn't apply to DDI
 });
+// The subset check for DDI: types, choice lists, unique names/codes.
+const errors = XLSValidator.validateSubset(form.surveyData, form.choicesData, {
+  target: 'ddi',
+}).filter((v) => v.severity === 'error');
+if (errors.length) throw new Error(errors.map((e) => e.message).join('\n'));
 const rows = parseResponses(await dataFile.text(), dataFile.name);
 const xml = buildDdiXml(form.surveyData, form.choicesData, {
   settings: form.settingsData[0],
