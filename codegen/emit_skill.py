@@ -262,14 +262,18 @@ def _allowlist_section(unreg: dict) -> list[str]:
 
 def _other_section(other: dict) -> list[str]:
     code = other.get("choiceCode", "other")
+    templates = other.get("relevanceTemplates", {})
+    relevance = "; ".join(f"for `{t}`: `{tpl}`" for t, tpl in templates.items())
     return [
         "## `or_other` pattern (open \u201cOther\u201d field)\n",
         f"Applies to: {', '.join(f'`{t}`' for t in other.get('appliesTo', []))}. "
         f"Add a choice with code `{code}`, then a companion "
         f"row of type `{other.get('companionType', 'text')}` named "
-        f"`<question>{other.get('companionSuffix', '_other')}` shown only when the "
-        "\u201cother\u201d choice is picked \u2014 set its `relevant` to `${<question>} = "
-        f"'{code}'`. See the `select_one_other` example.\n",
+        f"`<question>{other.get('companionSuffix', '_other')}` directly after the question, "
+        "shown only when the \u201cother\u201d choice is picked. Set its `relevant` "
+        f"{relevance}. A `select_multiple` value lists every ticked code, so `=` "
+        "would only match when \u201cother\u201d is the sole answer. See the "
+        "`select_one_other` and `select_multiple_other` examples.\n",
     ]
 
 

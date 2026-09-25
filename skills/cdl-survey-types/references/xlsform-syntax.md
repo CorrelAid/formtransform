@@ -22,7 +22,7 @@ Write names and choice codes as letters and digits only (`^[a-zA-Z0-9]+$`), e.g.
 
 ## `or_other` pattern (open “Other” field)
 
-Applies to: `select_one`, `select_multiple`. Add a choice with code `other`, then a companion row of type `text` named `<question>_other` shown only when the “other” choice is picked — set its `relevant` to `${<question>} = 'other'`. See the `select_one_other` example.
+Applies to: `select_one`, `select_multiple`. Add a choice with code `other`, then a companion row of type `text` named `<question>_other` directly after the question, shown only when the “other” choice is picked. Set its `relevant` for `select_one`: `${<question>} = 'other'`; for `select_multiple`: `selected(${<question>}, 'other')`. A `select_multiple` value lists every ticked code, so `=` would only match when “other” is the sole answer. See the `select_one_other` and `select_multiple_other` examples.
 
 ## Exclusive answers (`exclusive` column)
 

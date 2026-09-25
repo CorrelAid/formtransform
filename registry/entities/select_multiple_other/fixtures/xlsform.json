@@ -9,7 +9,7 @@
       "type": "text",
       "name": "geraetebesitz_other",
       "label": "Sonstiges (bitte angeben)",
-      "relevant": "${geraetebesitz} = 'other'"
+      "relevant": "selected(${geraetebesitz}, 'other')"
     }
   ],
   "choices": [

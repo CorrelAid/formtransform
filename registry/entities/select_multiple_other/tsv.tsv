@@ -8,4 +8,4 @@ Q	M	geraetebesitz	1	Welche dieser Geräte besitzen Sie?		de				Y				1
 SQ		smart		Smartphone		de								
 SQ		lapt		Laptop		de								
 SQ		tabl		Tablet		de								
-Q	S	geraetebesitzother	geraetebesitz == 'other'	Sonstiges (bitte angeben)		de								1
+Q	S	geraetebesitzother	(geraetebesitz_other.NAOK == 'Y')	Sonstiges (bitte angeben)		de								1
