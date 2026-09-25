@@ -34,6 +34,8 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 - **`src/ddi/`** — the DDI-Codebook 2.5 emitter (`codebook.ts`, `xml.ts`, `notes.ts`) over the canonical `Variable[]` model (`types.ts`). This model is the hub: both DDI pipelines produce `Variable[]`, then one writer emits the XML.
 
+- **`src/conventions/`** — one module per registry convention (`other.ts`, `fromFile.ts`, `exclusive.ts`, `grid.ts`, `metadata.ts`). Each reads its values from `src/generated/conventions` and exposes helpers; every format module and pipeline imports them from here. No convention value (suffix, choice code, label, prefix) is written out anywhere else, which `tests/ts/unit/conventionLiterals.test.ts` enforces.
+
 #### Pipelines
 
 - **`src/pipelines/<source>2<target>/`** — One module per supported direction:

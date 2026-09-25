@@ -21,7 +21,8 @@
         }
       ],
       "trigger": {
-        "xlsformPattern": "begin_group row with appearance=table-list (or name contains 'grid', or label contains 'matrix')",
+        "appearance": "table-list",
+        "xlsformPattern": "begin_group row with appearance=table-list",
         "applyTo": "begin_group + all rows until matching end_group"
       },
       "input": {

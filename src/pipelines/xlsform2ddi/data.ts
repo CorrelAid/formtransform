@@ -14,6 +14,7 @@
 import { splitDataVars } from '../../ddi/codebook.js';
 import type { DataVarBuckets, OtherPattern } from '../../ddi/codebook.js';
 import { classifyNotes } from '../../ddi/notes.js';
+import { OTHER_CODE } from '../../conventions/other.js';
 import type { Variable } from '../../ddi/types.js';
 
 /** One raw response record, keyed by question name or `group/name` path. */
@@ -42,7 +43,7 @@ function binary(variable: Variable, choice: string): Column {
 function otherPatternColumns(p: OtherPattern): Column[] {
   const cols: Column[] = p.isMulti
     ? p.base.choices
-        .filter((c) => c.name !== 'other')
+        .filter((c) => c.name !== OTHER_CODE)
         .map((c) => binary(p.base, c.name))
     : [single(p.base)];
   // The `_other` free text is always its own column.

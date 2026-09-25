@@ -2,7 +2,11 @@ import { SurveyRow, ChoiceRow } from '../../xlsform/types.js';
 import { TypeInfo } from './typeMapper.js';
 import { ChoiceManager } from './choiceManager.js';
 import { LanguageHandler } from './languageHandler.js';
-import { OTHER_LABELS } from './constants.js';
+import {
+  OTHER_CODE,
+  OTHER_LABELS,
+  OTHER_SUFFIX,
+} from '../../conventions/other.js';
 
 /**
  * Detects the "X_other" pattern: a follow-up question with relevance
@@ -11,13 +15,6 @@ import { OTHER_LABELS } from './constants.js';
  * LimeSurvey seeing two "other" options.
  */
 export class OtherPatternDetector {
-  private readonly otherNames = new Set([
-    'other',
-    '_other',
-    'other_option',
-    'other_choice',
-  ]);
-
   constructor(
     private choiceManager: ChoiceManager,
     private languageHandler: LanguageHandler,
@@ -36,7 +33,7 @@ export class OtherPatternDetector {
     const currentName = currentRow.name?.trim();
     if (!currentName) return false;
 
-    const otherQuestionName = `${currentName}_other`;
+    const otherQuestionName = `${currentName}${OTHER_SUFFIX}`;
     const sanitizedCurrentName = sanitizeName(currentName);
 
     for (const row of surveyData) {
@@ -44,9 +41,12 @@ export class OtherPatternDetector {
 
       const relevance = row.relevant.trim();
       // Pattern: ${name} = 'other', ${name} == 'other', or selected(${name}, 'other')
+      const code = escapeRegExp(OTHER_CODE);
       const patterns = [currentName, sanitizedCurrentName].flatMap((n) => [
-        new RegExp(`\\$\\{${n}\\}\\s*={1,2}\\s*['"]other['"]`),
-        new RegExp(`selected\\(\\s*\\$\\{${n}\\}\\s*,\\s*['"]other['"]\\s*\\)`),
+        new RegExp(`\\$\\{${n}\\}\\s*={1,2}\\s*['"]${code}['"]`),
+        new RegExp(
+          `selected\\(\\s*\\$\\{${n}\\}\\s*,\\s*['"]${code}['"]\\s*\\)`,
+        ),
       ]);
 
       if (patterns.some((p) => p.test(relevance))) {
@@ -65,12 +65,10 @@ export class OtherPatternDetector {
     const choices = this.choiceManager.getChoices(typeInfo.listName);
     if (!choices) return;
 
-    const removed = choices.filter((choice) =>
-      this.otherNames.has(choice.name?.trim().toLowerCase() || ''),
-    );
-    const filteredChoices = choices.filter(
-      (choice) => !this.otherNames.has(choice.name?.trim().toLowerCase() || ''),
-    );
+    const isOther = (choice: ChoiceRow) =>
+      (choice.name?.trim().toLowerCase() || '') === OTHER_CODE;
+    const removed = choices.filter(isOther);
+    const filteredChoices = choices.filter((choice) => !isOther(choice));
 
     if (filteredChoices.length < choices.length) {
       console.log(
@@ -101,4 +99,8 @@ export class OtherPatternDetector {
       }
     }
   }
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

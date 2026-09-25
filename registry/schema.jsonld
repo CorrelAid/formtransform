@@ -528,6 +528,15 @@
               "type": "object",
               "required": true,
               "fields": {
+                "appearance": {
+                  "type": "string",
+                  "required": true,
+                  "consumedBy": [
+                    "ls-transformer",
+                    "ddi-emitter"
+                  ],
+                  "description": "The begin_group appearance that makes a group this composite (machine-readable form of xlsformPattern)."
+                },
                 "xlsformPattern": {
                   "type": "string",
                   "required": true,

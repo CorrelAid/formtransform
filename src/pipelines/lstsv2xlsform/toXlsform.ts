@@ -28,13 +28,17 @@ import { defaultConfig } from '../../config/types.js';
 import type { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
-import { EXCLUSIVE_RULE } from '../../xlsform/exclusive.js';
+import { EXCLUSIVE_RULE } from '../../conventions/exclusive.js';
 import {
   OTHER_CODE,
   OTHER_SUFFIX,
   otherLabelFor,
+} from '../../conventions/other.js';
+import {
+  fromFileTypeFor,
   vocabFromCssClass,
-} from '../lstsv2ddi/toVariables.js';
+} from '../../conventions/fromFile.js';
+import { GRID_APPEARANCE } from '../../conventions/grid.js';
 
 import { formatDefaultLanguage } from './languageNames.js';
 import { htmlToMarkdown } from '../../utils/markdownRenderer.js';
@@ -474,7 +478,7 @@ function emitBucketOpen(ctx: BucketOpenCtx): {
   let groupAppearance: string | undefined;
   if (items.length === 1 && arrayItem) {
     groupName = arrayItem.name;
-    groupAppearance = 'table-list';
+    groupAppearance = GRID_APPEARANCE;
   } else {
     groupName = slugifyGroupName(groupLabelText);
   }
@@ -619,10 +623,7 @@ function composeTypeWithList(
 ): { type: string; emittedChoices: boolean } {
   const vocab = vocabFromCssClass(item.cssclass);
   if (vocab) {
-    const fromFile =
-      base === 'select_one'
-        ? 'select_one_from_file'
-        : 'select_multiple_from_file';
+    const fromFile = fromFileTypeFor(base);
     return { type: `${fromFile} ${vocab}.csv`, emittedChoices: false };
   }
   if (base === 'select_one' || base === 'select_multiple') {

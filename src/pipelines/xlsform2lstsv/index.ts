@@ -6,12 +6,7 @@ import { TSVGenerator } from '../../lstsv/serialize.js';
 import { TypeMapper, TYPE_MAPPINGS } from './typeMapper.js';
 
 // Import extracted constants
-import {
-  SKIP_TYPES,
-  UNIMPLEMENTED_TYPES,
-  FROM_FILE_BASE,
-  TSVRowData,
-} from './constants.js';
+import { SKIP_TYPES, UNIMPLEMENTED_TYPES, TSVRowData } from './constants.js';
 import { ChoiceManager } from './choiceManager.js';
 import { GroupProcessor } from './groupProcessor.js';
 import { LanguageHandler } from './languageHandler.js';
@@ -27,7 +22,12 @@ import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
 import { registeredFileChoices, registeredVocabFiles } from '../../vocab.js';
 import { parameterAttributes } from './parameters.js';
-import { EXCLUSIVE_RULE, isExclusive } from '../../xlsform/exclusive.js';
+import { EXCLUSIVE_RULE, isExclusive } from '../../conventions/exclusive.js';
+import {
+  FROM_FILE_BASE,
+  cssClassForVocab,
+  vocabFromFilename,
+} from '../../conventions/fromFile.js';
 
 // Registry appearances are an allowlist: only 'handled' entries are
 // registered. Anything else (or a handled appearance on the wrong type)
@@ -425,7 +425,7 @@ export class XLSFormToTSVConverter {
     // native slot for. listName stays the filename (choicesMap was keyed by it).
     let cdlVocab = '';
     if (xfTypeInfo.base in FROM_FILE_BASE) {
-      cdlVocab = (xfTypeInfo.listName ?? '').replace(/\.csv$/i, '');
+      cdlVocab = vocabFromFilename(xfTypeInfo.listName ?? '');
       xfTypeInfo = { ...xfTypeInfo, base: FROM_FILE_BASE[xfTypeInfo.base] };
     }
 
@@ -632,7 +632,7 @@ export class XLSFormToTSVConverter {
       // LimeSurvey import and be queryable, unlike an unregistered attribute.
       // It's a machine hook only (no styling effect); the faithful reference
       // still lives in DDI's concept/@vocab. Empty for all other questions.
-      ...(cdlVocab ? { cssclass: `cdlvocab-${cdlVocab}` } : {}),
+      ...(cdlVocab ? { cssclass: cssClassForVocab(cdlVocab) } : {}),
       // Bounds etc. from the `parameters` column (range), per the registry.
       ...attributes,
     };

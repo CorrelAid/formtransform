@@ -4,7 +4,15 @@ import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
 import { SurveyRow, ChoiceRow } from './types.js';
 import { registeredVocabFiles } from '../vocab.js';
-import { EXCLUSIVE_RULE, exclusiveCell, isExclusive } from './exclusive.js';
+import {
+  EXCLUSIVE_RULE,
+  exclusiveCell,
+  isExclusive,
+} from '../conventions/exclusive.js';
+import { OTHER_SUFFIX } from '../conventions/other.js';
+import { isFromFileType } from '../conventions/fromFile.js';
+import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
+import { normalizeName } from './identifiers.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
@@ -23,9 +31,7 @@ const STRUCTURAL = new Set([
 ]);
 
 // Metadata rows silently skipped by the converter (convention:unregisteredRows).
-const METADATA_TYPES = new Set<string>(
-  conventions.conventions.unregisteredRows.metadataRowTypes,
-);
+const METADATA_TYPES = new Set<string>(METADATA_ROW_TYPES);
 
 /** A single subset-validation finding. */
 export interface SubsetViolation {
@@ -63,10 +69,9 @@ export interface ValidateAllOpts {
   choicesSheetName?: string;
 }
 
-// The semi-open `<base>_other` follow-up is a registry convention. LimeSurvey
-// carries "other" via its native `other=Y` setting, so this underscore is a
-// source-side marker, not a literal LS code — validate only the `<base>` part.
-const OTHER_SUFFIX = '_other';
+// The semi-open `<base>_other` follow-up (convention:other): LimeSurvey
+// carries "other" via its native `other=Y` setting, so the suffix's underscore
+// is a source-side marker, not a literal LS code — validate only `<base>`.
 
 export class XLSValidator {
   /**
@@ -320,7 +325,9 @@ export class XLSValidator {
     // it sanitizes to (base + "other"), not the raw underscore form.
     const isOther = name.endsWith(OTHER_SUFFIX);
     const base = isOther ? name.slice(0, -OTHER_SUFFIX.length) : name;
-    const lsLength = isOther ? base.length + 'other'.length : name.length;
+    const lsLength = isOther
+      ? base.length + normalizeName(OTHER_SUFFIX).length
+      : name.length;
 
     if (!lsRules) {
       // DDI keeps names as authored; only uniqueness below applies.
@@ -522,7 +529,7 @@ export class XLSValidator {
       target === 'lstsv' &&
       mapping.supported === false &&
       mapping.limeSurveyType === null &&
-      !baseType.endsWith('_from_file')
+      !isFromFileType(baseType)
     ) {
       return `type "${baseType}"${where} is registered but not expressible in LimeSurvey TSV`;
     }
@@ -544,7 +551,7 @@ export class XLSValidator {
     fileChoices: Record<string, ChoiceRow[]>,
   ): string | null {
     const target = rawType.split(/\s+/)[1];
-    if (baseType.endsWith('_from_file')) {
+    if (isFromFileType(baseType)) {
       if (!target) {
         return `"${baseType}"${where} needs a vocabulary file: "${baseType} <file>.csv"`;
       }

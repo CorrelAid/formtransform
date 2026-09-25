@@ -25,7 +25,7 @@
 import type { Variable } from '../../ddi/types.js';
 import type { Submission } from '../xlsform2ddi/data.js';
 
-import { OTHER_CODE, OTHER_SUFFIX } from './toVariables.js';
+import { OTHER_CODE, OTHER_SUFFIX } from '../../conventions/other.js';
 
 /** LimeSurvey's stored value for the "other" option of a list question. */
 const LS_OTHER_VALUE = '-oth-';
