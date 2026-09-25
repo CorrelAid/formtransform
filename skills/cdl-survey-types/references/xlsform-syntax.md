@@ -10,7 +10,7 @@ Metadata rows (`start`, `end`, `today`, `deviceid`, `username`, `hidden`, `audit
 
 ## Names & choice codes
 
-Author names/codes in English `snake_case`. Downstream (LimeSurvey) sanitization strips `[_-]` to the pattern `^[a-zA-Z0-9]+$` and truncates, so keep the alphanumeric stem short and unambiguous:
+Write names and choice codes as letters and digits only (`^[a-zA-Z0-9]+$`), e.g. `jobsatisfaction` or `jobSatisfaction`: no underscores, hyphens, spaces or umlauts. The only exception is the `<question>_other` companion row. The validator rejects anything else. `FieldSanitizer` produces conforming names from free text: it transliterates (`ä`→`ae`, `ß`→`ss`), drops other diacritics, deletes the remaining non-alphanumerics and truncates, so keep the stem short and unambiguous:
 
 - **Variable `name`:** ≤ 20 chars after stripping. Must be unique — duplicates get a numeric suffix.
 - **Choice `name` (code):** ≤ 5 chars after stripping — longer codes are truncated in LimeSurvey, so short codes (or plain integers, as in the examples) are safest.

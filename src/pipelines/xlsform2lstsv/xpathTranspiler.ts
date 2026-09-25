@@ -12,6 +12,8 @@
  * documented fallback (`''`, i.e. no validation) — see {@link convertConstraint}.
  */
 
+import { normalizeName } from '../../xlsform/identifiers.js';
+
 import {
   PRECEDENCE,
   UNARY_PRECEDENCE,
@@ -51,7 +53,7 @@ function isVariableRef(
 }
 
 function sanitizeName(name: string): string {
-  return name.replace(/[_-]/g, '');
+  return normalizeName(name);
 }
 
 /** How tightly a node binds when it appears as an operand. */

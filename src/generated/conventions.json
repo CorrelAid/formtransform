@@ -139,15 +139,36 @@
     "sanitization": {
       "name": {
         "maxLength": 20,
-        "stripCharsRegex": "[_-]",
+        "transliterate": {
+          "ä": "ae",
+          "ö": "oe",
+          "ü": "ue",
+          "Ä": "Ae",
+          "Ö": "Oe",
+          "Ü": "Ue",
+          "ß": "ss"
+        },
+        "stripDiacritics": true,
+        "stripCharsRegex": "[^a-zA-Z0-9]",
         "pattern": "^[a-zA-Z0-9]+$",
         "dedupStrategy": "numeric-suffix"
       },
       "choiceCode": {
         "maxLength": 5,
-        "stripCharsRegex": "[_-]",
+        "transliterate": {
+          "ä": "ae",
+          "ö": "oe",
+          "ü": "ue",
+          "Ä": "Ae",
+          "Ö": "Oe",
+          "Ü": "Ue",
+          "ß": "ss"
+        },
+        "stripDiacritics": true,
+        "stripCharsRegex": "[^a-zA-Z0-9]",
         "pattern": "^[a-zA-Z0-9]+$"
-      }
+      },
+      "order": "transliterate, then (if stripDiacritics) NFKD-decompose and drop combining marks, then delete every stripCharsRegex match, then truncate to maxLength. The result always matches `pattern`; an input with no letter or digit left is an error, not an empty name."
     },
     "surveySettings": {
       "fields": [

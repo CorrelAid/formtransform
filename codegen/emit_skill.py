@@ -233,10 +233,13 @@ def _naming_section(san: dict) -> list[str]:
     cc = san.get("choiceCode", {})
     return [
         "## Names & choice codes\n",
-        "Author names/codes in English `snake_case`. Downstream (LimeSurvey) "
-        f"sanitization strips `{n.get('stripCharsRegex', '[_-]')}` "
-        f"to the pattern `{n.get('pattern', '')}` and truncates, so keep the "
-        "alphanumeric stem short and unambiguous:\n",
+        f"Write names and choice codes as letters and digits only (`{n.get('pattern', '')}`), "
+        "e.g. `jobsatisfaction` or `jobSatisfaction`: no underscores, hyphens, spaces "
+        "or umlauts. The only exception is the `<question>_other` companion row. "
+        "The validator rejects anything else. `FieldSanitizer` produces conforming "
+        "names from free text: it transliterates (`ä`→`ae`, `ß`→`ss`), drops other "
+        "diacritics, deletes the remaining non-alphanumerics and truncates, so keep "
+        "the stem short and unambiguous:\n",
         f"- **Variable `name`:** \u2264 {n.get('maxLength', '?')} chars after stripping. "
         "Must be unique \u2014 duplicates get a numeric suffix.",
         f"- **Choice `name` (code):** \u2264 {cc.get('maxLength', '?')} chars after stripping "
