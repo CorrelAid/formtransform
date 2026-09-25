@@ -29,14 +29,14 @@ Each [release](https://github.com/CorrelAid/formtransform/releases) carries a
 prebuilt package. Installing it runs no build step:
 
 ```bash
-npm install https://github.com/CorrelAid/formtransform/releases/download/v0.1.4/correlaid-formtransform-0.1.4.tgz
+npm install https://github.com/CorrelAid/formtransform/releases/download/v0.1.5/correlaid-formtransform-0.1.5.tgz
 ```
 
 Installing from git also works, but builds `dist/` on install through the
 `prepare` script, which needs TypeScript and install scripts enabled:
 
 ```bash
-npm install github:CorrelAid/formtransform#v0.1.4
+npm install github:CorrelAid/formtransform#v0.1.5
 ```
 
 Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
