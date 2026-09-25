@@ -17,6 +17,7 @@ import type { Submission } from '../../ddi/data.js';
 import { normalizeLimeSurveyResponses } from './data.js';
 import type { NormalizeResponsesOptions } from './data.js';
 import { lstsvToVariables } from './toVariables.js';
+import { ConversionError } from '../../diagnostics.js';
 
 export { parseLstsv } from '../../lstsv/parser.js';
 export { lstsvToVariables } from './toVariables.js';
@@ -43,7 +44,8 @@ function parseChecked(
   const violations = validateLstsvSubset(rows);
   const errors = violations.filter((v) => v.severity === 'error');
   if (errors.length > 0) {
-    throw new Error(
+    throw new ConversionError(
+      'lstsv-outside-subset',
       `LimeSurvey TSV uses ${errors.length} feature(s) outside the transformable subset:\n  - ` +
         errors.map((e) => e.message).join('\n  - '),
     );

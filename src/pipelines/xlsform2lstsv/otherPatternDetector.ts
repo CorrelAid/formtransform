@@ -7,6 +7,8 @@ import {
   OTHER_LABELS,
   OTHER_SUFFIX,
 } from '../../conventions/other.js';
+import { consoleWarning, warning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 
 /**
  * Detects the "X_other" pattern: a follow-up question with relevance
@@ -18,6 +20,7 @@ export class OtherPatternDetector {
   constructor(
     private choiceManager: ChoiceManager,
     private languageHandler: LanguageHandler,
+    private onWarning: WarningHandler = consoleWarning,
   ) {}
 
   /**
@@ -71,9 +74,6 @@ export class OtherPatternDetector {
     const filteredChoices = choices.filter((choice) => !isOther(choice));
 
     if (filteredChoices.length < choices.length) {
-      console.log(
-        `Removed "other" choice(s) from list "${typeInfo.listName}" for question "${row.name}" when using _other question pattern`,
-      );
       this.verifyOtherLabel(removed, row);
       this.choiceManager.setChoices(typeInfo.listName, filteredChoices);
     }
@@ -93,8 +93,12 @@ export class OtherPatternDetector {
         this.languageHandler.getBaseLanguage(),
       );
       if (label && label.trim() && label.trim() !== expected) {
-        console.warn(
-          `"other" choice label "${label}" on "${row.name}" is not the canonical ${this.languageHandler.getBaseLanguage()} label "${expected}"; the DDI round-trip will use "${expected}".`,
+        this.onWarning(
+          warning(
+            'other-label-noncanonical',
+            `"other" choice label "${label}" on "${row.name}" is not the canonical ${this.languageHandler.getBaseLanguage()} label "${expected}"; the DDI round-trip will use "${expected}".`,
+            row.name,
+          ),
         );
       }
     }

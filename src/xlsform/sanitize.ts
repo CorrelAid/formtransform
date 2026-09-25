@@ -1,6 +1,8 @@
 import conventions from '../generated/conventions.js';
 
 import { normalizeCode, normalizeName } from './identifiers.js';
+import { ConversionError, consoleWarning, warning } from '../diagnostics.js';
+import type { DiagnosticCode, WarningHandler } from '../diagnostics.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
@@ -12,11 +14,14 @@ function normalizeOrThrow(
   value: string,
   normalize: (s: string) => string,
   what: string,
+  code: DiagnosticCode,
 ): string {
   const out = normalize(value);
   if (out === '') {
-    throw new Error(
+    throw new ConversionError(
+      code,
       `${what} "${value}" has no letters or digits left after sanitization (${NAME_RULES.pattern})`,
+      { subject: value },
     );
   }
   return out;
@@ -32,7 +37,8 @@ export class FieldSanitizer {
    */
   private strippedToUnique: Map<string, string> = new Map();
 
-  constructor() {}
+  /** @param onWarning receives truncation and collision notices (default: console). */
+  constructor(private readonly onWarning: WarningHandler = consoleWarning) {}
 
   /**
    * Basic sanitization: transliterate, strip everything outside
@@ -40,11 +46,20 @@ export class FieldSanitizer {
    * sanitizeNameUnique for that. Throws when nothing usable is left.
    */
   sanitizeName(name: string): string {
-    const result = normalizeOrThrow(name, normalizeName, 'Field name');
+    const result = normalizeOrThrow(
+      name,
+      normalizeName,
+      'Field name',
+      'name-empty-after-sanitize',
+    );
     if (result.length > MAX_FIELD_LENGTH) {
       const truncated = result.substring(0, MAX_FIELD_LENGTH);
-      console.warn(
-        `Field name "${name}" exceeds maximum length of ${MAX_FIELD_LENGTH} characters and will be truncated to "${truncated}"`,
+      this.onWarning(
+        warning(
+          'name-truncated',
+          `Field name "${name}" exceeds maximum length of ${MAX_FIELD_LENGTH} characters and will be truncated to "${truncated}"`,
+          name,
+        ),
       );
       return truncated;
     }
@@ -57,7 +72,12 @@ export class FieldSanitizer {
    * a numeric suffix is appended (e.g. "fieldname1").
    */
   sanitizeNameUnique(name: string): string {
-    const stripped = normalizeOrThrow(name, normalizeName, 'Field name');
+    const stripped = normalizeOrThrow(
+      name,
+      normalizeName,
+      'Field name',
+      'name-empty-after-sanitize',
+    );
     const truncated =
       stripped.length > MAX_FIELD_LENGTH
         ? stripped.substring(0, MAX_FIELD_LENGTH)
@@ -81,8 +101,12 @@ export class FieldSanitizer {
 
     this.usedNames.add(candidate);
     this.strippedToUnique.set(stripped, candidate);
-    console.warn(
-      `Field name "${name}" collides with an existing name after sanitization; renamed to "${candidate}"`,
+    this.onWarning(
+      warning(
+        'name-collision',
+        `Field name "${name}" collides with an existing name after sanitization; renamed to "${candidate}"`,
+        name,
+      ),
     );
     return candidate;
   }
@@ -110,13 +134,21 @@ export class FieldSanitizer {
   }
 
   sanitizeAnswerCode(code: string): string {
-    const result = normalizeOrThrow(code, normalizeCode, 'Answer code');
+    const result = normalizeOrThrow(
+      code,
+      normalizeCode,
+      'Answer code',
+      'code-empty-after-sanitize',
+    );
 
     const maxLength = MAX_CHOICE_LENGTH;
     if (result.length > maxLength) {
       const truncated = result.substring(0, maxLength);
-      console.warn(
-        `Answer code "${code}" exceeds maximum length of ${maxLength} characters and will be truncated to "${truncated}"`,
+      this.onWarning(
+        warning(
+          'code-truncated',
+          `Answer code "${code}" exceeds maximum length of ${maxLength} characters and will be truncated to "${truncated}"`,
+        ),
       );
       return truncated;
     }

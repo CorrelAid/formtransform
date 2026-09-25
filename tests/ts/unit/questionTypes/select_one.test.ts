@@ -87,9 +87,10 @@ describe('Select One Question Type', () => {
     ];
 
     // Without choices LimeSurvey would get a question nobody can answer.
-    await expect(convertAndParse(survey, [])).rejects.toThrow(
-      /list 'missing_list' has no rows on the choices sheet/,
-    );
+    await expect(convertAndParse(survey, [])).rejects.toMatchObject({
+      code: 'choice-list-empty',
+      message: expect.stringContaining('list "missing_list" has no rows'),
+    });
   });
 
   test('converts select_one with relevance', async () => {
@@ -164,9 +165,10 @@ describe('Select One Question Type', () => {
     ];
 
     // Without choices LimeSurvey would get a question nobody can answer.
-    await expect(convertAndParse(survey, [])).rejects.toThrow(
-      /list 'missing_list' has no rows on the choices sheet/,
-    );
+    await expect(convertAndParse(survey, [])).rejects.toMatchObject({
+      code: 'choice-list-empty',
+      message: expect.stringContaining('list "missing_list" has no rows'),
+    });
   });
 
   test('converts select_one with relevance', async () => {

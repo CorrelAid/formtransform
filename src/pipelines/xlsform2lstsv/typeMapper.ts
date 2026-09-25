@@ -7,6 +7,8 @@
 
 export { TYPE_MAPPINGS, TypeMapping } from '../../generated/TypeMappings.js';
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
+import { consoleWarning, warning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 
 export interface TypeInfo {
   base: string;
@@ -22,6 +24,9 @@ export interface LSType {
 }
 
 export class TypeMapper {
+  /** @param onWarning receives fallback notices (default: console). */
+  constructor(private readonly onWarning: WarningHandler = consoleWarning) {}
+
   parseType(typeStr: string): TypeInfo {
     const parts = typeStr.split(/\s+/);
     const base = parts[0];
@@ -42,15 +47,21 @@ export class TypeMapper {
     const mapping = TYPE_MAPPINGS[typeInfo.base];
 
     if (!mapping) {
-      console.warn(
-        `No type mapping found for "${typeInfo.base}", defaulting to text type`,
+      this.onWarning(
+        warning(
+          'type-unregistered',
+          `No type mapping found for "${typeInfo.base}", defaulting to text type`,
+        ),
       );
       return { type: 'S' };
     }
 
     if (!mapping.limeSurveyType) {
-      console.warn(
-        `No LimeSurvey type for "${typeInfo.base}", defaulting to text type`,
+      this.onWarning(
+        warning(
+          'type-unsupported',
+          `No LimeSurvey type for "${typeInfo.base}", defaulting to text type`,
+        ),
       );
       return { type: 'S' };
     }

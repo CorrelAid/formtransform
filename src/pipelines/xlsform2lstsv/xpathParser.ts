@@ -1,3 +1,4 @@
+import { ConversionError } from '../../diagnostics.js';
 /**
  * Parser for the XPath 1.0 subset XLSForm expressions use.
  *
@@ -42,14 +43,17 @@ export type BinaryOp =
   | 'div'
   | 'mod';
 
-export class XPathSyntaxError extends Error {
+export class XPathSyntaxError extends ConversionError {
   constructor(
     message: string,
     readonly expression: string,
     readonly position: number,
   ) {
-    super(`${message} at position ${position} in: ${expression}`);
-    this.name = 'XPathSyntaxError';
+    super(
+      'xpath-syntax',
+      `${message} at position ${position} in: ${expression}`,
+    );
+    Object.defineProperty(this, 'name', { value: 'XPathSyntaxError' });
   }
 }
 

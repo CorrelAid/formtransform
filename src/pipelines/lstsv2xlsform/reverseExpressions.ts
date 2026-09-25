@@ -38,6 +38,7 @@
  */
 
 import { parseEm, EmNode } from './emParser.js';
+import { ConversionError } from '../../diagnostics.js';
 
 export interface SelectContext {
   /** `${qname}_${code}` → the select_multiple question + choice it refers to. */
@@ -106,7 +107,8 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
       return quote(node.v);
     case 'ident':
       if (node.naok) {
-        throw new Error(
+        throw new ConversionError(
+          'em-unsupported',
           `"${node.name}.NAOK" only supported directly inside a selected()-style "==" comparison`,
         );
       }
@@ -117,7 +119,10 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
     case 'call': {
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
-        throw new Error(`unsupported function "${node.name}()"`);
+        throw new ConversionError(
+          'em-unsupported',
+          `unsupported function "${node.name}()"`,
+        );
       }
       const args = node.args.map((a) => nodeToXPath(a, ctx)).join(', ');
       return `${xfName}(${args})`;
@@ -133,14 +138,16 @@ function binToXPath(node: EmNode & { t: 'bin' }, ctx: SelectContext): string {
   // `(name.NAOK=='code')` / `(name_code.NAOK=='Y')` → selected(${...}, '...').
   if (op === '==' && left.t === 'ident' && left.naok) {
     if (right.t !== 'str') {
-      throw new Error(
+      throw new ConversionError(
+        'em-unsupported',
         `"${left.name}.NAOK == ..." must compare against a string literal`,
       );
     }
     const compound = ctx.multipleCompounds.get(left.name);
     if (compound) {
       if (right.v !== 'Y') {
-        throw new Error(
+        throw new ConversionError(
+          'em-unsupported',
           `select_multiple selected-marker "${left.name}.NAOK" must compare against 'Y', got '${right.v}'`,
         );
       }
@@ -151,11 +158,15 @@ function binToXPath(node: EmNode & { t: 'bin' }, ctx: SelectContext): string {
   if (right.t === 'ident' && right.naok) {
     // Forward only ever puts the NAOK marker on the left side; a right-side
     // marker is outside the dialect we invert.
-    throw new Error(`"${right.name}.NAOK" is only supported on the left side`);
+    throw new ConversionError(
+      'em-unsupported',
+      `"${right.name}.NAOK" is only supported on the left side`,
+    );
   }
 
   const xfOp = BINARY_OP_TO_XPATH[op];
-  if (!xfOp) throw new Error(`unsupported operator "${op}"`);
+  if (!xfOp)
+    throw new ConversionError('em-unsupported', `unsupported operator "${op}"`);
   return `${nodeToXPath(left, ctx)} ${xfOp} ${nodeToXPath(right, ctx)}`;
 }
 

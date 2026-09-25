@@ -1,5 +1,11 @@
 import conventions from '../generated/conventions.js';
-import type { SubsetViolation } from '../diagnostics.js';
+import { ConversionError, consoleWarning, warning } from '../diagnostics.js';
+import type {
+  Diagnostic,
+  DiagnosticCode,
+  SubsetViolation,
+  WarningHandler,
+} from '../diagnostics.js';
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
@@ -65,7 +71,29 @@ export interface ValidateAllOpts {
   hasChoicesSheet: boolean;
   surveySheetName?: string;
   choicesSheetName?: string;
+  /** Receives non-fatal findings (empty sheet, unexpected column). */
+  onWarning?: WarningHandler;
 }
+
+/** What {@link XLSValidator.rowDiagnostic} needs to know about the form. */
+export interface RowCheckContext {
+  /** List names that have at least one row on the choices sheet. */
+  listNames: ReadonlySet<string>;
+  /** `select_*_from_file` CSVs the caller supplies, keyed by filename. */
+  fileChoices?: Record<string, ChoiceRow[]>;
+  target?: SubsetTarget;
+}
+
+const error = (
+  code: DiagnosticCode,
+  message: string,
+  name?: string,
+): Diagnostic => ({
+  code,
+  severity: 'error',
+  message,
+  ...(name ? { name } : {}),
+});
 
 // The semi-open `<base>_other` follow-up (convention:other): LimeSurvey
 // carries "other" via its native `other=Y` setting, so the suffix's underscore
@@ -76,7 +104,7 @@ export class XLSValidator {
    * Validate that required sheets are present
    * @param hasSurveySheet Whether survey sheet was found
    * @param hasChoicesSheet Whether choices sheet was found
-   * @throws Error if required sheets are missing
+   * @throws ConversionError (`sheet-missing`) if required sheets are missing
    */
   static validateRequiredSheets(
     hasSurveySheet: boolean,
@@ -87,7 +115,8 @@ export class XLSValidator {
     if (!hasChoicesSheet) missingSheets.push('choices');
 
     if (missingSheets.length > 0) {
-      throw new Error(
+      throw new ConversionError(
+        'sheet-missing',
         `XLSX file is missing required sheets: ${missingSheets.join(', ')}. An XLSForm must contain survey and choices sheets.`,
       );
     }
@@ -102,9 +131,12 @@ export class XLSValidator {
   static validateSurveySheetColumns(
     data: SurveyRow[],
     sheetName: string,
+    onWarning: WarningHandler = consoleWarning,
   ): void {
     if (data.length === 0) {
-      console.warn(`Warning: Survey sheet "${sheetName}" is empty.`);
+      onWarning(
+        warning('sheet-empty', `Survey sheet "${sheetName}" is empty.`),
+      );
       return;
     }
 
@@ -119,8 +151,11 @@ export class XLSValidator {
     }
 
     if (allColumns.size === 0) {
-      console.warn(
-        `Warning: Survey sheet "${sheetName}" has no valid data rows.`,
+      onWarning(
+        warning(
+          'sheet-empty',
+          `Survey sheet "${sheetName}" has no valid data rows.`,
+        ),
       );
       return;
     }
@@ -132,7 +167,8 @@ export class XLSValidator {
     );
 
     if (missingColumns.length > 0) {
-      throw new Error(
+      throw new ConversionError(
+        'column-missing',
         `Survey sheet "${sheetName}" is missing required columns: ${missingColumns.join(', ')}. A survey sheet must contain type, name, and label columns.`,
       );
     }
@@ -157,8 +193,11 @@ export class XLSValidator {
     );
 
     if (unexpectedColumns.length > 0) {
-      console.warn(
-        `Warning: Survey sheet "${sheetName}" contains unexpected columns: ${unexpectedColumns.join(', ')}. These columns will be ignored.`,
+      onWarning(
+        warning(
+          'column-unexpected',
+          `Survey sheet "${sheetName}" contains unexpected columns: ${unexpectedColumns.join(', ')}. These columns will be ignored.`,
+        ),
       );
     }
   }
@@ -172,9 +211,12 @@ export class XLSValidator {
   static validateChoicesSheetColumns(
     data: ChoiceRow[],
     sheetName: string,
+    onWarning: WarningHandler = consoleWarning,
   ): void {
     if (data.length === 0) {
-      console.warn(`Warning: Choices sheet "${sheetName}" is empty.`);
+      onWarning(
+        warning('sheet-empty', `Choices sheet "${sheetName}" is empty.`),
+      );
       return;
     }
 
@@ -189,8 +231,11 @@ export class XLSValidator {
     }
 
     if (allColumns.size === 0) {
-      console.warn(
-        `Warning: Choices sheet "${sheetName}" has no valid data rows.`,
+      onWarning(
+        warning(
+          'sheet-empty',
+          `Choices sheet "${sheetName}" has no valid data rows.`,
+        ),
       );
       return;
     }
@@ -207,7 +252,8 @@ export class XLSValidator {
     if (!hasLabel) missingColumns.push('label');
 
     if (missingColumns.length > 0) {
-      throw new Error(
+      throw new ConversionError(
+        'column-missing',
         `Choices sheet "${sheetName}" is missing required columns: ${missingColumns.join(', ')}. A choices sheet must contain list_name, name, and label columns.`,
       );
     }
@@ -226,8 +272,11 @@ export class XLSValidator {
     );
 
     if (unexpectedColumns.length > 0) {
-      console.warn(
-        `Warning: Choices sheet "${sheetName}" contains unexpected columns: ${unexpectedColumns.join(', ')}. These columns will be ignored.`,
+      onWarning(
+        warning(
+          'column-unexpected',
+          `Choices sheet "${sheetName}" contains unexpected columns: ${unexpectedColumns.join(', ')}. These columns will be ignored.`,
+        ),
       );
     }
   }
@@ -246,6 +295,7 @@ export class XLSValidator {
       hasChoicesSheet,
       surveySheetName = 'survey',
       choicesSheetName = 'choices',
+      onWarning = consoleWarning,
     } = opts;
 
     // Validate required sheets
@@ -253,12 +303,16 @@ export class XLSValidator {
 
     // Validate survey sheet columns
     if (hasSurveySheet && surveyData.length > 0) {
-      this.validateSurveySheetColumns(surveyData, surveySheetName);
+      this.validateSurveySheetColumns(surveyData, surveySheetName, onWarning);
     }
 
     // Validate choices sheet columns
     if (hasChoicesSheet && choicesData.length > 0) {
-      this.validateChoicesSheetColumns(choicesData, choicesSheetName);
+      this.validateChoicesSheetColumns(
+        choicesData,
+        choicesSheetName,
+        onWarning,
+      );
     }
 
     // Reject names/codes LimeSurvey cannot represent (strict by default).
@@ -271,29 +325,46 @@ export class XLSValidator {
    * rather than silently sanitize so the LimeSurvey/DDI round-trip is lossless:
    * a rejected form must be fixed at the source, not quietly renamed.
    *
-   * @throws Error listing every offending name/code.
+   * @throws ConversionError listing every offending name/code; its `code` is
+   *   the first finding's, and `details` holds all of them.
    */
   static validateNamesAndCodes(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
   ): void {
-    const errors = this.collectNameCodeErrors(surveyData, choicesData);
-    if (errors.length > 0) {
-      throw new Error(
-        `XLSForm uses ${errors.length} name(s)/code(s) that LimeSurvey cannot represent. ` +
+    const found = this.collectNameCodeDiagnostics(surveyData, choicesData);
+    if (found.length > 0) {
+      throw new ConversionError(
+        found[0].code,
+        `XLSForm uses ${found.length} name(s)/code(s) that LimeSurvey cannot represent. ` +
           `Fix them at the source (or pass skipValidation to sanitize instead, losing round-trip fidelity):\n  - ` +
-          errors.join('\n  - '),
+          found.map((d) => d.message).join('\n  - '),
+        { subject: found[0].name, details: found },
       );
     }
   }
 
-  /** Collect (without throwing) every name/code that breaks the LS rules. */
+  /**
+   * @deprecated Use {@link collectNameCodeDiagnostics}, which also returns
+   *   each finding's `code`.
+   */
   static collectNameCodeErrors(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
     target: SubsetTarget = 'lstsv',
   ): string[] {
-    const errors: string[] = [];
+    return this.collectNameCodeDiagnostics(surveyData, choicesData, target).map(
+      (d) => d.message,
+    );
+  }
+
+  /** Every name/code that breaks the rules for `target` (does not throw). */
+  static collectNameCodeDiagnostics(
+    surveyData: SurveyRow[],
+    choicesData: ChoiceRow[],
+    target: SubsetTarget = 'lstsv',
+  ): Diagnostic[] {
+    const errors: Diagnostic[] = [];
     const seen = new Set<string>();
     const lsRules = target === 'lstsv';
 
@@ -312,7 +383,7 @@ export class XLSValidator {
     row: SurveyRow,
     seen: Set<string>,
     lsRules: boolean,
-    errors: string[],
+    errors: Diagnostic[],
   ): void {
     const type = (row.type || '').trim();
     if (NO_NAME_TYPES.has(type)) return;
@@ -331,16 +402,30 @@ export class XLSValidator {
       // DDI keeps names as authored; only uniqueness below applies.
     } else if (!NAME_RE.test(base)) {
       errors.push(
-        `field name "${name}" must match ${NAME_RULES.pattern} (letters/digits only — no underscores, hyphens or spaces)`,
+        error(
+          'name-invalid',
+          `field name "${name}" must match ${NAME_RULES.pattern} (letters/digits only — no underscores, hyphens or spaces)`,
+          name,
+        ),
       );
     } else if (lsLength > NAME_RULES.maxLength) {
       errors.push(
-        `field name "${name}" exceeds the ${NAME_RULES.maxLength}-character limit`,
+        error(
+          'name-too-long',
+          `field name "${name}" exceeds the ${NAME_RULES.maxLength}-character limit`,
+          name,
+        ),
       );
     }
 
     if (seen.has(name)) {
-      errors.push(`field name "${name}" is used more than once`);
+      errors.push(
+        error(
+          'name-duplicate',
+          `field name "${name}" is used more than once`,
+          name,
+        ),
+      );
     }
     seen.add(name);
   }
@@ -349,14 +434,20 @@ export class XLSValidator {
     choice: ChoiceRow,
     codesByList: Map<string, Set<string>>,
     lsRules: boolean,
-    errors: string[],
+    errors: Diagnostic[],
   ): void {
     const code = (choice.name ?? '').toString().trim();
     const listName = String(choice.list_name ?? '').trim();
     if (!code) {
       // A row with a list but no code would be dropped from the question.
       if (listName) {
-        errors.push(`a choice in list "${listName}" has no code (name)`);
+        errors.push(
+          error(
+            'code-missing',
+            `a choice in list "${listName}" has no code (name)`,
+            listName,
+          ),
+        );
       }
       return;
     }
@@ -364,7 +455,11 @@ export class XLSValidator {
     const seen = codesByList.get(listName) ?? new Set<string>();
     if (seen.has(code)) {
       errors.push(
-        `answer code "${code}" is used more than once in list "${listName}"`,
+        error(
+          'code-duplicate',
+          `answer code "${code}" is used more than once in list "${listName}"`,
+          listName,
+        ),
       );
     }
     seen.add(code);
@@ -372,11 +467,19 @@ export class XLSValidator {
     if (!lsRules) return;
     if (!CHOICE_RE.test(code)) {
       errors.push(
-        `answer code "${code}" (list "${listName}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
+        error(
+          'code-invalid',
+          `answer code "${code}" (list "${listName}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
+          listName,
+        ),
       );
     } else if (code.length > CHOICE_RULES.maxLength) {
       errors.push(
-        `answer code "${code}" (list "${listName}") exceeds the ${CHOICE_RULES.maxLength}-character limit`,
+        error(
+          'code-too-long',
+          `answer code "${code}" (list "${listName}") exceeds the ${CHOICE_RULES.maxLength}-character limit`,
+          listName,
+        ),
       );
     }
   }
@@ -400,29 +503,26 @@ export class XLSValidator {
     const violations: SubsetViolation[] = [];
 
     const target = options.target ?? 'lstsv';
-    for (const msg of this.collectNameCodeErrors(
-      surveyData,
-      choicesData,
-      target,
-    )) {
-      violations.push({ severity: 'error', message: msg });
-    }
-
-    const listNames = new Set(
-      choicesData.map((c) => String(c.list_name ?? '').trim()),
+    violations.push(
+      ...this.collectNameCodeDiagnostics(surveyData, choicesData, target),
     );
 
+    const ctx: RowCheckContext = {
+      listNames: this.listNamesOf(choicesData),
+      fileChoices: options.fileChoices,
+      target,
+    };
     for (const row of surveyData) {
-      this.collectRowViolations(row, listNames, options, violations);
+      const problem = this.rowDiagnostic(row, ctx);
+      if (problem) violations.push(problem);
+      this.collectAppearanceViolations(row, violations);
     }
 
     for (const choice of choicesData) {
-      const message = this.emptyChoiceLabel(choice);
-      if (message) violations.push({ severity: 'warning', message });
+      const found = this.emptyChoiceLabel(choice);
+      if (found) violations.push(found);
     }
-    for (const message of this.exclusiveProblems(surveyData, choicesData)) {
-      violations.push({ severity: 'warning', message });
-    }
+    violations.push(...this.exclusiveProblems(surveyData, choicesData));
 
     return violations;
   }
@@ -431,18 +531,26 @@ export class XLSValidator {
    * A choice whose label is empty, in every language or in some, shows as a
    * blank option. A warning: the form still converts.
    */
-  private static emptyChoiceLabel(choice: ChoiceRow): string | null {
+  private static emptyChoiceLabel(choice: ChoiceRow): Diagnostic | null {
     const code = (choice.name ?? '').toString().trim();
     if (!code) return null; // reported as a missing code
-    const where = `choice "${code}" (list "${String(choice.list_name ?? '').trim()}")`;
+    const listName = String(choice.list_name ?? '').trim();
+    const where = `choice "${code}" (list "${listName}")`;
     const labels = this.choiceLabels(choice);
-    if (labels.size === 0) return `${where} has no label`;
     const missing = [...labels]
       .filter(([, text]) => text === '')
       .map(([k]) => k);
-    if (missing.length === 0) return null;
-    if (missing.length === labels.size) return `${where} has no label`;
-    return `${where} has no label in: ${missing.join(', ')}`;
+    if (labels.size > 0 && missing.length === 0) return null;
+    const message =
+      labels.size === 0 || missing.length === labels.size
+        ? `${where} has no label`
+        : `${where} has no label in: ${missing.join(', ')}`;
+    return warning('label-missing', message, listName);
+  }
+
+  /** List names with at least one row on the choices sheet. */
+  static listNamesOf(choicesData: ChoiceRow[]): Set<string> {
+    return new Set(choicesData.map((c) => String(c.list_name ?? '').trim()));
   }
 
   /**
@@ -470,33 +578,29 @@ export class XLSValidator {
     return out;
   }
 
-  /** Type, choice-list and appearance findings for one survey row. */
-  private static collectRowViolations(
+  /**
+   * The error that keeps one survey row out of the subset (an unregistered or
+   * unsupported type, or a select whose answer options can't be resolved), or
+   * `null`. The single row check: {@link validateSubset} collects it for every
+   * row, and the converters throw it.
+   */
+  static rowDiagnostic(
     row: SurveyRow,
-    listNames: Set<string>,
-    options: SubsetOptions,
-    violations: SubsetViolation[],
-  ): void {
+    ctx: RowCheckContext,
+  ): Diagnostic | null {
     const rawType = (row.type || '').trim();
-    if (!rawType) return;
+    if (!rawType) return null;
     const baseType = rawType.split(/\s+/)[0];
-    if (STRUCTURAL.has(rawType) || METADATA_TYPES.has(baseType)) return;
+    if (STRUCTURAL.has(rawType) || METADATA_TYPES.has(baseType)) return null;
 
-    const where = row.name ? ` (question "${row.name}")` : '';
-    const problem =
-      this.typeProblem(baseType, where, options.target ?? 'lstsv') ??
+    const name = typeof row.name === 'string' ? row.name.trim() : '';
+    const where = name ? ` (question "${name}")` : '';
+    return (
+      this.typeProblem(baseType, where, name, ctx.target ?? 'lstsv') ??
       (TYPE_MAPPINGS[baseType]?.requiresListName
-        ? this.choiceListProblem(
-            rawType,
-            baseType,
-            where,
-            listNames,
-            options.fileChoices ?? {},
-          )
-        : null);
-    if (problem) violations.push({ severity: 'error', message: problem });
-
-    this.collectAppearanceViolations(row, baseType, violations);
+        ? this.choiceListProblem(rawType, baseType, where, name, ctx)
+        : null)
+    );
   }
 
   /**
@@ -506,7 +610,7 @@ export class XLSValidator {
   private static exclusiveProblems(
     surveyData: SurveyRow[],
     choicesData: ChoiceRow[],
-  ): string[] {
+  ): Diagnostic[] {
     const multiLists = new Set<string>();
     for (const row of surveyData) {
       const [base, list] = String(row.type ?? '')
@@ -515,18 +619,27 @@ export class XLSValidator {
       if (list && EXCLUSIVE_RULE.appliesTo.includes(base)) multiLists.add(list);
     }
     const col = EXCLUSIVE_RULE.choicesColumn;
-    const problems: string[] = [];
+    const problems: Diagnostic[] = [];
     for (const choice of choicesData) {
       const cell = exclusiveCell(choice);
       if (!cell || cell === 'no' || cell === 'false' || cell === '0') continue;
-      const where = `choice "${String(choice.name ?? '').trim()}" (list "${String(choice.list_name ?? '').trim()}")`;
+      const listName = String(choice.list_name ?? '').trim();
+      const where = `choice "${String(choice.name ?? '').trim()}" (list "${listName}")`;
       if (!isExclusive(choice)) {
         problems.push(
-          `${where}: "${col}" value "${cell}" isn't recognised (use ${EXCLUSIVE_RULE.trueValues.join('/')}) and is ignored`,
+          warning(
+            'exclusive-invalid',
+            `${where}: "${col}" value "${cell}" isn't recognised (use ${EXCLUSIVE_RULE.trueValues.join('/')}) and is ignored`,
+            listName,
+          ),
         );
-      } else if (!multiLists.has(String(choice.list_name ?? '').trim())) {
+      } else if (!multiLists.has(listName)) {
         problems.push(
-          `${where} is marked "${col}", but no ${EXCLUSIVE_RULE.appliesTo.join('/')} uses this list, so it has no effect`,
+          warning(
+            'exclusive-no-effect',
+            `${where} is marked "${col}", but no ${EXCLUSIVE_RULE.appliesTo.join('/')} uses this list, so it has no effect`,
+            listName,
+          ),
         );
       }
     }
@@ -537,11 +650,16 @@ export class XLSValidator {
   private static typeProblem(
     baseType: string,
     where: string,
+    name: string,
     target: SubsetTarget,
-  ): string | null {
+  ): Diagnostic | null {
     const mapping = TYPE_MAPPINGS[baseType];
     if (!mapping) {
-      return `type "${baseType}"${where} is not in the registry — not part of the supported XLSForm subset`;
+      return error(
+        'type-unregistered',
+        `type "${baseType}"${where} is not in the registry — not part of the supported XLSForm subset`,
+        name,
+      );
     }
     // select_*_from_file is registered-but-not-natively-expressible; it is
     // still supported (inlined from the CSV), so only flag other such types.
@@ -551,7 +669,11 @@ export class XLSValidator {
       mapping.limeSurveyType === null &&
       !isFromFileType(baseType)
     ) {
-      return `type "${baseType}"${where} is registered but not expressible in LimeSurvey TSV`;
+      return error(
+        'type-unsupported',
+        `type "${baseType}"${where} is registered but not expressible in LimeSurvey TSV`,
+        name,
+      );
     }
     return null;
   }
@@ -567,48 +689,81 @@ export class XLSValidator {
     rawType: string,
     baseType: string,
     where: string,
-    listNames: Set<string>,
-    fileChoices: Record<string, ChoiceRow[]>,
-  ): string | null {
+    name: string,
+    ctx: RowCheckContext,
+  ): Diagnostic | null {
     const target = rawType.split(/\s+/)[1];
     if (isFromFileType(baseType)) {
       if (!target) {
-        return `"${baseType}"${where} needs a vocabulary file: "${baseType} <file>.csv"`;
+        return error(
+          'vocab-file-missing',
+          `"${baseType}"${where} needs a vocabulary file: "${baseType} <file>.csv"`,
+          name,
+        );
       }
       if (registeredVocabFiles().includes(target)) return null;
-      if ((fileChoices[target]?.length ?? 0) > 0) return null;
-      return `"${rawType}"${where}: "${target}" is not a registered vocabulary (registered: ${registeredVocabFiles().join(', ')})`;
+      if ((ctx.fileChoices?.[target]?.length ?? 0) > 0) return null;
+      return error(
+        'vocab-unregistered',
+        `"${rawType}"${where}: "${target}" is not a registered vocabulary (registered: ${registeredVocabFiles().join(', ')})`,
+        name,
+      );
     }
     if (!target || target === 'or_other') {
-      return `"${baseType}"${where} needs a choice list: "${baseType} <list_name>"`;
+      return error(
+        'choice-list-missing',
+        `"${baseType}"${where} needs a choice list: "${baseType} <list_name>"`,
+        name,
+      );
     }
-    if (!listNames.has(target)) {
-      return `"${rawType}"${where}: list "${target}" has no rows on the choices sheet`;
+    if (!ctx.listNames.has(target)) {
+      return error(
+        'choice-list-empty',
+        `"${rawType}"${where}: list "${target}" has no rows on the choices sheet`,
+        name,
+      );
     }
     return null;
   }
 
-  /** Flag appearances outside the registry allowlist or wrong for the type. */
+  /**
+   * Warnings for appearances outside the registry allowlist or wrong for the
+   * row's type (the converter ignores them). Shared by {@link validateSubset}
+   * and the converter.
+   */
+  static appearanceDiagnostics(row: SurveyRow): Diagnostic[] {
+    const found: Diagnostic[] = [];
+    this.collectAppearanceViolations(row, found);
+    return found;
+  }
+
   private static collectAppearanceViolations(
     row: SurveyRow,
-    baseType: string,
     violations: SubsetViolation[],
   ): void {
     const appearance =
       typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
     if (!appearance) return;
+    const baseType = (row.type || '').trim().split(/\s+/)[0];
+    const name = typeof row.name === 'string' ? row.name : '';
     for (const part of appearance.split(/\s+/)) {
       const spec = APPEARANCES[part];
       if (!spec) {
-        violations.push({
-          severity: 'warning',
-          message: `appearance "${part}" on "${row.name}" is not in the registry allowlist and will be ignored`,
-        });
+        violations.push(
+          warning(
+            'appearance-unregistered',
+            `appearance "${part}" on "${name}" is not in the registry allowlist and will be ignored`,
+            name,
+          ),
+        );
       } else if (spec.validForTypes && !spec.validForTypes.includes(baseType)) {
-        violations.push({
-          severity: 'warning',
-          message: `appearance "${part}" on "${row.name}" is not valid for type "${baseType}" and will be ignored`,
-        });
+        violations.push(
+          warning(
+            'appearance-invalid-for-type',
+            `appearance "${part}" on "${name}" is not valid for type "${baseType}" and will be ignored`,
+            name,
+          ),
+        );
       }
     }
   }

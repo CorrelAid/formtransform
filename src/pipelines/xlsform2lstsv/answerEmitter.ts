@@ -5,6 +5,8 @@ import { ChoiceManager } from './choiceManager.js';
 import { GroupEmitter } from './groupEmitter.js';
 import { Counters } from './counters.js';
 import { deduplicateNames } from '../../utils/helpers.js';
+import { consoleWarning, warning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 
 export interface AnswerHelpers {
   sanitizeAnswerCode(code: string): string;
@@ -16,13 +18,28 @@ export interface AnswerHelpers {
  * (relevance based on the current group).
  */
 export class AnswerEmitter {
-  constructor(
-    private rowEmitter: RowEmitter,
-    private languageHandler: LanguageHandler,
-    private choiceManager: ChoiceManager,
-    private groupEmitter: GroupEmitter,
-    private counters: Counters,
-  ) {}
+  private rowEmitter: RowEmitter;
+  private languageHandler: LanguageHandler;
+  private choiceManager: ChoiceManager;
+  private groupEmitter: GroupEmitter;
+  private counters: Counters;
+  private onWarning: WarningHandler;
+
+  constructor(deps: {
+    rowEmitter: RowEmitter;
+    languageHandler: LanguageHandler;
+    choiceManager: ChoiceManager;
+    groupEmitter: GroupEmitter;
+    counters: Counters;
+    onWarning?: WarningHandler;
+  }) {
+    this.rowEmitter = deps.rowEmitter;
+    this.languageHandler = deps.languageHandler;
+    this.choiceManager = deps.choiceManager;
+    this.groupEmitter = deps.groupEmitter;
+    this.counters = deps.counters;
+    this.onWarning = deps.onWarning ?? consoleWarning;
+  }
 
   addAnswers(
     xfTypeInfo: TypeInfo,
@@ -31,7 +48,13 @@ export class AnswerEmitter {
   ): void {
     const choices = this.choiceManager.getChoices(xfTypeInfo.listName!);
     if (!choices) {
-      console.warn(`Choice list not found: ${xfTypeInfo.listName}`);
+      this.onWarning(
+        warning(
+          'choice-list-empty',
+          `Choice list not found: ${xfTypeInfo.listName}`,
+          xfTypeInfo.listName ?? undefined,
+        ),
+      );
       return;
     }
 
@@ -53,8 +76,12 @@ export class AnswerEmitter {
     const choiceNames = deduplicateNames(rawNames, 5);
     for (let i = 0; i < rawNames.length; i++) {
       if (choiceNames[i] !== rawNames[i]) {
-        console.warn(
-          `Duplicate answer code "${rawNames[i]}" resolved to "${choiceNames[i]}"`,
+        this.onWarning(
+          warning(
+            'code-duplicate',
+            `Duplicate answer code "${rawNames[i]}" resolved to "${choiceNames[i]}"`,
+            xfTypeInfo.listName ?? undefined,
+          ),
         );
       }
     }

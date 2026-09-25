@@ -13,6 +13,7 @@ import type { SubsetViolation } from '../../diagnostics.js';
 
 import { lstsvRowsToXlsform } from './toXlsform.js';
 import type { XlsformOutput } from './toXlsform.js';
+import { ConversionError } from '../../diagnostics.js';
 
 export { lstsvRowsToXlsform } from './toXlsform.js';
 export type { XlsformOutput } from './toXlsform.js';
@@ -38,7 +39,8 @@ export function lstsvToXlsform(
       (v) => v.severity === 'error',
     );
     if (errors.length > 0) {
-      throw new Error(
+      throw new ConversionError(
+        'lstsv-outside-subset',
         `LimeSurvey TSV uses ${errors.length} feature(s) outside the transformable subset:\n  - ` +
           errors.map((e) => e.message).join('\n  - '),
       );

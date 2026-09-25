@@ -15,6 +15,7 @@
  */
 
 import type { Submission } from './ddi/data.js';
+import { ConversionError } from './diagnostics.js';
 
 type Format = 'json' | 'csv';
 
@@ -37,13 +38,17 @@ function parseJson(text: string): Submission[] {
       ? (data as { results?: unknown }).results
       : data;
   if (!Array.isArray(records)) {
-    throw new Error(
+    throw new ConversionError(
+      'responses-invalid',
       'expected a JSON array of submissions or an object with a "results" array',
     );
   }
   records.forEach((r, i) => {
     if (!r || typeof r !== 'object' || Array.isArray(r)) {
-      throw new Error(`submission ${i} is not a JSON object`);
+      throw new ConversionError(
+        'responses-invalid',
+        `submission ${i} is not a JSON object`,
+      );
     }
   });
   return records as Submission[];
@@ -96,7 +101,8 @@ export function parseCsvRecords(text: string, delim: string): string[][] {
       field += c;
     }
   }
-  if (inQuotes) throw new Error('unterminated quoted field');
+  if (inQuotes)
+    throw new ConversionError('responses-invalid', 'unterminated quoted field');
   if (field !== '' || record.length > 0) {
     record.push(field);
     records.push(record);
@@ -110,7 +116,8 @@ function parseCsv(text: string): Submission[] {
   if (!header) return [];
   return rows.map((cells, i) => {
     if (cells.length > header.length) {
-      throw new Error(
+      throw new ConversionError(
+        'responses-invalid',
         `row ${i + 2} has ${cells.length} fields, header has ${header.length}`,
       );
     }

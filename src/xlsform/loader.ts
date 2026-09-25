@@ -10,8 +10,18 @@ import {
 } from '../utils/languageUtils.js';
 
 import { XLSValidator } from './validate.js';
+import { consoleWarning, warning } from '../diagnostics.js';
+import type { WarningHandler } from '../diagnostics.js';
 
 type RowData = Record<string, unknown>;
+
+/** Options for the {@link XLSLoader} parse methods. */
+export interface LoadOptions {
+  /** Skip the sheet/column/name checks (the LimeSurvey name gate). */
+  skipValidation?: boolean;
+  /** Receives non-fatal findings (invalid language codes, unexpected columns). */
+  onWarning?: WarningHandler;
+}
 
 export class XLSLoader {
   /**
@@ -23,7 +33,7 @@ export class XLSLoader {
    */
   static parseXLSFile(
     filePath: string,
-    options: { skipValidation?: boolean } = {},
+    options: LoadOptions = {},
   ): XLSFormData {
     const workbook = XLSX.readFile(filePath);
     return this.parseWorkbook(workbook, options);
@@ -38,7 +48,7 @@ export class XLSLoader {
    */
   static parseXLSData(
     data: Buffer | ArrayBuffer,
-    options: { skipValidation?: boolean } = {},
+    options: LoadOptions = {},
   ): XLSFormData {
     const workbook = XLSX.read(data);
     return this.parseWorkbook(workbook, options);
@@ -53,7 +63,7 @@ export class XLSLoader {
    */
   static parseWorkbook(
     workbook: XLSX.WorkBook,
-    options: { skipValidation?: boolean } = {},
+    options: LoadOptions = {},
   ): XLSFormData {
     const surveyData: SurveyRow[] = [];
     const choicesData: ChoiceRow[] = [];
@@ -83,8 +93,11 @@ export class XLSLoader {
       // Validate language codes
       const invalidLanguageCodes = validateLanguageCodes(languageCodes);
       if (invalidLanguageCodes.length > 0) {
-        console.warn(
-          `Warning: Invalid language codes detected in sheet "${sheetName}": ${invalidLanguageCodes.join(', ')}. These will be ignored. Valid language codes should be 2-letter IANA subtags (e.g., 'en', 'es', 'fr').`,
+        (options.onWarning ?? consoleWarning)(
+          warning(
+            'language-invalid',
+            `Invalid language codes detected in sheet "${sheetName}": ${invalidLanguageCodes.join(', ')}. These will be ignored. Valid language codes should be 2-letter IANA subtags (e.g., 'en', 'es', 'fr').`,
+          ),
         );
       }
 
@@ -148,6 +161,7 @@ export class XLSLoader {
         choicesData,
         hasSurveySheet,
         hasChoicesSheet,
+        onWarning: options.onWarning,
       });
     }
 

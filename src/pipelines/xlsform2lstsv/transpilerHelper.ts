@@ -6,6 +6,8 @@ import {
   xpathToLimeSurveySync,
   TranspilerContext,
 } from './xpathTranspiler.js';
+import { consoleWarning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 
 /**
  * Wraps expression transpilation. The XLSForm XPath/LimeSurvey EM bridge
@@ -17,6 +19,7 @@ export class TranspilerHelper {
   constructor(
     private fieldSanitizer: FieldSanitizer,
     private choiceManager: ChoiceManager,
+    private onWarning: WarningHandler = consoleWarning,
   ) {}
 
   buildTranspilerContext(): TranspilerContext {
@@ -54,6 +57,6 @@ export class TranspilerHelper {
   }
 
   convertConstraint(constraint: string): string {
-    return convertConstraintSync(constraint);
+    return convertConstraintSync(constraint, this.onWarning);
   }
 }

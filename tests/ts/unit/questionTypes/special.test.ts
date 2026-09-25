@@ -6,9 +6,10 @@ describe('Special Question Types', () => {
     test('throws for unknown type (registry allowlist)', async () => {
       const survey = [{ type: 'unknown_type', name: 'q1', label: 'Question' }];
 
-      await expect(() => convertAndParse(survey)).rejects.toThrow(
-        "Unimplemented XLSForm type: 'unknown_type'. This type is not registered in the survey type registry.",
-      );
+      await expect(() => convertAndParse(survey)).rejects.toMatchObject({
+        code: 'type-unregistered',
+        message: expect.stringContaining('type "unknown_type"'),
+      });
     });
 
     test('handles empty type as short text', async () => {

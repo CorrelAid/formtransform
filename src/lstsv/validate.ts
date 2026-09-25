@@ -46,8 +46,10 @@ export function validateLstsvSubset(rows: Row[]): SubsetViolation[] {
     if (!code || SUPPORTED_LS_CODES.has(code)) continue;
     const where = row.name?.trim() ? ` (question "${row.name.trim()}")` : '';
     violations.push({
+      code: 'lstsv-outside-subset',
       severity: 'error',
       message: `unsupported LimeSurvey question type "${code}"${where} — not in the transformable subset (${[...SUPPORTED_LS_CODES].sort().join(', ')})`,
+      ...(row.name?.trim() ? { name: row.name.trim() } : {}),
     });
   }
   return violations;

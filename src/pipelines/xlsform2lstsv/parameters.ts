@@ -5,6 +5,7 @@
  * `min_num_value_n=0`, `max_num_value_n=100`, `num_value_int_only=1`.
  */
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
+import { ConversionError } from '../../diagnostics.js';
 
 /** Parse `key=value` pairs separated by spaces, commas or semicolons. */
 export function parseParameters(cell: unknown): Record<string, string> {
@@ -36,7 +37,8 @@ export function parameterAttributes(
   const values = { ...mapping.parameters, ...parseParameters(cell) };
   for (const key of Object.keys(mapping.parameters)) {
     if (!isNumber(values[key])) {
-      throw new Error(
+      throw new ConversionError(
+        'parameter-invalid',
         `${baseType} '${questionName}': parameter ${key}=${values[key]} is not a number`,
       );
     }

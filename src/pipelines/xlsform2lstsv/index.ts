@@ -4,10 +4,10 @@ import type { LstsvConfig } from '../../config/types.js';
 import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TSVGenerator } from '../../lstsv/serialize.js';
-import { TypeMapper, TYPE_MAPPINGS } from './typeMapper.js';
+import { TypeMapper } from './typeMapper.js';
 
 // Import extracted constants
-import { SKIP_TYPES, UNIMPLEMENTED_TYPES, TSVRowData } from './constants.js';
+import { SKIP_TYPES, TSVRowData } from './constants.js';
 import { ChoiceManager } from './choiceManager.js';
 import { GroupProcessor } from './groupProcessor.js';
 import { LanguageHandler } from './languageHandler.js';
@@ -21,7 +21,11 @@ import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
 import { TranspilerHelper } from './transpilerHelper.js';
 import { FieldNameHandler } from './fieldNameHandler.js';
 import { AppearanceHandler } from './appearanceHandler.js';
-import { registeredFileChoices, registeredVocabFiles } from '../../vocab.js';
+import { registeredFileChoices } from '../../vocab.js';
+import { XLSValidator } from '../../xlsform/validate.js';
+import type { RowCheckContext } from '../../xlsform/validate.js';
+import { ConversionError, consoleWarning } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 import { parameterAttributes } from './parameters.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../../conventions/exclusive.js';
 import {
@@ -66,21 +70,25 @@ class Conversion {
   private fileChoices: Record<string, ChoiceRow[]>;
   private surveySettingsEmitter: SurveySettingsEmitter;
   private surveyDataCache: SurveyRow[] = [];
+  private rowCheck: RowCheckContext = { listNames: new Set() };
+  private readonly warn: WarningHandler;
 
   constructor(config: Readonly<LstsvConfig>) {
     this.configManager = new ConfigManager(config);
     this.fileChoices = {};
+    this.warn = config.onWarning ?? consoleWarning;
 
-    this.fieldSanitizer = new FieldSanitizer();
+    this.fieldSanitizer = new FieldSanitizer(this.warn);
     this.choiceManager = new ChoiceManager(this.fieldSanitizer);
     this.groupProcessor = new GroupProcessor(this.configManager);
     this.languageHandler = new LanguageHandler(this.configManager);
     this.otherPatternDetector = new OtherPatternDetector(
       this.choiceManager,
       this.languageHandler,
+      this.warn,
     );
 
-    this.typeMapper = new TypeMapper();
+    this.typeMapper = new TypeMapper(this.warn);
 
     this.tsvGenerator = new TSVGenerator();
     this.rowEmitter = new RowEmitter(this.tsvGenerator, this.languageHandler);
@@ -103,19 +111,21 @@ class Conversion {
       this.choiceManager,
       this.counters,
     );
-    this.answerEmitter = new AnswerEmitter(
-      this.rowEmitter,
-      this.languageHandler,
-      this.choiceManager,
-      this.groupEmitter,
-      this.counters,
-    );
+    this.answerEmitter = new AnswerEmitter({
+      rowEmitter: this.rowEmitter,
+      languageHandler: this.languageHandler,
+      choiceManager: this.choiceManager,
+      groupEmitter: this.groupEmitter,
+      counters: this.counters,
+      onWarning: this.warn,
+    });
     this.transpilerHelper = new TranspilerHelper(
       this.fieldSanitizer,
       this.choiceManager,
+      this.warn,
     );
     this.fieldNameHandler = new FieldNameHandler(this.fieldSanitizer);
-    this.appearanceHandler = new AppearanceHandler();
+    this.appearanceHandler = new AppearanceHandler(this.warn);
   }
 
   // ── Row helpers ──────────────────────────────────────────────────────
@@ -147,6 +157,10 @@ class Conversion {
     fileChoices: Record<string, ChoiceRow[]>,
   ): string {
     this.fileChoices = { ...registeredFileChoices(surveyData), ...fileChoices };
+    this.rowCheck = {
+      listNames: XLSValidator.listNamesOf(choicesData),
+      fileChoices: this.fileChoices,
+    };
 
     // Pre-scan for welcome/end notes (must happen before group identification)
     this.surveySettingsEmitter.captureNotes(surveyData);
@@ -247,7 +261,7 @@ class Conversion {
     // Validate the type is registered and emittable. Two failure modes:
     //   1. registered but unsupported by LimeSurvey TSV (no native slot)
     //   2. not registered at all (convention:unregisteredRows)
-    this.validateRowType(xfType, baseType, row.name);
+    this.validateRow(row);
 
     if (xfType === 'begin_group' || xfType === 'begin group') {
       this.handleBeginGroup(row);
@@ -268,36 +282,13 @@ class Conversion {
   }
 
   /**
-   * Throws if the row's type is not emittable: registered but unsupported,
-   * not registered at all, or a select whose options don't resolve.
+   * Throws the validator's finding if the row is outside the subset (an
+   * unregistered or unsupported type, or a select whose options don't
+   * resolve). The same check {@link XLSValidator.validateSubset} reports.
    */
-  private validateRowType(
-    xfType: string,
-    baseType: string,
-    name: string | undefined,
-  ): void {
-    const where = name ? ` (question "${name}")` : '';
-    const target = xfType.split(/\s+/)[1];
-    if (baseType in FROM_FILE_BASE) {
-      this.assertFileChoices(xfType, baseType, target, where);
-    } else if (UNIMPLEMENTED_TYPES.includes(baseType)) {
-      throw new Error(
-        `Unimplemented XLSForm type: '${baseType}'. This type is not currently supported.`,
-      );
-    } else if (TYPE_MAPPINGS[baseType]?.requiresListName) {
-      this.assertChoiceList(xfType, baseType, target, where);
-    }
-
-    if (
-      !(baseType in TYPE_MAPPINGS) &&
-      baseType !== 'begin_group' &&
-      baseType !== 'begin' &&
-      baseType !== 'end_group'
-    ) {
-      throw new Error(
-        `Unimplemented XLSForm type: '${baseType}'. This type is not registered in the survey type registry.`,
-      );
-    }
+  private validateRow(row: SurveyRow): void {
+    const problem = XLSValidator.rowDiagnostic(row, this.rowCheck);
+    if (problem) throw ConversionError.from(problem);
   }
 
   /**
@@ -319,47 +310,6 @@ class Conversion {
       ),
     };
   }
-
-  /** `select_*_from_file` is supported whenever its options resolve; say which part is missing. */
-  private assertFileChoices(
-    xfType: string,
-    baseType: string,
-    file: string | undefined,
-    where: string,
-  ): void {
-    if (!file) {
-      throw new Error(
-        `'${baseType}'${where} needs a vocabulary file: '${baseType} <file>.csv'`,
-      );
-    }
-    if ((this.fileChoices[file]?.length ?? 0) === 0) {
-      throw new Error(
-        `'${xfType}'${where}: '${file}' is not a registered vocabulary ` +
-          `(registered: ${registeredVocabFiles().join(', ')}) and no ` +
-          `fileChoices were supplied for it`,
-      );
-    }
-  }
-
-  /** A select without options would import as a question nobody can answer. */
-  private assertChoiceList(
-    xfType: string,
-    baseType: string,
-    list: string | undefined,
-    where: string,
-  ): void {
-    if (!list || list === 'or_other') {
-      throw new Error(
-        `'${baseType}'${where} needs a choice list: '${baseType} <list_name>'`,
-      );
-    }
-    if ((this.choiceManager.getChoices(list)?.length ?? 0) === 0) {
-      throw new Error(
-        `'${xfType}'${where}: list '${list}' has no rows on the choices sheet`,
-      );
-    }
-  }
-
   private handleBeginGroup(row: SurveyRow): void {
     this.matrixHandler.flushMatrix(this.matrixHelpers());
     const originalName = (row.name || '').trim();
