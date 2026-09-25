@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import js from '@eslint/js';
@@ -5,7 +7,71 @@ import tseslint from 'typescript-eslint';
 
 const tsParser = tseslint.parser;
 
+// Module boundaries (ARCHITECTURE.md): a format module never imports another
+// format module or a pipeline, and a pipeline never imports a sibling pipeline.
+// Shared code lives in src/conventions/, src/ddi/ (the Variable hub),
+// src/diagnostics.ts or src/utils/.
+const FORMATS = ['xlsform', 'lstsv', 'ddi'];
+const PIPELINES = readdirSync(new URL('./src/pipelines/', import.meta.url), {
+  withFileTypes: true,
+})
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name);
+
+const boundaryRules = [
+  ...FORMATS.map((format) => ({
+    files: [`src/${format}/**/*.ts`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                ...FORMATS.filter((f) => f !== format).map((f) => `../${f}/*`),
+                '../pipelines/*',
+              ],
+              message:
+                'A format module must not import another format module or a pipeline (ARCHITECTURE.md).',
+            },
+          ],
+        },
+      ],
+      // no-restricted-imports doesn't see dynamic import(); same rule for it.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: `ImportExpression[source.value=/^\\.\\.\\/(${[...FORMATS.filter((f) => f !== format), 'pipelines'].join('|')})\\//]`,
+          message:
+            'A format module must not import another format module or a pipeline (ARCHITECTURE.md).',
+        },
+      ],
+    },
+  })),
+  ...PIPELINES.map((pipeline) => ({
+    files: [`src/pipelines/${pipeline}/**/*.ts`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: PIPELINES.filter((p) => p !== pipeline).map(
+                (p) => `../${p}/*`,
+              ),
+              message:
+                'A pipeline must not import a sibling pipeline; move shared code to src/conventions/, src/ddi/ or src/utils/ (ARCHITECTURE.md).',
+            },
+          ],
+        },
+      ],
+    },
+  })),
+];
+
 export default defineConfig([
+  ...boundaryRules,
+
   // Global: fail on eslint-disable directives that no longer suppress anything,
   // so dead disables can't accumulate.
   {

@@ -13,7 +13,7 @@
 
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
-import type { SubsetViolation } from '../xlsform/validate.js';
+import type { SubsetViolation } from '../diagnostics.js';
 
 // Supported LimeSurvey question-type codes: every code the registry maps a type
 // to, plus every appearance's `lsTypeOverride` (`T` for `multiline`, `!` for

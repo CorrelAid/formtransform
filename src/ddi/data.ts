@@ -11,11 +11,11 @@
  * codes (what Kobo and the LimeSurvey adapters both produce).
  */
 
-import { splitDataVars } from '../../ddi/codebook.js';
-import type { DataVarBuckets, OtherPattern } from '../../ddi/codebook.js';
-import { classifyNotes } from '../../ddi/notes.js';
-import { OTHER_CODE } from '../../conventions/other.js';
-import type { Variable } from '../../ddi/types.js';
+import { splitDataVars } from './codebook.js';
+import type { DataVarBuckets, OtherPattern } from './codebook.js';
+import { classifyNotes } from './notes.js';
+import { OTHER_CODE } from '../conventions/other.js';
+import type { Variable } from './types.js';
 
 /** One raw response record, keyed by question name or `group/name` path. */
 export type Submission = Record<string, unknown>;

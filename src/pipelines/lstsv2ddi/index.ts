@@ -12,8 +12,8 @@ import type { BuildDdiOptions } from '../../ddi/codebook.js';
 
 import { parseLstsv } from '../../lstsv/parser.js';
 import { validateLstsvSubset } from '../../lstsv/validate.js';
-import { buildDataCsv } from '../xlsform2ddi/data.js';
-import type { Submission } from '../xlsform2ddi/data.js';
+import { buildDataCsv } from '../../ddi/data.js';
+import type { Submission } from '../../ddi/data.js';
 import { normalizeLimeSurveyResponses } from './data.js';
 import type { NormalizeResponsesOptions } from './data.js';
 import { lstsvToVariables } from './toVariables.js';

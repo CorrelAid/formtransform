@@ -28,7 +28,7 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 #### Format Modules
 
-- **`src/xlsform/`** — load a workbook (`loader.ts`), parse its sheets (`parser.ts`), check it against the supported subset (`validate.ts`), sanitize names/codes (`sanitize.ts`).
+- **`src/xlsform/`** — load a workbook and parse its sheets (`loader.ts`), check it against the supported subset (`validate.ts`), sanitize names/codes (`sanitize.ts`, `identifiers.ts`), row types (`types.ts`).
 
 - **`src/lstsv/`** — read (`parser.ts`) and write (`serialize.ts`) LimeSurvey structure TSV, plus the reverse-subset check (`validate.ts`).
 
@@ -95,7 +95,7 @@ The library's own transformation tests are vitest under `tests/ts/` (`unit` / `i
 
 ## Pipeline Architecture
 
-One module per supported direction. A pipeline owns everything cross-format; the format modules it draws on (`src/xlsform/`, `src/lstsv/`, `src/ddi/`) never import each other.
+One module per supported direction. A pipeline owns everything cross-format; the format modules it draws on (`src/xlsform/`, `src/lstsv/`, `src/ddi/`) never import each other or a pipeline, and a pipeline never imports a sibling pipeline. Code both sides need lives in `src/conventions/`, `src/ddi/` (the `Variable` hub and its data CSV, `data.ts`), `src/diagnostics.ts` or `src/utils/`. ESLint enforces the rules (`no-restricted-imports`, plus `no-restricted-syntax` for dynamic `import()`); see the boundary block in `eslint.config.js`.
 
 ### DDI as the Hub
 

@@ -14,7 +14,7 @@
  *   quotes wins.
  */
 
-import type { Submission } from './pipelines/xlsform2ddi/data.js';
+import type { Submission } from './ddi/data.js';
 
 type Format = 'json' | 'csv';
 
