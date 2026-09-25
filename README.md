@@ -181,6 +181,8 @@ validates against this subset, rejecting:
   text into conforming names: it transliterates (`ä`→`ae`, `ß`→`ss`), drops
   other diacritics and deletes the rest of the non-alphanumerics
 - **Deep nesting** — max 3 levels (`group/group/question`)
+- **Duplicate or missing answer codes** — each choice needs a code, unique within
+  its list (an empty choice label is only a warning)
 - **Unresolvable answer options** — a `select_one`/`select_multiple` needs a
   list name with rows on the choices sheet; a `select_*_from_file` needs a
   registered vocabulary (e.g. `iso_3166_1.csv`) or a CSV passed as

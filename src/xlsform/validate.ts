@@ -283,8 +283,9 @@ export class XLSValidator {
     for (const row of surveyData) {
       this.collectSurveyNameError(row, seen, errors);
     }
+    const codesByList = new Map<string, Set<string>>();
     for (const choice of choicesData) {
-      this.collectChoiceCodeError(choice, errors);
+      this.collectChoiceCodeError(choice, codesByList, errors);
     }
 
     return errors;
@@ -324,11 +325,27 @@ export class XLSValidator {
 
   private static collectChoiceCodeError(
     choice: ChoiceRow,
+    codesByList: Map<string, Set<string>>,
     errors: string[],
   ): void {
     const code = (choice.name ?? '').toString().trim();
-    if (!code) return;
-    const listName = choice.list_name ?? '';
+    const listName = String(choice.list_name ?? '').trim();
+    if (!code) {
+      // A row with a list but no code would be dropped from the question.
+      if (listName) {
+        errors.push(`a choice in list "${listName}" has no code (name)`);
+      }
+      return;
+    }
+    // Duplicate codes collide in LimeSurvey and make answers ambiguous.
+    const seen = codesByList.get(listName) ?? new Set<string>();
+    if (seen.has(code)) {
+      errors.push(
+        `answer code "${code}" is used more than once in list "${listName}"`,
+      );
+    }
+    seen.add(code);
+    codesByList.set(listName, seen);
     if (!CHOICE_RE.test(code)) {
       errors.push(
         `answer code "${code}" (list "${listName}") must match ${CHOICE_RULES.pattern} (letters/digits only)`,
@@ -367,30 +384,65 @@ export class XLSValidator {
     );
 
     for (const row of surveyData) {
-      const rawType = (row.type || '').trim();
-      if (!rawType) continue;
-      const baseType = rawType.split(/\s+/)[0];
-      if (STRUCTURAL.has(rawType) || METADATA_TYPES.has(baseType)) continue;
+      this.collectRowViolations(row, listNames, options, violations);
+    }
 
-      const mapping = TYPE_MAPPINGS[baseType];
-      const where = row.name ? ` (question "${row.name}")` : '';
-      const problem =
-        this.typeProblem(baseType, where) ??
-        (mapping?.requiresListName
-          ? this.choiceListProblem(
-              rawType,
-              baseType,
-              where,
-              listNames,
-              options.fileChoices ?? {},
-            )
-          : null);
-      if (problem) violations.push({ severity: 'error', message: problem });
-
-      this.collectAppearanceViolations(row, baseType, violations);
+    for (const choice of choicesData) {
+      const message = this.emptyChoiceLabel(choice);
+      if (message) violations.push({ severity: 'warning', message });
     }
 
     return violations;
+  }
+
+  /**
+   * A choice whose label is empty, in every language or in some, shows as a
+   * blank option. A warning: the form still converts.
+   */
+  private static emptyChoiceLabel(choice: ChoiceRow): string | null {
+    const code = (choice.name ?? '').toString().trim();
+    if (!code) return null; // reported as a missing code
+    const where = `choice "${code}" (list "${String(choice.list_name ?? '').trim()}")`;
+    const label = choice.label;
+    if (label !== null && typeof label === 'object') {
+      const langs = choice._languages ?? Object.keys(label);
+      const missing = langs.filter(
+        (lang) => String(label[lang] ?? '').trim() === '',
+      );
+      if (missing.length === 0) return null;
+      if (missing.length === langs.length) return `${where} has no label`;
+      return `${where} has no label in: ${missing.join(', ')}`;
+    }
+    return String(label ?? '').trim() === '' ? `${where} has no label` : null;
+  }
+
+  /** Type, choice-list and appearance findings for one survey row. */
+  private static collectRowViolations(
+    row: SurveyRow,
+    listNames: Set<string>,
+    options: SubsetOptions,
+    violations: SubsetViolation[],
+  ): void {
+    const rawType = (row.type || '').trim();
+    if (!rawType) return;
+    const baseType = rawType.split(/\s+/)[0];
+    if (STRUCTURAL.has(rawType) || METADATA_TYPES.has(baseType)) return;
+
+    const where = row.name ? ` (question "${row.name}")` : '';
+    const problem =
+      this.typeProblem(baseType, where) ??
+      (TYPE_MAPPINGS[baseType]?.requiresListName
+        ? this.choiceListProblem(
+            rawType,
+            baseType,
+            where,
+            listNames,
+            options.fileChoices ?? {},
+          )
+        : null);
+    if (problem) violations.push({ severity: 'error', message: problem });
+
+    this.collectAppearanceViolations(row, baseType, violations);
   }
 
   /** Why a type is outside the subset, or `null` if it's in it. */
