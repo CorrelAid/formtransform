@@ -152,7 +152,10 @@ const conventions = {
     "other": {
       "companionSuffix": "_other",
       "companionType": "text",
-      "relevanceTemplate": "${{${name}}} = 'other'",
+      "relevanceTemplates": {
+        "select_one": "${<question>} = 'other'",
+        "select_multiple": "selected(${<question>}, 'other')"
+      },
       "choiceCode": "other",
       "appliesTo": [
         "select_one",
