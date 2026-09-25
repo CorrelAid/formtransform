@@ -344,3 +344,34 @@ describe('settings combinations', () => {
     expect(defaultRows).toEqual(explicitRows);
   });
 });
+
+describe('default group (#74)', () => {
+  const groupRow = async (config: Record<string, unknown> = {}) =>
+    (
+      await convertAndParse(
+        [{ type: 'text', name: 'q', label: 'Q' }],
+        [],
+        undefined,
+        config,
+      )
+    ).find((r) => r.class === 'G');
+
+  test('has the configured name and no invented description', async () => {
+    const g = await groupRow({
+      defaults: {
+        language: 'en',
+        groupName: 'Fragen',
+        surveyTitle: 'T',
+        description: '',
+      },
+    });
+    expect(g?.name).toBe('Fragen');
+    expect(g?.text ?? '').toBe('');
+  });
+
+  test('defaults to "Questions", still without a description', async () => {
+    const g = await groupRow();
+    expect(g?.name).toBe('Questions');
+    expect(g?.text ?? '').toBe('');
+  });
+});
