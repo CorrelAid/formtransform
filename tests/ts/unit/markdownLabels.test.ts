@@ -1,5 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { markdownToHtml, htmlToMarkdown } from '../../../src/utils/markdownRenderer';
+import {
+  markdownToHtml,
+  htmlToMarkdown,
+} from '../../../src/utils/markdownRenderer';
 import { convertAndParse, findRowByName, findRowsByClass } from './helpers';
 
 // ==============================================================

@@ -1,64 +1,34 @@
-import { deepMerge } from '../utils/helpers.js';
-
-import { ConversionConfig, defaultConfig } from './types.js';
+import { resolveConfig } from './resolveConfig.js';
+import { LstsvConfig } from './types.js';
 
 export { ConversionConfig } from './types.js';
 
+/**
+ * @deprecated Use {@link resolveConfig}. Kept as a thin wrapper so existing
+ * consumers keep working; it will go with the public-API cleanup.
+ */
 export class ConfigManager {
-  private config: ConversionConfig;
+  private config: Readonly<LstsvConfig>;
 
-  constructor(config?: Partial<ConversionConfig>) {
-    this.config = this.mergeConfig(config || {});
+  constructor(config?: Partial<LstsvConfig>) {
+    this.config = resolveConfig(config);
   }
 
-  private mergeConfig(
-    partialConfig: Partial<ConversionConfig>,
-  ): ConversionConfig {
-    return deepMerge(structuredClone(defaultConfig), partialConfig);
-  }
-
-  getConfig(): ConversionConfig {
+  getConfig(): Readonly<LstsvConfig> {
     return this.config;
   }
 
-  getDefaults(): ConversionConfig['defaults'] {
+  getDefaults(): LstsvConfig['defaults'] {
     return this.config.defaults;
   }
 
-  getAdvancedOptions() {
-    return {
-      autoCreateGroups: true, // Always auto-create groups (hardcoded)
-      handleRepeats: this.config.handleRepeats ?? 'warn',
-      debugLogging: this.config.debugLogging ?? false,
-    };
+  /** Replaces the options: `partialConfig` merged over the defaults (as before). */
+  updateConfig(partialConfig: Partial<LstsvConfig>): void {
+    this.config = resolveConfig(partialConfig);
   }
 
-  /**
-   * Update configuration at runtime
-   */
-  updateConfig(partialConfig: Partial<ConversionConfig>): void {
-    this.config = this.mergeConfig(partialConfig);
-  }
-
-  /**
-   * Validate configuration
-   */
+  /** Validation now happens in {@link resolveConfig}; kept for compatibility. */
   validateConfig(): void {
-    const { defaults } = this.config;
-
-    // Validate handleRepeats if provided
-    if (
-      this.config.handleRepeats &&
-      !['warn', 'error', 'ignore'].includes(this.config.handleRepeats)
-    ) {
-      throw new Error(
-        `Invalid handleRepeats option: ${this.config.handleRepeats}`,
-      );
-    }
-
-    // Validate defaults
-    if (!defaults.language || defaults.language.length !== 2) {
-      throw new Error('defaults.language must be a 2-character language code');
-    }
+    resolveConfig(this.config);
   }
 }

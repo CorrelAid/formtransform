@@ -1,65 +1,25 @@
 /**
- * Represents a row in the survey section of an XLSForm
+ * Configuration for the XLSForm → LimeSurvey TSV conversion.
+ *
+ * The XLSForm row types used to live here; they are in `src/xlsform/types.ts`
+ * now and re-exported below for compatibility.
  */
-export interface SurveyRow {
-  type?: string;
-  name?: string;
-  label?: string | Record<string, string>;
-  hint?: string | Record<string, string>;
-  required?: string;
-  relevant?: string;
-  constraint?: string;
-  constraint_message?: string;
-  calculation?: string;
-  default?: string;
-  _languages?: string[];
-  [key: string]: unknown;
-}
+export type {
+  SurveyRow,
+  ChoiceRow,
+  SettingsRow,
+  XLSFormData,
+} from '../xlsform/types.js';
 
 /**
- * Represents a row in the choices section of an XLSForm
+ * Options for the XLSForm → LimeSurvey TSV conversion (`xlsform2lstsv`). The
+ * other directions take their own option objects.
  */
-export interface ChoiceRow {
-  list_name?: string;
-  name?: string;
-  label?: string | Record<string, string>;
-  filter?: string;
-  _languages?: string[];
-  [key: string]: unknown;
-}
-
-/**
- * Represents a row in the settings section of an XLSForm
- */
-export interface SettingsRow {
-  form_title?: string;
-  form_id?: string;
-  default_language?: string;
-  style?: string;
-  [key: string]: unknown;
-}
-
-/**
- * Result type returned by XLS/XLSX loaders
- */
-export interface XLSFormData {
-  surveyData: SurveyRow[];
-  choicesData: ChoiceRow[];
-  settingsData: SettingsRow[];
-  hasSurveySheet: boolean;
-  hasChoicesSheet: boolean;
-  hasSettingsSheet: boolean;
-}
-
-export interface ConversionConfig {
-  /**
-   * How to handle repeats: 'warn', 'error', or 'ignore' (default: 'warn')
-   */
+export interface LstsvConfig {
+  /** @deprecated Never read; accepted so existing callers keep compiling. */
   handleRepeats?: 'warn' | 'error' | 'ignore';
 
-  /**
-   * Enable debug logging (default: false)
-   */
+  /** @deprecated Never read; accepted so existing callers keep compiling. */
   debugLogging?: boolean;
 
   /**
@@ -110,7 +70,7 @@ export interface ConversionConfig {
 /**
  * Default configuration with sensible defaults
  */
-export const defaultConfig: ConversionConfig = {
+export const defaultConfig: LstsvConfig = {
   handleRepeats: 'warn',
   debugLogging: false,
   convertWelcomeNote: true,
@@ -127,3 +87,6 @@ export const defaultConfig: ConversionConfig = {
     description: '',
   },
 };
+
+/** @deprecated Use {@link LstsvConfig}. */
+export type ConversionConfig = LstsvConfig;

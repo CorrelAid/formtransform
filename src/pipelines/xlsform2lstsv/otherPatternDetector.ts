@@ -1,4 +1,4 @@
-import { SurveyRow, ChoiceRow } from '../../config/types.js';
+import { SurveyRow, ChoiceRow } from '../../xlsform/types.js';
 import { TypeInfo } from './typeMapper.js';
 import { ChoiceManager } from './choiceManager.js';
 import { LanguageHandler } from './languageHandler.js';

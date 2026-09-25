@@ -1,4 +1,4 @@
-import { SurveyRow } from '../../config/types.js';
+import { SurveyRow } from '../../xlsform/types.js';
 import { TypeInfo } from './typeMapper.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';

@@ -6,7 +6,7 @@
  * the caller's to read and pass through {@link parseVocabCsv}; the node-only
  * `fileChoices.ts` does that from disk for the CLI.
  */
-import type { ChoiceRow, SurveyRow } from './config/types.js';
+import type { ChoiceRow, SurveyRow } from './xlsform/types.js';
 import { VOCABULARY_OPTIONS } from './generated/VocabularyOptions.js';
 import { parseCsvRecords } from './responseFile.js';
 

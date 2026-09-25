@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs, ParseArgsConfig } from 'node:util';
 
-import { XLSFormData } from './config/types.js';
+import { XLSFormData } from './xlsform/types.js';
 import type { BuildDdiOptions } from './ddi/codebook.js';
 import {
   buildDataCsv,

@@ -18,12 +18,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-import {
-  SurveyRow,
-  ChoiceRow,
-  SettingsRow,
-  ConversionConfig,
-} from './config/types.js';
+import { LstsvConfig } from './config/types.js';
+import { SurveyRow, ChoiceRow, SettingsRow } from './xlsform/types.js';
 import { XLSLoader } from './xlsform/loader.js';
 import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
 
@@ -58,7 +54,7 @@ function cleanOutputDirectory(dir: string): void {
 async function generateTSVFromFixture(
   fixturePath: string,
   outputPath: string,
-  config: Partial<ConversionConfig> = {},
+  config: Partial<LstsvConfig> = {},
 ): Promise<void> {
   console.log(`Processing: ${path.basename(fixturePath)}`);
 

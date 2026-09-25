@@ -3,7 +3,7 @@
  */
 
 import { ConversionConfig } from '../config/ConfigManager.js';
-import type { ChoiceRow } from '../config/types.js';
+import type { ChoiceRow } from './types.js';
 
 import { XLSLoader } from './loader.js';
 
