@@ -464,7 +464,6 @@ class Conversion {
     xfTypeInfo: { base: string },
     lsType: { other?: boolean; dateFormat?: string },
   ): {
-    calculationExpr: string;
     relevance: string;
     emValidation: string;
     mandatory: string;
@@ -473,47 +472,36 @@ class Conversion {
     hidden: string;
     hideTip: string;
     isNote: boolean;
-    isCalculate: boolean;
   } {
+    // `calculate` is not registered, so it never gets here (validateRow).
     const isNote = xfTypeInfo.base === 'note';
-    const isCalculate = xfTypeInfo.base === 'calculate';
-    const isNoteOrCalc = isNote || isCalculate;
 
-    const calculationExpr = this.computeCalculation(row, isCalculate);
     const relevance = this.transpilerHelper.convertRelevance(row.relevant);
-    const emValidation = isNoteOrCalc
+    const emValidation = isNote
       ? ''
       : this.transpilerHelper.convertConstraint(row.constraint || '');
-    const mandatory = isNoteOrCalc ? '' : this.mandatoryValue(row);
-    const other = this.computeOtherFlag(row, lsType, isNoteOrCalc);
-    const defaultVal = isNoteOrCalc ? '' : row.default || '';
+    const mandatory = isNote ? '' : this.mandatoryValue(row);
+    const other = this.computeOtherFlag(row, lsType, isNote);
+    const defaultVal = isNote ? '' : row.default || '';
     // Suppress LimeSurvey's stock per-question tips ("Only numbers may be
     // entered", "Select all that apply", …) on real questions. Notes (type X)
     // carry no tip, so leave them alone.
-    const hideTip = isNoteOrCalc
+    const hideTip = isNote
       ? ''
       : this.configManager.getConfig().hideQuestionTips !== false
         ? '1'
         : '';
 
     return {
-      calculationExpr,
       relevance,
       emValidation,
       mandatory,
       other,
       defaultVal,
-      hidden: isCalculate ? '1' : '',
+      hidden: '',
       hideTip,
       isNote,
-      isCalculate,
     };
-  }
-
-  /** Transpile `row.calculation` to EM, only meaningful for `calculate` questions. */
-  private computeCalculation(row: SurveyRow, isCalculate: boolean): string {
-    if (!isCalculate || !row.calculation) return '';
-    return this.transpilerHelper.convertCalculation(row.calculation);
   }
 
   /** Map the XLSForm `required` cell to LimeSurvey's `Y` (true) or empty. */
@@ -526,9 +514,9 @@ class Conversion {
   private computeOtherFlag(
     row: SurveyRow,
     lsType: { other?: boolean },
-    isNoteOrCalc: boolean,
+    isNote: boolean,
   ): string {
-    if (isNoteOrCalc) return '';
+    if (isNote) return '';
     const detected = this.configManager.getConfig().convertOtherPattern
       ? this.otherPatternDetector.hasOtherQuestionPattern(
           row,
@@ -552,13 +540,9 @@ class Conversion {
     ctx: QuestionRowContext,
   ): Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'> {
     const { lsType, fields, cdlVocab, attributes } = ctx;
-    let text: string;
-    if (fields.isCalculate) {
-      text = `{${fields.calculationExpr}}`;
-    } else {
-      text = this.languageHandler.renderLabel(row.label, lang, questionName);
-    }
-    text = this.fieldNameHandler.convertVariableReferences(text);
+    const text = this.fieldNameHandler.convertVariableReferences(
+      this.languageHandler.renderLabel(row.label, lang, questionName),
+    );
     const help = this.fieldNameHandler.convertVariableReferences(
       this.languageHandler.renderLabel(row.hint, lang),
     );
@@ -605,7 +589,6 @@ class Conversion {
 interface QuestionRowContext {
   lsType: { type: string; dateFormat?: string };
   fields: {
-    calculationExpr: string;
     relevance: string;
     emValidation: string;
     mandatory: string;
@@ -614,7 +597,6 @@ interface QuestionRowContext {
     hidden: string;
     hideTip: string;
     isNote: boolean;
-    isCalculate: boolean;
   };
   cdlVocab: string;
   /** LS question attributes from the `parameters` column (parameters.ts). */

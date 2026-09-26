@@ -3,7 +3,6 @@ import { ChoiceManager } from './choiceManager.js';
 import {
   convertRelevanceSync,
   convertConstraintSync,
-  xpathToLimeSurveySync,
   TranspilerContext,
 } from './xpathTranspiler.js';
 import { consoleWarning } from '../../diagnostics.js';
@@ -50,10 +49,6 @@ export class TranspilerHelper {
   convertRelevance(relevant?: string): string {
     if (!relevant) return '1';
     return convertRelevanceSync(relevant, this.buildTranspilerContext());
-  }
-
-  convertCalculation(calculation: string): string {
-    return xpathToLimeSurveySync(calculation, this.buildTranspilerContext());
   }
 
   convertConstraint(constraint: string): string {

@@ -137,12 +137,9 @@ listed here must match exactly.
    so which one applied cannot be determined on the way back;
    `reverseConstraint` always assumes the generic (unswapped) order. No fixture
    uses either form.
-8. **`calculation` is not reversed — out of scope.** `convertCalculation` reuses
-   the same `transpile()` as relevance, so the reverser's core would apply
-   directly, but the `calculate` XLSForm type is not registered in the registry:
-   `processRow`'s allowlist throws on it before `convertCalculation` is ever
-   called. No TSV this tool produces contains a calculation question, so there is
-   nothing to reverse.
+8. **`calculation` is not reversed — out of scope.** The `calculate` XLSForm
+   type is not registered, so the forward converter rejects it and no TSV this
+   tool produces contains a calculation question: there is nothing to reverse.
 
 Resolved (kept here so the questions don't get re-litigated): **date subtypes**
 are fully recoverable — `TYPE_MAPPINGS[type].dateFormat` is a genuine 1:1 hint

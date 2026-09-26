@@ -47,16 +47,8 @@ export class AnswerEmitter {
     helpers: AnswerHelpers,
   ): void {
     const choices = this.choiceManager.getChoices(xfTypeInfo.listName!);
-    if (!choices) {
-      this.onWarning(
-        warning(
-          'choice-list-empty',
-          `Choice list not found: ${xfTypeInfo.listName}`,
-          xfTypeInfo.listName ?? undefined,
-        ),
-      );
-      return;
-    }
+    // validateRow already rejected a select whose list has no rows.
+    if (!choices) return;
 
     const answerClass =
       lsType.answerClass ||
