@@ -5,8 +5,15 @@ import { lstsvToDdiXml } from '../../../../src/pipelines/lstsv2ddi/index.js';
 import { validateLstsvSubset } from '../../../../src/lstsv/validate.js';
 
 type Row = Record<string, string>;
+/** A row with every required column (see REQUIRED_COLUMNS). */
 function row(fields: Partial<Row> & Pick<Row, 'class'>): Row {
-  return { language: 'en', ...fields } as Row;
+  return {
+    'type/scale': '',
+    name: '',
+    text: '',
+    language: 'en',
+    ...fields,
+  } as Row;
 }
 
 describe('validateLstsvSubset', () => {
@@ -56,5 +63,35 @@ describe('lstsvToDdiXml — reverse validation', () => {
 
   test('skipValidation bypasses the check', () => {
     expect(() => lstsvToDdiXml(tsv, { skipValidation: true })).not.toThrow();
+  });
+});
+
+describe('structure problems (#100)', () => {
+  test('an unknown row class warns once', () => {
+    const v = validateLstsvSubset([
+      row({ class: 'Z', name: 'x' }),
+      row({ class: 'Z', name: 'y' }),
+    ]);
+    expect(v).toEqual([
+      expect.objectContaining({
+        code: 'lstsv-outside-subset',
+        severity: 'warning',
+      }),
+    ]);
+  });
+
+  test('a missing required column is an error', () => {
+    const v = validateLstsvSubset([{ class: 'Q', name: 'q' } as Row]);
+    expect(v[0]).toMatchObject({ code: 'column-missing', severity: 'error' });
+    expect(v[0].message).toContain('type/scale');
+  });
+
+  test('a TSV with a BOM and CRLF line ends converts', () => {
+    const tsv =
+      '﻿class\ttype/scale\tname\trelevance\ttext\thelp\tlanguage\r\n' +
+      'S\t\tlanguage\t1\ten\t\ten\r\n' +
+      'G\t\tG1\t1\t\t\ten\r\n' +
+      'Q\tS\tq1\t1\tName?\t\ten\r\n';
+    expect(lstsvToDdiXml(tsv)).toMatch(/<var [^>]*name="q1"/);
   });
 });
