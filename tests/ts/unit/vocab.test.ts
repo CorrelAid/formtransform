@@ -23,9 +23,15 @@ describe('parseVocabCsv', () => {
     expect(rows).toEqual([{ list_name: 'l', name: 'y', label: 'Yes' }]);
   });
 
-  test('rejects a CSV without code and label columns', () => {
+  test('reads the ODK `name,label` header too', () => {
+    expect(parseVocabCsv('name,label\nrot,Rot\n', 'f.csv')).toEqual([
+      { list_name: 'f.csv', name: 'rot', label: 'Rot' },
+    ]);
+  });
+
+  test('rejects a CSV without code (or name) and label columns', () => {
     expect(() => parseVocabCsv('id,name\n1,a\n', 'bad.csv')).toThrow(
-      /must have 'code' and 'label'/,
+      expect.objectContaining({ code: 'vocab-csv-invalid' }),
     );
   });
 });
