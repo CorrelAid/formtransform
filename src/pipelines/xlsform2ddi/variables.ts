@@ -7,6 +7,7 @@
  */
 
 import { extractLanguageCode } from '../../utils/languageUtils.js';
+import { METADATA_ROW_TYPES } from '../../conventions/metadata.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import {
   OTHER_APPLIES_TO,
@@ -53,12 +54,18 @@ function langFromLabelCol(labelCol: string): string {
 }
 
 /**
- * Types skipped during variable extraction: structural + non-emittable,
- * minus `note` (kept so note rows can be classified into `<preQTxt>`/`<notes>`).
+ * Types skipped during variable extraction: structural + non-emittable +
+ * metadata, minus `note` (kept so note rows can be classified into `<preQTxt>`/`<notes>`).
  */
-const SKIP_TYPES: Set<string> = new Set(
-  [...STRUCTURAL_TYPES, ...NON_DDI_EMITTABLE_TYPES].filter((t) => t !== 'note'),
-);
+const SKIP_TYPES: Set<string> = new Set([
+  ...[...STRUCTURAL_TYPES, ...NON_DDI_EMITTABLE_TYPES].filter(
+    (t) => t !== 'note',
+  ),
+  // convention:unregisteredRows: device/session metadata (start, end,
+  // deviceid, …) carries no authored content and is skipped, as in the
+  // LimeSurvey TSV (#86).
+  ...METADATA_ROW_TYPES,
+]);
 
 /**
  * Appearances the registry marks `carriesData: false`: the row renders (a matrix

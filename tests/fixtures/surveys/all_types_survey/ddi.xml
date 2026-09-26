@@ -161,34 +161,6 @@
       <concept>Sonstiges</concept>
       <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_start" name="start" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_end" name="end" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_today" name="today" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_deviceid" name="deviceid" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_username" name="username" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_hidden1" name="hidden1" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_audit" name="audit" intrvl="discrete" files="F1">
-      <concept></concept>
-      <varFormat type="character" schema="other"/>
-    </var>
     <var ID="V_orphan_before" name="orphan_before" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Wie lautet Ihre Teilnehmer-ID?</qstnLit>

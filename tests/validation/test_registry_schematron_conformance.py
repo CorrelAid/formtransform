@@ -378,3 +378,15 @@ def test_several_concepts_are_allowed(worker_jar, java_bin, tmp_path):
     rc, out = _validate(java_bin, worker_jar, empty.encode(), tmp_path)
     messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
     assert rc == 1 and any("missing a concept element" in m for m in messages), messages
+
+
+def test_companion_of_a_name_that_ends_in_other(worker_jar, java_bin, tmp_path):
+    """The base of `<x>_other_other` is `<x>_other` (the trailing suffix), not
+    `<x>` (the first one); the rule used to cut at the first (#86)."""
+    from .fixtures import load_registry
+
+    variant = next(e for e in load_registry() if e.get("@id") == "variant:select_one_other")
+    xml = load_example_ddi(variant).replace("aufmerksam", "quelle_other")
+    _rc, out = _validate(java_bin, worker_jar, xml.encode(), tmp_path)
+    messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
+    assert not any("quelle_other_other" in m for m in messages), messages

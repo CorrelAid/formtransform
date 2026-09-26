@@ -70,9 +70,11 @@ def worker_jar() -> Path:
 
 
 SURVEY_SNAPSHOTS = sorted((REPO_ROOT / "tests" / "fixtures" / "surveys").glob("*/ddi.xml"))
-# Surveys the CDL rules reject for reasons outside the converter's control:
-# metadata variables (start, deviceid, ...) carry no question, and a choice
-# named "other" collides with the "_other" companion convention.
+# Surveys the CDL rules reject because of how they were authored: each names a
+# question `<x>_other` that is not the free-text companion of a select `<x>`
+# (all_types_survey: the select `q_sel1_other`; testB: the text `tools_other`
+# with no `tools`). validateSubset(target='ddi') warns `name-reserved-suffix`
+# for exactly these (#86).
 KNOWN_INVALID = {"all_types_survey", "testB"}
 
 

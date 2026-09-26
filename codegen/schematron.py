@@ -159,17 +159,17 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
         <assert test="%P%varFormat/@type = '{c_fmt}'">
             Variable <value-of select="@name"/> ends in "{sfx}" but has varFormat type="<value-of select="%P%varFormat/@type"/>". Expected "{c_fmt}".
         </assert>
-        <assert test="//%P%var[@name = substring-before(current()/@name, '{sfx}')] or //%P%varGrp[@name = substring-before(current()/@name, '{sfx}')]">
-            Variable <value-of select="@name"/> ends in "{sfx}" but no matching base variable or group named "<value-of select="substring-before(@name, '{sfx}')"/>" was found.
+        <assert test="//%P%var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}'))] or //%P%varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}'))]">
+            Variable <value-of select="@name"/> ends in "{sfx}" but no matching base variable or group named "<value-of select="substring(@name, 1, string-length(@name) - string-length('{sfx}'))"/>" was found.
         </assert>
-        <assert test="not(//%P%var[@name = substring-before(current()/@name, '{sfx}')]) or //%P%var[@name = substring-before(current()/@name, '{sfx}')]/%P%catgry[%P%catValu = '{cc}'] or //%P%varGrp[@name = substring-before(current()/@name, '{sfx}') and @type != 'other']">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '{sfx}')"/>" must have a catgry with catValu="{cc}" (convention for round-trip conversion).
+        <assert test="not(//%P%var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}'))]) or //%P%var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}'))]/%P%catgry[%P%catValu = '{cc}'] or //%P%varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}')) and @type != 'other']">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('{sfx}'))"/>" must have a catgry with catValu="{cc}" (convention for round-trip conversion).
         </assert>
         <assert test="not(//%P%varGrp[@type='multipleResp' and contains(concat(' ', @var, ' '), concat(' ', current()/@ID, ' '))])">
             Variable <value-of select="@name"/> ({c_rdt} {sfx}) must not be a member of a multipleResp group. It should be a standalone variable outside the group.
         </assert>
-        <assert test="not(//%P%var[@name = substring-before(current()/@name, '{sfx}')]/%P%concept/@vocab)">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '{sfx}')"/>" uses concept/@vocab (long list). Long list and {sfx} cannot be combined.
+        <assert test="not(//%P%var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('{sfx}'))]/%P%concept/@vocab)">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('{sfx}'))"/>" uses concept/@vocab (long list). Long list and {sfx} cannot be combined.
         </assert>
     </rule>
 """

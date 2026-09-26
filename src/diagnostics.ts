@@ -21,6 +21,7 @@ export type DiagnosticCode =
   | 'name-empty-after-sanitize'
   | 'name-truncated'
   | 'name-collision'
+  | 'name-reserved-suffix'
   | 'code-invalid'
   | 'code-too-long'
   | 'code-duplicate'
