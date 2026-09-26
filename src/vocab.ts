@@ -27,7 +27,9 @@ export function referencedVocabFiles(survey: SurveyRow[]): string[] {
 
 /**
  * Parse a `code,label` CSV into ChoiceRows keyed to the given list name.
- * Quoted fields (`"Korea, Republic of"`) and a leading BOM are handled.
+ * `name,label`, the header ODK/pyxform use for `select_*_from_file` CSVs, is
+ * read the same way. Quoted fields (`"Korea, Republic of"`) and a leading BOM
+ * are handled.
  */
 export function parseVocabCsv(csvText: string, listName: string): ChoiceRow[] {
   const [header, ...records] = parseCsvRecords(
@@ -36,12 +38,14 @@ export function parseVocabCsv(csvText: string, listName: string): ChoiceRow[] {
   );
   if (!header) return [];
   const columns = header.map((h) => h.trim().toLowerCase());
-  const codeIdx = columns.indexOf('code');
+  const codeIdx = columns.includes('code')
+    ? columns.indexOf('code')
+    : columns.indexOf('name');
   const labelIdx = columns.indexOf('label');
   if (codeIdx === -1 || labelIdx === -1) {
     throw new ConversionError(
       'vocab-csv-invalid',
-      `Vocabulary CSV ${listName} must have 'code' and 'label' columns; got: ${columns.join(',')}`,
+      `Vocabulary CSV ${listName} must have 'code' (or 'name') and 'label' columns; got: ${columns.join(',')}`,
     );
   }
   const rows: ChoiceRow[] = [];
