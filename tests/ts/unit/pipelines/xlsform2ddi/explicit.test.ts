@@ -9,6 +9,7 @@ import {
   RESPONSE_DOMAIN_MAP,
 } from '../../../../../src/generated/DdiMappings.js';
 import { buildDdiXml } from '../../../../../src/pipelines/xlsform2ddi/index.js';
+import { XLSValidator } from '../../../../../src/xlsform/validate.js';
 import {
   choicesByListFromRows,
   extractVariables,
@@ -209,5 +210,34 @@ describe('notes', () => {
     );
     expect(xml).not.toContain('Ohne Namen');
     expect(xml).not.toMatch(/<notes[^>]*><\/notes>/);
+  });
+});
+
+describe('DDI naming and metadata (#86)', () => {
+  test('metadata rows (start, end, deviceid, …) are no variables', () => {
+    const xml = buildDdiXml(
+      [
+        { type: 'start', name: 'start' },
+        { type: 'deviceid', name: 'deviceid' },
+        { type: 'text', name: 'q', label: 'Q?' },
+      ],
+      [],
+    );
+    expect(varNames(xml)).toEqual(['q']);
+  });
+
+  test('a name ending in _other that is no companion warns name-reserved-suffix', () => {
+    const warnings = (survey: Row[]) =>
+      XLSValidator.validateSubset(survey, yn, { target: 'ddi' })
+        .filter((d) => d.code === 'name-reserved-suffix')
+        .map((d) => d.name);
+    expect(
+      warnings([
+        { type: 'text', name: 'tools_other', label: 'Other tools?' },
+        { type: 'select_one l', name: 'x_other', label: 'X?' },
+        { type: 'select_one l', name: 'q', label: 'Q?' },
+        { type: 'text', name: 'q_other', label: 'Which?' },
+      ]),
+    ).toEqual(['tools_other', 'x_other']);
   });
 });

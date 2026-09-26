@@ -16,7 +16,7 @@ import {
   exclusiveCell,
   isExclusive,
 } from '../conventions/exclusive.js';
-import { OTHER_SUFFIX } from '../conventions/other.js';
+import { OTHER_SUFFIX, otherCompanionBase } from '../conventions/other.js';
 import { isFromFileType } from '../conventions/fromFile.js';
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
 import { isGridAppearance } from '../conventions/grid.js';
@@ -546,6 +546,8 @@ export class XLSValidator {
       if (found) violations.push(found);
     }
     violations.push(...this.exclusiveProblems(surveyData, choicesData));
+    if (target === 'ddi')
+      violations.push(...this.falseOtherCompanions(surveyData));
     violations.push(
       ...expressionReferenceDiagnostics(
         surveyData,
@@ -617,6 +619,34 @@ export class XLSValidator {
       `${lost.join(' and ')} on "${name}" is not carried over: ${why}`,
       name,
     );
+  }
+
+  /**
+   * DDI tools (and the CDL Schematron) read a `<base>_other` variable as the
+   * free-text companion of a select `<base>`. A name with that suffix that is
+   * no such companion — not text, or no question `<base>` — is misread, so
+   * it gets a `name-reserved-suffix` warning (#86).
+   */
+  private static falseOtherCompanions(surveyData: SurveyRow[]): Diagnostic[] {
+    const names = new Set(
+      surveyData.map((r) => (typeof r.name === 'string' ? r.name.trim() : '')),
+    );
+    const found: Diagnostic[] = [];
+    for (const row of surveyData) {
+      const name = typeof row.name === 'string' ? row.name.trim() : '';
+      const base = otherCompanionBase(name);
+      if (!base) continue;
+      const isText = (row.type || '').trim().split(/\s+/)[0] === 'text';
+      if (isText && names.has(base)) continue;
+      found.push(
+        warning(
+          'name-reserved-suffix',
+          `"${name}" ends in "${OTHER_SUFFIX}", which DDI reads as the free-text "other" of a question "${base}"; ${isText ? `there is no question "${base}"` : 'but it is not a text question'} — rename it`,
+          name,
+        ),
+      );
+    }
+    return found;
   }
 
   /** List names with at least one row on the choices sheet. */

@@ -167,17 +167,17 @@
         <assert test="ddi:varFormat/@type = 'character'">
             Variable <value-of select="@name"/> ends in "_other" but has varFormat type="<value-of select="ddi:varFormat/@type"/>". Expected "character".
         </assert>
-        <assert test="//ddi:var[@name = substring-before(current()/@name, '_other')] or //ddi:varGrp[@name = substring-before(current()/@name, '_other')]">
-            Variable <value-of select="@name"/> ends in "_other" but no matching base variable or group named "<value-of select="substring-before(@name, '_other')"/>" was found.
+        <assert test="//ddi:var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))] or //ddi:varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]">
+            Variable <value-of select="@name"/> ends in "_other" but no matching base variable or group named "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" was found.
         </assert>
-        <assert test="not(//ddi:var[@name = substring-before(current()/@name, '_other')]) or //ddi:var[@name = substring-before(current()/@name, '_other')]/ddi:catgry[ddi:catValu = 'other'] or //ddi:varGrp[@name = substring-before(current()/@name, '_other') and @type != 'other']">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '_other')"/>" must have a catgry with catValu="other" (convention for round-trip conversion).
+        <assert test="not(//ddi:var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]) or //ddi:var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]/ddi:catgry[ddi:catValu = 'other'] or //ddi:varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other')) and @type != 'other']">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" must have a catgry with catValu="other" (convention for round-trip conversion).
         </assert>
         <assert test="not(//ddi:varGrp[@type='multipleResp' and contains(concat(' ', @var, ' '), concat(' ', current()/@ID, ' '))])">
             Variable <value-of select="@name"/> (text _other) must not be a member of a multipleResp group. It should be a standalone variable outside the group.
         </assert>
-        <assert test="not(//ddi:var[@name = substring-before(current()/@name, '_other')]/ddi:concept/@vocab)">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '_other')"/>" uses concept/@vocab (long list). Long list and _other cannot be combined.
+        <assert test="not(//ddi:var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]/ddi:concept/@vocab)">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" uses concept/@vocab (long list). Long list and _other cannot be combined.
         </assert>
     </rule>
     <!--
@@ -197,17 +197,17 @@
         <assert test="varFormat/@type = 'character'">
             Variable <value-of select="@name"/> ends in "_other" but has varFormat type="<value-of select="varFormat/@type"/>". Expected "character".
         </assert>
-        <assert test="//var[@name = substring-before(current()/@name, '_other')] or //varGrp[@name = substring-before(current()/@name, '_other')]">
-            Variable <value-of select="@name"/> ends in "_other" but no matching base variable or group named "<value-of select="substring-before(@name, '_other')"/>" was found.
+        <assert test="//var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))] or //varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]">
+            Variable <value-of select="@name"/> ends in "_other" but no matching base variable or group named "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" was found.
         </assert>
-        <assert test="not(//var[@name = substring-before(current()/@name, '_other')]) or //var[@name = substring-before(current()/@name, '_other')]/catgry[catValu = 'other'] or //varGrp[@name = substring-before(current()/@name, '_other') and @type != 'other']">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '_other')"/>" must have a catgry with catValu="other" (convention for round-trip conversion).
+        <assert test="not(//var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]) or //var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]/catgry[catValu = 'other'] or //varGrp[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other')) and @type != 'other']">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" must have a catgry with catValu="other" (convention for round-trip conversion).
         </assert>
         <assert test="not(//varGrp[@type='multipleResp' and contains(concat(' ', @var, ' '), concat(' ', current()/@ID, ' '))])">
             Variable <value-of select="@name"/> (text _other) must not be a member of a multipleResp group. It should be a standalone variable outside the group.
         </assert>
-        <assert test="not(//var[@name = substring-before(current()/@name, '_other')]/concept/@vocab)">
-            Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '_other')"/>" uses concept/@vocab (long list). Long list and _other cannot be combined.
+        <assert test="not(//var[@name = substring(current()/@name, 1, string-length(current()/@name) - string-length('_other'))]/concept/@vocab)">
+            Variable <value-of select="@name"/>: the base variable "<value-of select="substring(@name, 1, string-length(@name) - string-length('_other'))"/>" uses concept/@vocab (long list). Long list and _other cannot be combined.
         </assert>
     </rule>
     </pattern>
