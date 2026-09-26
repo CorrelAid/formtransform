@@ -135,6 +135,7 @@
     </var>
     <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
+        <preQTxt>z.B. 10, 50, 100...</preQTxt>
         <qstnLit>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</qstnLit>
       </qstn>
       <concept>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</concept>
@@ -378,6 +379,7 @@
     </var>
     <var ID="V_attribution_beruf" name="attribution_beruf" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
+        <preQTxt>0% = gar nicht, 100% = komplett</preQTxt>
         <qstnLit>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</qstnLit>
       </qstn>
       <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
@@ -406,6 +408,7 @@
     </var>
     <var ID="V_nps_score" name="nps_score" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
+        <preQTxt>0 = auf keinen Fall, 10 = auf jeden Fall</preQTxt>
         <qstnLit>Würdest du TestWerk Freund*innen empfehlen?</qstnLit>
       </qstn>
       <catgry>

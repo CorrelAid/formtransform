@@ -26,6 +26,7 @@ export type DiagnosticCode =
   | 'code-empty-after-sanitize'
   | 'code-truncated'
   | 'label-missing'
+  | 'hint-dropped'
   | 'type-unregistered'
   | 'type-unsupported'
   | 'choice-list-missing'

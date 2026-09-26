@@ -69,6 +69,61 @@ def worker_jar() -> Path:
     return jar
 
 
+SURVEY_SNAPSHOTS = sorted((REPO_ROOT / "tests" / "fixtures" / "surveys").glob("*/ddi.xml"))
+# Surveys the CDL rules reject for reasons outside the converter's control:
+# metadata variables (start, deviceid, ...) carry no question, and a choice
+# named "other" collides with the "_other" companion convention.
+KNOWN_INVALID = {"all_types_survey", "testB"}
+
+
+def _validate(path: Path, java_bin: str, worker_jar: Path) -> str | None:
+    """Run the worker CLI on one file; the failure summary, or None if valid."""
+    result = subprocess.run(
+        [
+            java_bin,
+            "-cp",
+            str(worker_jar),
+            "dev.correlaid.schematron.CliMain",
+            "--xsd",
+            str(XSD_PATH),
+            "--sch",
+            str(SCH_PATH),
+            "--xml",
+            str(path),
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    if result.returncode == 0:
+        return None
+    if result.returncode == 2:
+        return f"worker CLI argument/IO error: {result.stderr.decode()[:500]}"
+    try:
+        # Log lines precede the JSON report on stdout.
+        out = result.stdout.decode()
+        report = json.loads(out[out.index("{") :])
+        return "\n  ".join(f"{e.get('rule', '?')}: {e.get('message', '?')}" for e in report.get("errors", []))
+    except Exception:
+        return result.stdout.decode()[:500]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        pytest.param(p, marks=pytest.mark.xfail(strict=True, reason="see KNOWN_INVALID"))
+        if p.parent.name in KNOWN_INVALID
+        else p
+        for p in SURVEY_SNAPSHOTS
+    ],
+    ids=lambda p: p.parent.name,
+)
+def test_survey_ddi_snapshot_valid(path, worker_jar, java_bin):
+    """Every blessed whole-survey ddi.xml passes XSD + CDL schematron too."""
+    failure = _validate(path, java_bin, worker_jar)
+    if failure:
+        pytest.fail(f"{path.parent.name}: validation failed.\n  {failure}")
+
+
 @pytest.mark.parametrize("variant", examples(), ids=lambda v: v["@id"])
 def test_ddi_snapshot_valid(variant, worker_jar, java_bin):
     """Blessed ddi.xml passes XSD + CDL schematron via schematron-worker CLI."""
@@ -99,7 +154,9 @@ def test_ddi_snapshot_valid(variant, worker_jar, java_bin):
 
     # returncode == 1 → validation failures. Worker output is JSON.
     try:
-        report = json.loads(result.stdout.decode())
+        # Log lines precede the JSON report on stdout.
+        out = result.stdout.decode()
+        report = json.loads(out[out.index("{") :])
         msgs = "\n  ".join(f"{e.get('rule', '?')}: {e.get('message', '?')}" for e in report.get("errors", []))
     except Exception:
         msgs = result.stdout.decode()[:500]

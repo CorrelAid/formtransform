@@ -23,6 +23,7 @@
   <dataDscr>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Enter your full name</preQTxt>
         <qstnLit>What is your name?</qstnLit>
       </qstn>
       <concept>What is your name?</concept>

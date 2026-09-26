@@ -385,6 +385,7 @@
     </var>
     <var ID="V_q_hint" name="q_hint" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Format: +49 123 456789</preQTxt>
         <qstnLit>Wie lautet Ihre Telefonnummer?</qstnLit>
       </qstn>
       <concept>Wie lautet Ihre Telefonnummer?</concept>
@@ -413,6 +414,7 @@
     </var>
     <var ID="V_q_all_features" name="q_all_features" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Freiwillig, aber willkommen</preQTxt>
         <qstnLit>Haben Sie noch Anmerkungen?</qstnLit>
       </qstn>
       <concept>Haben Sie noch Anmerkungen?</concept>

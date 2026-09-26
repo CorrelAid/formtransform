@@ -103,6 +103,47 @@ function readLabel(row: Row, col: string): string {
   return toStr(raw);
 }
 
+/**
+ * A text column in the label column's language: `hint` next to `label`,
+ * `hint::German (de)` next to `label::German (de)`. Tolerates the loader's
+ * `{ lang: value }` shape (the label's language, else the first value).
+ */
+function readLangColumn(row: Row, base: string, labelCol: string): string {
+  const suffix = labelCol.startsWith('label::')
+    ? labelCol.slice('label'.length)
+    : '';
+  const raw = row[base + suffix] ?? row[base];
+  if (raw != null && typeof raw === 'object') {
+    const map = raw as Record<string, unknown>;
+    return toStr(map[langFromLabelCol(labelCol)] ?? Object.values(map)[0]);
+  }
+  return toStr(raw).trim();
+}
+
+/**
+ * The guidance hint: the XLSForm `guidance_hint` column, else
+ * `guidance_hint=<text>` in `parameters` (`;`-separated), which is how
+ * qwacback's DDI → XLSForm export writes `<ivuInstr>`.
+ */
+function readGuidanceHint(row: Row, labelCol: string): string {
+  const column = readLangColumn(row, 'guidance_hint', labelCol);
+  if (column) return column;
+  for (const part of toStr(row['parameters']).split(';')) {
+    const eq = part.indexOf('=');
+    if (eq > 0 && part.slice(0, eq).trim() === 'guidance_hint') {
+      return part.slice(eq + 1).trim();
+    }
+  }
+  return '';
+}
+
+/** Keep only the non-empty fields, so absent hints stay absent. */
+function optionalText(
+  fields: Record<'hint' | 'guidanceHint', string>,
+): Partial<Record<'hint' | 'guidanceHint', string>> {
+  return Object.fromEntries(Object.entries(fields).filter(([, v]) => v));
+}
+
 /** Normalize a raw choices map into `{ list_name: Choice[] }`. */
 export function normalizeChoices(
   choicesByList: Record<string, Array<{ name?: unknown; label?: unknown }>>,
@@ -258,6 +299,10 @@ function pushQuestionRow(
     listName,
     vocab,
     choices,
+    ...optionalText({
+      hint: readLangColumn(row, 'hint', state.labelCol),
+      guidanceHint: readGuidanceHint(row, state.labelCol),
+    }),
   });
 
   if (!isOrOther(stdType, rawType)) return;

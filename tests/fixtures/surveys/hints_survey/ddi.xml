@@ -1,0 +1,92 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>hints_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_medien" name="medien" type="multipleResp" var="V_medien_tv V_medien_radio">
+      <txt>Welche Medien nutzen Sie?</txt>
+      <concept>Welche Medien nutzen Sie?</concept>
+    </varGrp>
+    <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Fernsehen</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Medien nutzen Sie?: Fernsehen</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Radio</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Medien nutzen Sie?: Radio</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_personen" name="personen" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <preQTxt>Die folgenden Fragen betreffen Ihren Haushalt.
+
+Sie selbst mitgezählt.</preQTxt>
+        <qstnLit>Wie viele Personen leben in Ihrem Haushalt?</qstnLit>
+      </qstn>
+      <concept>Wie viele Personen leben in Ihrem Haushalt?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <preQTxt>Bitte möglichst genau.</preQTxt>
+        <qstnLit>Was ist Ihr Beruf?</qstnLit>
+        <ivuInstr>Bei Unklarheit nach der Tätigkeit fragen.</ivuInstr>
+      </qstn>
+      <concept>Was ist Ihr Beruf?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_ehrenamt" name="ehrenamt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Sind Sie ehrenamtlich tätig?</qstnLit>
+        <ivuInstr>Auch gelegentliches Engagement zählt.</ivuInstr>
+      </qstn>
+      <catgry>
+        <catValu>ja</catValu>
+        <labl>Ja</labl>
+      </catgry>
+      <catgry>
+        <catValu>nein</catValu>
+        <labl>Nein</labl>
+      </catgry>
+      <concept>Sind Sie ehrenamtlich tätig?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

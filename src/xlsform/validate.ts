@@ -99,6 +99,18 @@ const error = (
 // carries "other" via its native `other=Y` setting, so the suffix's underscore
 // is a source-side marker, not a literal LS code — validate only `<base>`.
 
+/** A cell's text: a string or number, or the joined values of a `{lang: text}` map. */
+function cellText(v: unknown): string {
+  if (typeof v === 'string') return v.trim();
+  if (typeof v === 'number') return String(v);
+  if (v !== null && typeof v === 'object') {
+    return Object.values(v as Record<string, unknown>)
+      .map(cellText)
+      .join('');
+  }
+  return '';
+}
+
 export class XLSValidator {
   /**
    * Validate that required sheets are present
@@ -179,6 +191,7 @@ export class XLSValidator {
       'name',
       'label',
       'hint',
+      'guidance_hint',
       'required',
       'relevant',
       'constraint',
@@ -516,6 +529,8 @@ export class XLSValidator {
       const problem = this.rowDiagnostic(row, ctx);
       if (problem) violations.push(problem);
       this.collectAppearanceViolations(row, violations);
+      const dropped = this.droppedHint(row, target);
+      if (dropped) violations.push(dropped);
     }
 
     for (const choice of choicesData) {
@@ -546,6 +561,42 @@ export class XLSValidator {
         ? `${where} has no label`
         : `${where} has no label in: ${missing.join(', ')}`;
     return warning('label-missing', message, listName);
+  }
+
+  /**
+   * A hint the target has no place for. DDI: a `select_multiple` becomes a
+   * group of binary variables with no per-question text, so its `hint` and
+   * `guidance_hint` are lost. LimeSurvey: `guidance_hint` has no equivalent
+   * (`hint` becomes the question's help text).
+   */
+  private static droppedHint(
+    row: SurveyRow,
+    target: SubsetTarget,
+  ): Diagnostic | null {
+    const has = (col: string) =>
+      Object.entries(row).some(
+        ([k, v]) =>
+          (k === col || k.startsWith(`${col}::`)) && cellText(v) !== '',
+      ) ||
+      (col === 'guidance_hint' &&
+        /(^|;)\s*guidance_hint\s*=/.test(cellText(row['parameters'])));
+    const baseType = (row.type || '').trim().split(/\s+/)[0];
+    const name = typeof row.name === 'string' ? row.name.trim() : '';
+    let lost: string[] = [];
+    let why = '';
+    if (target === 'ddi' && baseType === 'select_multiple') {
+      lost = ['hint', 'guidance_hint'].filter(has);
+      why = 'a select_multiple has no per-question text slot in DDI';
+    } else if (target === 'lstsv') {
+      lost = ['guidance_hint'].filter(has);
+      why = 'LimeSurvey has no equivalent';
+    }
+    if (lost.length === 0) return null;
+    return warning(
+      'hint-dropped',
+      `${lost.join(' and ')} on "${name}" is not carried over: ${why}`,
+      name,
+    );
   }
 
   /** List names with at least one row on the choices sheet. */
