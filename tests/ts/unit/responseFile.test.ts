@@ -117,3 +117,11 @@ describe('parseResponses — CSV dialect edges (#107)', () => {
     });
   });
 });
+
+describe('parseResponses — malformed JSON (#101)', () => {
+  test('is responses-invalid, not a SyntaxError', () => {
+    expect(() => parseResponses('[{', 'x.json')).toThrow(
+      expect.objectContaining({ code: 'responses-invalid' }),
+    );
+  });
+});

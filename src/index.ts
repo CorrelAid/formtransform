@@ -55,7 +55,7 @@ export {
   getDdiColumnNames,
   remapSubmissionsToDdi,
 } from './ddi/data.js';
-export type { Submission } from './ddi/data.js';
+export type { Submission, DataCsvOptions } from './ddi/data.js';
 export { parseResponses } from './responseFile.js';
 export {
   lstsvToDataCsv,

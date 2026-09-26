@@ -32,7 +32,15 @@ function detectFormat(text: string, filename: string): Format {
 }
 
 function parseJson(text: string): Submission[] {
-  const data: unknown = JSON.parse(text);
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    throw new ConversionError(
+      'responses-invalid',
+      `not valid JSON: ${(err as Error).message}`,
+    );
+  }
   const records =
     data && typeof data === 'object' && !Array.isArray(data)
       ? (data as { results?: unknown }).results

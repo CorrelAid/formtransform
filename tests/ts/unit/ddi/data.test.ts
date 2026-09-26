@@ -233,3 +233,62 @@ describe('buildDataCsv — a one-column empty row', () => {
     expect(csv).toBe('q\r\n""\r\n');
   });
 });
+
+describe('buildDataCsv — Kobo shapes (#101)', () => {
+  const colors = v({
+    name: 'colors',
+    type: 'select_multiple',
+    group: 'grp',
+    choices: [
+      { name: 'red', label: 'Red' },
+      { name: 'blue', label: 'Blue' },
+    ],
+  });
+  const lines = (csv: string) => csv.trimEnd().split('\r\n');
+
+  test("one-hot option columns (Kobo's separate-columns export)", () => {
+    expect(
+      lines(
+        buildDataCsv([colors], [{ 'colors/red': '1', 'colors/blue': '0' }]),
+      ),
+    ).toEqual(['colors_red,colors_blue', '1,0']);
+    expect(
+      lines(
+        buildDataCsv(
+          [colors],
+          [{ 'grp/colors/red': 'True', 'grp/colors/blue': '1' }],
+        ),
+      ),
+    ).toEqual(['colors_red,colors_blue', '1,1']);
+  });
+
+  test('the space-joined column wins when both are present', () => {
+    expect(
+      lines(buildDataCsv([colors], [{ colors: 'blue', 'colors/red': '1' }]))[1],
+    ).toBe('0,1');
+  });
+
+  test('an unknown option code warns once and is dropped', () => {
+    const warnings: string[] = [];
+    const csv = buildDataCsv(
+      [colors],
+      [{ colors: 'red purple' }, { colors: 'purple' }],
+      { onWarning: (m) => warnings.push(m) },
+    );
+    expect(lines(csv).slice(1)).toEqual(['1,0', '0,0']);
+    expect(warnings).toEqual([
+      'option code "purple" of colors matches no choice; it is dropped',
+    ]);
+  });
+
+  test('a list or object value (repeat group, attachments) warns and is empty', () => {
+    const warnings: string[] = [];
+    const csv = buildDataCsv(
+      [v({ name: 'kids', type: 'text' })],
+      [{ kids: [{ name: 'a' }] }],
+      { onWarning: (m) => warnings.push(m) },
+    );
+    expect(lines(csv)).toEqual(['kids', '""']);
+    expect(warnings[0]).toContain('kids holds a list or object');
+  });
+});
