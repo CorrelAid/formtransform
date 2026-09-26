@@ -49,6 +49,11 @@ jobs:
         run: uv sync
       - name: Check generated/ in sync with codegen
         run: bash scripts/check-drift.sh
+      # Codegen above rendered registry/entities/*/generated/xlsform.xlsx.
+      - name: XLSForm fixtures are valid XLSForm (pyxform oracle)
+        run: uv run pytest tests/validation/test_xlsform_pyxform.py -v
+        env:
+          FT_REQUIRE_ORACLES: "1"
 
   schematron-validation:
     runs-on: ubuntu-latest
@@ -63,10 +68,19 @@ jobs:
         with:
           python-version: "3.13"
       - uses: astral-sh/setup-uv@v3
+      - name: schematron-worker unit tests
+        working-directory: workers/schematron-worker
+        run: gradle --no-daemon test
       - name: Build schematron-worker shadow jar
         run: bash scripts/build-worker.sh
       - name: Install registry test deps
         run: uv sync
-      - name: Validate blessed DDI snapshots (XSD + schematron) and the Python reader
-        run: uv run pytest tests/validation/test_ddi_schema.py tests/validation/test_ddi_reader.py -v
+      - name: DDI snapshots (XSD + schematron), Schematron conformance and mutations, Python reader
+        run: >-
+          uv run pytest
+          tests/validation/test_ddi_schema.py
+          tests/validation/test_registry_schematron_conformance.py
+          tests/validation/test_ddi_reader.py -v
+        env:
+          FT_REQUIRE_ORACLES: "1"
 

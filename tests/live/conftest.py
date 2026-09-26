@@ -2,7 +2,7 @@
 
 Marking each test by hand would rot, so the marker is applied here at
 collection time: `uv run pytest` skips this whole tree via the default
-`-m "not docker"`, and `npm run test:integration` (which brings the stack up)
+`-m "not docker"`, and `npm run test:live` (which brings the stack up)
 runs it with `-m docker`.
 """
 

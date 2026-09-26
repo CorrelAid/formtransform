@@ -16,18 +16,8 @@ class SchematronValidatorTest {
 
     @BeforeAll
     static void setup() throws Exception {
-        // Resolve paths: try repo root first, then parent (for running from schematron-worker/)
-        Path schPath = Paths.get("schematron/ddi_custom_rules.sch");
-        if (!Files.exists(schPath)) {
-            schPath = Paths.get("../schematron/ddi_custom_rules.sch");
-        }
-        schValidator = new SchematronValidator(schPath);
-
-        Path xsdPath = Paths.get("xml/codebook.xsd");
-        if (!Files.exists(xsdPath)) {
-            xsdPath = Paths.get("../xml/codebook.xsd");
-        }
-        xsdValidator = new XsdValidator(xsdPath);
+        schValidator = new SchematronValidator(repoFile("ddi-validation/schematron/ddi_custom_rules.sch"));
+        xsdValidator = new XsdValidator(repoFile("ddi-validation/xsd/codebook.xsd"));
     }
 
     // --- XSD tests ---
@@ -53,7 +43,6 @@ class SchematronValidatorTest {
     @Test
     void proveItXmlPassesXsd() throws Exception {
         Path proveIt = resolveSeedPath();
-        if (proveIt == null) return;
         byte[] xml = Files.readAllBytes(proveIt);
         List<ValidationError> errors = xsdValidator.validate(xml);
         assertTrue(errors.isEmpty(), "Expected prove_it.xml to pass XSD, got: " + formatErrors(errors));
@@ -107,7 +96,7 @@ class SchematronValidatorTest {
         List<ValidationError> errors = schValidator.validate(xml);
         assertFalse(errors.isEmpty(), "Expected errors for bad varGrp type");
         assertTrue(
-            errors.stream().anyMatch(e -> e.message.contains("Only \"grid\" or \"multipleResp\" are supported")),
+            errors.stream().anyMatch(e -> e.message.contains("has type=\"section\"")),
             "Expected varGrp type error, got: " + formatErrors(errors)
         );
     }
@@ -126,7 +115,6 @@ class SchematronValidatorTest {
     @Test
     void proveItXmlPassesSchematron() throws Exception {
         Path proveIt = resolveSeedPath();
-        if (proveIt == null) return;
         byte[] xml = Files.readAllBytes(proveIt);
         List<ValidationError> errors = schValidator.validate(xml);
         assertTrue(errors.isEmpty(), "Expected prove_it.xml to pass Schematron, got: " + formatErrors(errors));
@@ -134,12 +122,22 @@ class SchematronValidatorTest {
 
     // --- Helpers ---
 
+    /**
+     * A file in the formtransform repo, found by walking up from the working
+     * directory (gradle runs tests from workers/schematron-worker/). Fails
+     * rather than skipping when it is missing.
+     */
+    private static Path repoFile(String relative) {
+        for (Path dir = Paths.get("").toAbsolutePath(); dir != null; dir = dir.getParent()) {
+            Path candidate = dir.resolve(relative);
+            if (Files.exists(candidate)) return candidate;
+        }
+        throw new IllegalStateException("not found in any parent directory: " + relative);
+    }
+
+    /** A blessed whole-survey DDI snapshot that passes XSD and the CDL rules. */
     private static Path resolveSeedPath() {
-        Path p = Paths.get("seed_data/prove_it.xml");
-        if (Files.exists(p)) return p;
-        p = Paths.get("../seed_data/prove_it.xml");
-        if (Files.exists(p)) return p;
-        return null;
+        return repoFile("tests/fixtures/surveys/hints_survey/ddi.xml");
     }
 
     private String formatErrors(List<ValidationError> errors) {

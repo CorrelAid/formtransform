@@ -5,9 +5,9 @@ them. Four layers, each answering a different question:
 
 | Layer | Question it answers | Runner | Where |
 |---|---|---|---|
-| `unit` | Does a transformation behave correctly? | vitest | `src/test/**` (minus `contract/`, `integration/`) |
-| `integration` | Does the library handle a whole hand-authored survey? | vitest | `src/test/integration/` |
-| `contract` | Did output drift from the blessed snapshots (registry entities **and** whole surveys)? | vitest | `src/test/contract/` |
+| `unit` | Does a transformation behave correctly? | vitest | `tests/ts/unit/` |
+| `integration` | Does the library handle a whole hand-authored survey? | vitest | `tests/ts/integration/` |
+| `contract` | Did output drift from the blessed snapshots (registry entities **and** whole surveys)? | vitest | `tests/ts/contract/` |
 | `validation` | Do the committed artifacts satisfy external standards? | pytest | `tests/validation/` |
 | `live` | What does a real survey engine do with them? | pytest + docker | `tests/live/` |
 
@@ -18,9 +18,9 @@ everything that needs a JVM, an external oracle, or a running engine.
 
 | Transformation | Where the code lives | Where the tests live |
 |---|---|---|
-| XLSForm → LimeSurvey TSV | **in-repo** (`src/`, the TS library) | vitest — `src/test/`, snapshots in `src/test/contract/tsvSnapshots.test.ts` |
-| XLSForm → DDI XML | **in-repo** (`src/ddi/`) | vitest — `src/test/ddi/`, snapshots in `src/test/contract/ddiSnapshots.test.ts` |
-| LimeSurvey TSV → DDI / XLSForm (reverse) | **in-repo** (`src/lstsv/`, `src/pipelines/lstsv2ddi/`, `src/pipelines/lstsv2xlsform/`) | vitest — those dirs + `src/test/contract/*Roundtrip.test.ts` |
+| XLSForm → LimeSurvey TSV | **in-repo** (`src/`, the TS library) | vitest — `tests/ts/unit/`, snapshots in `tests/ts/contract/tsvSnapshots.test.ts` |
+| XLSForm → DDI XML | **in-repo** (`src/ddi/`) | vitest — `tests/ts/unit/ddi/`, snapshots in `tests/ts/contract/ddiSnapshots.test.ts` |
+| LimeSurvey TSV → DDI / XLSForm (reverse) | **in-repo** (`src/lstsv/`, `src/pipelines/lstsv2ddi/`, `src/pipelines/lstsv2xlsform/`) | vitest — those dirs + `tests/ts/contract/*Roundtrip.test.ts` |
 | DDI XSD + Schematron validation | **in-repo** (`workers/schematron-worker/`, Java; rules in `ddi-validation/`) | pytest — `tests/validation/test_ddi_schema.py`, `test_registry_schematron_conformance.py` |
 | XLSForm fixture inputs are valid XLSForm | external oracle ([pyxform](https://github.com/XLSForm/pyxform)) | pytest — `tests/validation/test_xlsform_pyxform.py` |
 | LimeSurvey accepts the blessed TSV snapshots | live LimeSurvey (docker) | pytest — `tests/live/limesurvey/test_registry_entities.py` |
@@ -35,18 +35,19 @@ with itself. qwacback keeps its own equivalence check for its wiring (`scripts/e
 ## Layout
 
 ```
-src/test/                                   # vitest
-  contract/                                 #   blessed-snapshot gates (bless, don't edit)
-    tsvSnapshots.test.ts                    #     registry contract + byte-for-byte tsv.tsv
-    ddiSnapshots.test.ts                    #     byte-for-byte ddi.xml
-    lstsv2ddiRoundtrip.test.ts              #     tsv.tsv → ddi == committed ddi.xml
-    lstsv2xlsformRoundtrip.test.ts          #     tsv.tsv → xlsform == authored xlsform.json
-    fullRoundtrip.test.ts                   #     xlsform → tsv → xlsform
-    surveySnapshots.test.ts                 #     whole surveys, every direction
-  integration/                              #   whole hand-authored surveys through the library
-  ddi/ lstsv/ lstsv2xlsform/ expressions/   #   unit tests per subsystem
-  questionTypes/ *.test.ts                  #   unit tests per question type / feature
 tests/
+  ts/                                       # vitest (projects: unit, integration, contract)
+    contract/                               #   blessed-snapshot gates (bless, don't edit)
+      tsvSnapshots.test.ts                  #     registry contract + byte-for-byte tsv.tsv
+      ddiSnapshots.test.ts                  #     byte-for-byte ddi.xml
+      lstsv2ddiRoundtrip.test.ts            #     tsv.tsv → ddi == committed ddi.xml
+      lstsv2xlsformRoundtrip.test.ts        #     tsv.tsv → xlsform == authored xlsform.json
+      fullRoundtrip.test.ts                 #     xlsform → tsv → xlsform
+      surveySnapshots.test.ts               #     whole surveys, every direction
+    integration/                            #   whole hand-authored surveys, CLI, browser bundle
+    unit/                                   #   unit tests
+      ddi/ lstsv/ pipelines/ expressions/   #     per subsystem
+      questionTypes/ *.test.ts              #     per question type / feature
   validation/                               # pytest: committed artifacts vs external standards
     fixtures.py                             #   registry loader + ddi.xml snapshot loader
     test_ddi_schema.py                      #   blessed ddi.xml → XSD + Schematron (Java worker)
@@ -65,7 +66,6 @@ tests/
       answers/<slug>.json                   #   what the respondent enters
       expected/<slug>.json                  #   blessed exported response
       output/                               #   generated TSVs (gitignored)
-      build_ddi.mjs                         #   buildDdiXml from dist/ over stdin/stdout
   fixtures/surveys/<name>/                  # one folder per whole survey, like a registry entity
     xlsform.json | xlsform.xlsx              #   authored source
     tsv.tsv  ddi.xml                         #   blessed forward snapshots
@@ -78,7 +78,7 @@ can never disagree about which LimeSurvey they are looking at.
 
 ## What gets asserted
 
-### DDI emitter + structural snapshots (`src/test/ddi/`, `src/test/contract/ddiSnapshots.test.ts`)
+### DDI emitter + structural snapshots (`tests/ts/unit/ddi/`, `tests/ts/contract/ddiSnapshots.test.ts`)
 
 The in-repo emitter's own suite: unit tests for variable extraction, note
 classification, XML formatting, and per-type/`varGrp` construction, plus a
@@ -101,7 +101,7 @@ JDK 21).
 2. **Mutation tests** (need the jar): mutate a blessed `ddi.xml` to break a
    contract, assert Schematron rejects it — proves the rules aren't toothless.
 
-### XLSForm → LimeSurvey TSV (`src/test/`, vitest)
+### XLSForm → LimeSurvey TSV (`tests/ts/unit/`, vitest)
 
 Contract assertions against the in-repo converter: `type/scale` matches
 `limesurvey.typeCode` per LS-supported type, `or_other` → `other="Y"`, variant
@@ -116,7 +116,7 @@ type strings, dangling `list_name`s, or missing columns before they poison the
 snapshot suite. pyxform validates inputs only; it emits ODK XForm, not TSV/DDI,
 so it is not an output oracle. Skips if pyxform is not installed.
 
-### Whole surveys, every direction (`src/test/contract/surveySnapshots.test.ts`)
+### Whole surveys, every direction (`tests/ts/contract/surveySnapshots.test.ts`)
 
 The per-entity suites pin one question type at a time, so anything that only
 exists *between* questions is invisible to them: group nesting, page breaks, a
@@ -222,15 +222,15 @@ Default `uv run codegen` only writes `meta.json` and `xlsform.xlsx`
 
 ## Adding a new test
 
-- **Transformation behaviour** → vitest under `src/test/` (next to the
+- **Transformation behaviour** → vitest under `tests/ts/unit/` (next to the
   subsystem). Assert against the registry contract, not literal expected values,
   where possible.
-- **A new blessed snapshot** → put the test in `src/test/contract/` so a failure
+- **A new blessed snapshot** → put the test in `tests/ts/contract/` so a failure
   reads as "bless or fix", not "logic bug".
 - **A whole survey scenario** → add `tests/fixtures/surveys/<name>/xlsform.json`,
   run `npm run bless -- surveys`, and `surveySnapshots.test.ts` picks it up in all
   four directions. Behavioural assertions about that survey go in
-  `src/test/integration/`.
+  `tests/ts/integration/`.
 - **External standard / oracle** → `tests/validation/`.
 - **Behaviour of a real engine** → `tests/live/<engine>/`; the `docker` marker is
   applied for you.
