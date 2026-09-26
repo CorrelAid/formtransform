@@ -1,0 +1,21 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	de		de								
+S		format	1	A		de								
+S		shownoanswer	1	N		de								
+SL		surveyls_title	1	Grid-Hinweise		de								
+G	1	G0	1	G0		de								
+Q	X	intro	1	Einige Fragen zu Ihrem Vertrauen.		de								
+G	2	Wie sehr vertrauen Sie …	1			de								
+Q	F	vertrauen	1	Wie sehr vertrauen Sie …		de								1
+SQ		parlament	1	… dem Parlament?		de								
+SQ		polizei	1	… der Polizei?		de								
+A		1		Gar nicht		de								
+A		2		Etwas		de								
+A		3		Voll		de								
+G	4	G3	1	G3		de								
+Q	X	medienhinweis	1	Nun zu Ihrer Mediennutzung.		de								
+Q	M	medien	1	Welche Medien nutzen Sie?	Mehrfachnennung möglich	de								1
+SQ		tv		Fernsehen		de								
+SQ		radio		Radio		de								
+Q	X	alterhinweis	1	Zuletzt eine Angabe zur Person.		de								
+Q	N	alter	1	Wie alt sind Sie?	In Jahren	de								1

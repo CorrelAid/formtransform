@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>grid_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="intro">Einige Fragen zu Ihrem Vertrauen.</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
+      <txt>Wie sehr vertrauen Sie …</txt>
+      <concept>Wie sehr vertrauen Sie …</concept>
+    </varGrp>
+    <varGrp ID="VG_medien" name="medien" type="multipleResp" var="V_medien_tv V_medien_radio">
+      <txt>Welche Medien nutzen Sie?</txt>
+      <concept>Welche Medien nutzen Sie?</concept>
+      <notes>Nun zu Ihrer Mediennutzung.</notes>
+    </varGrp>
+    <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <qstnLit>… dem Parlament?</qstnLit>
+        <ivuInstr>Skala vorlesen</ivuInstr>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Etwas</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Voll</labl>
+      </catgry>
+      <concept>… dem Parlament?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <qstnLit>… der Polizei?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Etwas</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Voll</labl>
+      </catgry>
+      <concept>… der Polizei?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Fernsehen</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Medien nutzen Sie?: Fernsehen</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Radio</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Medien nutzen Sie?: Radio</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_alter" name="alter" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric">
+        <preQTxt>Zuletzt eine Angabe zur Person.
+
+In Jahren</preQTxt>
+        <qstnLit>Wie alt sind Sie?</qstnLit>
+      </qstn>
+      <concept>Wie alt sind Sie?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

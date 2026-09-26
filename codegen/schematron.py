@@ -162,7 +162,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
         <assert test="//%P%var[@name = substring-before(current()/@name, '{sfx}')] or //%P%varGrp[@name = substring-before(current()/@name, '{sfx}')]">
             Variable <value-of select="@name"/> ends in "{sfx}" but no matching base variable or group named "<value-of select="substring-before(@name, '{sfx}')"/>" was found.
         </assert>
-        <assert test="not(//%P%var[@name = substring-before(current()/@name, '{sfx}')]) or //%P%var[@name = substring-before(current()/@name, '{sfx}')]/%P%catgry[%P%catValu = '{cc}'] or //%P%varGrp[@name = substring-before(current()/@name, '{sfx}')]">
+        <assert test="not(//%P%var[@name = substring-before(current()/@name, '{sfx}')]) or //%P%var[@name = substring-before(current()/@name, '{sfx}')]/%P%catgry[%P%catValu = '{cc}'] or //%P%varGrp[@name = substring-before(current()/@name, '{sfx}') and @type != 'other']">
             Variable <value-of select="@name"/>: the base variable "<value-of select="substring-before(@name, '{sfx}')"/>" must have a catgry with catValu="{cc}" (convention for round-trip conversion).
         </assert>
         <assert test="not(//%P%varGrp[@type='multipleResp' and contains(concat(' ', @var, ' '), concat(' ', current()/@ID, ' '))])">

@@ -16,6 +16,7 @@ Two tests:
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import subprocess
@@ -199,3 +200,158 @@ def test_schematron_rejects_mutation(variant_id, mutator, worker_jar, java_bin, 
         f"Worker output: {out[:600]}\n"
         "Either the mutation didn't break a registry contract, or the rule isn't enforcing."
     )
+
+
+# -----------------------------------------------------------------------------
+# One mutation per Schematron assert (#107), each checked by the message it
+# must produce, not only by the exit code. Every mutator changes the first
+# match only and returns None when the snapshot lacks the construct.
+# -----------------------------------------------------------------------------
+
+
+def _sub1(pattern: str, repl: str, flags: int = re.DOTALL):
+    def mutate(xml: str) -> str | None:
+        new = re.sub(pattern, repl, xml, count=1, flags=flags)
+        return new if new != xml else None
+
+    return mutate
+
+
+def _dup_first(tag: str):
+    """Duplicate the first <tag ...>...</tag> element (same ID)."""
+
+    def mutate(xml: str) -> str | None:
+        m = re.search(rf"<{tag}\s[^>]*>.*?</{tag}>", xml, re.DOTALL)
+        return xml.replace(m.group(0), m.group(0) + m.group(0), 1) if m else None
+
+    return mutate
+
+
+def _insert_after_first(anchor: str, snippet: str):
+    def mutate(xml: str) -> str | None:
+        return xml.replace(anchor, anchor + snippet, 1) if anchor in xml else None
+
+    return mutate
+
+
+# (variant, mutator, a substring of the expected Schematron message)
+ASSERT_MUTATIONS = [
+    ("composite:grid", _dup_first("varGrp"), "Duplicate Variable Group ID"),
+    ("type:select_one", _sub1(r'(<var\s[^>]*?)\s+intrvl="[^"]+"', r"\1"), "missing an intrvl attribute"),
+    ("type:select_one", _sub1(r'<qstn responseDomainType="[^"]+">', "<qstn>"), "missing responseDomainType"),
+    ("type:select_one", _sub1(r"<qstnLit>.*?</qstnLit>", ""), "missing a question literal"),
+    ("type:select_one", _sub1(r"<varFormat[^>]*/>", ""), "missing technical format"),
+    (
+        "type:select_one",
+        _sub1(r"(<var\s[^>]*>.*?)<concept>[^<]*</concept>", r"\1<concept> </concept>"),
+        "missing a concept element",
+    ),
+    ("type:select_one", _insert_after_first("</qstn>", "<labl>x</labl>"), "uses labl"),
+    ("type:select_one", _insert_after_first("</qstn>", "<notes>a</notes><notes>b</notes>"), "multiple notes elements"),
+    (
+        "composite:grid",
+        _sub1(r'(<varGrp\s[^>]*?)\s+name="[^"]+"', r"\1"),
+        "Variable Group VG_institutionen is missing a name",
+    ),
+    ("composite:grid", _sub1(r"(<varGrp\s[^>]*>.*?)<concept>[^<]*</concept>", r"\1"), "is missing a concept element"),
+    ("composite:grid", _sub1(r"(<varGrp\s[^>]*>)", r"\1<labl>x</labl>"), "Variable Group VG_institutionen uses labl"),
+    ("type:select_one", _sub1(r"<catValu>[^<]*</catValu>", ""), "A catgry element is missing catValu"),
+    (
+        "type:select_one",
+        _sub1(r"(<catgry>\s*<catValu>[^<]*</catValu>\s*)<labl>[^<]*</labl>", r"\1"),
+        "is missing a labl",
+    ),
+    (
+        "composite:grid",
+        _sub1(r"<preQTxt>[^<]*</preQTxt>", "<preQTxt>Something else</preQTxt>"),
+        "text does not match the preQTxt",
+    ),
+    (
+        "type:select_multiple",
+        _sub1(r'<qstn responseDomainType="multiple">', '<qstn responseDomainType="category">'),
+        'should have responseDomainType="multiple"',
+    ),
+    (
+        "composite:grid",
+        _sub1(r'<qstn responseDomainType="category">', '<qstn responseDomainType="text">'),
+        'should have responseDomainType="category"',
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(<varGrp\s[^>]*?)\s+var="[^"]+"', r"\1"),
+        "must reference variables (@var) or child groups",
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(<varGrp\s[^>]*?var=")[^"]+"', r'\1V_aufmerksam V_nope"'),
+        "references a variable that does not exist",
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(<varGrp\s[^>]*?)\s+var="[^"]+"', r'\1 varGrp="VG_nope"'),
+        "references a child varGrp that does not exist",
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(name="aufmerksam_other"[^>]*>\s*<qstn responseDomainType=)"text"', r'\1"category"'),
+        'Expected "text"',
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(name="aufmerksam_other") intrvl="discrete"', r'\1 intrvl="contin"'),
+        'Expected "discrete"',
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(name="aufmerksam_other".*?<varFormat type=)"character"', r'\1"numeric"'),
+        'Expected "character"',
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'name="aufmerksam_other"', 'name="nobase_other"'),
+        "no matching base variable or group",
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r"<catValu>other</catValu>", "<catValu>anders</catValu>"),
+        'must have a catgry with catValu="other"',
+    ),
+]
+
+
+def _run_assert_mutation(variant_id, mutator, message, worker_jar, java_bin, tmp_path, *, strip_ns=False):
+    from .fixtures import load_registry
+
+    variant = next((e for e in load_registry() if e.get("@id") == variant_id), None)
+    assert variant is not None, f"{variant_id} not in registry"
+    blessed = load_example_ddi(variant)
+    assert blessed is not None, f"{variant_id}: no blessed ddi.xml"
+    mutated = mutator(blessed)
+    assert mutated is not None, f"{variant_id}: mutator found nothing to change"
+    if strip_ns:
+        mutated = mutated.replace(' xmlns="ddi:codebook:2_5"', "", 1)
+    rc, out = _validate(java_bin, worker_jar, mutated.encode(), tmp_path)
+    assert rc == 1, f"accepted: {out[:600]}"
+    # Log lines precede the JSON report on stdout.
+    messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
+    assert any(message in m for m in messages), f"expected {message!r} in {messages}"
+
+
+@pytest.mark.parametrize(
+    "variant_id,mutator,message",
+    ASSERT_MUTATIONS,
+    ids=[m for _, _, m in ASSERT_MUTATIONS],
+)
+def test_each_assert_rejects_its_violation(variant_id, mutator, message, worker_jar, java_bin, tmp_path):
+    _run_assert_mutation(variant_id, mutator, message, worker_jar, java_bin, tmp_path)
+
+
+@pytest.mark.parametrize(
+    "variant_id,mutator,message",
+    ASSERT_MUTATIONS,
+    ids=[m for _, _, m in ASSERT_MUTATIONS],
+)
+def test_unnamespaced_rules_reject_the_same(variant_id, mutator, message, worker_jar, java_bin, tmp_path):
+    """The rules repeat without the ddi: prefix for documents that omit the
+    namespace; the same mutations must fail there too."""
+    _run_assert_mutation(variant_id, mutator, message, worker_jar, java_bin, tmp_path, strip_ns=True)

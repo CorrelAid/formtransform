@@ -312,17 +312,6 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
   return { otherPatterns, gridGroups, multiRespGroups, standaloneVars };
 }
 
-/** Prepend the per-question note (`preQTxt`) for the first row of a group. */
-function combineNote(
-  notePreqtxt: Record<string, string>,
-  name: string,
-  base = '',
-): string {
-  const note = notePreqtxt[name] ?? '';
-  if (note && base) return `${note}\n\n${base}`;
-  return note || base;
-}
-
 /** Emit `<stdyDscr>` (citation + orphan notes appended). */
 function addStudyDscr(
   root: XmlElement,
@@ -372,6 +361,7 @@ function addFileDscr(
 function addVarGroups(
   dataDscr: XmlElement,
   dataVars: Variable[],
+  notePreqtxt: Record<string, string>,
   buckets: DataVarBuckets,
   otherPatterns: Map<string, OtherPattern>,
 ): void {
@@ -387,6 +377,9 @@ function addVarGroups(
     });
     grpEl.textChild('txt', groupLabel);
     grpEl.textChild('concept', groupLabel);
+    // A lead-in note belongs to the group: a member's preQTxt must equal txt.
+    const note = notePreqtxt[members[0]?.name ?? ''];
+    if (note) grpEl.textChild('notes', note);
   }
 
   for (const [smName, smVar] of multiRespGroups) {
@@ -398,6 +391,8 @@ function addVarGroups(
     });
     grpEl.textChild('txt', smVar.label);
     grpEl.textChild('concept', smVar.label);
+    const note = notePreqtxt[smName];
+    if (note) grpEl.textChild('notes', note);
   }
 
   for (const p of otherPatterns.values()) {
@@ -417,34 +412,31 @@ function addVars(
 
   for (const [groupName, members] of gridGroups) {
     const groupLabel = getGroupLabel(dataVars, groupName);
-    members.forEach((v, i) => {
-      const pre =
-        i === 0 ? combineNote(notePreqtxt, v.name, groupLabel) : groupLabel;
+    for (const v of members) {
+      // preQTxt must equal the group's txt (Schematron), so a member's own
+      // hint has no slot; validateSubset warns `hint-dropped`.
       addVarElement(dataDscr, {
         varId: makeVarId(v.name),
         name: v.name,
         label: v.label,
         varType: v.type,
         choices: v.choices,
-        opts: { preQTxt: pre },
-        hint: v.hint,
+        opts: { preQTxt: groupLabel },
         guidanceHint: v.guidanceHint,
       });
-    });
+    }
   }
 
   for (const [smName, smVar] of multiRespGroups) {
-    smVar.choices.forEach((choice, i) => {
-      const stem =
-        i === 0 ? combineNote(notePreqtxt, smName, smVar.label) : smVar.label;
+    for (const choice of smVar.choices) {
       addBinaryVar(
         dataDscr,
         makeVarId(`${smName}_${choice.name}`),
         `${smName}_${choice.name}`,
-        stem,
+        smVar.label,
         choice.label,
       );
-    });
+    }
   }
 
   for (const p of otherPatterns.values()) {
@@ -460,7 +452,7 @@ function addVars(
       choices: v.choices,
       opts: {
         vocab: v.vocab,
-        preQTxt: combineNote(notePreqtxt, v.name),
+        preQTxt: notePreqtxt[v.name] ?? '',
       },
       hint: v.hint,
       guidanceHint: v.guidanceHint,
@@ -501,7 +493,13 @@ export function buildDdiCodebook(
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  addVarGroups(dataDscr, dataVars, buckets, buckets.otherPatterns);
+  addVarGroups(
+    dataDscr,
+    dataVars,
+    inlinePreqtxt,
+    buckets,
+    buckets.otherPatterns,
+  );
   addVars(dataDscr, dataVars, inlinePreqtxt, buckets, buckets.otherPatterns);
 
   return root;
