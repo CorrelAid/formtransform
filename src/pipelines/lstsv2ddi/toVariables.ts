@@ -130,12 +130,14 @@ function appendOtherCategories(
 }
 
 /** Synthesize a `<base>_other` companion for every `other=Y` select that
- * doesn't already have one authored in the TSV (i.e. came from the XLSForm
- * `or_other` shorthand — LimeSurvey stores the free text inline). */
+ * doesn't already have one authored in the TSV (LimeSurvey stores the free
+ * text inline). Its label is the select's `other_replace_text`, else the
+ * canonical "other" label. */
 function appendOtherCompanions(
   variables: Variable[],
   otherSelects: Set<string>,
   baseLang: string,
+  otherTexts: ReadonlyMap<string, string>,
 ): Variable[] {
   const names = new Set(variables.map((v) => v.name));
   const otherLabel = otherLabelFor(baseLang);
@@ -147,7 +149,7 @@ function appendOtherCompanions(
       out.push({
         name: companionName,
         type: 'text',
-        label: otherLabel,
+        label: otherTexts.get(v.name) || otherLabel,
         group: v.group,
         groupLabel: v.groupLabel,
         groupAppearance: v.groupAppearance,
@@ -302,6 +304,8 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
   // appended (post-pass) and the `<base>other` companion is renamed so the DDI
   // emitter reconstructs `varGrp[@type=other]`.
   const otherSelects = new Set<string>();
+  // Their `other_replace_text`: the label of the native "other" text box.
+  const otherTexts = new Map<string, string>();
 
   // Current non-array question, so trailing A/SQ rows can attach their choices.
   let currentVar: Variable | null = null;
@@ -332,6 +336,8 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
     }
 
     if (cls === 'Q') {
+      const otherText = cell(row, 'other_replace_text');
+      if (otherText) otherTexts.set(cell(row, 'name'), otherText);
       const outcome = processQuestionRow(
         row,
         currentGroup,
@@ -356,5 +362,5 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
   flushArray();
 
   appendOtherCategories(variables, otherSelects, baseLang);
-  return appendOtherCompanions(variables, otherSelects, baseLang);
+  return appendOtherCompanions(variables, otherSelects, baseLang, otherTexts);
 }

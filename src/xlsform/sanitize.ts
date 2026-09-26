@@ -126,6 +126,14 @@ export class FieldSanitizer {
   }
 
   /**
+   * Make a stripped field name resolve to `target`, a name LimeSurvey defines
+   * itself (e.g. `q_other`, the text of question `q`'s native "other").
+   */
+  aliasStrippedName(strippedName: string, target: string): void {
+    this.strippedToUnique.set(strippedName, target);
+  }
+
+  /**
    * Clear all registered names. Must be called at the start of each conversion.
    */
   resetNames(): void {

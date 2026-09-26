@@ -39,6 +39,8 @@ export const BASE_COLUMNS = [
  *   `limesurvey.parameterAttributes` / `integerOnly`.
  * - `exclude_all_others`: exclusive answers of a multiple choice
  *   (convention:exclusiveChoice).
+ * - `other_replace_text`: the label of the native "other" answer's text box,
+ *   carrying the XLSForm `<question>_other` companion's label (convention:other).
  *
  * A registry attribute missing here would be dropped silently; a test checks
  * the registry against this list.
@@ -51,6 +53,7 @@ export const ATTRIBUTE_COLUMNS = [
   'max_num_value_n',
   'num_value_int_only',
   'exclude_all_others',
+  'other_replace_text',
 ] as const;
 
 export type BaseColumn = (typeof BASE_COLUMNS)[number];

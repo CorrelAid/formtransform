@@ -19,6 +19,21 @@ export const OTHER_COMPANION_TYPE: string = RULE.companionType;
 /** Select types that can carry an "other" answer. */
 export const OTHER_APPLIES_TO: readonly string[] = RULE.appliesTo;
 
+/**
+ * The companion's `relevant`: `${q} = 'other'` for a select_one,
+ * `selected(${q}, 'other')` for a select_multiple.
+ */
+export function otherCompanionRelevance(
+  baseSelect: string,
+  question: string,
+): string {
+  const templates = RULE.relevanceTemplates as Record<string, string>;
+  return (templates[baseSelect] ?? templates['select_one']).replace(
+    '<question>',
+    question,
+  );
+}
+
 /** Canonical "other" label per language. */
 export const OTHER_LABELS: Readonly<Record<string, string>> = RULE.labels;
 

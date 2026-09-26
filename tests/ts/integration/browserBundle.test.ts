@@ -5,7 +5,7 @@
  *
  * esbuild bundles `dist/index.js` for the browser (it rejects Node built-ins),
  * then the bundle is imported as ESM, where `this` is undefined and `require`
- * does not exist, and converts the `select_one_other` example from the issue.
+ * does not exist, and converts a question with skip logic.
  *
  * formtransform#24: `select_*_from_file` with a registered vocabulary converts
  * in the same bundle, with no filesystem to read the CSV from.
@@ -60,8 +60,17 @@ describe('browser bundle', () => {
         f.choices,
         f.settings ?? [],
       );
-    const tsv = await convert(fixture('select_one_other'));
-    expect(tsv).toContain("aufmerksamother\taufmerksam == 'other'");
+    const tsv = await convert({
+      survey: [
+        { type: 'select_one yn', name: 'a', label: 'A?' },
+        { type: 'text', name: 'b', label: 'B?', relevant: "${a} = 'y'" },
+      ],
+      choices: [
+        { list_name: 'yn', name: 'y', label: 'Ja' },
+        { list_name: 'yn', name: 'n', label: 'Nein' },
+      ],
+    });
+    expect(tsv).toContain("b\ta == 'y'");
 
     const longList = await convert(fixture('select_one_long_list'));
     expect(longList).toContain('cdlvocab-iso_3166_1');

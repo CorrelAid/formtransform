@@ -32,6 +32,11 @@ export class FieldNameHandler {
     return this.fieldSanitizer.resolveStrippedName(stripped);
   }
 
+  /** Resolve references to `name` as `target` from now on. */
+  aliasName(name: string, target: string): void {
+    this.fieldSanitizer.aliasStrippedName(normalizeName(name), target);
+  }
+
   sanitizeAnswerCode(code: string): string {
     return this.fieldSanitizer.sanitizeAnswerCode(code);
   }

@@ -141,6 +141,28 @@ describe('convertOtherPattern', () => {
     // "other" choice should be removed from answers
     const answers = findRowsByClass(rows, 'A');
     expect(answers.find((r) => r.name === 'other')).toBeUndefined();
+    // LimeSurvey's native "other" box replaces the companion (#79).
+    expect(findRowByName(rows, 'favcolorother')).toBeUndefined();
+  });
+
+  test('a reference to the folded companion becomes <code>_other (#79)', async () => {
+    const rows = await convertAndParse(
+      [
+        ...survey,
+        {
+          type: 'note',
+          name: 'thanks',
+          label: 'You said ${fav_color_other}',
+          relevant: "${fav_color_other} != ''",
+        },
+      ],
+      choices,
+      settings,
+    );
+    const note = findRowByName(rows, 'thanks');
+    expect(note?.text).toBe('You said {favcolor_other}');
+    expect(note?.relevance).toContain('favcolor_other');
+    expect(note?.relevance).not.toContain('favcolorother');
   });
 
   test('false: _other pattern ignored, other choice kept, other=empty', async () => {
@@ -149,6 +171,7 @@ describe('convertOtherPattern', () => {
     });
     const q = findRowByName(rows, 'favcolor');
     expect(q?.other).toBe('');
+    expect(findRowByName(rows, 'favcolorother')).toBeDefined();
     // "other" choice should remain
     const answers = findRowsByClass(rows, 'A');
     expect(answers.find((r) => r.name === 'other')).toBeDefined();
@@ -174,6 +197,7 @@ describe('convertOtherPattern', () => {
     expect(q?.other).toBe('Y');
     const answers = findRowsByClass(rows, 'A');
     expect(answers.find((r) => r.name === 'other')).toBeUndefined();
+    expect(findRowByName(rows, 'pickedother')).toBeUndefined();
   });
 
   test('false does not affect or_other type modifier', async () => {

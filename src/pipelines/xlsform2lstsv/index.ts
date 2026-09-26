@@ -13,6 +13,7 @@ import { GroupProcessor } from './groupProcessor.js';
 import { LanguageHandler } from './languageHandler.js';
 import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
+import { OTHER_SUFFIX } from '../../conventions/other.js';
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
 import { GroupEmitter } from './groupEmitter.js';
 import { MatrixHandler, MatrixHelpers } from './matrixHandler.js';
@@ -70,6 +71,10 @@ class Conversion {
   private fileChoices: Record<string, ChoiceRow[]>;
   private surveySettingsEmitter: SurveySettingsEmitter;
   private surveyDataCache: SurveyRow[] = [];
+  /** `<q>_other` rows folded into their parent's native `other=Y` (#79). */
+  private collapsedCompanions = new Set<SurveyRow>();
+  /** Parent select → its folded companion, whose label labels the native box. */
+  private companionByParent = new Map<SurveyRow, SurveyRow>();
   private rowCheck: RowCheckContext = { listNames: new Set() };
   private readonly warn: WarningHandler;
 
@@ -215,8 +220,30 @@ class Conversion {
       this.groupEmitter.addDefaultGroup();
     }
 
+    if (this.configManager.getConfig().convertOtherPattern) {
+      const sanitize = (name: string) =>
+        this.fieldNameHandler.sanitizeName(name);
+      for (const row of surveyData) {
+        const companion = this.otherPatternDetector.companionOf(
+          row,
+          surveyData,
+          sanitize,
+        );
+        if (!companion) continue;
+        this.collapsedCompanions.add(companion);
+        this.companionByParent.set(row, companion);
+        // References to the companion now mean LimeSurvey's native "other"
+        // text, which expressions call `<code>_other`.
+        this.fieldNameHandler.aliasName(
+          companion.name ?? '',
+          `${sanitize(row.name ?? '')}${OTHER_SUFFIX}`,
+        );
+      }
+    }
+
     // Process survey rows
     for (const row of surveyData) {
+      if (this.collapsedCompanions.has(row)) continue;
       this.processRow(row);
     }
 
@@ -535,6 +562,13 @@ class Conversion {
     const help = this.fieldNameHandler.convertVariableReferences(
       this.languageHandler.renderLabel(row.hint, lang),
     );
+    // A folded companion's label labels LimeSurvey's native "other" box.
+    const companion = this.companionByParent.get(row);
+    const otherText = companion
+      ? this.fieldNameHandler.convertVariableReferences(
+          this.languageHandler.renderLabel(companion.label, lang),
+        )
+      : '';
 
     return {
       class: 'Q',
@@ -558,6 +592,7 @@ class Conversion {
       // It's a machine hook only (no styling effect); the faithful reference
       // still lives in DDI's concept/@vocab. Empty for all other questions.
       ...(cdlVocab ? { cssclass: cssClassForVocab(cdlVocab) } : {}),
+      ...(otherText ? { other_replace_text: otherText } : {}),
       // Bounds etc. from the `parameters` column (range), per the registry.
       ...attributes,
     };
