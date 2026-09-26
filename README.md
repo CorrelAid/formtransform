@@ -217,6 +217,11 @@ validates against this subset, rejecting:
   registered vocabulary (e.g. `iso_3166_1.csv`) or a CSV passed as
   `fileChoices` (the CLI reads CSVs beside the form)
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
+- **Dangling references** — every `${name}` in `relevant` or `constraint` must
+  name a row of the survey sheet. A compared literal that the question can
+  never take (`${q} = 'Sonstiges'` when the code is `sonst`,
+  `selected(${m}, 'x')`, `${age} = 'old'`) is only a warning: the form converts,
+  but the condition is never true
 
 An exclusive answer in a `select_multiple` ("Keine Angabe", "Nichts davon")
 is marked with an `exclusive` column (`yes`) on the choices sheet, not a
