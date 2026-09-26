@@ -31,7 +31,9 @@ import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
 import { EXCLUSIVE_RULE } from '../../conventions/exclusive.js';
 import {
   OTHER_CODE,
+  OTHER_COMPANION_TYPE,
   OTHER_SUFFIX,
+  otherCompanionRelevance,
   otherLabelFor,
 } from '../../conventions/other.js';
 import {
@@ -207,6 +209,15 @@ function collectLabelMaps(rows: Row[]): {
     const key = `${cls}:${cell(row, 'name')}`;
     put(textByKey, key, lang, cell(row, 'text'));
     put(helpByKey, key, lang, cell(row, 'help'));
+    // The native "other" box's label: the XLSForm companion's label.
+    if (cls === 'Q') {
+      put(
+        textByKey,
+        `OTHER:${cell(row, 'name')}`,
+        lang,
+        cell(row, 'other_replace_text'),
+      );
+    }
   }
 
   return { textByKey, helpByKey };
@@ -720,7 +731,42 @@ function emitQuestions(
     ctx.survey.push(
       buildPlainQuestionRow(item, type, isOtherCompanion, resolved, ctx),
     );
+    if (otherBaseNames.has(item.name) && !hasExplicitCompanion(items, item)) {
+      ctx.survey.push(otherCompanionRow(item.name, resolved.base, ctx));
+    }
   }
+}
+
+/**
+ * Whether the TSV still carries the companion as its own `<q>other` text
+ * question (what formtransform wrote before #79).
+ */
+function hasExplicitCompanion(
+  items: LogicalQuestion[],
+  parent: PlainQuestion,
+): boolean {
+  return items.some(
+    (i) => i.kind === 'plain' && i.name === `${parent.name}${OTHER_CODE}`,
+  );
+}
+
+/**
+ * The `<q>_other` companion for a select with LimeSurvey's native "other":
+ * labelled by `other_replace_text`, else the canonical "other" label.
+ */
+function otherCompanionRow(
+  name: string,
+  baseSelect: string,
+  ctx: EmitCtx,
+): SurveyRow {
+  const label =
+    ctx.label(`OTHER:${name}`) || perLanguageOtherLabel(ctx.languages);
+  return {
+    type: OTHER_COMPANION_TYPE,
+    name: `${name}${OTHER_SUFFIX}`,
+    label: htmlLabel(label),
+    relevant: otherCompanionRelevance(baseSelect, name),
+  };
 }
 
 function perLanguageOtherLabel(languages: string[]): LabelValue {

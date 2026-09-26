@@ -14,7 +14,8 @@ import type { WarningHandler } from '../../diagnostics.js';
  * Detects the "X_other" pattern: a follow-up question with relevance
  * `${X} = 'other'` / `selected(${X}, 'other')`. When found, the matching
  * "other" entry is removed from the parent question's choice list to avoid
- * LimeSurvey seeing two "other" options.
+ * LimeSurvey seeing two "other" options, and the companion is not emitted:
+ * LimeSurvey's native "other" text box takes its place (#79).
  */
 export class OtherPatternDetector {
   constructor(
@@ -22,6 +23,37 @@ export class OtherPatternDetector {
     private languageHandler: LanguageHandler,
     private onWarning: WarningHandler = consoleWarning,
   ) {}
+
+  /**
+   * The `<name>_other` companion whose relevance keys on `currentRow`'s
+   * "other" choice, or `null`. No side effects.
+   */
+  companionOf(
+    currentRow: SurveyRow,
+    surveyData: SurveyRow[],
+    sanitizeName: (name: string) => string,
+  ): SurveyRow | null {
+    const currentName = currentRow.name?.trim();
+    if (!currentName) return null;
+
+    const otherQuestionName = `${currentName}${OTHER_SUFFIX}`;
+    const sanitizedCurrentName = sanitizeName(currentName);
+    // Pattern: ${name} = 'other', ${name} == 'other', or selected(${name}, 'other')
+    const code = escapeRegExp(OTHER_CODE);
+    const patterns = [currentName, sanitizedCurrentName].flatMap((n) => [
+      new RegExp(`\\$\\{${n}\\}\\s*={1,2}\\s*['"]${code}['"]`),
+      new RegExp(`selected\\(\\s*\\$\\{${n}\\}\\s*,\\s*['"]${code}['"]\\s*\\)`),
+    ]);
+
+    return (
+      surveyData.find(
+        (row) =>
+          row.name?.trim() === otherQuestionName &&
+          typeof row.relevant === 'string' &&
+          patterns.some((p) => p.test((row.relevant as string).trim())),
+      ) ?? null
+    );
+  }
 
   /**
    * Returns true if `currentRow` has a matching "_other" question in `surveyData`.
@@ -33,33 +65,12 @@ export class OtherPatternDetector {
     parseType: (type: string) => TypeInfo,
     sanitizeName: (name: string) => string,
   ): boolean {
-    const currentName = currentRow.name?.trim();
-    if (!currentName) return false;
-
-    const otherQuestionName = `${currentName}${OTHER_SUFFIX}`;
-    const sanitizedCurrentName = sanitizeName(currentName);
-
-    for (const row of surveyData) {
-      if (row.name?.trim() !== otherQuestionName || !row.relevant) continue;
-
-      const relevance = row.relevant.trim();
-      // Pattern: ${name} = 'other', ${name} == 'other', or selected(${name}, 'other')
-      const code = escapeRegExp(OTHER_CODE);
-      const patterns = [currentName, sanitizedCurrentName].flatMap((n) => [
-        new RegExp(`\\$\\{${n}\\}\\s*={1,2}\\s*['"]${code}['"]`),
-        new RegExp(
-          `selected\\(\\s*\\$\\{${n}\\}\\s*,\\s*['"]${code}['"]\\s*\\)`,
-        ),
-      ]);
-
-      if (patterns.some((p) => p.test(relevance))) {
-        const xfTypeInfo = parseType(currentRow.type || '');
-        this.removeOtherChoiceFromList(currentRow, xfTypeInfo);
-        return true;
-      }
-    }
-
-    return false;
+    if (!this.companionOf(currentRow, surveyData, sanitizeName)) return false;
+    this.removeOtherChoiceFromList(
+      currentRow,
+      parseType(currentRow.type || ''),
+    );
+    return true;
   }
 
   private removeOtherChoiceFromList(row: SurveyRow, typeInfo: TypeInfo): void {

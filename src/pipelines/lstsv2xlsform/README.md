@@ -37,7 +37,7 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | type L/M/N/D/S/X, plus F | `select_one` / `select_multiple` / `integer`\|`decimal`\|`range` / `date`\|`time` / `text` / `note`, plus grid | `N` is lossy — see below |
 | `N` with `min_num_value_n` + `max_num_value_n` | `range`, `parameters` rebuilt from the bounds | registry `limesurvey.parameterAttributes`; see below for `step` |
 | A / SQ rows | `choices` (list_name = question name) | codes exact under strict validation |
-| `other=Y` | re-add the `other` choice + `${base}_other` companion + relevance | shares `OTHER_CODE`/`OTHER_SUFFIX`/`otherLabelFor` with `lstsv/toVariables.ts` |
+| `other=Y` (+ `other_replace_text`) | re-add the `other` choice + `${base}_other` companion + relevance; the companion's label is `other_replace_text`, else the canonical one | shares `OTHER_CODE`/`OTHER_SUFFIX`/`otherLabelFor` with `lstsv/toVariables.ts` |
 | `cssclass=cdlvocab-<id>` | `select_*_from_file <id>.csv`, inlined A rows dropped | shares `vocabFromCssClass` with the DDI path |
 | `mandatory=Y` / `default` | `required: yes` / `default` | direct |
 | type override `!` / `T` | `appearance: minimal` / `multiline` | inverts `APPEARANCES[*].lsTypeOverride` — registry-driven, not hardcoded |
