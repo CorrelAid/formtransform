@@ -466,6 +466,7 @@
     </var>
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Please specifiy other tools you know that you consider relevant</preQTxt>
         <qstnLit>Andere relevante Tools</qstnLit>
       </qstn>
       <concept>Andere relevante Tools</concept>
@@ -841,6 +842,7 @@
     </var>
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Please write maximum 5 sentences per project that you are applying to.</preQTxt>
         <qstnLit>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</concept>
@@ -848,6 +850,7 @@
     </var>
     <var ID="V_motivation_why" name="motivation_why" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Please write maximum 5 sentences per project that you are applying to.</preQTxt>
         <qstnLit>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</concept>
@@ -855,6 +858,7 @@
     </var>
     <var ID="V_past_applications" name="past_applications" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
+        <preQTxt>In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project.</preQTxt>
         <qstnLit>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</qstnLit>
       </qstn>
       <catgry>
@@ -874,6 +878,7 @@
     </var>
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Any information is helpful to us.</preQTxt>
         <qstnLit>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</qstnLit>
       </qstn>
       <concept>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</concept>
@@ -902,6 +907,7 @@
     </var>
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
+        <preQTxt>Note: We ask this question because we want to foster gender diversity within CorrelAid.</preQTxt>
         <qstnLit>Was ist dein Geschlecht?</qstnLit>
       </qstn>
       <catgry>
@@ -929,6 +935,7 @@
     </var>
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
+        <preQTxt>Please specify your gender here.</preQTxt>
         <qstnLit>Mein Geschlecht ist:</qstnLit>
       </qstn>
       <concept>Mein Geschlecht ist:</concept>
@@ -936,6 +943,7 @@
     </var>
     <var ID="V_consent_privacy_policy" name="consent_privacy_policy" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
+        <preQTxt>I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful.</preQTxt>
         <qstnLit>Einwilligung in die Datenschutzerklärung</qstnLit>
       </qstn>
       <catgry>

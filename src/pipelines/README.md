@@ -57,7 +57,8 @@ describes a *dataset*, not an *instrument*, so it does not carry the information
 a survey needs to run.
 
 The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit: `name`,
-`type`, `label`, group path/label/appearance, `listName`, `vocab`, `choices`.
+`type`, `label`, group path/label/appearance, `listName`, `vocab`, `choices`,
+and the question's `hint` (`<preQTxt>`) and `guidance_hint` (`<ivuInstr>`).
 Everything that makes a form behave is absent:
 
 - **no `relevant`** — DDI Codebook 2.5 has no machine-readable expression syntax
@@ -65,7 +66,7 @@ Everything that makes a form behave is absent:
   ([`registry/conventions/logicMapping.jsonld`](../../registry/conventions/logicMapping.jsonld))
   records this and requires tools to report it as loss.
 - **no `constraint`** — same reason.
-- **no `required`, `default`, `hint`, per-question `appearance`, `calculation`.**
+- **no `required`, `default`, per-question `appearance`, `calculation`.**
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV
 carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T`

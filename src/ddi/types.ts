@@ -32,4 +32,8 @@ export interface Variable {
   vocab: string;
   /** Resolved answer options; empty for non-categorical / external-list types. */
   choices: Choice[];
+  /** XLSForm `hint`, emitted as `<qstn><preQTxt>` (after any folded note). */
+  hint?: string;
+  /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
+  guidanceHint?: string;
 }

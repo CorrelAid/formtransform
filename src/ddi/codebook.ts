@@ -70,6 +70,9 @@ interface AddVarSpec {
   varType: string;
   choices: Choice[];
   opts?: AddVarOpts;
+  /** The source variable's hint (→ preQTxt) and guidance hint (→ ivuInstr). */
+  hint?: string;
+  guidanceHint?: string;
 }
 
 /**
@@ -78,7 +81,11 @@ interface AddVarSpec {
  */
 function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const { varId, name, label, varType, choices } = spec;
-  const { vocab = '', preQTxt = '' } = spec.opts ?? {};
+  const { vocab = '' } = spec.opts ?? {};
+  // A folded note or grid lead-in comes first, then the question's own hint.
+  const preQTxt = [spec.opts?.preQTxt, spec.hint]
+    .filter((t): t is string => !!t)
+    .join('\n\n');
   const [intrvl, fmtType] = DDI_TYPE_MAP[varType] ?? ['discrete', 'character'];
   const respDomain = RESPONSE_DOMAIN_MAP[varType] ?? 'text';
 
@@ -88,6 +95,8 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
     const qstn = varEl.child('qstn', { responseDomainType: respDomain });
     if (preQTxt) qstn.textChild('preQTxt', preQTxt);
     qstn.textChild('qstnLit', label);
+    // DDI order within <qstn>: preQTxt, qstnLit, postQTxt, forward, backward, ivuInstr.
+    if (spec.guidanceHint) qstn.textChild('ivuInstr', spec.guidanceHint);
   }
 
   if (!vocab) {
@@ -228,6 +237,8 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
       label: base.label,
       varType: base.type,
       choices: base.choices,
+      hint: base.hint,
+      guidanceHint: base.guidanceHint,
     });
   }
 
@@ -238,6 +249,8 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
     label: otherVar.label,
     varType: otherVar.type,
     choices: [],
+    hint: otherVar.hint,
+    guidanceHint: otherVar.guidanceHint,
   });
 }
 
@@ -414,6 +427,8 @@ function addVars(
         varType: v.type,
         choices: v.choices,
         opts: { preQTxt: pre },
+        hint: v.hint,
+        guidanceHint: v.guidanceHint,
       });
     });
   }
@@ -447,6 +462,8 @@ function addVars(
         vocab: v.vocab,
         preQTxt: combineNote(notePreqtxt, v.name),
       },
+      hint: v.hint,
+      guidanceHint: v.guidanceHint,
     });
   }
 }

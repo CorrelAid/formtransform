@@ -109,7 +109,7 @@ The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit. Everythi
 
 - **no `relevant`** — DDI Codebook 2.5 has no machine-readable expression syntax at all, so skip logic is dropped on the way in
 - **no `constraint`** — same reason
-- **no `required`, `default`, `hint`, per-question `appearance`, `calculation`**
+- **no `required`, `default`, per-question `appearance`, `calculation`** (a question's `hint` and `guidance_hint` do survive, as `<preQTxt>` and `<ivuInstr>`)
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T` type overrides. It is a form definition in a different dialect, so reversing it is a translation problem. Reversing DDI is not — it is a *reconstruction* problem, and the missing pieces cannot be inferred from a codebook.
 

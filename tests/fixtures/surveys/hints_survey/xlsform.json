@@ -1,0 +1,43 @@
+{
+  "survey": [
+    {
+      "type": "note",
+      "name": "intro",
+      "label": "Die folgenden Fragen betreffen Ihren Haushalt."
+    },
+    {
+      "type": "integer",
+      "name": "personen",
+      "label": "Wie viele Personen leben in Ihrem Haushalt?",
+      "hint": "Sie selbst mitgezählt."
+    },
+    {
+      "type": "text",
+      "name": "beruf",
+      "label": "Was ist Ihr Beruf?",
+      "hint": "Bitte möglichst genau.",
+      "guidance_hint": "Bei Unklarheit nach der Tätigkeit fragen."
+    },
+    {
+      "type": "select_one janein",
+      "name": "ehrenamt",
+      "label": "Sind Sie ehrenamtlich tätig?",
+      "parameters": "guidance_hint=Auch gelegentliches Engagement zählt."
+    },
+    {
+      "type": "select_multiple medien",
+      "name": "medien",
+      "label": "Welche Medien nutzen Sie?",
+      "hint": "Mehrfachnennung möglich."
+    }
+  ],
+  "choices": [
+    { "list_name": "janein", "name": "ja", "label": "Ja" },
+    { "list_name": "janein", "name": "nein", "label": "Nein" },
+    { "list_name": "medien", "name": "tv", "label": "Fernsehen" },
+    { "list_name": "medien", "name": "radio", "label": "Radio" }
+  ],
+  "settings": [
+    { "form_title": "Hinweise", "form_id": "hints", "default_language": "de" }
+  ]
+}
