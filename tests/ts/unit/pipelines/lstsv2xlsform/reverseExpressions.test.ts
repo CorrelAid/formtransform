@@ -79,6 +79,12 @@ describe('reverseRelevance — round-trips the forward dialect', () => {
     ['if(${a} > 1, 2, 3) = 2', 'if'],
     ["regex(${x}, '^[0-9]+$')", 'regex'],
     ['round(floor(${x}) * 2) > 3', 'nested calls'],
+    ["${a} = 'x' and (${b} = 'y' or ${c} = 'z')", 'or inside and (#98)'],
+    ['(${a} + ${b}) * 2 > 3', 'sum inside product (#98)'],
+    ['${a} - (${b} - ${c}) > 0', 'right-nested minus (#98)'],
+    ['${x} = -5', 'negative literal (#98)'],
+    ['${x} > -(${y} + 1)', 'negated group (#98)'],
+    [`\${a} = "it's"`, 'a value with an apostrophe (#98)'],
   ])('%s (%s)', async (xpath) => {
     const { em, em2 } = await roundTrip(xpath);
     expect(em2).toBe(em);
@@ -180,5 +186,24 @@ describe('rejects EM outside the forward dialect (em-unsupported)', () => {
     expect(() => reverseRelevance(em, selectCtx)).toThrow(
       expect.objectContaining({ code: 'em-unsupported' }),
     );
+  });
+});
+
+describe('reverseRelevance — exact output for #98', () => {
+  test('grouping is kept only where precedence needs it', () => {
+    expect(reverseRelevance('a == 1 and (b == 2 or c == 3)', selectCtx)).toBe(
+      '${a} = 1 and (${b} = 2 or ${c} = 3)',
+    );
+    expect(reverseRelevance('(a == 1 and b == 2) or c == 3', selectCtx)).toBe(
+      '${a} = 1 and ${b} = 2 or ${c} = 3',
+    );
+  });
+
+  test('negative numbers', () => {
+    expect(reverseRelevance('x == -5', selectCtx)).toBe('${x} = -5');
+  });
+
+  test('a value with an apostrophe is double-quoted', () => {
+    expect(reverseRelevance(`a == "it's"`, selectCtx)).toBe(`\${a} = "it's"`);
   });
 });

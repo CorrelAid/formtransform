@@ -105,11 +105,9 @@ const KNOWN_REVERSE_XLSFORM_DIFFS: Record<
     ],
   },
   complex_xpath_survey: {
-    why: '#98: the reverse EM parser drops parentheses; true()/false() come back as 1/0',
+    why: 'true()/false() come back as 1/0 (the forward writes EM 1/0)',
     diffs: [
-      "eligible_participant.relevant: ${age} >= 18 and (${country} = 'USA' or ${country} = 'Canada') -> ${age} >= 18 and ${country} = 'USA' or ${country} = 'Canada'",
       'age_category.relevant: if(${age} > 18, true(), false()) -> if(${age} > 18, 1, 0)',
-      "complex_validation.relevant: ${consent} = 'yes' and (${age} >= 18 or ${country} = 'USA') -> ${consent} = 'yes' and ${age} >= 18 or ${country} = 'USA'",
     ],
   },
   testA: {
