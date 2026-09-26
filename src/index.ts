@@ -1,3 +1,17 @@
+// ── Conversions (one function per direction) ───────────────────────────
+export { xlsformToLstsv, xlsformToDdi, lstsvToDdi } from './api.js';
+export type {
+  XlsformSource,
+  XlsformToLstsvOptions,
+  XlsformToDdiOptions,
+} from './api.js';
+export { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
+export type {
+  LstsvToXlsformOptions,
+  XlsformOutput,
+} from './pipelines/lstsv2xlsform/index.js';
+export type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
+
 // ── Diagnostics ────────────────────────────────────────────────────────
 export { ConversionError, consoleWarning } from './diagnostics.js';
 export type {
@@ -7,10 +21,9 @@ export type {
   WarningHandler,
 } from './diagnostics.js';
 
-// ── Format modules ─────────────────────────────────────────────────────
+// ── Loading and validation ─────────────────────────────────────────────
 export { XLSLoader } from './xlsform/loader.js';
 export type { LoadOptions } from './xlsform/loader.js';
-export { XLSFormParser } from './pipelines/xlsform2lstsv/xlsformParser.js';
 export { XLSValidator } from './xlsform/validate.js';
 export type {
   SubsetViolation,
@@ -18,18 +31,9 @@ export type {
   SubsetTarget,
 } from './xlsform/validate.js';
 export { FieldSanitizer } from './xlsform/sanitize.js';
-
 export { parseLstsv } from './lstsv/parser.js';
-export { TSVGenerator } from './lstsv/serialize.js';
 export { validateLstsvSubset } from './lstsv/validate.js';
-
-export { buildDdiCodebook } from './ddi/index.js';
-export type {
-  BuildDdiOptions,
-  DdiSettings,
-  Choice,
-  Variable,
-} from './ddi/index.js';
+export { parseVocabCsv } from './vocab.js';
 
 // ── Registry catalogues (generated; the public "what exists" surface) ──
 export { QUESTION_TYPES } from './generated/QuestionTypes.js';
@@ -39,26 +43,12 @@ export type {
 } from './generated/QuestionTypes.js';
 export { APPEARANCES } from './generated/Appearances.js';
 export type { AppearanceSpec } from './generated/Appearances.js';
+export { TYPE_MAPPINGS } from './pipelines/xlsform2lstsv/typeMapper.js';
 
-// ── Pipelines (one per supported direction) ────────────────────────────
-export { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
-export {
-  convertRelevance,
-  convertConstraint,
-  xpathToLimeSurvey,
-} from './pipelines/xlsform2lstsv/xpathTranspiler.js';
-export {
-  TypeMapper,
-  TypeInfo,
-  LSType,
-  TYPE_MAPPINGS,
-} from './pipelines/xlsform2lstsv/typeMapper.js';
-
-export { buildDdiXml } from './pipelines/xlsform2ddi/index.js';
+// ── Response data ──────────────────────────────────────────────────────
 export {
   extractVariables,
   choicesByListFromRows,
-  normalizeChoices,
 } from './pipelines/xlsform2ddi/variables.js';
 export {
   buildDataCsv,
@@ -67,37 +57,32 @@ export {
 } from './ddi/data.js';
 export type { Submission } from './ddi/data.js';
 export { parseResponses } from './responseFile.js';
-export { parseVocabCsv } from './vocab.js';
-
 export {
   lstsvToDataCsv,
-  lstsvToDdiXml,
   lstsvToVariables,
   normalizeLimeSurveyResponses,
 } from './pipelines/lstsv2ddi/index.js';
 export type {
   LstsvToDataCsvOptions,
-  LstsvToDdiOptions,
   NormalizeResponsesOptions,
 } from './pipelines/lstsv2ddi/index.js';
 
-export {
-  lstsvToXlsform,
-  lstsvRowsToXlsform,
-} from './pipelines/lstsv2xlsform/index.js';
+// ── Types and config ───────────────────────────────────────────────────
 export type {
-  LstsvToXlsformOptions,
-  XlsformOutput,
-} from './pipelines/lstsv2xlsform/index.js';
-
-// ── Config ─────────────────────────────────────────────────────────────
-export { ConfigManager, ConversionConfig } from './config/ConfigManager.js';
+  BuildDdiOptions,
+  DdiSettings,
+  Choice,
+  Variable,
+} from './ddi/index.js';
 export { defaultConfig } from './config/types.js';
 export type { LstsvConfig } from './config/types.js';
-export { resolveConfig } from './config/resolveConfig.js';
 export type {
   SurveyRow,
   ChoiceRow,
   SettingsRow,
   XLSFormData,
 } from './xlsform/types.js';
+
+// ── Deprecated: renamed, or moving to `@correlaid/formtransform/internals`
+// (#66). Kept here until the next minor release.
+export * from './deprecated.js';

@@ -57,12 +57,34 @@ npx github:CorrelAid/formtransform --help
 
 ### TypeScript/JavaScript
 
-```typescript
-import { XLSFormToTSVConverter } from '@correlaid/formtransform';
+One function per direction. An XLSForm source is the `.xlsx` bytes or its
+loaded sheets (`{ surveyData, choicesData, settingsData }`); a LimeSurvey source
+is the structure TSV text:
 
-const converter = new XLSFormToTSVConverter();
-const tsv = await converter.convert(survey, choices, settings);
+```typescript
+import {
+  xlsformToLstsv,
+  xlsformToDdi,
+  lstsvToDdi,
+  lstsvToXlsform,
+} from '@correlaid/formtransform';
+
+const bytes = await file.arrayBuffer();
+const tsv = await xlsformToLstsv(bytes);
+const xml = xlsformToDdi(bytes);
+const fromLs = lstsvToDdi(tsv);
+const { survey, choices, settings } = lstsvToXlsform(tsv);
 ```
+
+Each rejects input outside its subset with a `ConversionError` unless you pass
+`skipValidation: true` (see [Supported XLSForm Subset](#supported-xlsform-subset)).
+
+The building blocks behind these (the converter class, type mapper, TSV
+serializer, expression transpiler) are exported from
+`@correlaid/formtransform/internals`, with no stability promise.
+`XLSFormToTSVConverter`, `XLSFormParser`, `buildDdiXml` and `lstsvToDdiXml`
+still work from the main entry point but are deprecated and will be removed
+from it in the next minor release.
 
 A DDI codebook and the data file it describes come from the same variable list,
 so the CSV headers match the XML `<var name="">` elements one-to-one. For the
@@ -71,13 +93,13 @@ whole path from a Kobo or LimeSurvey export, see
 
 ```typescript
 import {
-  buildDdiXml,
+  xlsformToDdi,
   buildDataCsv,
   extractVariables,
   choicesByListFromRows,
 } from '@correlaid/formtransform';
 
-const xml = buildDdiXml(survey, choices, { settings: settings[0], submissions });
+const xml = xlsformToDdi({ surveyData: survey, choicesData: choices, settingsData: settings }, { submissions });
 const csv = buildDataCsv(
   extractVariables(survey, choicesByListFromRows(choices)),
   submissions,
@@ -186,12 +208,7 @@ console:
 
 ```ts
 const warnings: Diagnostic[] = [];
-await new XLSFormToTSVConverter({ onWarning: (w) => warnings.push(w) }).convert(
-  survey,
-  choices,
-  settings,
-);
-XLSLoader.parseXLSData(buffer, { onWarning: (w) => warnings.push(w) });
+await xlsformToLstsv(bytes, { onWarning: (w) => warnings.push(w) });
 ```
 
 `validateSubset` returns the same `Diagnostic` objects for every finding at
@@ -231,7 +248,8 @@ is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 The name and code limits are LimeSurvey's. For DDI, check with
 `validateSubset(survey, choices, { target: 'ddi' })` (CLI: `validate --target
 ddi`; `xlsform2ddi` does it by default): same rules without those limits, since
-DDI keeps names as authored. `buildDdiXml` itself does not validate.
+DDI keeps names as authored. `xlsformToDdi` runs this check itself
+(`skipValidation` turns it off).
 
 LimeSurvey's reverse-subset check (`lstsv2xlsform`) is narrower — no arrays,
 no ranking, no numeric/date expressions.

@@ -42,6 +42,7 @@ export type DiagnosticCode =
   | 'exclusive-no-effect'
   | 'other-label-noncanonical'
   | 'parameter-invalid'
+  | 'xlsform-outside-subset'
   // expressions
   | 'xpath-syntax'
   | 'xpath-unsupported'
