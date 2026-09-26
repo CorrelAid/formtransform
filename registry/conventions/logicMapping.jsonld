@@ -60,7 +60,7 @@
             "concept": "validation message",
             "xlsformColumn": "constraint_message",
             "xlsformSyntax": "plain text (translatable)",
-            "lsTsvColumn": "validation",
+            "lsTsvColumn": "em_validation_q_tip",
             "lsSyntax": "plain text",
             "ddi": {
               "closestElement": null,

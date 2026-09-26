@@ -44,6 +44,8 @@ export function answerCodes(
 
 export interface AnswerHelpers {
   sanitizeAnswerCode(code: string): string;
+  /** A select_multiple's default choices (XLSForm codes): their SQ rows get `Y`. */
+  defaultCodes?: ReadonlySet<string>;
 }
 
 /**
@@ -113,6 +115,10 @@ export class AnswerEmitter {
             }
           : {}),
         text: this.languageHandler.renderLabel(choice.label, lang, choiceName),
+        ...(answerClass === 'SQ' &&
+        helpers.defaultCodes?.has(choice.name?.trim() ?? '')
+          ? { default: 'Y' }
+          : {}),
       }));
     }
   }

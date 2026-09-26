@@ -451,7 +451,14 @@ class Conversion {
 
     // Add answers/subquestions for select types (notes don't have answers)
     if (xfTypeInfo.base !== 'note' && xfTypeInfo.listName) {
-      this.answerEmitter.addAnswers(xfTypeInfo, lsType, this.answerHelpers());
+      this.answerEmitter.addAnswers(xfTypeInfo, lsType, {
+        ...this.answerHelpers(),
+        defaultCodes: new Set(
+          typeof row.default === 'string'
+            ? row.default.trim().split(/\s+/).filter(Boolean)
+            : [],
+        ),
+      });
     }
   }
 
@@ -482,7 +489,7 @@ class Conversion {
       : this.transpilerHelper.convertConstraint(row.constraint || '');
     const mandatory = isNote ? '' : this.mandatoryValue(row);
     const other = this.computeOtherFlag(row, lsType, isNote);
-    const defaultVal = isNote ? '' : row.default || '';
+    const defaultVal = isNote ? '' : this.defaultValue(row, xfTypeInfo.base);
     // Suppress LimeSurvey's stock per-question tips ("Only numbers may be
     // entered", "Select all that apply", …) on real questions. Notes (type X)
     // carry no tip, so leave them alone.
@@ -502,6 +509,20 @@ class Conversion {
       hideTip,
       isNote,
     };
+  }
+
+  /**
+   * The Q row's `default`. A select_one's default is a choice code, so it
+   * becomes the emitted (sanitized, deduplicated) answer code; a
+   * select_multiple's defaults go on its SQ rows instead (addAnswers).
+   */
+  private defaultValue(row: SurveyRow, base: string): string {
+    const raw = typeof row.default === 'string' ? row.default.trim() : '';
+    if (!raw) return '';
+    if (base === 'select_multiple') return '';
+    if (base !== 'select_one') return raw;
+    return this.choiceManager.lookupAnswerCode(row.name?.trim() ?? '', raw)
+      .code;
   }
 
   /** Map the XLSForm `required` cell to LimeSurvey's `Y` (true) or empty. */
@@ -546,6 +567,12 @@ class Conversion {
     const help = this.fieldNameHandler.convertVariableReferences(
       this.languageHandler.renderLabel(row.hint, lang),
     );
+    // constraint_message: LimeSurvey's per-language validation tip.
+    const tip = fields.isNote
+      ? ''
+      : this.fieldNameHandler.convertVariableReferences(
+          this.languageHandler.renderLabel(row.constraint_message, lang),
+        );
     // A folded companion's label labels LimeSurvey's native "other" box.
     const companion = this.companionByParent.get(row);
     const otherText = companion
@@ -577,6 +604,7 @@ class Conversion {
       // still lives in DDI's concept/@vocab. Empty for all other questions.
       ...(cdlVocab ? { cssclass: cssClassForVocab(cdlVocab) } : {}),
       ...(otherText ? { other_replace_text: otherText } : {}),
+      ...(tip ? { em_validation_q_tip: tip } : {}),
       // Bounds etc. from the `parameters` column (range), per the registry.
       ...attributes,
     };

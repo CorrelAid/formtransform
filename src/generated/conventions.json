@@ -250,7 +250,7 @@
           "concept": "validation message",
           "xlsformColumn": "constraint_message",
           "xlsformSyntax": "plain text (translatable)",
-          "lsTsvColumn": "validation",
+          "lsTsvColumn": "em_validation_q_tip",
           "lsSyntax": "plain text",
           "ddi": {
             "closestElement": null,
@@ -429,13 +429,13 @@
     },
     {
       "xlsform": "constraint_message",
-      "lsTsv": "validation",
-      "transform": "passthrough — see convention:logicMapping"
+      "lsTsv": "em_validation_q_tip",
+      "transform": "per-language question attribute (LimeSurvey's `validation` column is a regex, not a message) — see convention:logicMapping"
     },
     {
       "xlsform": "default",
       "lsTsv": "default",
-      "transform": "passthrough"
+      "transform": "passthrough, except a select's: a select_one default becomes the emitted answer code; a select_multiple's space-separated defaults become `Y` on their SQ rows"
     },
     {
       "xlsform": "relevant",
