@@ -112,7 +112,7 @@
         <labl>Other</labl>
       </catgry>
       <concept>Gender</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_satisfaction_level" name="satisfaction_level" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -127,7 +127,7 @@
         <labl>Unhappy</labl>
       </catgry>
       <concept>How satisfied are you?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_other_comments" name="other_comments" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

@@ -39,7 +39,7 @@
         <labl>Oft</labl>
       </catgry>
       <concept>… der Preis?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -55,7 +55,7 @@
         <labl>Oft</labl>
       </catgry>
       <concept>… der Takt?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_wohnort" name="wohnort" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -70,7 +70,7 @@
         <labl>Land</labl>
       </catgry>
       <concept>Wo wohnen Sie?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_anmerkung" name="anmerkung" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -111,7 +111,7 @@
         <labl>Oft</labl>
       </catgry>
       <concept>Bus</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_bahn" name="bahn" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -126,21 +126,21 @@
         <labl>Oft</labl>
       </catgry>
       <concept>Bahn</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_herkunft" name="herkunft" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Herkunftsland?</qstnLit>
       </qstn>
       <concept vocab="iso_3166_1">Herkunftsland?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_reisen" name="reisen" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <qstnLit>Wohin sind Sie gereist?</qstnLit>
       </qstn>
       <concept vocab="iso_3166_1">Wohin sind Sie gereist?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

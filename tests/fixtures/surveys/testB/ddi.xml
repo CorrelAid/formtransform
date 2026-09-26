@@ -278,7 +278,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>SoSci Survey</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_python" name="python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -301,7 +301,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Python</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_rstats" name="rstats" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -324,7 +324,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>R</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_powerbi" name="powerbi" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -347,7 +347,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Power BI</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_excel" name="excel" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -370,7 +370,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Microsoft Excel</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_sql" name="sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -393,7 +393,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>SQL</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_git" name="git" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -416,7 +416,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Git</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_jupyter" name="jupyter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -439,7 +439,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Jupyter Notebooks</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_tensorflow" name="tensorflow" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -462,7 +462,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>TensorFlow / PyTorch</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -493,7 +493,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Entwicklung von Fragebögen</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_indicator_development" name="indicator_development" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -516,7 +516,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Entwicklung von Indikatoren</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_data_collection" name="data_collection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -539,7 +539,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Datenerhebung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_data_cleaning" name="data_cleaning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -562,7 +562,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Datenbereinigung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_descriptive_statistics" name="descriptive_statistics" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -585,7 +585,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Deskriptive Statistik</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_data_visualization" name="data_visualization" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -608,7 +608,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Datenvisualisierung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_data_engineering" name="data_engineering" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -631,7 +631,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Data Engineering</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_automation" name="automation" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -654,7 +654,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Automatisierung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_projectplanning" name="projectplanning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -677,7 +677,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Projektplanung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_mlmodeling" name="mlmodeling" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -700,7 +700,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>ML-Modellierung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_wirkungsmessung" name="wirkungsmessung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -723,7 +723,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Wirkungsmessung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_research_design" name="research_design" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -746,7 +746,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Research Design</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_survey_research" name="survey_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -769,7 +769,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Umfrageforschung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_data_protection" name="data_protection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -792,7 +792,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Datenschutz</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_resilience_mental_health" name="resilience_mental_health" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -815,7 +815,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Resilienz und Mentale Gesundheit</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_education_research" name="education_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -838,7 +838,7 @@
         <labl>Expert:in</labl>
       </catgry>
       <concept>Bildungsforschung o.ä.</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -874,7 +874,7 @@
         <labl>Nein, das ist meine erste Bewerbung.</labl>
       </catgry>
       <concept>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -931,7 +931,7 @@
         <labl>Mein Geschlecht ist (eigene Angabe):</labl>
       </catgry>
       <concept>Was ist dein Geschlecht?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -951,7 +951,7 @@
         <labl>Ja</labl>
       </catgry>
       <concept>Einwilligung in die Datenschutzerklärung</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

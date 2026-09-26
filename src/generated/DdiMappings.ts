@@ -48,7 +48,7 @@ export const STRUCTURAL_TYPES: readonly string[] = [
 /** Standardized type → [intrvl, formatType]. Only DDI-emittable types. */
 export const DDI_TYPE_MAP: Record<string, DdiTypeInfo> = {
   select_one_from_file: ["discrete", "numeric"],
-  select_multiple_from_file: ["discrete", "numeric"],
+  select_multiple_from_file: ["discrete", "character"],
   date: ["discrete", "character"],
   decimal: ["contin", "numeric"],
   integer: ["contin", "numeric"],

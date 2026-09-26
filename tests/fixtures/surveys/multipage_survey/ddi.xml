@@ -53,7 +53,7 @@
         <labl>Green</labl>
       </catgry>
       <concept>Favourite colour</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

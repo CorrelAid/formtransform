@@ -46,7 +46,7 @@
         <labl>Sonstiges</labl>
       </catgry>
       <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_aufmerksam_other" name="aufmerksam_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

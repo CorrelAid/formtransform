@@ -44,7 +44,7 @@
         <labl>Other</labl>
       </catgry>
       <concept>What is your _favorite_ color?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_fav_color_other" name="fav_color_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

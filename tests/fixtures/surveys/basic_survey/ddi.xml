@@ -49,7 +49,7 @@
         <labl>No</labl>
       </catgry>
       <concept>Do you consent to participate?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

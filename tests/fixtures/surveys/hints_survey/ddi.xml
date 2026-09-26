@@ -86,7 +86,7 @@ Sie selbst mitgezählt.</preQTxt>
         <labl>Nein</labl>
       </catgry>
       <concept>Sind Sie ehrenamtlich tätig?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

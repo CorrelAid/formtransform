@@ -108,7 +108,7 @@
         <labl>Länger als drei Jahre</labl>
       </catgry>
       <concept>Wie lange kommst du schon zu TestWerk?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_haeufigkeit" name="haeufigkeit" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -166,7 +166,7 @@
         <labl>Ich wechsle gleichmäßig</labl>
       </catgry>
       <concept>In welcher Werkstatt bist du hauptsächlich?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_vorwissen" name="vorwissen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -185,7 +185,7 @@
         <labl>Ja, viel</labl>
       </catgry>
       <concept>Hattest du vorher schon handwerkliche Erfahrung?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_wohlfuehlen" name="wohlfuehlen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -506,7 +506,7 @@
         <labl>Anderes Geschlecht</labl>
       </catgry>
       <concept>Geschlecht (optional)</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_geschlecht_andere" name="geschlecht_andere" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

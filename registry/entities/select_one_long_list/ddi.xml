@@ -26,7 +26,7 @@
         <qstnLit>In welchem Land wurden Sie geboren?</qstnLit>
       </qstn>
       <concept vocab="iso_3166_1">In welchem Land wurden Sie geboren?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>
 </codeBook>

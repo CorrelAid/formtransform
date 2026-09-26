@@ -216,7 +216,7 @@
                     "numeric",
                     "character"
                   ],
-                  "description": "DDI `<varFormat>` @type."
+                  "description": "DDI `<varFormat>` @type. For a categorical type (responseDomainType category or multiple) this is the format when the codes allow it: the emitter writes `character` for a variable whose codes (or registered vocabulary codes) are not all numeric (#119)."
                 },
                 "responseDomainType": {
                   "type": "string",

@@ -102,7 +102,7 @@
         <labl>Other</labl>
       </catgry>
       <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_sel1_other_other" name="q_sel1_other_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -257,7 +257,7 @@
         <labl>Nein</labl>
       </catgry>
       <concept>Würden Sie diesen Workshop weiterempfehlen?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_multiline_text" name="q_multiline_text" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -290,7 +290,7 @@
         <labl>Ausgezeichnet</labl>
       </catgry>
       <concept>Wie zufrieden waren Sie mit der Organisation insgesamt?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_minimal" name="q_minimal" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -305,7 +305,7 @@
         <labl>Nein</labl>
       </catgry>
       <concept>Bevorzugst du Dropdown?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_skill_python" name="skill_python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -328,7 +328,7 @@
         <labl>Experte</labl>
       </catgry>
       <concept>Python</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_skill_js" name="skill_js" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -351,7 +351,7 @@
         <labl>Experte</labl>
       </catgry>
       <concept>JavaScript</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_skill_sql" name="skill_sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -374,7 +374,7 @@
         <labl>Experte</labl>
       </catgry>
       <concept>SQL</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_mandatory" name="q_mandatory" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
