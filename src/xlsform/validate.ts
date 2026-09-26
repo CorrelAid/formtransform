@@ -229,12 +229,8 @@ export class XLSValidator {
     sheetName: string,
     onWarning: WarningHandler = consoleWarning,
   ): void {
-    if (data.length === 0) {
-      onWarning(
-        warning('sheet-empty', `Choices sheet "${sheetName}" is empty.`),
-      );
-      return;
-    }
+    // An empty choices sheet is fine: a form without selects needs no rows.
+    if (data.length === 0) return;
 
     // Collect all column keys that appear across any row
     const allColumns = new Set<string>();
@@ -318,13 +314,13 @@ export class XLSValidator {
     // Validate required sheets
     this.validateRequiredSheets(hasSurveySheet, hasChoicesSheet);
 
-    // Validate survey sheet columns
-    if (hasSurveySheet && surveyData.length > 0) {
+    // Validate survey sheet columns (an empty one warns `sheet-empty`)
+    if (hasSurveySheet) {
       this.validateSurveySheetColumns(surveyData, surveySheetName, onWarning);
     }
 
     // Validate choices sheet columns
-    if (hasChoicesSheet && choicesData.length > 0) {
+    if (hasChoicesSheet) {
       this.validateChoicesSheetColumns(
         choicesData,
         choicesSheetName,

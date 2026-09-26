@@ -265,53 +265,6 @@ export function getLanguageCodesFromHeaders(headers: string[]): string[] {
 }
 
 /**
- * Get language-specific value from row for a given base column and language code
- */
-export function getLanguageSpecificValue(
-  row: Record<string, unknown>,
-  baseColumn: string,
-  languageCode: string,
-): string | undefined {
-  for (const [key, value] of Object.entries(row)) {
-    const headerCode = extractLanguageCode(key);
-    const headerBase = extractBaseColumnName(key);
-
-    if (headerBase === baseColumn && headerCode === languageCode) {
-      return value as string;
-    }
-  }
-  return undefined;
-}
-
-/**
- * Get all language-specific values for a base column
- */
-export function getAllLanguageValues(
-  row: Record<string, unknown>,
-  baseColumn: string,
-): Record<string, string> {
-  const result: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(row)) {
-    const headerCode = extractLanguageCode(key);
-    const headerBase = extractBaseColumnName(key);
-
-    if (headerBase === baseColumn && headerCode && value) {
-      result[headerCode] = value as string;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Check if a header is language-specific
- */
-export function isLanguageSpecificHeader(header: string): boolean {
-  return extractLanguageCode(header) !== null;
-}
-
-/**
  * Whether `code` is a well-formed BCP 47 tag whose language is known: a
  * registered 2-letter ISO 639-1 code, or a 3-letter one LimeSurvey uses, then
  * optional script (`Hans`), region (`BE`, `419`) and variants (`valencia`).

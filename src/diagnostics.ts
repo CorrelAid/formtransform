@@ -50,7 +50,6 @@ export type DiagnosticCode =
   | 'xpath-unsupported'
   | 'constraint-dropped'
   // LimeSurvey TSV (reverse)
-  | 'lstsv-invalid'
   | 'lstsv-outside-subset'
   | 'em-unsupported'
   // responses

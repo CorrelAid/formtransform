@@ -29,12 +29,9 @@
  * determined on the way back — `reverseConstraint` always assumes the
  * generic (unswapped) order. No fixture uses either form.
  *
- * `calculation` is out of scope entirely: forward's `convertCalculation` does
- * reuse `xpathToLimeSurvey` with the full context (so `reverseRelevance`'s
- * core would apply), but the `calculate` XLSForm type isn't registered in the
- * registry at all — `processRow`'s allowlist check rejects it before
- * `addQuestion` ever runs, so the forward path cannot produce a `calculate`
- * question in a TSV for this to reverse. Revisit if `calculate` is registered.
+ * `calculation` is out of scope entirely: the `calculate` XLSForm type isn't
+ * registered, so the forward converter rejects it and never produces a
+ * `calculate` question in a TSV for this to reverse. Revisit if it is.
  */
 
 import { parseEm, EmNode } from './emParser.js';

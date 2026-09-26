@@ -44,6 +44,22 @@ export function parameterAttributes(
     }
   }
 
+  // ODK requires a non-zero step; LimeSurvey has no step to carry it.
+  if ('step' in values && Number(values.step) === 0) {
+    throw new ConversionError(
+      'parameter-invalid',
+      `${baseType} '${questionName}': step must not be 0`,
+    );
+  }
+  // ODK allows a descending range (start > end); LimeSurvey only has bounds.
+  if ('start' in values && 'end' in values) {
+    const [lo, hi] = [Number(values.start), Number(values.end)].sort(
+      (a, b) => a - b,
+    );
+    values.start = String(lo);
+    values.end = String(hi);
+  }
+
   const attrs: Record<string, string> = {};
   for (const [key, attr] of Object.entries(mapping.parameterAttributes ?? {})) {
     attrs[attr] = String(Number(values[key]));
