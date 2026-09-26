@@ -22,6 +22,7 @@ import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
 import { Choice, Variable } from './types.js';
 import { registeredVocabCodes } from '../conventions/fromFile.js';
+import { languageTagOf } from '../utils/languageUtils.js';
 
 const NS = 'ddi:codebook:2_5';
 const XSI = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -284,8 +285,12 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
 /** Optional settings that shape study-level metadata. */
 export interface DdiSettings {
   form_title?: string;
+  /** Study ID (`IDNo`); `id_string` is Kobo's older name for it. */
+  form_id?: string | number;
   id_string?: string | number;
   version?: string | number;
+  /** Base language (`German (de)` or `de`): `codeBook/@xml:lang`. */
+  default_language?: string;
   [key: string]: unknown;
 }
 
@@ -352,7 +357,7 @@ function addStudyDscr(
 
   const titlStmt = citation.child('titlStmt');
   titlStmt.textChild('titl', title);
-  const studyId = settings.id_string;
+  const studyId = settings.form_id ?? settings.id_string;
   if (studyId) titlStmt.textChild('IDNo', String(studyId));
 
   const prodStmt = citation.child('prodStmt');
@@ -514,6 +519,11 @@ export function buildDdiCodebook(
   root.setAttr('xmlns:xsi', XSI);
   root.setAttr('xsi:schemaLocation', SCHEMA_LOC);
   root.setAttr('version', '2.5');
+  const lang =
+    typeof settings.default_language === 'string'
+      ? languageTagOf(settings.default_language)
+      : null;
+  if (lang) root.setAttr('xml:lang', lang);
 
   addStudyDscr(root, settings, title, prodDate, orphanNotes);
   addFileDscr(root, datasetFilename, submissions.length);

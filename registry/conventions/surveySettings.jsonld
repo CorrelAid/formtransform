@@ -40,25 +40,26 @@
           {
             "xlsformKey": "form_id",
             "lsTsvRow": null,
-            "ddiPath": "fileDscr/@ID",
+            "ddiPath": "stdyDscr/citation/titlStmt/IDNo (Kobo's older `id_string` is read too)",
             "required": true
           },
           {
             "xlsformKey": "default_language",
             "lsTsvCell": "language column on every row",
-            "ddiPath": "fallback xml:lang on var/qstn elements",
+            "ddiPath": "codeBook/@xml:lang; also picks the label column the DDI text comes from",
             "required": false
           },
           {
             "xlsformKey": "version",
             "lsTsvRow": null,
-            "ddiPath": "codeBook/@version (DDI version, not survey version — record survey version elsewhere)",
+            "ddiPath": "stdyDscr/citation/verStmt/version (codeBook/@version is the DDI version, 2.5)",
             "required": false
           },
           {
             "xlsformKey": "instance_name",
             "lsTsvRow": null,
-            "ddiPath": "fileDscr/fileTxt/fileName",
+            "ddiPath": null,
+            "note": "A per-submission naming expression, not a file name; not emitted. fileDscr/fileTxt/fileName is the data file's name (datasetFilename).",
             "required": false
           }
         ],
