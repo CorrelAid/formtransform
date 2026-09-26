@@ -42,6 +42,9 @@ import {
 } from '../../conventions/fromFile.js';
 import { GRID_APPEARANCE } from '../../conventions/grid.js';
 
+/** The registry appearance for a group shown as one page. */
+const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
+
 import { formatDefaultLanguage } from './languageNames.js';
 import { htmlToMarkdown } from '../../utils/markdownRenderer.js';
 import {
@@ -304,6 +307,10 @@ interface GroupBucket {
   seqKey: string;
   /** All rows (all languages) belonging to this group, in document order. */
   rows: Row[];
+  /** The group's EM relevance (its G rows all carry the same one). */
+  relevance: string;
+  /** Rows before any G row: top-level questions, no group wrapper. */
+  implicit?: boolean;
 }
 
 /** Split rows into per-group buckets. A `G` row with a new sequence key starts
@@ -322,13 +329,19 @@ function splitIntoGroups(rows: Row[]): GroupBucket[] {
       const seqKey = cell(row, 'type/scale');
       current = bySeq.get(seqKey) ?? null;
       if (!current) {
-        current = { seqKey, rows: [] };
+        current = { seqKey, rows: [], relevance: cell(row, 'relevance') };
         bySeq.set(seqKey, current);
         buckets.push(current);
       }
       continue;
     }
-    current?.rows.push(row);
+    // Questions before the first G row belong to no group (lstsv2ddi keeps
+    // them too); they used to vanish.
+    if (!current) {
+      current = { seqKey: '', rows: [], relevance: '', implicit: true };
+      buckets.push(current);
+    }
+    current.rows.push(row);
   }
   return buckets;
 }
@@ -501,6 +514,9 @@ interface BucketOpenCtx {
   baseRows: Row[];
   languages: string[];
   label: (key: string) => LabelValue;
+  selectCtx: SelectContext;
+  /** `format=G` (style: pages): each LimeSurvey group is one page. */
+  pages: boolean;
 }
 
 /** Compute the begin-group row for one bucket. Returns `{ row, isSyntheticDefault }`:
@@ -510,6 +526,7 @@ function emitBucketOpen(ctx: BucketOpenCtx): {
   isSyntheticDefault: boolean;
 } {
   const { bucket, buckets, baseLanguage, baseRows, languages, label } = ctx;
+  if (bucket.implicit) return { row: null, isSyntheticDefault: true };
   const groupLabel = label(`G:${bucket.seqKey}`);
   const groupLabelText =
     typeof groupLabel === 'string'
@@ -531,6 +548,8 @@ function emitBucketOpen(ctx: BucketOpenCtx): {
     groupAppearance = GRID_APPEARANCE;
   } else {
     groupName = slugifyGroupName(groupLabelText);
+    // A page per group is what XLSForm's field-list group means.
+    if (ctx.pages) groupAppearance = PAGE_APPEARANCE;
   }
   const row: SurveyRow = {
     type: 'begin_group',
@@ -538,6 +557,8 @@ function emitBucketOpen(ctx: BucketOpenCtx): {
     label: htmlLabel(groupLabel),
   };
   if (groupAppearance) row.appearance = groupAppearance;
+  const relevant = reverseRelevance(bucket.relevance, ctx.selectCtx);
+  if (relevant) row.relevant = relevant;
   return { row, isSyntheticDefault: false };
 }
 
@@ -559,6 +580,8 @@ function emitBucket(
     baseRows,
     languages,
     label: ctx.label,
+    selectCtx: ctx.selectCtx,
+    pages: ctx.pages,
   });
   const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
   if (openRow) ctx.survey.push(openRow);
@@ -613,6 +636,7 @@ export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
     survey,
     choices,
     selectCtx,
+    pages: settings.style === 'pages',
   };
 
   if (settings.welcomeLabel) {
@@ -650,6 +674,7 @@ interface EmitCtx {
   survey: SurveyRow[];
   choices: ChoiceRow[];
   selectCtx: SelectContext;
+  pages: boolean;
 }
 
 /** Set of question names whose base select natively carries `other=Y` (so the
