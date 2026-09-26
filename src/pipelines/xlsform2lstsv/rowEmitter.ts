@@ -21,7 +21,7 @@ export class RowEmitter {
   row(
     fields: Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'>,
   ): TSVRowData {
-    return {
+    const row: TSVRowData = {
       'type/scale': '',
       relevance: '1',
       text: '',
@@ -35,6 +35,8 @@ export class RowEmitter {
       same_default: '',
       ...fields,
     };
+    // Rows are built with XLSForm tags; the TSV carries LimeSurvey codes.
+    return { ...row, language: this.languageHandler.toLs(row.language) };
   }
 
   /**
@@ -84,9 +86,10 @@ export class RowEmitter {
   flushGroupContent(): void {
     if (this.buffer.length === 0) return;
 
+    const ls = (lang: string) => this.languageHandler.toLs(lang);
     const baseLanguage = this.languageHandler.getBaseLanguage();
     for (const row of this.buffer) {
-      if (row.language === baseLanguage) {
+      if (row.language === ls(baseLanguage)) {
         this.tsvGenerator.addRow(row);
       }
     }
@@ -94,7 +97,7 @@ export class RowEmitter {
     for (const lang of this.languageHandler.getAvailableLanguages()) {
       if (lang === baseLanguage) continue;
       for (const row of this.buffer) {
-        if (row.language === lang) {
+        if (row.language === ls(lang)) {
           this.tsvGenerator.addRow(row);
         }
       }

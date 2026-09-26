@@ -233,6 +233,12 @@ validates against this subset, rejecting:
   list name with rows on the choices sheet; a `select_*_from_file` needs a
   registered vocabulary (e.g. `iso_3166_1.csv`) or a CSV passed as
   `fileChoices` (the CLI reads CSVs beside the form)
+- **Unmappable languages** — language tags are BCP 47 (`de`, `fr-BE`,
+  `zh-Hans`), in `label::<tag>` or `label::Name (<tag>)` columns and
+  `default_language`. LimeSurvey has a fixed code list: a regional tag it
+  lacks becomes its language with a warning (`fr-BE` → `fr`), and a language it
+  lacks entirely (`eo`), or two tags on one code, is an error. DDI keeps tags as
+  written
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
 - **Dangling references** — every `${name}` in `relevant` or `constraint` must
   name a row of the survey sheet. A compared literal that the question can

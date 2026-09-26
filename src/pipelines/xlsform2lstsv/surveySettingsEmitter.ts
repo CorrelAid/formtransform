@@ -49,7 +49,7 @@ export class SurveySettingsEmitter {
       this.rowEmitter.row({
         class: 'S',
         name: 'language',
-        text: this.languageHandler.getBaseLanguage(),
+        text: this.languageHandler.toLs(this.languageHandler.getBaseLanguage()),
       }),
     );
 
@@ -57,6 +57,7 @@ export class SurveySettingsEmitter {
       const additionalLanguages = this.languageHandler
         .getAvailableLanguages()
         .filter((lang) => lang !== this.languageHandler.getBaseLanguage())
+        .map((lang) => this.languageHandler.toLs(lang))
         .join(' ');
       this.rowEmitter.addRow(
         this.rowEmitter.row({

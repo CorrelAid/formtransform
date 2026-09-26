@@ -13,6 +13,8 @@ export type DiagnosticCode =
   | 'column-missing'
   | 'column-unexpected'
   | 'language-invalid'
+  | 'language-unmapped'
+  | 'language-approximated'
   | 'name-invalid'
   | 'name-too-long'
   | 'name-duplicate'

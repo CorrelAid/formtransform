@@ -1,6 +1,7 @@
 /**
  * @file Utility functions for handling multiple language support in XLSForms
  */
+import { THREE_LETTER_LANGUAGES } from '../conventions/language.js';
 
 /**
  * Common language codes based on IANA language subtag registry
@@ -194,23 +195,49 @@ const VALID_LANGUAGE_CODES = new Set([
 ]);
 
 /**
- * Extract language code from column header (e.g., "label::English (en)" -> "en")
+ * A BCP 47 language tag, loosely: a 2–3 letter language, then optional
+ * subtags (script, region, variants). {@link isValidLanguageCode} checks it.
+ */
+const TAG = String.raw`[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*`;
+const PAREN_TAG = new RegExp(String.raw`\(\s*(${TAG})\s*\)\s*$`);
+const BARE_TAG = new RegExp(String.raw`^\s*(${TAG})\s*$`);
+
+/**
+ * Canonical case for a BCP 47 tag: language lower, script title, region
+ * upper, variants lower (`PT-br` → `pt-BR`, `zh-hans` → `zh-Hans`).
+ */
+export function normalizeLanguageTag(tag: string): string {
+  return tag
+    .trim()
+    .split('-')
+    .map((part, i) => {
+      if (i === 0) return part.toLowerCase();
+      if (/^[A-Za-z]{4}$/.test(part) && i === 1) {
+        return part[0].toUpperCase() + part.slice(1).toLowerCase();
+      }
+      if (/^([A-Za-z]{2}|\d{3})$/.test(part)) return part.toUpperCase();
+      return part.toLowerCase();
+    })
+    .join('-');
+}
+
+/**
+ * The language tag in a name like `English (en)` or `Français (fr-BE)`, or a
+ * bare tag like `fr-BE`; normalized. `null` for a bare name (`English`).
+ */
+export function languageTagOf(text: string): string | null {
+  const m = PAREN_TAG.exec(text) ?? BARE_TAG.exec(text);
+  return m ? normalizeLanguageTag(m[1]) : null;
+}
+
+/**
+ * Extract the language tag from a column header: `label::English (en)` →
+ * `en`, `label::fr-BE` → `fr-BE`.
  */
 export function extractLanguageCode(header: string): string | null {
-  // Pattern: label::Language Name (code) or label::code
-  // Handle both "label::English (en)" and "label::Español (es)" formats
-  const match = header.match(/::\s*[^)]+\(([a-z]{2})\)/i);
-  if (match && match[1]) {
-    return match[1].toLowerCase();
-  }
-
-  // Fallback: label::code (without parentheses)
-  const simpleMatch = header.match(/::\s*([a-z]{2})\b/i);
-  if (simpleMatch && simpleMatch[1]) {
-    return simpleMatch[1].toLowerCase();
-  }
-
-  return null;
+  const at = header.indexOf('::');
+  if (at < 0) return null;
+  return languageTagOf(header.slice(at + 2));
 }
 
 /**
@@ -285,24 +312,21 @@ export function isLanguageSpecificHeader(header: string): boolean {
 }
 
 /**
- * Validate a language code against IANA language subtag registry
- * @param code Language code to validate (e.g., 'en', 'es')
- * @returns true if valid, false otherwise
+ * Whether `code` is a well-formed BCP 47 tag whose language is known: a
+ * registered 2-letter ISO 639-1 code, or a 3-letter one LimeSurvey uses, then
+ * optional script (`Hans`), region (`BE`, `419`) and variants (`valencia`).
  */
 export function isValidLanguageCode(code: string): boolean {
   if (!code || typeof code !== 'string') return false;
-
-  // Convert to lowercase and trim
-  const normalizedCode = code.toLowerCase().trim();
-
-  // Must be exactly 2 characters
-  if (normalizedCode.length !== 2) return false;
-
-  // Must contain only letters
-  if (!/^[a-z]{2}$/.test(normalizedCode)) return false;
-
-  // Check against known valid language codes
-  return VALID_LANGUAGE_CODES.has(normalizedCode);
+  const m =
+    /^([a-z]{2,3})(-[a-z]{4})?(-(?:[a-z]{2}|\d{3}))?((?:-(?:[a-z0-9]{5,8}|\d[a-z0-9]{3}))*)$/i.exec(
+      code.trim(),
+    );
+  if (!m) return false;
+  const language = m[1].toLowerCase();
+  return language.length === 3
+    ? THREE_LETTER_LANGUAGES.has(language)
+    : VALID_LANGUAGE_CODES.has(language);
 }
 
 /**
@@ -315,18 +339,13 @@ export function validateLanguageCodes(languageCodes: string[]): string[] {
 }
 
 /**
- * Get the base language from settings (fallback to 'en')
+ * The base language from `settings.default_language` (`English (en)`,
+ * `fr-BE`), falling back to `en`.
  */
 export function getBaseLanguage(settings: Record<string, unknown>): string {
   const defaultLanguage = settings.default_language;
   if (defaultLanguage && typeof defaultLanguage === 'string') {
-    // Try to extract language code from formats like "Spanish (es)" or "English (en)"
-    const match = defaultLanguage.match(/\(([a-z]{2})\)/i);
-    if (match && match[1]) {
-      return match[1].toLowerCase();
-    }
-    // Fallback to extractLanguageCode for other formats
-    return extractLanguageCode(defaultLanguage) || 'en';
+    return languageTagOf(defaultLanguage) ?? 'en';
   }
   return 'en';
 }

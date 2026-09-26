@@ -1,3 +1,4 @@
+import { isValidLanguageCode } from '../utils/languageUtils.js';
 import { deepMerge } from '../utils/helpers.js';
 
 import { defaultConfig, LstsvConfig } from './types.js';
@@ -20,13 +21,10 @@ export function resolveConfig(
       `Invalid handleRepeats option: ${config.handleRepeats}`,
     );
   }
-  // The whole xlsform2lstsv pipeline handles 2-letter codes only
-  // (isValidLanguageCode), although convention:languageTagging allows BCP 47
-  // tags such as fr-BE; tracked separately.
-  if (!config.defaults.language || config.defaults.language.length !== 2) {
+  if (!isValidLanguageCode(config.defaults.language)) {
     throw new ConversionError(
       'config-invalid',
-      'defaults.language must be a 2-character language code',
+      `defaults.language must be a BCP 47 language tag (e.g. "de", "fr-BE"), got "${config.defaults.language}"`,
     );
   }
 
