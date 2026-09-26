@@ -33,3 +33,10 @@ describe('parseLstsv', () => {
     expect(parseLstsv('')).toEqual([]);
   });
 });
+
+describe('parseLstsv — BOM and CRLF (#100)', () => {
+  test('a leading BOM does not glue onto the first header', () => {
+    const [row] = parseLstsv('﻿class\tname\r\nQ\tq1\r\n');
+    expect(row).toEqual({ class: 'Q', name: 'q1' });
+  });
+});

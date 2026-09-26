@@ -60,10 +60,12 @@ function parseLine(line: string): string[] {
 
 /**
  * Parse a LimeSurvey structure TSV string into an ordered list of row records,
- * each keyed by the header row's column names. Trailing blank lines are ignored.
+ * each keyed by the header row's column names. A leading BOM, CRLF line ends
+ * and trailing blank lines are accepted.
  */
 export function parseLstsv(tsv: string): Record<string, string>[] {
-  const lines = tsv.split(/\r?\n/);
+  // Excel and some editors save a UTF-8 BOM; it would glue onto `class`.
+  const lines = tsv.replace(/^\uFEFF/, '').split(/\r?\n/);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
   if (lines.length === 0) return [];
 

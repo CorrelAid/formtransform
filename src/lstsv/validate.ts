@@ -34,14 +34,41 @@ const SUPPORTED_LS_CODES = new Set<string>([
 
 type Row = Record<string, string>;
 
+/** Columns every structure TSV row needs; without them nothing is read. */
+const REQUIRED_COLUMNS = ['class', 'type/scale', 'name', 'text', 'language'];
+
+/** Row classes the reverse pipelines read (survey, groups, questions, options). */
+const KNOWN_CLASSES = new Set(['S', 'SL', 'G', 'Q', 'SQ', 'A']);
+
 /**
- * Report every LimeSurvey structure-TSV row outside the supported subset.
- * Currently: `Q` rows whose `type/scale` code is not one the pipeline maps.
+ * Report what in a LimeSurvey structure TSV is outside the supported subset:
+ * a missing required column (error), a row class the reverse ignores
+ * (warning, once per class), and a `Q` row whose `type/scale` code is not
+ * one the pipeline maps (error).
  */
 export function validateLstsvSubset(rows: Row[]): SubsetViolation[] {
   const violations: SubsetViolation[] = [];
+  const header = rows[0] ? Object.keys(rows[0]) : [];
+  const missing = REQUIRED_COLUMNS.filter((c) => !header.includes(c));
+  if (rows.length > 0 && missing.length > 0) {
+    violations.push({
+      code: 'column-missing',
+      severity: 'error',
+      message: `LimeSurvey TSV lacks required column(s): ${missing.join(', ')}`,
+    });
+  }
+  const unknownClasses = new Set<string>();
   for (const row of rows) {
-    if ((row.class ?? '').trim() !== 'Q') continue;
+    const cls = (row.class ?? '').trim();
+    if (cls && !KNOWN_CLASSES.has(cls) && !unknownClasses.has(cls)) {
+      unknownClasses.add(cls);
+      violations.push({
+        code: 'lstsv-outside-subset',
+        severity: 'warning',
+        message: `rows of class "${cls}" are not read (known: ${[...KNOWN_CLASSES].join(', ')}) and are ignored`,
+      });
+    }
+    if (cls !== 'Q') continue;
     const code = (row['type/scale'] ?? '').trim();
     if (!code || SUPPORTED_LS_CODES.has(code)) continue;
     const where = row.name?.trim() ? ` (question "${row.name.trim()}")` : '';
