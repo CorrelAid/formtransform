@@ -30,6 +30,8 @@ dev = [
     # (tests/live/) and codegen's screenshot/response tooling.
     "citric>=2.0",
     "requests>=2.31",
+    # ddi_reader.apply_value_labels takes a DataFrame (optional for users).
+    "pandas>=2.0",
 ]
 
 [tool.ruff]
@@ -63,7 +65,7 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Live-engine tests need a running survey engine, so they are excluded by
-# default; `npm run test:integration` brings the stack up and drops the filter.
+# default; `npm run test:live` brings the stack up and drops the filter.
 addopts = '-ra --strict-markers -m "not docker"'
 markers = [
     "docker: needs a live survey engine from docker compose (applied automatically to tests/live/)",

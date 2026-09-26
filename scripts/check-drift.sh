@@ -3,7 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-python -m codegen > /dev/null
+# In the project env (uv) when available: openpyxl comes with the dev group,
+# and without it codegen writes no generated/xlsform.xlsx.
+if command -v uv > /dev/null; then
+  uv run python -m codegen > /dev/null
+else
+  python -m codegen > /dev/null
+fi
 
 # *.xlsx excluded — openpyxl writes timestamps into the zip container,
 # making binary contents non-deterministic across runs. The .xlsform.json

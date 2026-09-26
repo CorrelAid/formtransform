@@ -1,0 +1,38 @@
+name: Live LimeSurvey
+
+# The live-engine suite (tests/live/, `npm run test:live`): every blessed TSV
+# is imported into a real LimeSurvey (docker compose), and the response
+# round-trip fills each survey in a browser (Playwright). Too slow for every
+# PR, so it runs nightly and on demand (#90).
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install node deps (prepare builds dist/)
+        run: npm ci
+      - name: Install Playwright + Chromium (the respondent)
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v3
+      - name: Install python deps
+        run: uv sync
+      - name: Live suite
+        run: npm run test:live -- -v
+        env:
+          FT_REQUIRE_ORACLES: "1"
