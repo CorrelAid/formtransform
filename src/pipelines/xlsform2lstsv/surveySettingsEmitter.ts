@@ -1,3 +1,4 @@
+import type { QuestionItem } from '../../instrument/types.js';
 import { SurveyRow, SettingsRow } from '../../xlsform/types.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';
@@ -23,17 +24,17 @@ export class SurveySettingsEmitter {
    * Promotes a row named "welcome"/"end" to its own SL row so the message
    * can be re-displayed on every entry to the survey.
    */
-  captureNotes(surveyData: SurveyRow[]): void {
+  captureNotes(questions: QuestionItem[]): void {
     this.welcomeNote = null;
     this.endNote = null;
     const config = this.configManager.getConfig();
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      const name = (row.name || '').trim().toLowerCase();
-      if (config.convertWelcomeNote && type === 'note' && name === 'welcome')
+    for (const q of questions) {
+      if (q.rawType !== 'note') continue;
+      const name = q.name.toLowerCase();
+      const row = q.row as SurveyRow;
+      if (config.convertWelcomeNote && name === 'welcome')
         this.welcomeNote = row;
-      if (config.convertEndNote && type === 'note' && name === 'end')
-        this.endNote = row;
+      if (config.convertEndNote && name === 'end') this.endNote = row;
     }
   }
 
