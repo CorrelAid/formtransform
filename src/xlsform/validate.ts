@@ -19,6 +19,7 @@ import {
 import { OTHER_SUFFIX } from '../conventions/other.js';
 import { isFromFileType } from '../conventions/fromFile.js';
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
+import { isGridAppearance } from '../conventions/grid.js';
 import { normalizeName } from './identifiers.js';
 import { expressionReferenceDiagnostics } from './references.js';
 
@@ -525,11 +526,18 @@ export class XLSValidator {
       fileChoices: options.fileChoices,
       target,
     };
+    // Appearance of each open group, innermost last: a table-list group is a
+    // DDI grid, whose members have no text slot of their own.
+    const groups: string[] = [];
     for (const row of surveyData) {
       const problem = this.rowDiagnostic(row, ctx);
       if (problem) violations.push(problem);
       this.collectAppearanceViolations(row, violations);
-      const dropped = this.droppedHint(row, target);
+      const type = (row.type || '').trim();
+      if (/^begin[_ ]group$/.test(type)) groups.push(cellText(row.appearance));
+      else if (/^end[_ ]group$/.test(type)) groups.pop();
+      const inGrid = isGridAppearance(groups[groups.length - 1] ?? '');
+      const dropped = this.droppedHint(row, target, inGrid);
       if (dropped) violations.push(dropped);
     }
 
@@ -573,12 +581,14 @@ export class XLSValidator {
   /**
    * A hint the target has no place for. DDI: a `select_multiple` becomes a
    * group of binary variables with no per-question text, so its `hint` and
-   * `guidance_hint` are lost. LimeSurvey: `guidance_hint` has no equivalent
-   * (`hint` becomes the question's help text).
+   * `guidance_hint` are lost; a grid member's preQTxt must equal the grid's
+   * text, so its `hint` is lost. LimeSurvey: `guidance_hint` has no
+   * equivalent (`hint` becomes the question's help text).
    */
   private static droppedHint(
     row: SurveyRow,
     target: SubsetTarget,
+    inGrid = false,
   ): Diagnostic | null {
     const has = (col: string) =>
       Object.entries(row).some(
@@ -594,6 +604,9 @@ export class XLSValidator {
     if (target === 'ddi' && baseType === 'select_multiple') {
       lost = ['hint', 'guidance_hint'].filter(has);
       why = 'a select_multiple has no per-question text slot in DDI';
+    } else if (target === 'ddi' && inGrid) {
+      lost = ['hint'].filter(has);
+      why = "a grid member's question text is the grid's in DDI";
     } else if (target === 'lstsv') {
       lost = ['guidance_hint'].filter(has);
       why = 'LimeSurvey has no equivalent';

@@ -69,3 +69,51 @@ describe('parseResponses — CSV', () => {
     expect(parseResponses('a,b\n', 'r.csv')).toEqual([]);
   });
 });
+
+describe('parseResponses — CSV dialect edges (#107)', () => {
+  test('a ; / , tie in the header picks ","', () => {
+    expect(parseResponses('a;b,c\n1;2,3\n', 'r.csv')).toEqual([
+      { 'a;b': '1;2', c: '3' },
+    ]);
+  });
+
+  test('a quote inside an unquoted field is kept literally', () => {
+    expect(parseResponses('a,b\nsay "hi",x\n', 'r.csv')).toEqual([
+      { a: 'say "hi"', b: 'x' },
+    ]);
+  });
+
+  test('bare CR line endings split rows', () => {
+    expect(parseResponses('a,b\r1,2\r3,4\r', 'r.csv')).toEqual([
+      { a: '1', b: '2' },
+      { a: '3', b: '4' },
+    ]);
+  });
+
+  test('a duplicate header: the last column wins', () => {
+    expect(parseResponses('a,a\n1,2\n', 'r.csv')).toEqual([{ a: '2' }]);
+  });
+
+  test('tab-delimited input is not sniffed: one column', () => {
+    expect(parseResponses('a\tb\n1\t2\n', 'r.csv')).toEqual([
+      { 'a\tb': '1\t2' },
+    ]);
+  });
+
+  test('the extension is matched case-insensitively', () => {
+    expect(parseResponses('[{"a":1}]', 'EXPORT.JSON')).toEqual([{ a: 1 }]);
+    expect(parseResponses('a\n1\n', 'EXPORT.CSV')).toEqual([{ a: '1' }]);
+  });
+
+  test('values pass through uncoerced: decimal comma, time, Kobo dateTime', () => {
+    const [row] = parseResponses(
+      'd;t;dt\n1,5;10:00:00.000+02:00;2024-05-01T10:00:00.000+02:00\n',
+      'r.csv',
+    );
+    expect(row).toEqual({
+      d: '1,5',
+      t: '10:00:00.000+02:00',
+      dt: '2024-05-01T10:00:00.000+02:00',
+    });
+  });
+});
