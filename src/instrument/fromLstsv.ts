@@ -96,6 +96,7 @@ function arrayGroup(row: Row, state: ParseState): GroupItem {
     hint: text(state, `hint:Q:${name}`),
     appearance: GRID_APPEARANCE,
     children: [],
+    closed: true,
   };
 }
 
@@ -182,6 +183,8 @@ function parseBody(baseRows: Row[], state: ParseState): Item[] {
         label: text(state, `label:G:${cell(row, 'type/scale')}`),
         hint: text(state, `hint:G:${cell(row, 'type/scale')}`),
         children: [],
+        // LimeSurvey groups end at the next G row.
+        closed: true,
       };
       body.push(group);
       array = null;

@@ -43,6 +43,8 @@ interface ItemBase {
 export interface GroupItem extends ItemBase {
   kind: 'group';
   children: Item[];
+  /** The source closed it (an `end_group` row); unclosed groups end with the survey. */
+  closed: boolean;
 }
 
 export interface QuestionItem extends ItemBase {

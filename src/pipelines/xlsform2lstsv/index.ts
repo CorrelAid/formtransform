@@ -14,6 +14,11 @@ import { LanguageHandler } from './languageHandler.js';
 import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
 import { OTHER_SUFFIX } from '../../conventions/other.js';
+import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
+import type { Item } from '../../instrument/types.js';
+
+/** What closes a group in the row stream processRow reads. */
+const END_GROUP_ROW: SurveyRow = { type: 'end_group' };
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
 import { GroupEmitter } from './groupEmitter.js';
 import { MatrixHandler, MatrixHelpers } from './matrixHandler.js';
@@ -170,11 +175,17 @@ class Conversion {
     // Pre-scan for welcome/end notes (must happen before group identification)
     this.surveySettingsEmitter.captureNotes(surveyData);
 
-    // Pre-scan to identify parent-only groups (no direct questions, only child groups)
-    this.groupProcessor.identifyParentOnlyGroups(surveyData);
+    // The survey as a tree (#69): the group pre-scans read it, and the rows
+    // are emitted by walking it.
+    const instrument = instrumentFromXlsform(
+      surveyData,
+      choicesData,
+      settingsData,
+    );
 
-    // Pre-scan to identify groups whose only content is a welcome/end note
-    this.groupProcessor.identifyMessageOnlyGroups(surveyData);
+    // Parent-only groups (no direct questions) and message-only groups (only
+    // a welcome/end note)
+    this.groupProcessor.identifyGroups(instrument.body);
 
     // Cache survey data for pattern detection
     this.surveyDataCache = surveyData;
@@ -209,11 +220,7 @@ class Conversion {
     // Add survey row (class S)
     this.surveySettingsEmitter.emit(settingsData[0] || {});
 
-    // Check if we need a default group (if no groups are defined)
-    const hasGroups = surveyData.some((row) => {
-      const xfType = (row.type || '').trim();
-      return xfType === 'begin_group';
-    });
+    const hasGroups = instrument.body.some((item) => item.kind === 'group');
 
     // LimeSurvey needs every question in a group; add one if the form has none.
     if (!hasGroups) {
@@ -241,11 +248,7 @@ class Conversion {
       }
     }
 
-    // Process survey rows
-    for (const row of surveyData) {
-      if (this.collapsedCompanions.has(row)) continue;
-      this.processRow(row);
-    }
+    this.walk(instrument.body);
 
     // Flush any pending matrix at the end
     this.matrixHandler.flushMatrix(this.matrixHelpers());
@@ -266,6 +269,24 @@ class Conversion {
   // ── Survey settings (S/SL rows) ─────────────────────────────────────
 
   // ── Row processing ───────────────────────────────────────────────────
+
+  /**
+   * Emit the Instrument's items in survey order: a group's own row, its
+   * children, then its end (if the sheet closed it). A folded `_other`
+   * companion is skipped.
+   */
+  private walk(items: Item[]): void {
+    for (const item of items) {
+      const row = item.row as SurveyRow;
+      if (item.kind === 'question') {
+        if (!this.collapsedCompanions.has(row)) this.processRow(row);
+        continue;
+      }
+      this.processRow(row);
+      this.walk(item.children);
+      if (item.closed) this.processRow(END_GROUP_ROW);
+    }
+  }
 
   private processRow(row: SurveyRow): void {
     const xfType = (row.type || '').trim();

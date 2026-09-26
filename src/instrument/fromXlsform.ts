@@ -127,11 +127,13 @@ function parseBody(survey: Row[]): Item[] {
         kind: 'group',
         ...baseFields(row),
         children: [],
+        closed: false,
       };
       append(group);
       stack.push(group);
     } else if (/^end[_ ]group$/.test(rawType)) {
-      stack.pop();
+      const closed = stack.pop();
+      if (closed) closed.closed = true;
     } else {
       append(question(row, rawType));
     }
