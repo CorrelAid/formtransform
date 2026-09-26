@@ -103,5 +103,6 @@ export function lstsvToDataCsv(
   return buildDataCsv(
     variables,
     normalizeLimeSurveyResponses(variables, responses, normalizeOptions),
+    { onWarning: normalizeOptions.onWarning },
   );
 }

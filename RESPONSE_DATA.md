@@ -23,6 +23,11 @@ browser with the library.
      than question text. With or without group names in the headers both
      work.
    - Any delimiter: `;` (Kobo's default) and `,` are both detected.
+   - Multiple select as a single column (space-separated codes) or as
+     separate columns (`q/option` holding `1`/`0`): both are read.
+
+   An option code that isn't a choice of the question, and a list or object
+   value (a repeat group, attachments), are dropped with a warning.
 
 ### LimeSurvey
 

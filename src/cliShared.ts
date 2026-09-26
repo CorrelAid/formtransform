@@ -114,5 +114,10 @@ export function xlsformToDdi(
     data.surveyData,
     choicesByListFromRows(data.choicesData),
   );
-  return { xml, csv: buildDataCsv(variables, submissions) };
+  return {
+    xml,
+    csv: buildDataCsv(variables, submissions, {
+      onWarning: (msg) => process.stderr.write(`${PROG}: warning: ${msg}\n`),
+    }),
+  };
 }

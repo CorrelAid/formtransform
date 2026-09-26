@@ -20,6 +20,15 @@ import type { Variable } from './types.js';
 /** One raw response record, keyed by question name or `group/name` path. */
 export type Submission = Record<string, unknown>;
 
+/** Options for {@link buildDataCsv} / {@link remapSubmissionsToDdi}. */
+export interface DataCsvOptions {
+  /** Receives each data problem once (an unknown option code, a non-scalar value). */
+  onWarning?: (message: string) => void;
+}
+
+/** Values a ticked one-hot option column carries (Kobo writes `1` / `0`). */
+const TICKED = new Set(['1', 'true', 'yes', 'y']);
+
 /**
  * One CSV column: either the variable's own value (`single`) or one binary
  * `0`/`1` membership flag of a `select_multiple` choice (`binary`).
@@ -86,28 +95,64 @@ function columnPlan(variables: Variable[]): Column[] {
  * (`group/name`, nested groups slash-joined). Both are accepted; the bare
  * name wins when a row carries both.
  */
-function readCell(row: Submission, v: Variable): unknown {
-  if (v.name in row) return row[v.name];
+function readCell(row: Submission, v: Variable, suffix = ''): unknown {
+  const name = v.name + suffix;
+  if (name in row) return row[name];
   if (v.group) {
-    const path = `${v.group}/${v.name}`;
+    const path = `${v.group}/${name}`;
     if (path in row) return row[path];
   }
   return '';
 }
 
 /**
- * Stringify a cell. `null`/`undefined` become `''` (never `"None"`), and so do
- * objects/arrays — a data column holds one scalar per respondent.
+ * The selected codes of a `select_multiple`: its space-joined column, else
+ * Kobo's one-hot `q/opt` columns (`grp/q/opt` in a group), else none.
  */
-function cellText(raw: unknown): string {
-  if (typeof raw === 'string') return raw;
-  if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
-  return '';
+function multiSelection(
+  row: Submission,
+  v: Variable,
+  warn: (message: string) => void,
+): Set<string> {
+  const joined = cellText(readCell(row, v), v, warn).trim();
+  if (joined) {
+    const codes = new Set(joined.split(/\s+/));
+    const known = new Set(v.choices.map((c) => c.name));
+    for (const code of codes) {
+      if (!known.has(code)) {
+        warn(
+          `option code "${code}" of ${v.name} matches no choice; it is dropped`,
+        );
+      }
+    }
+    return codes;
+  }
+  const oneHot = new Set<string>();
+  for (const c of v.choices) {
+    const tick = cellText(readCell(row, v, `/${c.name}`), v, warn);
+    if (TICKED.has(tick.trim().toLowerCase())) oneHot.add(c.name);
+  }
+  return oneHot;
 }
 
-/** Selected choice codes of a space-joined `select_multiple` value. */
-function selectedCodes(raw: unknown): Set<string> {
-  return new Set(cellText(raw).split(/\s+/).filter(Boolean));
+/**
+ * Stringify a cell. `null`/`undefined` become `''` (never `"None"`), and so do
+ * objects/arrays — a data column holds one scalar per respondent — with a
+ * warning (a Kobo repeat group or attachment list).
+ */
+function cellText(
+  raw: unknown,
+  v?: Variable,
+  warn?: (message: string) => void,
+): string {
+  if (typeof raw === 'string') return raw;
+  if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+  if (raw !== null && typeof raw === 'object' && v && warn) {
+    warn(
+      `${v.name} holds a list or object (a repeat group or attachment?); it is written empty`,
+    );
+  }
+  return '';
 }
 
 /**
@@ -130,15 +175,23 @@ export function getDdiColumnNames(variables: Variable[]): string[] {
 export function remapSubmissionsToDdi(
   variables: Variable[],
   submissions: Submission[],
+  options: DataCsvOptions = {},
 ): Record<string, string>[] {
-  return rowsFromPlan(columnPlan(variables), submissions);
+  return rowsFromPlan(columnPlan(variables), submissions, options);
 }
 
 /** Shared body of {@link remapSubmissionsToDdi} over an existing plan. */
 function rowsFromPlan(
   cols: Column[],
   submissions: Submission[],
+  options: DataCsvOptions,
 ): Record<string, string>[] {
+  const warned = new Set<string>();
+  const warn = (message: string): void => {
+    if (warned.has(message)) return;
+    warned.add(message);
+    options.onWarning?.(message);
+  };
   return submissions.map((row) => {
     const out: Record<string, string> = {};
     const multiCache = new Map<string, Set<string>>();
@@ -146,12 +199,16 @@ function rowsFromPlan(
       if (col.choice) {
         let selected = multiCache.get(col.variable.name);
         if (!selected) {
-          selected = selectedCodes(readCell(row, col.variable));
+          selected = multiSelection(row, col.variable, warn);
           multiCache.set(col.variable.name, selected);
         }
         out[col.name] = selected.has(col.choice) ? '1' : '0';
       } else {
-        out[col.name] = cellText(readCell(row, col.variable));
+        out[col.name] = cellText(
+          readCell(row, col.variable),
+          col.variable,
+          warn,
+        );
       }
     }
     return out;
@@ -181,10 +238,11 @@ function csvLine(fields: string[]): string {
 export function buildDataCsv(
   variables: Variable[],
   submissions: Submission[],
+  options: DataCsvOptions = {},
 ): string {
   const cols = columnPlan(variables);
   const names = cols.map((c) => c.name);
-  const rows = rowsFromPlan(cols, submissions);
+  const rows = rowsFromPlan(cols, submissions, options);
   return (
     csvLine(names) +
     rows.map((row) => csvLine(names.map((n) => row[n]))).join('')
