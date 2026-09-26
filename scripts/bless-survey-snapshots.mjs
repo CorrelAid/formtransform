@@ -91,6 +91,8 @@ for (const name of dirs) {
     const ddi = buildDdiXml(fixture.survey, fixture.choices, {
       assetName: name,
       prodDate: PROD_DATE,
+      // The settings sheet feeds IDNo, verStmt and codeBook/@xml:lang (#102).
+      settings: fixture.settings?.[0],
     });
     fs.writeFileSync(path.join(dir, 'ddi.xml'), ddi);
 

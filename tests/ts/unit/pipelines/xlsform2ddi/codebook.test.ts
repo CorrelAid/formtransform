@@ -297,3 +297,45 @@ describe('structure', () => {
     expect(xml).toContain('name="outer/inner"');
   });
 });
+
+describe('settings → stdyDscr / codeBook (#102)', () => {
+  test('form_id is the IDNo; id_string is still read', () => {
+    expect(build([], [], { settings: { form_id: 'survey_1' } })).toContain(
+      '<IDNo>survey_1</IDNo>',
+    );
+    expect(build([], [], { settings: { id_string: 'legacy' } })).toContain(
+      '<IDNo>legacy</IDNo>',
+    );
+  });
+
+  test('default_language is codeBook/@xml:lang', () => {
+    expect(
+      build([], [], { settings: { default_language: 'German (de)' } }),
+    ).toMatch(/<codeBook [^>]*xml:lang="de"/);
+    expect(build([])).not.toContain('xml:lang');
+  });
+
+  test('default_language picks the label column', () => {
+    const survey = [
+      {
+        type: 'text',
+        name: 'q',
+        'label::English (en)': 'Name?',
+        'label::Deutsch (de)': 'Name (de)?',
+      },
+    ];
+    expect(build(survey)).toContain('<qstnLit>Name?</qstnLit>');
+    expect(
+      build(survey, [], { settings: { default_language: 'Deutsch (de)' } }),
+    ).toContain('<qstnLit>Name (de)?</qstnLit>');
+  });
+
+  test("the loader's {lang: text} maps follow default_language too", () => {
+    const survey = [
+      { type: 'text', name: 'q', label: { en: 'Name?', de: 'Name (de)?' } },
+    ];
+    expect(
+      build(survey, [], { settings: { default_language: 'de' } }),
+    ).toContain('<qstnLit>Name (de)?</qstnLit>');
+  });
+});

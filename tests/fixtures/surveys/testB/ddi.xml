@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" xml:lang="de">
   <stdyDscr>
     <citation>
       <titlStmt>
@@ -8,6 +8,9 @@
       <prodStmt>
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
+      <verStmt>
+        <version>vw6VTbhmVCMEtuN7LhcmjP</version>
+      </verStmt>
     </citation>
     <notes type="instruction" subject="Hallo">Hallo!</notes>
     <notes type="instruction" subject="Disclaimer">Disclaimer</notes>
@@ -466,7 +469,7 @@
     </var>
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <preQTxt>Please specifiy other tools you know that you consider relevant</preQTxt>
+        <preQTxt>Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.</preQTxt>
         <qstnLit>Andere relevante Tools</qstnLit>
       </qstn>
       <concept>Andere relevante Tools</concept>
@@ -842,7 +845,7 @@
     </var>
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <preQTxt>Please write maximum 5 sentences per project that you are applying to.</preQTxt>
+        <preQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</preQTxt>
         <qstnLit>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</concept>
@@ -850,7 +853,7 @@
     </var>
     <var ID="V_motivation_why" name="motivation_why" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <preQTxt>Please write maximum 5 sentences per project that you are applying to.</preQTxt>
+        <preQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</preQTxt>
         <qstnLit>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</concept>
@@ -858,7 +861,7 @@
     </var>
     <var ID="V_past_applications" name="past_applications" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
-        <preQTxt>In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project.</preQTxt>
+        <preQTxt>Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.</preQTxt>
         <qstnLit>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</qstnLit>
       </qstn>
       <catgry>
@@ -878,7 +881,7 @@
     </var>
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <preQTxt>Any information is helpful to us.</preQTxt>
+        <preQTxt>Grobe Angaben helfen uns auch schon weiter.</preQTxt>
         <qstnLit>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</qstnLit>
       </qstn>
       <concept>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</concept>
@@ -907,7 +910,7 @@
     </var>
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
-        <preQTxt>Note: We ask this question because we want to foster gender diversity within CorrelAid.</preQTxt>
+        <preQTxt>Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.</preQTxt>
         <qstnLit>Was ist dein Geschlecht?</qstnLit>
       </qstn>
       <catgry>
@@ -935,7 +938,7 @@
     </var>
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <preQTxt>Please specify your gender here.</preQTxt>
+        <preQTxt>Bitte gebe hier dein Geschlecht an.</preQTxt>
         <qstnLit>Mein Geschlecht ist:</qstnLit>
       </qstn>
       <concept>Mein Geschlecht ist:</concept>
@@ -943,7 +946,7 @@
     </var>
     <var ID="V_consent_privacy_policy" name="consent_privacy_policy" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
-        <preQTxt>I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful.</preQTxt>
+        <preQTxt>Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.</preQTxt>
         <qstnLit>Einwilligung in die Datenschutzerklärung</qstnLit>
       </qstn>
       <catgry>

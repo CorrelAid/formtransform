@@ -81,21 +81,30 @@ function toStr(value: unknown): string {
 }
 
 /** Prefer a `label::<lang>` column, else plain `label`. */
-function findLabelCol(rows: Row[]): string {
+/**
+ * The label column DDI text comes from: the `label::<tag>` of `language`
+ * (settings.default_language) when there is one, else the first
+ * `label::…`, else `label`.
+ */
+function findLabelCol(rows: Row[], language?: string): string {
   const first = rows[0];
   if (!first) return 'label';
-  for (const key of Object.keys(first)) {
-    if (key.startsWith('label::')) return key;
-  }
-  return 'label';
+  const cols = Object.keys(first).filter((k) => k.startsWith('label::'));
+  const own = language
+    ? cols.find((k) => extractLanguageCode(k) === language)
+    : undefined;
+  return own ?? cols[0] ?? 'label';
 }
 
-/** Read a label cell, tolerating `{ lang: value }` maps (first value wins). */
-function readLabel(row: Row, col: string): string {
+/**
+ * Read a label cell, tolerating `{ lang: value }` maps: `language`'s value,
+ * else the first.
+ */
+function readLabel(row: Row, col: string, language?: string): string {
   const raw = row[col] ?? row['label'];
   if (raw != null && typeof raw === 'object') {
-    const first = Object.values(raw as Record<string, unknown>)[0];
-    return toStr(first);
+    const map = raw as Record<string, unknown>;
+    return toStr((language && map[language]) ?? Object.values(map)[0]);
   }
   return toStr(raw);
 }
@@ -105,14 +114,21 @@ function readLabel(row: Row, col: string): string {
  * `hint::German (de)` next to `label::German (de)`. Tolerates the loader's
  * `{ lang: value }` shape (the label's language, else the first value).
  */
-function readLangColumn(row: Row, base: string, labelCol: string): string {
+function readLangColumn(
+  row: Row,
+  base: string,
+  labelCol: string,
+  lang?: string,
+): string {
   const suffix = labelCol.startsWith('label::')
     ? labelCol.slice('label'.length)
     : '';
   const raw = row[base + suffix] ?? row[base];
   if (raw != null && typeof raw === 'object') {
     const map = raw as Record<string, unknown>;
-    return toStr(map[langFromLabelCol(labelCol)] ?? Object.values(map)[0]);
+    return toStr(
+      map[lang ?? langFromLabelCol(labelCol)] ?? Object.values(map)[0],
+    );
   }
   return toStr(raw).trim();
 }
@@ -122,8 +138,8 @@ function readLangColumn(row: Row, base: string, labelCol: string): string {
  * `guidance_hint=<text>` in `parameters` (`;`-separated), which is how
  * qwacback's DDI → XLSForm export writes `<ivuInstr>`.
  */
-function readGuidanceHint(row: Row, labelCol: string): string {
-  const column = readLangColumn(row, 'guidance_hint', labelCol);
+function readGuidanceHint(row: Row, labelCol: string, lang?: string): string {
+  const column = readLangColumn(row, 'guidance_hint', labelCol, lang);
   if (column) return column;
   for (const part of toStr(row['parameters']).split(';')) {
     const eq = part.indexOf('=');
@@ -158,15 +174,16 @@ export function normalizeChoices(
 /** Build `{ list_name: Choice[] }` from a flat choices sheet. */
 export function choicesByListFromRows(
   choiceRows: Row[],
+  language?: string,
 ): Record<string, Choice[]> {
-  const labelCol = findLabelCol(choiceRows);
+  const labelCol = findLabelCol(choiceRows, language);
   const out: Record<string, Choice[]> = {};
   for (const row of choiceRows) {
     const key = toStr(row['list_name']);
     if (!key) continue;
     (out[key] ??= []).push({
       name: toStr(row['name']),
-      label: readLabel(row, labelCol),
+      label: readLabel(row, labelCol, language),
     });
   }
   return out;
@@ -211,6 +228,8 @@ interface ExtractState {
   lang: string;
   /** Source column for `label`, since sheets may use plain `label` or `label::<lang>`. */
   labelCol: string;
+  /** settings.default_language, when given: picks a `{lang: text}` map's value. */
+  preferred?: string;
   /** Sheet's resolved choices keyed by list_name. */
   choicesByList: Record<string, Choice[]>;
 }
@@ -232,7 +251,7 @@ function openGroup(row: Row, state: ExtractState): void {
   const name = toStr(row['name']);
   state.groupStack.push(name);
   state.groupMeta[name] = {
-    label: readLabel(row, state.labelCol),
+    label: readLabel(row, state.labelCol, state.preferred),
     appearance: toStr(row['appearance']).toLowerCase(),
   };
 }
@@ -289,7 +308,7 @@ function pushQuestionRow(
   state.variables.push({
     name,
     type: stdType,
-    label: readLabel(row, state.labelCol),
+    label: readLabel(row, state.labelCol, state.preferred),
     group,
     groupLabel: gm.label,
     groupAppearance: gm.appearance,
@@ -297,8 +316,8 @@ function pushQuestionRow(
     vocab,
     choices,
     ...optionalText({
-      hint: readLangColumn(row, 'hint', state.labelCol),
-      guidanceHint: readGuidanceHint(row, state.labelCol),
+      hint: readLangColumn(row, 'hint', state.labelCol, state.preferred),
+      guidanceHint: readGuidanceHint(row, state.labelCol, state.preferred),
     }),
   });
 
@@ -326,9 +345,13 @@ function pushQuestionRow(
 export function extractVariables(
   surveyRows: Row[],
   choicesByList: Record<string, Choice[]>,
+  options: { language?: string } = {},
 ): Variable[] {
-  const labelCol = findLabelCol(surveyRows);
-  const lang = langFromLabelCol(labelCol);
+  const labelCol = findLabelCol(surveyRows, options.language);
+  const lang =
+    labelCol === 'label' && options.language
+      ? options.language
+      : langFromLabelCol(labelCol);
   const authoredNames = new Set(
     surveyRows.map((r) => toStr(r['name'])).filter(Boolean),
   );
@@ -340,6 +363,7 @@ export function extractVariables(
     authoredNames,
     lang,
     labelCol,
+    preferred: options.language,
     choicesByList,
   };
 

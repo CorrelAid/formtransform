@@ -376,6 +376,8 @@ describe.each(CASES.map((c) => [c.name, c] as const))(
       const ddi = buildDdiXml(c.survey, c.choices, {
         assetName: name,
         prodDate: PROD_DATE,
+        // The settings sheet feeds IDNo, verStmt and codeBook/@xml:lang (#102).
+        settings: c.settings[0],
       });
       const blessed = fs.readFileSync(path.join(c.dir, 'ddi.xml'), 'utf-8');
       expect(

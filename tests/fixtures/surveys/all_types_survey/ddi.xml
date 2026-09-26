@@ -1,9 +1,10 @@
 <?xml version="1.0" ?>
-<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" xml:lang="de">
   <stdyDscr>
     <citation>
       <titlStmt>
         <titl>all_types_survey</titl>
+        <IDNo>all_types</IDNo>
       </titlStmt>
       <prodStmt>
         <prodDate date="2020-01-01">2020-01-01</prodDate>
@@ -99,16 +100,16 @@
       </catgry>
       <catgry>
         <catValu>other</catValu>
-        <labl>Other</labl>
+        <labl>Sonstiges</labl>
       </catgry>
       <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_sel1_other_other" name="q_sel1_other_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <qstnLit>Other</qstnLit>
+        <qstnLit>Sonstiges</qstnLit>
       </qstn>
-      <concept>Other</concept>
+      <concept>Sonstiges</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_selm_other_red" name="q_selm_other_red" intrvl="discrete" files="F1">
@@ -155,9 +156,9 @@
     </var>
     <var ID="V_q_selm_other_other" name="q_selm_other_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <qstnLit>Other</qstnLit>
+        <qstnLit>Sonstiges</qstnLit>
       </qstn>
-      <concept>Other</concept>
+      <concept>Sonstiges</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_start" name="start" intrvl="discrete" files="F1">

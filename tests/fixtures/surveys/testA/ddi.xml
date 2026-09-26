@@ -4,10 +4,14 @@
     <citation>
       <titlStmt>
         <titl>testA</titl>
+        <IDNo>testwerk_wirkung_2025</IDNo>
       </titlStmt>
       <prodStmt>
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
+      <verStmt>
+        <version>2.2</version>
+      </verStmt>
     </citation>
     <notes type="instruction" subject="intro_text">Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!</notes>
     <notes type="instruction" subject="danke">Vielen Dank! Deine Meinung hilft uns sehr weiter!</notes>

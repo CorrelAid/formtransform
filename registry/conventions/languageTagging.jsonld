@@ -213,7 +213,8 @@
             "preQTxt",
             "postQTxt"
           ],
-          "emission": "one child element per language with xml:lang attr"
+          "emission": "one child element per language with xml:lang attr",
+          "implemented": "partly: the base language (settings.default_language) is declared as codeBook/@xml:lang and its text is emitted; the other languages' elements are not emitted yet (formtransform#135)"
         }
       }
     }
