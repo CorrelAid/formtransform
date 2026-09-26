@@ -4,7 +4,7 @@
  * TSV, which only carries the bare code (`de`).
  *
  * `getBaseLanguage` (src/utils/languageUtils.ts) only reads the parenthesized
- * code, so any name works functionally — this table exists so the common
+ * (or bare) tag, so any name works functionally — this table exists so the common
  * cases reproduce the exact string an author would write, not just a
  * functionally-equivalent one. Unlisted codes fall back to `(<code>)`, which
  * `getBaseLanguage` still parses correctly.

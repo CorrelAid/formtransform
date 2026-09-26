@@ -22,9 +22,17 @@ export const OTHER_APPLIES_TO: readonly string[] = RULE.appliesTo;
 /** Canonical "other" label per language. */
 export const OTHER_LABELS: Readonly<Record<string, string>> = RULE.labels;
 
-/** Canonical "other" label for a language, falling back to English. */
+/**
+ * Canonical "other" label for a language tag (`fr-BE` uses `fr`'s), or
+ * `undefined` if the convention has none.
+ */
+export function canonicalOtherLabel(lang: string): string | undefined {
+  return OTHER_LABELS[lang] ?? OTHER_LABELS[lang.split('-')[0]];
+}
+
+/** Canonical "other" label for a language tag, falling back to English. */
 export function otherLabelFor(lang: string): string {
-  return OTHER_LABELS[lang] ?? OTHER_LABELS['en'];
+  return canonicalOtherLabel(lang) ?? OTHER_LABELS['en'];
 }
 
 /** The base question name of an `<base>_other` companion, or `null`. */

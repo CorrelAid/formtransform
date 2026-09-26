@@ -2,6 +2,8 @@ import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
 import { getBaseLanguage } from '../../utils/languageUtils.js';
 import { markdownToHtml } from '../../utils/markdownRenderer.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
+import { toLimeSurveyLanguage } from '../../conventions/language.js';
+import { ConversionError, consoleWarning, warning } from '../../diagnostics.js';
 
 /** A value that could carry per-language sub-objects (label, hint, settings). */
 function isLanguageMap(value: unknown): value is Record<string, unknown> {
@@ -40,6 +42,8 @@ function settingsIsMultilingual(settings: SettingsRow): boolean {
 export class LanguageHandler {
   private availableLanguages: string[] = ['en'];
   private baseLanguage: string = 'en';
+  /** XLSForm tag → LimeSurvey language code, for every available language. */
+  private lsCodes = new Map<string, string>();
 
   constructor(private configManager: ConfigManager) {}
 
@@ -86,6 +90,52 @@ export class LanguageHandler {
       // Monolingual survey: use its declared base language (from
       // settings.default_language), not a hardcoded 'en'.
       this.availableLanguages = [this.baseLanguage];
+    }
+    this.mapToLimeSurvey();
+  }
+
+  /** The LimeSurvey code for an XLSForm language tag. */
+  toLs(lang: string): string {
+    return this.lsCodes.get(lang) ?? lang;
+  }
+
+  /**
+   * Map every available tag onto a LimeSurvey code (convention:languageTagging).
+   * A tag with no code, or two tags on one code, is an error; a tag reduced to
+   * its primary language (`fr-BE` → `fr`) is a warning.
+   */
+  private mapToLimeSurvey(): void {
+    const warn = this.configManager.getConfig().onWarning ?? consoleWarning;
+    const byCode = new Map<string, string>();
+    this.lsCodes = new Map();
+    for (const tag of this.availableLanguages) {
+      const mapped = toLimeSurveyLanguage(tag);
+      if (!mapped) {
+        throw new ConversionError(
+          'language-unmapped',
+          `LimeSurvey has no language code for "${tag}"`,
+          { subject: tag },
+        );
+      }
+      const clash = byCode.get(mapped.code);
+      if (clash) {
+        throw new ConversionError(
+          'language-unmapped',
+          `"${clash}" and "${tag}" both map to LimeSurvey language "${mapped.code}"`,
+          { subject: tag },
+        );
+      }
+      byCode.set(mapped.code, tag);
+      if (mapped.approximate) {
+        warn(
+          warning(
+            'language-approximated',
+            `LimeSurvey has no "${tag}"; using "${mapped.code}"`,
+            tag,
+          ),
+        );
+      }
+      this.lsCodes.set(tag, mapped.code);
     }
   }
 

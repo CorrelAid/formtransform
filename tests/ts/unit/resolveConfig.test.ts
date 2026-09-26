@@ -26,6 +26,10 @@ describe('resolveConfig', () => {
     );
     expect(() =>
       resolveConfig({ defaults: { language: 'deu' } as never }),
-    ).toThrow(/2-character/);
+    ).toThrow(/BCP 47/);
+    expect(
+      resolveConfig({ defaults: { language: 'fr-BE' } as never }).defaults
+        .language,
+    ).toBe('fr-BE');
   });
 });

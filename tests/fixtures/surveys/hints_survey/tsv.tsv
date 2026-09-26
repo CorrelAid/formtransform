@@ -1,15 +1,15 @@
 class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
-S		language	1	en		en								
-S		format	1	A		en								
-S		shownoanswer	1	N		en								
-SL		surveyls_title	1	Hinweise		en								
-G		Questions	1			en								
-Q	X	intro	1	Die folgenden Fragen betreffen Ihren Haushalt.		en								
-Q	N	personen	1	Wie viele Personen leben in Ihrem Haushalt?	Sie selbst mitgezählt.	en								1
-Q	S	beruf	1	Was ist Ihr Beruf?	Bitte möglichst genau.	en								1
-Q	L	ehrenamt	1	Sind Sie ehrenamtlich tätig?		en								1
-A		ja		Ja		en								
-A		nein		Nein		en								
-Q	M	medien	1	Welche Medien nutzen Sie?	Mehrfachnennung möglich.	en								1
-SQ		tv		Fernsehen		en								
-SQ		radio		Radio		en								
+S		language	1	de		de								
+S		format	1	A		de								
+S		shownoanswer	1	N		de								
+SL		surveyls_title	1	Hinweise		de								
+G		Questions	1			de								
+Q	X	intro	1	Die folgenden Fragen betreffen Ihren Haushalt.		de								
+Q	N	personen	1	Wie viele Personen leben in Ihrem Haushalt?	Sie selbst mitgezählt.	de								1
+Q	S	beruf	1	Was ist Ihr Beruf?	Bitte möglichst genau.	de								1
+Q	L	ehrenamt	1	Sind Sie ehrenamtlich tätig?		de								1
+A		ja		Ja		de								
+A		nein		Nein		de								
+Q	M	medien	1	Welche Medien nutzen Sie?	Mehrfachnennung möglich.	de								1
+SQ		tv		Fernsehen		de								
+SQ		radio		Radio		de								

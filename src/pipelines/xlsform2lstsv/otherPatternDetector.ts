@@ -4,7 +4,7 @@ import { ChoiceManager } from './choiceManager.js';
 import { LanguageHandler } from './languageHandler.js';
 import {
   OTHER_CODE,
-  OTHER_LABELS,
+  canonicalOtherLabel,
   OTHER_SUFFIX,
 } from '../../conventions/other.js';
 import { consoleWarning, warning } from '../../diagnostics.js';
@@ -85,7 +85,9 @@ export class OtherPatternDetector {
    * rebuilds this label from the convention, so a mismatch is silently lost.
    */
   private verifyOtherLabel(removed: ChoiceRow[], row: SurveyRow): void {
-    const expected = OTHER_LABELS[this.languageHandler.getBaseLanguage()];
+    const expected = canonicalOtherLabel(
+      this.languageHandler.getBaseLanguage(),
+    );
     if (!expected) return;
     for (const choice of removed) {
       const label = this.languageHandler.getLanguageSpecificValue(

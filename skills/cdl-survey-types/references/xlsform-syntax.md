@@ -58,7 +58,9 @@ Written in the XLSForm XPath subset. `${name}` references another answer; `.` (i
 
 ## Multi-language
 
-Add per-language columns `label::<lang>`, `hint::<lang>`, etc., where `<lang>` is an IETF BCP-47 tag (`de`, `en`, `fr-BE`). Set `default_language` on the `settings` sheet.
+Add per-language columns `label::<lang>`, `hint::<lang>`, etc., where `<lang>` is an IETF BCP-47 tag (`de`, `en`, `fr-BE`), bare or in parentheses after a name (`label::Deutsch (de)`). Set `default_language` on the `settings` sheet the same way.
+
+LimeSurvey has a fixed set of language codes. A regional tag it lacks falls back to its language with a warning (`fr-BE` → `fr`); a language it lacks entirely (e.g. `eo`), or two tags that land on one code (`fr` and `fr-BE`), fails the LimeSurvey conversion. DDI keeps every tag as written.
 
 ## `settings` sheet
 

@@ -1,61 +1,61 @@
 class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	date_format
-S		language	1	en		en									
-S		format	1	A		en									
-S		shownoanswer	1	N		en									
-SL		surveyls_title	1	Workshop-Feedback-Umfrage		en									
-G	1	G0	1	G0		en									
-Q	S	orphanbefore	1	Wie lautet Ihre Teilnehmer-ID?		en								1	
-G	2	Persönliche Angaben	1			en									
-Q	S	qtext	1	Wie heißen Sie (Vor- und Nachname)?		en								1	
-Q	S	qstring	1	Wie lautet Ihre E-Mail-Adresse?		en								1	
-Q	N	qinteger	1	An wie vielen Workshops haben Sie bisher teilgenommen?		en								1	
-Q	N	qint	1	An wie vielen Sessions haben Sie heute teilgenommen?		en								1	
-Q	N	qdecimal	1	Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?		en								1	
-Q	D	qdate	1	Wann sind Sie geboren?		en								1	
-Q	D	qtime	1	Um wie viel Uhr sind Sie angekommen?		en								1	HH:MM
-Q	L	qselectone	1	Würden Sie diesen Workshop weiterempfehlen?		en								1	
-A		yes		Ja		en									
-A		no		Nein		en									
-Q	M	qselectmulti	1	An welchen Tracks haben Sie teilgenommen?		en								1	
-SQ		red		Frontend-Entwicklung		en									
-SQ		blue		Backend-Entwicklung		en									
-SQ		green		Data Science		en									
-Q	X	qnote	1	Im nächsten Abschnitt bitten wir Sie um Ihr ausführliches Feedback. Bitte nehmen Sie sich Zeit.		en									
-G	3	Ausführliches Feedback	1			en									
-Q	T	qmultilinetext	1	Beschreiben Sie bitte Ihre Erfahrungen beim Workshop		en								1	
-Q	T	qmultilinestring	1	Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?		en								1	
-Q	L	qlikert	1	Wie zufrieden waren Sie mit der Organisation insgesamt?		en								1	
-A		low		Schlecht		en									
-A		mid		Mittelmäßig		en									
-A		high		Ausgezeichnet		en									
-Q	!	qminimal	1	Bevorzugst du Dropdown?		en								1	
-A		yes		Ja		en									
-A		no		Nein		en									
-G	4	Programmierkenntnisse	1			en									
-Q	X	matrixwrapper	1	Selbsteinschätzung technischer Fähigkeiten		en									
-Q	F	matrixheader	1	Wie schätzen Sie Ihre Kenntnisse ein?		en								1	
-SQ		skillpython	1	Python		en									
-SQ		skilljs	1	JavaScript		en									
-SQ		skillsql	1	SQL		en									
-A		none		Keine		en									
-A		basic		Grundkenntnisse		en									
-A		adv		Fortgeschritten		en									
-A		exp		Experte		en									
-G	5	Weitere Fragen	1			en									
-Q	L	qsel1other	1	Welcher Track hat Ihnen am besten gefallen?		en				Y				1	
-A		red		Frontend-Entwicklung		en									
-A		blue		Backend-Entwicklung		en									
-A		green		Data Science		en									
-Q	M	qselmother	1	Welche Tracks würden Sie erneut besuchen?		en				Y				1	
-SQ		red		Frontend-Entwicklung		en									
-SQ		blue		Backend-Entwicklung		en									
-SQ		green		Data Science		en									
-G	6	Anmeldedaten	1			en									
-Q	S	qmandatory	1	Wie lautet Ihre E-Mail-Adresse?		en			Y					1	
-Q	S	qhint	1	Wie lautet Ihre Telefonnummer?	Format: +49 123 456789	en								1	
-Q	N	qconstraint	1	Wie alt sind Sie?		en		self >= 18 and self <= 120						1	
-Q	S	qdefault	1	In welchem Land leben Sie?		en					Deutschland			1	
-Q	S	qrelevant	qmandatory != ''	Wie sollen wir Sie kontaktieren?		en								1	
-Q	S	qallfeatures	qmandatory != ''	Haben Sie noch Anmerkungen?	Freiwillig, aber willkommen	en			Y		Keine Anmerkungen			1	
-G	7	G6	1	G6		en									
-Q	X	orphanafter	1	Vielen Dank für Ihre Teilnahme an dieser Umfrage!		en									
+S		language	1	de		de									
+S		format	1	A		de									
+S		shownoanswer	1	N		de									
+SL		surveyls_title	1	Workshop-Feedback-Umfrage		de									
+G	1	G0	1	G0		de									
+Q	S	orphanbefore	1	Wie lautet Ihre Teilnehmer-ID?		de								1	
+G	2	Persönliche Angaben	1			de									
+Q	S	qtext	1	Wie heißen Sie (Vor- und Nachname)?		de								1	
+Q	S	qstring	1	Wie lautet Ihre E-Mail-Adresse?		de								1	
+Q	N	qinteger	1	An wie vielen Workshops haben Sie bisher teilgenommen?		de								1	
+Q	N	qint	1	An wie vielen Sessions haben Sie heute teilgenommen?		de								1	
+Q	N	qdecimal	1	Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?		de								1	
+Q	D	qdate	1	Wann sind Sie geboren?		de								1	
+Q	D	qtime	1	Um wie viel Uhr sind Sie angekommen?		de								1	HH:MM
+Q	L	qselectone	1	Würden Sie diesen Workshop weiterempfehlen?		de								1	
+A		yes		Ja		de									
+A		no		Nein		de									
+Q	M	qselectmulti	1	An welchen Tracks haben Sie teilgenommen?		de								1	
+SQ		red		Frontend-Entwicklung		de									
+SQ		blue		Backend-Entwicklung		de									
+SQ		green		Data Science		de									
+Q	X	qnote	1	Im nächsten Abschnitt bitten wir Sie um Ihr ausführliches Feedback. Bitte nehmen Sie sich Zeit.		de									
+G	3	Ausführliches Feedback	1			de									
+Q	T	qmultilinetext	1	Beschreiben Sie bitte Ihre Erfahrungen beim Workshop		de								1	
+Q	T	qmultilinestring	1	Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?		de								1	
+Q	L	qlikert	1	Wie zufrieden waren Sie mit der Organisation insgesamt?		de								1	
+A		low		Schlecht		de									
+A		mid		Mittelmäßig		de									
+A		high		Ausgezeichnet		de									
+Q	!	qminimal	1	Bevorzugst du Dropdown?		de								1	
+A		yes		Ja		de									
+A		no		Nein		de									
+G	4	Programmierkenntnisse	1			de									
+Q	X	matrixwrapper	1	Selbsteinschätzung technischer Fähigkeiten		de									
+Q	F	matrixheader	1	Wie schätzen Sie Ihre Kenntnisse ein?		de								1	
+SQ		skillpython	1	Python		de									
+SQ		skilljs	1	JavaScript		de									
+SQ		skillsql	1	SQL		de									
+A		none		Keine		de									
+A		basic		Grundkenntnisse		de									
+A		adv		Fortgeschritten		de									
+A		exp		Experte		de									
+G	5	Weitere Fragen	1			de									
+Q	L	qsel1other	1	Welcher Track hat Ihnen am besten gefallen?		de				Y				1	
+A		red		Frontend-Entwicklung		de									
+A		blue		Backend-Entwicklung		de									
+A		green		Data Science		de									
+Q	M	qselmother	1	Welche Tracks würden Sie erneut besuchen?		de				Y				1	
+SQ		red		Frontend-Entwicklung		de									
+SQ		blue		Backend-Entwicklung		de									
+SQ		green		Data Science		de									
+G	6	Anmeldedaten	1			de									
+Q	S	qmandatory	1	Wie lautet Ihre E-Mail-Adresse?		de			Y					1	
+Q	S	qhint	1	Wie lautet Ihre Telefonnummer?	Format: +49 123 456789	de								1	
+Q	N	qconstraint	1	Wie alt sind Sie?		de		self >= 18 and self <= 120						1	
+Q	S	qdefault	1	In welchem Land leben Sie?		de					Deutschland			1	
+Q	S	qrelevant	qmandatory != ''	Wie sollen wir Sie kontaktieren?		de								1	
+Q	S	qallfeatures	qmandatory != ''	Haben Sie noch Anmerkungen?	Freiwillig, aber willkommen	de			Y		Keine Anmerkungen			1	
+G	7	G6	1	G6		de									
+Q	X	orphanafter	1	Vielen Dank für Ihre Teilnahme an dieser Umfrage!		de									

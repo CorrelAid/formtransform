@@ -6,6 +6,7 @@
  * detection happen once, in registry-defined terms.
  */
 
+import { extractLanguageCode } from '../../utils/languageUtils.js';
 import { APPEARANCES } from '../../generated/Appearances.js';
 import {
   OTHER_APPLIES_TO,
@@ -43,16 +44,12 @@ const OR_OTHER_TOKEN = 'or_other';
 const OTHER_TYPES = new Set(OTHER_APPLIES_TO);
 
 /**
- * Language of the label column in use (`label::German (de)` → `de`), so the
+ * Language tag of the label column in use (`label::German (de)` → `de`,
+ * `label::fr-BE` → `fr-BE`), so the
  * synthesized category/companion labels match the survey's own language.
  */
 function langFromLabelCol(labelCol: string): string {
-  const paren = /\(([a-z]{2})\)\s*$/i.exec(labelCol);
-  if (paren) return paren[1].toLowerCase();
-  const suffix = labelCol.startsWith('label::')
-    ? labelCol.slice('label::'.length).trim()
-    : '';
-  return /^[a-z]{2}$/i.test(suffix) ? suffix.toLowerCase() : 'en';
+  return extractLanguageCode(labelCol) ?? 'en';
 }
 
 /**
