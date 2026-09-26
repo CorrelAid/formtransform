@@ -5,6 +5,8 @@ import { LanguageHandler } from './languageHandler.js';
 import { ChoiceManager } from './choiceManager.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { Counters } from './counters.js';
+import { answerCodes } from './answerEmitter.js';
+import { consoleWarning, warning } from '../../diagnostics.js';
 
 export type MatrixCounters = Counters;
 
@@ -64,6 +66,7 @@ export class MatrixHandler {
     // flushMatrix can emit its answer scale.
     if (this.inTableListMatrix && xfTypeInfo.base === 'select_one') {
       if (!this.matrixListName) this.matrixListName = xfTypeInfo.listName;
+      this.checkSharedList(row, xfTypeInfo);
       this.addMatrixSubquestion(row, helpers);
       return true;
     }
@@ -85,6 +88,7 @@ export class MatrixHandler {
       this.inMatrix &&
       xfTypeInfo.base === 'select_one'
     ) {
+      this.checkSharedList(row, xfTypeInfo);
       this.addMatrixSubquestion(row, helpers);
       return true;
     }
@@ -92,6 +96,23 @@ export class MatrixHandler {
     // Non-matrix question: flush any pending matrix first
     this.flushMatrix(helpers);
     return false;
+  }
+
+  /**
+   * A LimeSurvey array has one answer scale, the first row's list; a row with
+   * another list is emitted with the wrong answers, so say so.
+   */
+  private checkSharedList(row: SurveyRow, xfTypeInfo: TypeInfo): void {
+    const list = xfTypeInfo.listName;
+    if (!list || !this.matrixListName || list === this.matrixListName) return;
+    const warn = this.configManager.getConfig().onWarning ?? consoleWarning;
+    warn(
+      warning(
+        'grid-list-mismatch',
+        `"${row.name}" uses list "${list}", but a LimeSurvey array shares one answer scale: it gets the grid's list "${this.matrixListName}"`,
+        row.name,
+      ),
+    );
   }
 
   getMatrixListName(): string | null {
@@ -200,12 +221,15 @@ export class MatrixHandler {
     const choices = this.choiceManager.getChoices(this.matrixListName);
     if (choices) {
       let seq = 0;
-      for (const choice of choices) {
-        const choiceName =
-          choice.name && choice.name.trim() !== ''
-            ? helpers.sanitizeAnswerCode(choice.name.trim())
-            : `A${seq++}`;
-
+      const names = answerCodes(
+        choices,
+        (code) => helpers.sanitizeAnswerCode(code),
+        () => `A${seq++}`,
+        this.configManager.getConfig().onWarning ?? consoleWarning,
+        this.matrixListName,
+      );
+      choices.forEach((choice, i) => {
+        const choiceName = names[i];
         this.rowEmitter.emitForEachLanguage((lang) => ({
           class: 'A',
           name: choiceName,
@@ -216,7 +240,7 @@ export class MatrixHandler {
             choiceName,
           ),
         }));
-      }
+      });
     }
 
     this.inMatrix = false;
