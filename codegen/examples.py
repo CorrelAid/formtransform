@@ -6,6 +6,7 @@ lives in a self-contained ``registry/<slug>/`` folder with its fixtures.
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,11 @@ def build_example_artifacts(
         have_xlsx = True
     except ImportError:
         have_xlsx = False
+        print(
+            "codegen: openpyxl not installed, so no generated/xlsform.xlsx is written "
+            "(install the dev group: `uv sync`)",
+            file=sys.stderr,
+        )
 
     # ddi.xml is blessed by scripts/bless-ddi-snapshots.mjs using this repo's
     # own emitter (dist/index.js), not here — same pattern as tsv.tsv.
