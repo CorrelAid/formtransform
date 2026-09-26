@@ -92,8 +92,64 @@ const BINARY_OP_TO_XPATH: Record<string, string> = {
   or: 'or',
 };
 
+/**
+ * An XPath string literal. XPath 1.0 has no escapes: use whichever quote the
+ * value lacks, or concat() the pieces when it holds both.
+ */
 function quote(v: string): string {
-  return `'${v}'`;
+  if (!v.includes("'")) return `'${v}'`;
+  if (!v.includes('"')) return `"${v}"`;
+  return `concat(${v
+    .split("'")
+    .map((part) => `'${part}'`)
+    .join(`, "'", `)})`;
+}
+
+/** XPath operator precedence (higher binds tighter). */
+const XPATH_PRECEDENCE: Record<string, number> = {
+  or: 1,
+  and: 2,
+  '=': 3,
+  '!=': 3,
+  '<': 4,
+  '>': 4,
+  '<=': 4,
+  '>=': 4,
+  '+': 5,
+  '-': 5,
+  '*': 6,
+  div: 6,
+  mod: 6,
+};
+
+/** Operators where `a op (b op c)` means `(a op b) op c`. */
+const ASSOCIATIVE = new Set(['or', 'and', '+', '*']);
+
+/** A binary node's XPath operator, or null for anything else. */
+function xpathOp(node: EmNode): string | null {
+  return node.t === 'bin' ? (BINARY_OP_TO_XPATH[node.op] ?? null) : null;
+}
+
+/**
+ * Serialize `node` as an operand of `parentOp`, parenthesized when XPath would
+ * otherwise group it differently than the EM source did.
+ */
+function operandToXPath(
+  node: EmNode,
+  parentOp: string,
+  side: 'left' | 'right',
+  ctx: SelectContext,
+): string {
+  const text = nodeToXPath(node, ctx);
+  const op = xpathOp(node);
+  if (!op) return text;
+  const [child, parent] = [XPATH_PRECEDENCE[op], XPATH_PRECEDENCE[parentOp]];
+  const needs =
+    child < parent ||
+    (child === parent &&
+      side === 'right' &&
+      !(op === parentOp && ASSOCIATIVE.has(op)));
+  return needs ? `(${text})` : text;
 }
 
 function nodeToXPath(node: EmNode, ctx: SelectContext): string {
@@ -113,6 +169,10 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
       return `\${${node.name}}`;
     case 'unary':
       return `not(${nodeToXPath(node.arg, ctx)})`;
+    case 'neg': {
+      const arg = nodeToXPath(node.arg, ctx);
+      return node.arg.t === 'bin' ? `-(${arg})` : `-${arg}`;
+    }
     case 'call': {
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
@@ -164,7 +224,7 @@ function binToXPath(node: EmNode & { t: 'bin' }, ctx: SelectContext): string {
   const xfOp = BINARY_OP_TO_XPATH[op];
   if (!xfOp)
     throw new ConversionError('em-unsupported', `unsupported operator "${op}"`);
-  return `${nodeToXPath(left, ctx)} ${xfOp} ${nodeToXPath(right, ctx)}`;
+  return `${operandToXPath(left, xfOp, 'left', ctx)} ${xfOp} ${operandToXPath(right, xfOp, 'right', ctx)}`;
 }
 
 /**

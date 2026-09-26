@@ -114,6 +114,7 @@ export type EmNode =
   | { t: 'ident'; name: string; naok: boolean }
   | { t: 'call'; name: string; args: EmNode[] }
   | { t: 'unary'; op: '!'; arg: EmNode }
+  | { t: 'neg'; arg: EmNode }
   | { t: 'bin'; op: string; left: EmNode; right: EmNode };
 
 // Precedence climbing: or(1) < and(2) < comparisons(3) < +-(4) < */%(5).
@@ -193,6 +194,12 @@ class Parser {
 
   private parseUnary(): EmNode {
     const tok = this.peek();
+    // Unary minus: the forward transpiler writes `x == -5`.
+    if (tok?.type === 'op' && tok.value === '-') {
+      this.next();
+      const arg = this.parseUnary();
+      return arg.t === 'num' ? { t: 'num', v: `-${arg.v}` } : { t: 'neg', arg };
+    }
     if (tok?.type === 'op' && tok.value === '!') {
       this.next();
       this.expect('lparen');
