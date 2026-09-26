@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import { basename, dirname, join } from 'node:path';
 
+import { xlsformToLstsv } from './api.js';
 import { defaultConfig } from './config/types.js';
 import type { LstsvConfig } from './config/types.js';
+import { ConversionError } from './diagnostics.js';
 import { resolveFileChoices } from './fileChoices.js';
 import { lstsvToDataCsv, lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
 import type { Submission } from './pipelines/xlsform2ddi/index.js';
-import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
 import type { XLSFormData } from './xlsform/types.js';
 import { XLSValidator } from './xlsform/validate.js';
 import type { SubsetTarget } from './xlsform/validate.js';
@@ -209,7 +210,7 @@ function cmdValidate(argv: string[]): void {
 
   const bytes = readInput(positionals, validateHelp);
   // Parse without the built-in strict gate so we can report all findings.
-  const data = loadXlsform(bytes, true);
+  const data = loadXlsform(bytes, { skipValidation: true });
   const errors = checkSubset(data, positionals[0], target);
   if (errors === 0) {
     process.stderr.write(
@@ -258,7 +259,9 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     };
   }
 
-  const data = loadXlsform(bytes, values['skip-validation'] as boolean);
+  const skipValidation = values['skip-validation'] as boolean;
+  // xlsformToLstsv's subset check covers the name check, and reports all.
+  const data = loadXlsform(bytes, { skipValidation, skipNameCheck: true });
 
   // Resolve any `select_*_from_file <name>.csv` lists relative to the input
   // workbook's directory (XLSForm convention: the CSV sits beside the form).
@@ -267,17 +270,25 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     dirname(positionals[0]),
   );
 
-  const converter = new XLSFormToTSVConverter(config);
   let tsv: string;
   try {
-    tsv = await converter.convert(
-      data.surveyData,
-      data.choicesData,
-      data.settingsData,
+    tsv = await xlsformToLstsv(data, {
+      ...config,
       fileChoices,
-    );
+      skipValidation,
+      onWarning: (w) => process.stderr.write(`  ⚠ ${w.message}\n`),
+    });
   } catch (err) {
-    die(`conversion failed: ${(err as Error).message}`);
+    if (
+      err instanceof ConversionError &&
+      err.code === 'xlsform-outside-subset'
+    ) {
+      for (const d of err.details) process.stderr.write(`  ✗ ${d.message}\n`);
+      return die(
+        `${err.details.length} error(s): outside the XLSForm subset for LimeSurvey (--skip-validation to convert anyway)`,
+      );
+    }
+    return die(`conversion failed: ${(err as Error).message}`);
   }
 
   emit(tsv, values.output as string | undefined);
@@ -364,7 +375,7 @@ function cmdXlsform2ddi(argv: string[]): void {
   const bytes = readInput(positionals, xlsform2ddiHelp);
   // DDI keeps names as authored, so LimeSurvey's name/code limits don't apply
   // (a Kobo `full_name` is fine); types, lists and uniqueness still do.
-  const data = loadXlsform(bytes, true);
+  const data = loadXlsform(bytes, { skipValidation: true });
   if (!values['skip-validation']) {
     const errors = checkSubset(data, positionals[0], 'ddi');
     if (errors > 0) {

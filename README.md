@@ -202,17 +202,22 @@ Every error the library throws is a `ConversionError` with a stable `code`
 `DiagnosticCode`), a human `message`, and `subject`, the question it concerns.
 Branch on `code`, not on the message text.
 
-Warnings (a truncated name, an ignored appearance, a constraint that can't be
-converted) go to an `onWarning` callback. The default prints them to the
-console:
+`xlsformToLstsv` and `xlsformToDdi` check the whole form against the subset
+first (`validateSubset`, see below). If anything is outside it, they throw one
+`ConversionError` with code `xlsform-outside-subset`, and `details` holds every
+finding, so a form with several problems is fixed in one pass.
+
+Warnings (a truncated name, an ignored appearance, a comparison with a value
+that isn't one of the choices, a constraint that can't be converted) go to an
+`onWarning` callback. This includes the subset check's warnings, each passed
+once. The default prints them to the console:
 
 ```ts
 const warnings: Diagnostic[] = [];
 await xlsformToLstsv(bytes, { onWarning: (w) => warnings.push(w) });
 ```
 
-`validateSubset` returns the same `Diagnostic` objects for every finding at
-once, instead of throwing on the first.
+`validateSubset` returns the same `Diagnostic` objects without converting.
 
 ## Supported XLSForm Subset
 
