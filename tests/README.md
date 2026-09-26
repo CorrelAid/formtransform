@@ -48,6 +48,7 @@ tests/
     unit/                                   #   unit tests
       ddi/ lstsv/ pipelines/ expressions/   #     per subsystem
       questionTypes/ *.test.ts              #     per question type / feature
+  codegen/                                  # pytest: registry validators reject broken registries
   validation/                               # pytest: committed artifacts vs external standards
     fixtures.py                             #   registry loader + ddi.xml snapshot loader
     test_ddi_schema.py                      #   blessed ddi.xml → XSD + Schematron (Java worker)

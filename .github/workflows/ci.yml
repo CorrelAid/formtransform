@@ -50,8 +50,8 @@ jobs:
       - name: Check generated/ in sync with codegen
         run: bash scripts/check-drift.sh
       # Codegen above rendered registry/entities/*/generated/xlsform.xlsx.
-      - name: XLSForm fixtures are valid XLSForm (pyxform oracle)
-        run: uv run pytest tests/validation/test_xlsform_pyxform.py -v
+      - name: Registry validators (codegen) and the pyxform oracle
+        run: uv run pytest tests/codegen tests/validation/test_xlsform_pyxform.py -v
         env:
           FT_REQUIRE_ORACLES: "1"
 
