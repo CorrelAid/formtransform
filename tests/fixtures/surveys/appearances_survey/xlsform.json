@@ -1,0 +1,83 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "seite1",
+      "label": "Über Sie",
+      "appearance": "field-list"
+    },
+    {
+      "type": "select_one land",
+      "name": "wohnort",
+      "label": "Wo wohnen Sie?",
+      "appearance": "minimal"
+    },
+    {
+      "type": "text",
+      "name": "anmerkung",
+      "label": "Möchten Sie etwas ergänzen?",
+      "appearance": "multiline"
+    },
+    {
+      "type": "select_one zust",
+      "name": "zufrieden",
+      "label": "Wie zufrieden sind Sie?",
+      "appearance": "likert"
+    },
+    { "type": "end_group" },
+    {
+      "type": "begin_group",
+      "name": "matrix",
+      "label": "Wie oft nutzen Sie …",
+      "appearance": "field-list"
+    },
+    {
+      "type": "select_one oft",
+      "name": "kopf",
+      "label": "Nutzung",
+      "appearance": "label"
+    },
+    {
+      "type": "select_one oft",
+      "name": "bus",
+      "label": "Bus",
+      "appearance": "list-nolabel"
+    },
+    {
+      "type": "select_one oft",
+      "name": "bahn",
+      "label": "Bahn",
+      "appearance": "list-nolabel"
+    },
+    { "type": "end_group" },
+    {
+      "type": "begin_group",
+      "name": "raster",
+      "label": "Wie wichtig ist Ihnen …",
+      "appearance": "table-list"
+    },
+    { "type": "select_one oft", "name": "preis", "label": "… der Preis?" },
+    { "type": "select_one oft", "name": "takt", "label": "… der Takt?" },
+    { "type": "end_group" },
+    {
+      "type": "select_one_from_file iso_3166_1.csv",
+      "name": "herkunft",
+      "label": "Herkunftsland?"
+    },
+    {
+      "type": "select_multiple_from_file iso_3166_1.csv",
+      "name": "reisen",
+      "label": "Wohin sind Sie gereist?"
+    }
+  ],
+  "choices": [
+    { "list_name": "land", "name": "stadt", "label": "Stadt" },
+    { "list_name": "land", "name": "dorf", "label": "Land" },
+    { "list_name": "zust", "name": "1", "label": "Gar nicht" },
+    { "list_name": "zust", "name": "2", "label": "Teils" },
+    { "list_name": "zust", "name": "3", "label": "Sehr" },
+    { "list_name": "oft", "name": "nie", "label": "Nie" },
+    { "list_name": "oft", "name": "oft", "label": "Oft" }
+  ],
+  "settings": [{ "form_title": "Darstellungen", "default_language": "de" }]
+}

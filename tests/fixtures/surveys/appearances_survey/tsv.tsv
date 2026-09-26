@@ -1,0 +1,527 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	cssclass	hide_tip
+S		language	1	de		de									
+S		format	1	A		de									
+S		shownoanswer	1	N		de									
+SL		surveyls_title	1	Darstellungen		de									
+G	1	Über Sie	1			de									
+Q	!	wohnort	1	Wo wohnen Sie?		de									1
+A		stadt		Stadt		de									
+A		dorf		Land		de									
+Q	T	anmerkung	1	Möchten Sie etwas ergänzen?		de									1
+Q	L	zufrieden	1	Wie zufrieden sind Sie?		de									1
+A		1		Gar nicht		de									
+A		2		Teils		de									
+A		3		Sehr		de									
+G	2	Wie oft nutzen Sie …	1			de									
+Q	F	kopf	1	Nutzung		de									1
+SQ		bus	1	Bus		de									
+SQ		bahn	1	Bahn		de									
+A		nie		Nie		de									
+A		oft		Oft		de									
+G	3	Wie wichtig ist Ihnen …	1			de									
+Q	F	raster	1	Wie wichtig ist Ihnen …		de									1
+SQ		preis	1	… der Preis?		de									
+SQ		takt	1	… der Takt?		de									
+A		nie		Nie		de									
+A		oft		Oft		de									
+G	5	G4	1	G4		de									
+Q	L	herkunft	1	Herkunftsland?		de								cdlvocab-iso_3166_1	1
+A		AF		Afghanistan		de									
+A		AX		Åland Islands		de									
+A		AL		Albania		de									
+A		DZ		Algeria		de									
+A		AS		American Samoa		de									
+A		AD		Andorra		de									
+A		AO		Angola		de									
+A		AI		Anguilla		de									
+A		AQ		Antarctica		de									
+A		AG		Antigua and Barbuda		de									
+A		AR		Argentina		de									
+A		AM		Armenia		de									
+A		AW		Aruba		de									
+A		AU		Australia		de									
+A		AT		Austria		de									
+A		AZ		Azerbaijan		de									
+A		BS		Bahamas		de									
+A		BH		Bahrain		de									
+A		BD		Bangladesh		de									
+A		BB		Barbados		de									
+A		BY		Belarus		de									
+A		BE		Belgium		de									
+A		BZ		Belize		de									
+A		BJ		Benin		de									
+A		BM		Bermuda		de									
+A		BT		Bhutan		de									
+A		BO		Bolivia, Plurinational State of		de									
+A		BQ		Bonaire, Sint Eustatius and Saba		de									
+A		BA		Bosnia and Herzegovina		de									
+A		BW		Botswana		de									
+A		BV		Bouvet Island		de									
+A		BR		Brazil		de									
+A		IO		British Indian Ocean Territory		de									
+A		BN		Brunei Darussalam		de									
+A		BG		Bulgaria		de									
+A		BF		Burkina Faso		de									
+A		BI		Burundi		de									
+A		CV		Cabo Verde		de									
+A		KH		Cambodia		de									
+A		CM		Cameroon		de									
+A		CA		Canada		de									
+A		KY		Cayman Islands		de									
+A		CF		Central African Republic		de									
+A		TD		Chad		de									
+A		CL		Chile		de									
+A		CN		China		de									
+A		CX		Christmas Island		de									
+A		CC		Cocos (Keeling) Islands		de									
+A		CO		Colombia		de									
+A		KM		Comoros		de									
+A		CG		Congo		de									
+A		CD		Congo, Democratic Republic of the		de									
+A		CK		Cook Islands		de									
+A		CR		Costa Rica		de									
+A		CI		Côte d&#39;Ivoire		de									
+A		HR		Croatia		de									
+A		CU		Cuba		de									
+A		CW		Curaçao		de									
+A		CY		Cyprus		de									
+A		CZ		Czechia		de									
+A		DK		Denmark		de									
+A		DJ		Djibouti		de									
+A		DM		Dominica		de									
+A		DO		Dominican Republic		de									
+A		EC		Ecuador		de									
+A		EG		Egypt		de									
+A		SV		El Salvador		de									
+A		GQ		Equatorial Guinea		de									
+A		ER		Eritrea		de									
+A		EE		Estonia		de									
+A		SZ		Eswatini		de									
+A		ET		Ethiopia		de									
+A		FK		Falkland Islands (Malvinas)		de									
+A		FO		Faroe Islands		de									
+A		FJ		Fiji		de									
+A		FI		Finland		de									
+A		FR		France		de									
+A		GF		French Guiana		de									
+A		PF		French Polynesia		de									
+A		TF		French Southern Territories		de									
+A		GA		Gabon		de									
+A		GM		Gambia		de									
+A		GE		Georgia		de									
+A		DE		Germany		de									
+A		GH		Ghana		de									
+A		GI		Gibraltar		de									
+A		GR		Greece		de									
+A		GL		Greenland		de									
+A		GD		Grenada		de									
+A		GP		Guadeloupe		de									
+A		GU		Guam		de									
+A		GT		Guatemala		de									
+A		GG		Guernsey		de									
+A		GN		Guinea		de									
+A		GW		Guinea-Bissau		de									
+A		GY		Guyana		de									
+A		HT		Haiti		de									
+A		HM		Heard Island and McDonald Islands		de									
+A		VA		Holy See		de									
+A		HN		Honduras		de									
+A		HK		Hong Kong		de									
+A		HU		Hungary		de									
+A		IS		Iceland		de									
+A		IN		India		de									
+A		ID		Indonesia		de									
+A		IR		Iran, Islamic Republic of		de									
+A		IQ		Iraq		de									
+A		IE		Ireland		de									
+A		IM		Isle of Man		de									
+A		IL		Israel		de									
+A		IT		Italy		de									
+A		JM		Jamaica		de									
+A		JP		Japan		de									
+A		JE		Jersey		de									
+A		JO		Jordan		de									
+A		KZ		Kazakhstan		de									
+A		KE		Kenya		de									
+A		KI		Kiribati		de									
+A		KP		Korea, Democratic People&#39;s Republic of		de									
+A		KR		Korea, Republic of		de									
+A		KW		Kuwait		de									
+A		KG		Kyrgyzstan		de									
+A		LA		Lao People&#39;s Democratic Republic		de									
+A		LV		Latvia		de									
+A		LB		Lebanon		de									
+A		LS		Lesotho		de									
+A		LR		Liberia		de									
+A		LY		Libya		de									
+A		LI		Liechtenstein		de									
+A		LT		Lithuania		de									
+A		LU		Luxembourg		de									
+A		MO		Macao		de									
+A		MG		Madagascar		de									
+A		MW		Malawi		de									
+A		MY		Malaysia		de									
+A		MV		Maldives		de									
+A		ML		Mali		de									
+A		MT		Malta		de									
+A		MH		Marshall Islands		de									
+A		MQ		Martinique		de									
+A		MR		Mauritania		de									
+A		MU		Mauritius		de									
+A		YT		Mayotte		de									
+A		MX		Mexico		de									
+A		FM		Micronesia, Federated States of		de									
+A		MD		Moldova, Republic of		de									
+A		MC		Monaco		de									
+A		MN		Mongolia		de									
+A		ME		Montenegro		de									
+A		MS		Montserrat		de									
+A		MA		Morocco		de									
+A		MZ		Mozambique		de									
+A		MM		Myanmar		de									
+A		NA		Namibia		de									
+A		NR		Nauru		de									
+A		NP		Nepal		de									
+A		NL		Netherlands, Kingdom of the		de									
+A		NC		New Caledonia		de									
+A		NZ		New Zealand		de									
+A		NI		Nicaragua		de									
+A		NE		Niger		de									
+A		NG		Nigeria		de									
+A		NU		Niue		de									
+A		NF		Norfolk Island		de									
+A		MK		North Macedonia		de									
+A		MP		Northern Mariana Islands		de									
+A		NO		Norway		de									
+A		OM		Oman		de									
+A		PK		Pakistan		de									
+A		PW		Palau		de									
+A		PS		Palestine, State of		de									
+A		PA		Panama		de									
+A		PG		Papua New Guinea		de									
+A		PY		Paraguay		de									
+A		PE		Peru		de									
+A		PH		Philippines		de									
+A		PN		Pitcairn		de									
+A		PL		Poland		de									
+A		PT		Portugal		de									
+A		PR		Puerto Rico		de									
+A		QA		Qatar		de									
+A		RE		Réunion		de									
+A		RO		Romania		de									
+A		RU		Russian Federation		de									
+A		RW		Rwanda		de									
+A		BL		Saint Barthélemy		de									
+A		SH		Saint Helena, Ascension and Tristan da Cunha		de									
+A		KN		Saint Kitts and Nevis		de									
+A		LC		Saint Lucia		de									
+A		MF		Saint Martin (French part)		de									
+A		PM		Saint Pierre and Miquelon		de									
+A		VC		Saint Vincent and the Grenadines		de									
+A		WS		Samoa		de									
+A		SM		San Marino		de									
+A		ST		Sao Tome and Principe		de									
+A		SA		Saudi Arabia		de									
+A		SN		Senegal		de									
+A		RS		Serbia		de									
+A		SC		Seychelles		de									
+A		SL		Sierra Leone		de									
+A		SG		Singapore		de									
+A		SX		Sint Maarten (Dutch part)		de									
+A		SK		Slovakia		de									
+A		SI		Slovenia		de									
+A		SB		Solomon Islands		de									
+A		SO		Somalia		de									
+A		ZA		South Africa		de									
+A		GS		South Georgia and the South Sandwich Islands		de									
+A		SS		South Sudan		de									
+A		ES		Spain		de									
+A		LK		Sri Lanka		de									
+A		SD		Sudan		de									
+A		SR		Suriname		de									
+A		SJ		Svalbard and Jan Mayen		de									
+A		SE		Sweden		de									
+A		CH		Switzerland		de									
+A		SY		Syrian Arab Republic		de									
+A		TW		Taiwan, Province of China		de									
+A		TJ		Tajikistan		de									
+A		TZ		Tanzania, United Republic of		de									
+A		TH		Thailand		de									
+A		TL		Timor-Leste		de									
+A		TG		Togo		de									
+A		TK		Tokelau		de									
+A		TO		Tonga		de									
+A		TT		Trinidad and Tobago		de									
+A		TN		Tunisia		de									
+A		TR		Türkiye		de									
+A		TM		Turkmenistan		de									
+A		TC		Turks and Caicos Islands		de									
+A		TV		Tuvalu		de									
+A		UG		Uganda		de									
+A		UA		Ukraine		de									
+A		AE		United Arab Emirates		de									
+A		GB		United Kingdom of Great Britain and Northern Ireland		de									
+A		US		United States of America		de									
+A		UM		United States Minor Outlying Islands		de									
+A		UY		Uruguay		de									
+A		UZ		Uzbekistan		de									
+A		VU		Vanuatu		de									
+A		VE		Venezuela, Bolivarian Republic of		de									
+A		VN		Viet Nam		de									
+A		VG		Virgin Islands (British)		de									
+A		VI		Virgin Islands (U.S.)		de									
+A		WF		Wallis and Futuna		de									
+A		EH		Western Sahara		de									
+A		YE		Yemen		de									
+A		ZM		Zambia		de									
+A		ZW		Zimbabwe		de									
+Q	M	reisen	1	Wohin sind Sie gereist?		de								cdlvocab-iso_3166_1	1
+SQ		AF		Afghanistan		de									
+SQ		AX		Åland Islands		de									
+SQ		AL		Albania		de									
+SQ		DZ		Algeria		de									
+SQ		AS		American Samoa		de									
+SQ		AD		Andorra		de									
+SQ		AO		Angola		de									
+SQ		AI		Anguilla		de									
+SQ		AQ		Antarctica		de									
+SQ		AG		Antigua and Barbuda		de									
+SQ		AR		Argentina		de									
+SQ		AM		Armenia		de									
+SQ		AW		Aruba		de									
+SQ		AU		Australia		de									
+SQ		AT		Austria		de									
+SQ		AZ		Azerbaijan		de									
+SQ		BS		Bahamas		de									
+SQ		BH		Bahrain		de									
+SQ		BD		Bangladesh		de									
+SQ		BB		Barbados		de									
+SQ		BY		Belarus		de									
+SQ		BE		Belgium		de									
+SQ		BZ		Belize		de									
+SQ		BJ		Benin		de									
+SQ		BM		Bermuda		de									
+SQ		BT		Bhutan		de									
+SQ		BO		Bolivia, Plurinational State of		de									
+SQ		BQ		Bonaire, Sint Eustatius and Saba		de									
+SQ		BA		Bosnia and Herzegovina		de									
+SQ		BW		Botswana		de									
+SQ		BV		Bouvet Island		de									
+SQ		BR		Brazil		de									
+SQ		IO		British Indian Ocean Territory		de									
+SQ		BN		Brunei Darussalam		de									
+SQ		BG		Bulgaria		de									
+SQ		BF		Burkina Faso		de									
+SQ		BI		Burundi		de									
+SQ		CV		Cabo Verde		de									
+SQ		KH		Cambodia		de									
+SQ		CM		Cameroon		de									
+SQ		CA		Canada		de									
+SQ		KY		Cayman Islands		de									
+SQ		CF		Central African Republic		de									
+SQ		TD		Chad		de									
+SQ		CL		Chile		de									
+SQ		CN		China		de									
+SQ		CX		Christmas Island		de									
+SQ		CC		Cocos (Keeling) Islands		de									
+SQ		CO		Colombia		de									
+SQ		KM		Comoros		de									
+SQ		CG		Congo		de									
+SQ		CD		Congo, Democratic Republic of the		de									
+SQ		CK		Cook Islands		de									
+SQ		CR		Costa Rica		de									
+SQ		CI		Côte d&#39;Ivoire		de									
+SQ		HR		Croatia		de									
+SQ		CU		Cuba		de									
+SQ		CW		Curaçao		de									
+SQ		CY		Cyprus		de									
+SQ		CZ		Czechia		de									
+SQ		DK		Denmark		de									
+SQ		DJ		Djibouti		de									
+SQ		DM		Dominica		de									
+SQ		DO		Dominican Republic		de									
+SQ		EC		Ecuador		de									
+SQ		EG		Egypt		de									
+SQ		SV		El Salvador		de									
+SQ		GQ		Equatorial Guinea		de									
+SQ		ER		Eritrea		de									
+SQ		EE		Estonia		de									
+SQ		SZ		Eswatini		de									
+SQ		ET		Ethiopia		de									
+SQ		FK		Falkland Islands (Malvinas)		de									
+SQ		FO		Faroe Islands		de									
+SQ		FJ		Fiji		de									
+SQ		FI		Finland		de									
+SQ		FR		France		de									
+SQ		GF		French Guiana		de									
+SQ		PF		French Polynesia		de									
+SQ		TF		French Southern Territories		de									
+SQ		GA		Gabon		de									
+SQ		GM		Gambia		de									
+SQ		GE		Georgia		de									
+SQ		DE		Germany		de									
+SQ		GH		Ghana		de									
+SQ		GI		Gibraltar		de									
+SQ		GR		Greece		de									
+SQ		GL		Greenland		de									
+SQ		GD		Grenada		de									
+SQ		GP		Guadeloupe		de									
+SQ		GU		Guam		de									
+SQ		GT		Guatemala		de									
+SQ		GG		Guernsey		de									
+SQ		GN		Guinea		de									
+SQ		GW		Guinea-Bissau		de									
+SQ		GY		Guyana		de									
+SQ		HT		Haiti		de									
+SQ		HM		Heard Island and McDonald Islands		de									
+SQ		VA		Holy See		de									
+SQ		HN		Honduras		de									
+SQ		HK		Hong Kong		de									
+SQ		HU		Hungary		de									
+SQ		IS		Iceland		de									
+SQ		IN		India		de									
+SQ		ID		Indonesia		de									
+SQ		IR		Iran, Islamic Republic of		de									
+SQ		IQ		Iraq		de									
+SQ		IE		Ireland		de									
+SQ		IM		Isle of Man		de									
+SQ		IL		Israel		de									
+SQ		IT		Italy		de									
+SQ		JM		Jamaica		de									
+SQ		JP		Japan		de									
+SQ		JE		Jersey		de									
+SQ		JO		Jordan		de									
+SQ		KZ		Kazakhstan		de									
+SQ		KE		Kenya		de									
+SQ		KI		Kiribati		de									
+SQ		KP		Korea, Democratic People&#39;s Republic of		de									
+SQ		KR		Korea, Republic of		de									
+SQ		KW		Kuwait		de									
+SQ		KG		Kyrgyzstan		de									
+SQ		LA		Lao People&#39;s Democratic Republic		de									
+SQ		LV		Latvia		de									
+SQ		LB		Lebanon		de									
+SQ		LS		Lesotho		de									
+SQ		LR		Liberia		de									
+SQ		LY		Libya		de									
+SQ		LI		Liechtenstein		de									
+SQ		LT		Lithuania		de									
+SQ		LU		Luxembourg		de									
+SQ		MO		Macao		de									
+SQ		MG		Madagascar		de									
+SQ		MW		Malawi		de									
+SQ		MY		Malaysia		de									
+SQ		MV		Maldives		de									
+SQ		ML		Mali		de									
+SQ		MT		Malta		de									
+SQ		MH		Marshall Islands		de									
+SQ		MQ		Martinique		de									
+SQ		MR		Mauritania		de									
+SQ		MU		Mauritius		de									
+SQ		YT		Mayotte		de									
+SQ		MX		Mexico		de									
+SQ		FM		Micronesia, Federated States of		de									
+SQ		MD		Moldova, Republic of		de									
+SQ		MC		Monaco		de									
+SQ		MN		Mongolia		de									
+SQ		ME		Montenegro		de									
+SQ		MS		Montserrat		de									
+SQ		MA		Morocco		de									
+SQ		MZ		Mozambique		de									
+SQ		MM		Myanmar		de									
+SQ		NA		Namibia		de									
+SQ		NR		Nauru		de									
+SQ		NP		Nepal		de									
+SQ		NL		Netherlands, Kingdom of the		de									
+SQ		NC		New Caledonia		de									
+SQ		NZ		New Zealand		de									
+SQ		NI		Nicaragua		de									
+SQ		NE		Niger		de									
+SQ		NG		Nigeria		de									
+SQ		NU		Niue		de									
+SQ		NF		Norfolk Island		de									
+SQ		MK		North Macedonia		de									
+SQ		MP		Northern Mariana Islands		de									
+SQ		NO		Norway		de									
+SQ		OM		Oman		de									
+SQ		PK		Pakistan		de									
+SQ		PW		Palau		de									
+SQ		PS		Palestine, State of		de									
+SQ		PA		Panama		de									
+SQ		PG		Papua New Guinea		de									
+SQ		PY		Paraguay		de									
+SQ		PE		Peru		de									
+SQ		PH		Philippines		de									
+SQ		PN		Pitcairn		de									
+SQ		PL		Poland		de									
+SQ		PT		Portugal		de									
+SQ		PR		Puerto Rico		de									
+SQ		QA		Qatar		de									
+SQ		RE		Réunion		de									
+SQ		RO		Romania		de									
+SQ		RU		Russian Federation		de									
+SQ		RW		Rwanda		de									
+SQ		BL		Saint Barthélemy		de									
+SQ		SH		Saint Helena, Ascension and Tristan da Cunha		de									
+SQ		KN		Saint Kitts and Nevis		de									
+SQ		LC		Saint Lucia		de									
+SQ		MF		Saint Martin (French part)		de									
+SQ		PM		Saint Pierre and Miquelon		de									
+SQ		VC		Saint Vincent and the Grenadines		de									
+SQ		WS		Samoa		de									
+SQ		SM		San Marino		de									
+SQ		ST		Sao Tome and Principe		de									
+SQ		SA		Saudi Arabia		de									
+SQ		SN		Senegal		de									
+SQ		RS		Serbia		de									
+SQ		SC		Seychelles		de									
+SQ		SL		Sierra Leone		de									
+SQ		SG		Singapore		de									
+SQ		SX		Sint Maarten (Dutch part)		de									
+SQ		SK		Slovakia		de									
+SQ		SI		Slovenia		de									
+SQ		SB		Solomon Islands		de									
+SQ		SO		Somalia		de									
+SQ		ZA		South Africa		de									
+SQ		GS		South Georgia and the South Sandwich Islands		de									
+SQ		SS		South Sudan		de									
+SQ		ES		Spain		de									
+SQ		LK		Sri Lanka		de									
+SQ		SD		Sudan		de									
+SQ		SR		Suriname		de									
+SQ		SJ		Svalbard and Jan Mayen		de									
+SQ		SE		Sweden		de									
+SQ		CH		Switzerland		de									
+SQ		SY		Syrian Arab Republic		de									
+SQ		TW		Taiwan, Province of China		de									
+SQ		TJ		Tajikistan		de									
+SQ		TZ		Tanzania, United Republic of		de									
+SQ		TH		Thailand		de									
+SQ		TL		Timor-Leste		de									
+SQ		TG		Togo		de									
+SQ		TK		Tokelau		de									
+SQ		TO		Tonga		de									
+SQ		TT		Trinidad and Tobago		de									
+SQ		TN		Tunisia		de									
+SQ		TR		Türkiye		de									
+SQ		TM		Turkmenistan		de									
+SQ		TC		Turks and Caicos Islands		de									
+SQ		TV		Tuvalu		de									
+SQ		UG		Uganda		de									
+SQ		UA		Ukraine		de									
+SQ		AE		United Arab Emirates		de									
+SQ		GB		United Kingdom of Great Britain and Northern Ireland		de									
+SQ		US		United States of America		de									
+SQ		UM		United States Minor Outlying Islands		de									
+SQ		UY		Uruguay		de									
+SQ		UZ		Uzbekistan		de									
+SQ		VU		Vanuatu		de									
+SQ		VE		Venezuela, Bolivarian Republic of		de									
+SQ		VN		Viet Nam		de									
+SQ		VG		Virgin Islands (British)		de									
+SQ		VI		Virgin Islands (U.S.)		de									
+SQ		WF		Wallis and Futuna		de									
+SQ		EH		Western Sahara		de									
+SQ		YE		Yemen		de									
+SQ		ZM		Zambia		de									
+SQ		ZW		Zimbabwe		de									

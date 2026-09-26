@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>appearances_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_raster" name="raster" type="grid" var="V_preis V_takt">
+      <txt>Wie wichtig ist Ihnen …</txt>
+      <concept>Wie wichtig ist Ihnen …</concept>
+    </varGrp>
+    <var ID="V_preis" name="preis" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
+        <qstnLit>… der Preis?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>… der Preis?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
+        <qstnLit>… der Takt?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>… der Takt?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_wohnort" name="wohnort" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wo wohnen Sie?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>stadt</catValu>
+        <labl>Stadt</labl>
+      </catgry>
+      <catgry>
+        <catValu>dorf</catValu>
+        <labl>Land</labl>
+      </catgry>
+      <concept>Wo wohnen Sie?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_anmerkung" name="anmerkung" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Möchten Sie etwas ergänzen?</qstnLit>
+      </qstn>
+      <concept>Möchten Sie etwas ergänzen?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_zufrieden" name="zufrieden" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie zufrieden sind Sie?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Gar nicht</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Teils</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Sehr</labl>
+      </catgry>
+      <concept>Wie zufrieden sind Sie?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_bus" name="bus" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Bus</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>Bus</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_bahn" name="bahn" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Bahn</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>Bahn</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_herkunft" name="herkunft" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Herkunftsland?</qstnLit>
+      </qstn>
+      <concept vocab="iso_3166_1">Herkunftsland?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_reisen" name="reisen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <qstnLit>Wohin sind Sie gereist?</qstnLit>
+      </qstn>
+      <concept vocab="iso_3166_1">Wohin sind Sie gereist?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>
