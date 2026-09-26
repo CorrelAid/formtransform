@@ -27,7 +27,7 @@
         <assert test="ddi:qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="ddi:qstn/ddi:qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="ddi:varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="ddi:concept and normalize-space(ddi:concept) != ''">Variable <value-of select="@name"/> is missing a concept element.</assert>
+        <assert test="ddi:concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
         <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
         <assert test="count(ddi:notes) &lt;= 1">Variable <value-of select="@name"/> has multiple notes elements. Only one notes element per variable is allowed.</assert>
     </rule>
@@ -36,7 +36,7 @@
     <rule context="ddi:varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", or "other" are supported.</assert>
-        <assert test="ddi:concept and normalize-space(ddi:concept) != ''">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
+        <assert test="ddi:concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
         <assert test="not(ddi:labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
     </rule>
 
@@ -52,7 +52,7 @@
         <assert test="qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="qstn/qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="concept and normalize-space(concept) != ''">Variable <value-of select="@name"/> is missing a concept element.</assert>
+        <assert test="concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
         <assert test="not(labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
         <assert test="count(notes) &lt;= 1">Variable <value-of select="@name"/> has multiple notes elements. Only one notes element per variable is allowed.</assert>
     </rule>
@@ -61,7 +61,7 @@
     <rule context="varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", or "other" are supported.</assert>
-        <assert test="concept and normalize-space(concept) != ''">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
+        <assert test="concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
         <assert test="not(labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
     </rule>
 
