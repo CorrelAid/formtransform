@@ -47,37 +47,50 @@ const KNOWN_CLASSES = new Set(['S', 'SL', 'G', 'Q', 'SQ', 'A']);
  * one the pipeline maps (error).
  */
 export function validateLstsvSubset(rows: Row[]): SubsetViolation[] {
-  const violations: SubsetViolation[] = [];
-  const header = rows[0] ? Object.keys(rows[0]) : [];
+  return [
+    ...missingColumns(rows),
+    ...unknownClasses(rows),
+    ...rows.flatMap((row) => unsupportedType(row) ?? []),
+  ];
+}
+
+function missingColumns(rows: Row[]): SubsetViolation[] {
+  if (rows.length === 0) return [];
+  const header = Object.keys(rows[0]);
   const missing = REQUIRED_COLUMNS.filter((c) => !header.includes(c));
-  if (rows.length > 0 && missing.length > 0) {
-    violations.push({
+  if (missing.length === 0) return [];
+  return [
+    {
       code: 'column-missing',
       severity: 'error',
       message: `LimeSurvey TSV lacks required column(s): ${missing.join(', ')}`,
-    });
-  }
-  const unknownClasses = new Set<string>();
-  for (const row of rows) {
-    const cls = (row.class ?? '').trim();
-    if (cls && !KNOWN_CLASSES.has(cls) && !unknownClasses.has(cls)) {
-      unknownClasses.add(cls);
-      violations.push({
-        code: 'lstsv-outside-subset',
-        severity: 'warning',
-        message: `rows of class "${cls}" are not read (known: ${[...KNOWN_CLASSES].join(', ')}) and are ignored`,
-      });
-    }
-    if (cls !== 'Q') continue;
-    const code = (row['type/scale'] ?? '').trim();
-    if (!code || SUPPORTED_LS_CODES.has(code)) continue;
-    const where = row.name?.trim() ? ` (question "${row.name.trim()}")` : '';
-    violations.push({
-      code: 'lstsv-outside-subset',
-      severity: 'error',
-      message: `unsupported LimeSurvey question type "${code}"${where} — not in the transformable subset (${[...SUPPORTED_LS_CODES].sort().join(', ')})`,
-      ...(row.name?.trim() ? { name: row.name.trim() } : {}),
-    });
-  }
-  return violations;
+    },
+  ];
+}
+
+function unknownClasses(rows: Row[]): SubsetViolation[] {
+  const unknown = new Set(
+    rows
+      .map((r) => (r.class ?? '').trim())
+      .filter((c) => c && !KNOWN_CLASSES.has(c)),
+  );
+  return [...unknown].map((cls) => ({
+    code: 'lstsv-outside-subset',
+    severity: 'warning',
+    message: `rows of class "${cls}" are not read (known: ${[...KNOWN_CLASSES].join(', ')}) and are ignored`,
+  }));
+}
+
+function unsupportedType(row: Row): SubsetViolation | null {
+  if ((row.class ?? '').trim() !== 'Q') return null;
+  const code = (row['type/scale'] ?? '').trim();
+  if (!code || SUPPORTED_LS_CODES.has(code)) return null;
+  const name = row.name?.trim() ?? '';
+  const where = name ? ` (question "${name}")` : '';
+  return {
+    code: 'lstsv-outside-subset',
+    severity: 'error',
+    message: `unsupported LimeSurvey question type "${code}"${where} — not in the transformable subset (${[...SUPPORTED_LS_CODES].sort().join(', ')})`,
+    ...(name ? { name } : {}),
+  };
 }
