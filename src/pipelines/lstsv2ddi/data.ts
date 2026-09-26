@@ -163,9 +163,14 @@ function subValue(
   return undefined;
 }
 
-/** Array names: `lstsvToVariables` groups an `F` array's rows under its name. */
+/** The array (`F`) a grid variable belongs to: its innermost group. */
+function arrayOf(v: Variable): string {
+  return v.group.split('/').pop() ?? '';
+}
+
+/** Array members: a `select_one` whose innermost group is its array (lstsvToVariables). */
 function isArrayMember(v: Variable): boolean {
-  return v.type === 'select_one' && v.group !== '' && v.group === v.listName;
+  return v.type === 'select_one' && v.group !== '' && arrayOf(v) === v.listName;
 }
 
 /**
@@ -207,7 +212,8 @@ export function normalizeLimeSurveyResponses(
           warnOnce,
         );
       } else if (isArrayMember(v)) {
-        out[v.name] = subValue(bracketed.get(normKey(v.group)), v.name) ?? '';
+        out[v.name] =
+          subValue(bracketed.get(normKey(arrayOf(v))), v.name) ?? '';
       } else if (otherBases.has(v.name)) {
         // Authored companion (`qother`) or LimeSurvey's inline `q[other]`.
         const base = normKey(otherBases.get(v.name) as string);
