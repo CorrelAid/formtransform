@@ -58,11 +58,6 @@ export function parseVocabCsv(csvText: string, listName: string): ChoiceRow[] {
   return rows;
 }
 
-/** The codes of a registered vocabulary (`iso_3166_1`), or `[]` if unknown. */
-export function registeredVocabCodes(vocab: string): string[] {
-  return (VOCABULARY_OPTIONS[`${vocab}.csv`] ?? []).map(([code]) => code);
-}
-
 /** Filenames of the registered vocabularies (`registry/vocab/`). */
 export function registeredVocabFiles(): string[] {
   return Object.keys(VOCABULARY_OPTIONS);

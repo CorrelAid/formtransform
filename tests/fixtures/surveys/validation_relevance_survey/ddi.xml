@@ -56,7 +56,7 @@
         <labl>No</labl>
       </catgry>
       <concept>Do you consent?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_adult_info" name="adult_info" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

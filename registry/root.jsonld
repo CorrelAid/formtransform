@@ -94,7 +94,7 @@
       },
       "ddi": {
         "intrvl": "discrete",
-        "formatType": "numeric",
+        "formatType": "character",
         "responseDomainType": "multiple",
         "externalCodeList": true,
         "conceptVocabFrom": "filename"

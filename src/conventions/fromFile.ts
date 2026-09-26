@@ -5,6 +5,7 @@
  * `<concept vocab>`.
  */
 import conventions from '../generated/conventions.js';
+import { VOCABULARY_OPTIONS } from '../generated/VocabularyOptions.js';
 
 const RULE = conventions.conventions.externalCodeList;
 
@@ -44,4 +45,9 @@ export function vocabFromCssClass(cssclass: string): string {
   return cssclass.startsWith(CDLVOCAB_PREFIX)
     ? cssclass.slice(CDLVOCAB_PREFIX.length)
     : '';
+}
+
+/** The codes of a registered vocabulary (`iso_3166_1`), or `[]` if unknown. */
+export function registeredVocabCodes(vocab: string): string[] {
+  return (VOCABULARY_OPTIONS[`${vocab}.csv`] ?? []).map(([code]) => code);
 }

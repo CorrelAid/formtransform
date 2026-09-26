@@ -29,8 +29,10 @@ import type { Submission } from '../../ddi/data.js';
 
 import { OTHER_CODE, OTHER_SUFFIX } from '../../conventions/other.js';
 import { ConversionError } from '../../diagnostics.js';
-import { registeredVocabCodes } from '../../vocab.js';
-import { fromFileTypeFor } from '../../conventions/fromFile.js';
+import {
+  fromFileTypeFor,
+  registeredVocabCodes,
+} from '../../conventions/fromFile.js';
 
 const MULTIPLE_FROM_FILE = fromFileTypeFor('select_multiple');
 

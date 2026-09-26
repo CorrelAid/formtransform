@@ -21,6 +21,7 @@ import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
 import { Choice, Variable } from './types.js';
+import { registeredVocabCodes } from '../conventions/fromFile.js';
 
 const NS = 'ddi:codebook:2_5';
 const XSI = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -76,6 +77,28 @@ interface AddVarSpec {
 }
 
 /**
+ * A categorical variable's data column holds its codes, so it is `numeric`
+ * only when every code is a number (#119): `such` / `DE` are `character`.
+ * With a vocabulary the codes are the registered vocabulary's; an unknown
+ * vocabulary's codes can't be checked, so they count as `character`.
+ */
+function categoricalFormat(
+  typeFormat: string,
+  respDomain: string,
+  choices: Choice[],
+  vocab: string,
+): string {
+  if (typeFormat !== 'numeric') return typeFormat;
+  if (respDomain !== 'category' && respDomain !== 'multiple') return typeFormat;
+  const codes = vocab
+    ? registeredVocabCodes(vocab)
+    : choices.map((c) => c.name);
+  const numeric =
+    codes.length > 0 && codes.every((c) => /^-?\d+(\.\d+)?$/.test(c.trim()));
+  return numeric ? 'numeric' : 'character';
+}
+
+/**
  * Append one `<var>`. Element order: `qstn → catgry* → concept → varFormat`.
  * With `vocab`, no `<catgry>` is emitted and `<concept>` carries `@vocab`.
  */
@@ -86,8 +109,12 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const preQTxt = [spec.opts?.preQTxt, spec.hint]
     .filter((t): t is string => !!t)
     .join('\n\n');
-  const [intrvl, fmtType] = DDI_TYPE_MAP[varType] ?? ['discrete', 'character'];
+  const [intrvl, typeFormat] = DDI_TYPE_MAP[varType] ?? [
+    'discrete',
+    'character',
+  ];
   const respDomain = RESPONSE_DOMAIN_MAP[varType] ?? 'text';
+  const fmtType = categoricalFormat(typeFormat, respDomain, choices, vocab);
 
   const varEl = parent.child('var', { ID: varId, name, intrvl, files: 'F1' });
 

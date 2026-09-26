@@ -52,6 +52,12 @@ function v(
   };
 }
 
+// Numeric codes, so a categorical type keeps its registry format.
+const nums = [
+  { list_name: 'l', name: '1', label: 'Eins' },
+  { list_name: 'l', name: '2', label: 'Zwei' },
+];
+
 describe('intrvl / varFormat / responseDomainType per type', () => {
   const rowFor = (type: string): Row => {
     if (type.endsWith('_from_file'))
@@ -62,9 +68,11 @@ describe('intrvl / varFormat / responseDomainType per type', () => {
   };
 
   test.each(
-    Object.entries(DDI_TYPE_MAP).filter(([t]) => t !== 'select_multiple'),
+    Object.entries(DDI_TYPE_MAP).filter(
+      ([t]) => t !== 'select_multiple' && !t.endsWith('_from_file'),
+    ),
   )('%s', (type, [intrvl, format]) => {
-    const xml = buildDdiXml([rowFor(type)], yn);
+    const xml = buildDdiXml([rowFor(type)], nums);
     expect(varShape(xml, 'q')).toEqual({
       intrvl,
       format,
@@ -79,6 +87,23 @@ describe('intrvl / varFormat / responseDomainType per type', () => {
       format: 'numeric',
       domain: 'multiple',
     });
+  });
+
+  test('a categorical variable with non-numeric codes is character (#119)', () => {
+    expect(varShape(buildDdiXml([rowFor('select_one')], yn), 'q').format).toBe(
+      'character',
+    );
+    expect(
+      varShape(buildDdiXml([rowFor('select_one')], nums), 'q').format,
+    ).toBe('numeric');
+    // ISO 3166 codes (DE, FR, …): the registered vocabulary decides.
+    expect(
+      varShape(buildDdiXml([rowFor('select_one_from_file')], []), 'q').format,
+    ).toBe('character');
+    // select_multiple binaries stay 0/1 numeric whatever the codes.
+    expect(
+      varShape(buildDdiXml([rowFor('select_multiple')], yn), 'q_y').format,
+    ).toBe('numeric');
   });
 
   test('a type outside the map falls back to discrete / character / text', () => {
