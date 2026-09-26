@@ -1,6 +1,6 @@
 {
   "name": "@correlaid/formtransform",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Transform surveys between XLSForm, LimeSurvey TSV, and DDI Codebook via the CDL canonical survey model",
   "license": "MIT",
   "type": "module",
