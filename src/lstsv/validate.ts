@@ -50,6 +50,7 @@ export function validateLstsvSubset(rows: Row[]): SubsetViolation[] {
   return [
     ...missingColumns(rows),
     ...unknownClasses(rows),
+    ...duplicateCodes(rows),
     ...rows.flatMap((row) => unsupportedType(row) ?? []),
   ];
 }
@@ -79,6 +80,41 @@ function unknownClasses(rows: Row[]): SubsetViolation[] {
     severity: 'warning',
     message: `rows of class "${cls}" are not read (known: ${[...KNOWN_CLASSES].join(', ')}) and are ignored`,
   }));
+}
+
+/**
+ * An answer or subquestion code repeated within one question: the reverse
+ * keeps one choice per code, so the other's label is lost (warning).
+ */
+function duplicateCodes(rows: Row[]): SubsetViolation[] {
+  const cell = (row: Row, col: string) => (row[col] ?? '').trim();
+  const base = cell(
+    rows.find((r) => cell(r, 'class') === 'S') ?? {},
+    'language',
+  );
+  const found: SubsetViolation[] = [];
+  let question = '';
+  const seen = new Set<string>();
+  for (const row of rows.filter((r) => !base || cell(r, 'language') === base)) {
+    const cls = cell(row, 'class');
+    if (cls === 'Q') {
+      question = cell(row, 'name');
+      seen.clear();
+      continue;
+    }
+    if (cls !== 'A' && cls !== 'SQ') continue;
+    const key = `${cls}:${cell(row, 'name')}`;
+    if (seen.has(key)) {
+      found.push({
+        code: 'code-duplicate',
+        severity: 'warning',
+        message: `question "${question}" has code "${cell(row, 'name')}" twice; only one is kept`,
+        ...(question ? { name: question } : {}),
+      });
+    }
+    seen.add(key);
+  }
+  return found;
 }
 
 function unsupportedType(row: Row): SubsetViolation | null {

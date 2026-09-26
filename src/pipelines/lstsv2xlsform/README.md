@@ -139,6 +139,16 @@ listed here must match exactly.
 8. **`calculation` is not reversed — out of scope.** The `calculate` XLSForm
    type is not registered, so the forward converter rejects it and no TSV this
    tool produces contains a calculation question: there is nothing to reverse.
+9. **Group appearance is read from the survey format.** The TSV stores no
+   per-group appearance, only `format=G` (one page per group, from
+   `style: pages`). With it, every non-grid group comes back `field-list`;
+   without it, none does. A `field-list` group in a survey without
+   `style: pages` is lost, and so is a `style: pages` group that wasn't one.
+10. **`true()` / `false()` come back as `1` / `0`.** The forward writes EM
+    `1` / `0`, which can't be told apart from the numbers.
+11. **Group relevance includes the enclosing groups'.** LimeSurvey groups are
+    flat, so the forward ANDs every enclosing group's condition into each G
+    row; the reverse gives each (flat) group that combined condition.
 
 Resolved (kept here so the questions don't get re-litigated): **date subtypes**
 are fully recoverable — `TYPE_MAPPINGS[type].dateFormat` is a genuine 1:1 hint
