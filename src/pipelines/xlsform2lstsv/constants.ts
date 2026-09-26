@@ -12,4 +12,6 @@ export interface GroupStackItem {
   originalName: string;
   sanitizedName: string;
   emittedAsGroup: boolean;
+  /** The group's own XLSForm `relevant` (XPath), if any. */
+  relevant?: string;
 }

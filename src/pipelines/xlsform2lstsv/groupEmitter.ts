@@ -171,6 +171,15 @@ export class GroupEmitter {
     this.pendingGroupNotes = [];
   }
 
+  /** `own` AND-ed with every enclosing group's `relevant`, as XPath. */
+  private withAncestors(own: string): string {
+    const parts = [...this.groupStack.map((g) => g.relevant ?? ''), own].filter(
+      (r) => r !== '',
+    );
+    if (parts.length <= 1) return parts[0] ?? '';
+    return parts.map((r) => `(${r})`).join(' and ');
+  }
+
   /**
    * Handle a `begin_group` row. Three cases:
    *
@@ -183,13 +192,20 @@ export class GroupEmitter {
    *   - otherwise: push, emit G row, flush pending notes.
    */
   handleBeginGroup(
-    row: SurveyRow,
+    groupRow: SurveyRow,
     isMessageOnly: boolean,
     isParentOnly: boolean,
     helpers: GroupHelpers,
     onTableList: (sanitizedName: string) => void,
   ): void {
     const { sanitizeName, convertRelevance } = helpers;
+    const ownRelevant = relevantOf(groupRow);
+    // LimeSurvey groups are flat: a G row (or the note a flattened group
+    // becomes) carries its enclosing groups' conditions too.
+    const row: SurveyRow = {
+      ...groupRow,
+      relevant: this.withAncestors(ownRelevant),
+    };
     const originalName = (row.name || '').trim();
     const sanitizedName = originalName
       ? sanitizeName(originalName)
@@ -203,6 +219,7 @@ export class GroupEmitter {
         originalName,
         sanitizedName,
         emittedAsGroup: true,
+        relevant: ownRelevant,
       });
       this.rowEmitter.flushGroupContent();
       this.addGroup(row, sanitizeName, convertRelevance);
@@ -216,6 +233,7 @@ export class GroupEmitter {
         originalName,
         sanitizedName,
         emittedAsGroup: false,
+        relevant: ownRelevant,
       });
       return;
     }
@@ -225,6 +243,7 @@ export class GroupEmitter {
         originalName,
         sanitizedName,
         emittedAsGroup: false,
+        relevant: ownRelevant,
       });
       this.pendingGroupNotes.push(row);
       return;
@@ -234,9 +253,14 @@ export class GroupEmitter {
       originalName,
       sanitizedName,
       emittedAsGroup: true,
+      relevant: ownRelevant,
     });
     this.rowEmitter.flushGroupContent();
     this.addGroup(row, sanitizeName, convertRelevance);
     this.emitPendingGroupNotes(sanitizeName, convertRelevance);
   }
+}
+
+function relevantOf(row: SurveyRow): string {
+  return typeof row.relevant === 'string' ? row.relevant.trim() : '';
 }
