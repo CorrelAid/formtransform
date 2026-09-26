@@ -34,6 +34,8 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 - **`src/ddi/`** — the DDI-Codebook 2.5 emitter (`codebook.ts`, `xml.ts`, `notes.ts`) over the canonical `Variable[]` model (`types.ts`). This model is the hub: both DDI pipelines produce `Variable[]`, then one writer emits the XML.
 
+- **`src/instrument/`** — the parsed survey model (`types.ts`) and its parsers (`fromXlsform.ts`). Shared by every pipeline; it imports no format module or pipeline. See [The Instrument model](#the-instrument-model-69).
+
 - **`src/conventions/`** — one module per registry convention (`other.ts`, `fromFile.ts`, `exclusive.ts`, `grid.ts`, `metadata.ts`). Each reads its values from `src/generated/conventions` and exposes helpers; every format module and pipeline imports them from here. No convention value (suffix, choice code, label, prefix) is written out anywhere else, which `tests/ts/unit/conventionLiterals.test.ts` enforces.
 
 #### Pipelines
@@ -100,6 +102,36 @@ One module per supported direction. A pipeline owns everything cross-format; the
 ### DDI as the Hub
 
 Both DDI pipelines converge on the same emitter: they produce `Variable[]` (`src/ddi/types.ts`) and hand it to `buildDdiCodebook`. The variable model is the hub, not any one format.
+
+### The Instrument model (#69)
+
+Today two pipelines map rows to rows (`xlsform2lstsv`, `lstsv2xlsform`) and
+re-derive structure the other directions also need: the group tree, grids,
+the other pattern, languages. The target is one parsed model every direction
+goes through:
+
+```
+XLSForm rows ──parse──┐                 ┌──▶ Variable[] ──▶ DDI
+                      ├──▶ Instrument ──┼──▶ LimeSurvey TSV
+LimeSurvey TSV ─parse─┘                 └──▶ XLSForm
+```
+
+N parsers plus N emitters instead of one module per direction.
+`Instrument` (`src/instrument/types.ts`) keeps what the sources say, in
+XLSForm's vocabulary (type names, XPath) and in every language (`Text`,
+language tag → text); target decisions — LimeSurvey-sanitized names, the
+DDI's single language — belong to emitters. Each item keeps its source row as
+an escape hatch for columns the model doesn't lift yet.
+
+The migration runs in phases, each keeping every snapshot byte-identical:
+
+1. **XLSForm → Instrument; xlsform2ddi goes through it.** Done:
+   `extractVariables` is `variablesFromInstrument(instrumentFromXlsform(…))`.
+2. LimeSurvey TSV → Instrument; lstsv2ddi goes through it.
+3. Instrument → LimeSurvey TSV emitter replaces xlsform2lstsv's row walk.
+4. Instrument → XLSForm emitter replaces lstsv2xlsform's row walk.
+5. An expression AST in the model, so relevance/constraints are parsed once
+   (today: the XPath parser forward, the EM parser in reverse).
 
 ### Why there is no `ddi2xlsform` or `ddi2lstsv`
 

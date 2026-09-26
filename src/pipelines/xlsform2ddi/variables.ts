@@ -27,31 +27,22 @@ import {
 } from '../../generated/DdiMappings.js';
 
 import { Choice, Variable } from '../../ddi/types.js';
+import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
+import type {
+  Instrument,
+  Item,
+  QuestionItem,
+  Text,
+} from '../../instrument/types.js';
 
 type Row = Record<string, unknown>;
 
-// Semi-open "other" convention. XLSForm has two ways to author it: an explicit
-// `other` choice plus a `<base>_other` text question (what the registry entities
-// do), or the `or_other` suffix on the type string, which is shorthand for
-// exactly that pair. The DDI emitter only recognizes the explicit form
-// (`detectOtherPatterns` in codebook.ts needs both halves), so the shorthand is
-// expanded here — otherwise `or_other` produced no `other` category and no
-// free-text variable at all, silently dropping a column both LimeSurvey and ODK
-// store.
-/** XLSForm type-string token marking the shorthand form. */
-const OR_OTHER_TOKEN = 'or_other';
+// Semi-open "other" convention: the `or_other` type shorthand is expanded
+// into an `other` category plus a `<base>_other` text variable here, because
+// the DDI emitter only recognizes the explicit pair (`detectOtherPatterns`).
 
 /** Types the convention applies to (registry: `convention:other.appliesTo`). */
 const OTHER_TYPES = new Set(OTHER_APPLIES_TO);
-
-/**
- * Language tag of the label column in use (`label::German (de)` → `de`,
- * `label::fr-BE` → `fr-BE`), so the
- * synthesized category/companion labels match the survey's own language.
- */
-function langFromLabelCol(labelCol: string): string {
-  return extractLanguageCode(labelCol) ?? 'en';
-}
 
 /**
  * Types skipped during variable extraction: structural + non-emittable +
@@ -87,7 +78,6 @@ function toStr(value: unknown): string {
   return '';
 }
 
-/** Prefer a `label::<lang>` column, else plain `label`. */
 /**
  * The label column DDI text comes from: the `label::<tag>` of `language`
  * (settings.default_language) when there is one, else the first
@@ -114,47 +104,6 @@ function readLabel(row: Row, col: string, language?: string): string {
     return toStr((language && map[language]) ?? Object.values(map)[0]);
   }
   return toStr(raw);
-}
-
-/**
- * A text column in the label column's language: `hint` next to `label`,
- * `hint::German (de)` next to `label::German (de)`. Tolerates the loader's
- * `{ lang: value }` shape (the label's language, else the first value).
- */
-function readLangColumn(
-  row: Row,
-  base: string,
-  labelCol: string,
-  lang?: string,
-): string {
-  const suffix = labelCol.startsWith('label::')
-    ? labelCol.slice('label'.length)
-    : '';
-  const raw = row[base + suffix] ?? row[base];
-  if (raw != null && typeof raw === 'object') {
-    const map = raw as Record<string, unknown>;
-    return toStr(
-      map[lang ?? langFromLabelCol(labelCol)] ?? Object.values(map)[0],
-    );
-  }
-  return toStr(raw).trim();
-}
-
-/**
- * The guidance hint: the XLSForm `guidance_hint` column, else
- * `guidance_hint=<text>` in `parameters` (`;`-separated), which is how
- * qwacback's DDI → XLSForm export writes `<ivuInstr>`.
- */
-function readGuidanceHint(row: Row, labelCol: string, lang?: string): string {
-  const column = readLangColumn(row, 'guidance_hint', labelCol, lang);
-  if (column) return column;
-  for (const part of toStr(row['parameters']).split(';')) {
-    const eq = part.indexOf('=');
-    if (eq > 0 && part.slice(0, eq).trim() === 'guidance_hint') {
-      return part.slice(eq + 1).trim();
-    }
-  }
-  return '';
 }
 
 /** Keep only the non-empty fields, so absent hints stay absent. */
@@ -202,146 +151,162 @@ interface ResolvedType {
   vocab: string;
 }
 
-/** Resolve a raw XLSForm type string into a standardized type + list/vocab. */
-function resolveType(baseType: string, rawType: string): ResolvedType {
+/** Resolve a question's XLSForm type into a standardized type + list/vocab. */
+function resolveType(q: QuestionItem): ResolvedType {
   if (
-    baseType === 'select_one' ||
-    baseType === 'select_multiple' ||
-    baseType === 'rank'
+    q.type === 'select_one' ||
+    q.type === 'select_multiple' ||
+    q.type === 'rank'
   ) {
-    return {
-      stdType: baseType,
-      listName: rawType.split(/\s+/)[1] ?? '',
-      vocab: '',
-    };
+    return { stdType: q.type, listName: q.list, vocab: '' };
   }
-  if (isFromFileType(baseType)) {
-    const filename = rawType.split(/\s+/).slice(1).join(' ');
-    const vocab = vocabFromFilename(filename);
-    return { stdType: baseType, listName: '', vocab };
+  if (isFromFileType(q.type)) {
+    return { stdType: q.type, listName: '', vocab: vocabFromFilename(q.file) };
   }
-  return { stdType: TYPE_MAP[baseType] ?? baseType, listName: '', vocab: '' };
+  return { stdType: TYPE_MAP[q.type] ?? q.type, listName: '', vocab: '' };
 }
 
-/** Per-survey-row state shared by the helpers {@link extractVariables} dispatches to. */
-interface ExtractState {
+/**
+ * One language of a {@link Text}: `lang`'s value, else the untagged one, else
+ * the first. The DDI carries one language (#135 tracks the rest).
+ */
+function pick(text: Text, lang: string | undefined): string {
+  if (lang !== undefined && lang in text) return text[lang];
+  if ('' in text) return text[''];
+  return Object.values(text)[0] ?? '';
+}
+
+/** The enclosing group a variable is emitted under. */
+interface GroupContext {
+  path: string;
+  label: string;
+  appearance: string;
+}
+
+/** What the projection needs besides the item itself. */
+interface ProjectState {
   variables: Variable[];
-  groupStack: string[];
-  groupMeta: Record<string, { label: string; appearance: string }>;
-  /** Names authored in the sheet — guards against duplicating the `<base>_other`
-   * companion when the source form already carries an explicit one. */
+  /** Names authored in the sheet: an explicit `<base>_other` wins over or_other. */
   authoredNames: Set<string>;
-  /** Language of `label::<lang>` for the `or_other` synthesised labels. */
-  lang: string;
-  /** Source column for `label`, since sheets may use plain `label` or `label::<lang>`. */
-  labelCol: string;
-  /** settings.default_language, when given: picks a `{lang: text}` map's value. */
-  preferred?: string;
-  /** Sheet's resolved choices keyed by list_name. */
+  /** The DDI's language (see {@link projectionLanguage}). */
+  lang: string | undefined;
+  /** The language of synthesized "other" labels. */
+  otherLang: string;
   choicesByList: Record<string, Choice[]>;
 }
 
-/** Classify a survey row's `type` cell for the dispatch loop. */
-type RowKind = 'open' | 'close' | 'skip' | 'question';
-
-/** Mutating helpers used by {@link extractVariables}: keep {@link RowKind}
- * checks out of the loop body, so the loop stays a flat sequence of branches. */
-
-function classifyRow(rawType: string, baseType: string): RowKind {
-  if (rawType === 'begin_group') return 'open';
-  if (rawType === 'end_group') return 'close';
-  if (SKIP_TYPES.has(baseType)) return 'skip';
-  return 'question';
+/** True when the question is a data-carrying variable of the DDI. */
+function emitsVariable(q: QuestionItem): boolean {
+  if (!q.name || SKIP_TYPES.has(q.type)) return false;
+  // A registry appearance with carriesData: false (a matrix header).
+  return !NO_DATA_APPEARANCES.has(q.appearance);
 }
 
-function openGroup(row: Row, state: ExtractState): void {
-  const name = toStr(row['name']);
-  state.groupStack.push(name);
-  state.groupMeta[name] = {
-    label: readLabel(row, state.labelCol, state.preferred),
-    appearance: toStr(row['appearance']).toLowerCase(),
-  };
-}
-
-function closeGroup(state: ExtractState): void {
-  state.groupStack.pop();
-}
-
-/** Inner-most enclosing group's stored label/appearance (defaults if outside any group). */
-function currentGroupMeta(state: ExtractState): {
-  label: string;
-  appearance: string;
-} {
-  const cur = state.groupStack[state.groupStack.length - 1] ?? '';
-  return state.groupMeta[cur] ?? { label: '', appearance: '' };
-}
-
-/** True when the `select_* <list> or_other` shorthand is present in `rawType`. */
-function isOrOther(stdType: string, rawType: string): boolean {
-  return (
-    OTHER_TYPES.has(stdType) &&
-    rawType.split(/\s+/).slice(1).includes(OR_OTHER_TOKEN)
-  );
-}
-
-/** Run the `_or_other` expansion for one row's choice list (in place copy). */
-function expandedChoices(
-  baseChoices: Choice[],
-  stdType: string,
-  rawType: string,
-  lang: string,
-): Choice[] {
-  if (!isOrOther(stdType, rawType)) return baseChoices;
-  if (baseChoices.some((c) => c.name === OTHER_CODE)) return baseChoices;
-  return [...baseChoices, { name: OTHER_CODE, label: otherLabelFor(lang) }];
-}
-
-/** Append the question variable + (when applicable) its `_other` companion. */
-function pushQuestionRow(
-  row: Row,
-  baseType: string,
-  rawType: string,
-  state: ExtractState,
+function pushQuestion(
+  q: QuestionItem,
+  ctx: GroupContext,
+  state: ProjectState,
 ): void {
-  const name = toStr(row['name']);
-  if (!name) return;
-  const { stdType, listName, vocab } = resolveType(baseType, rawType);
-  const group = state.groupStack.join('/');
-  const gm = currentGroupMeta(state);
-
-  const baseChoices = listName ? (state.choicesByList[listName] ?? []) : [];
-  const choices = expandedChoices(baseChoices, stdType, rawType, state.lang);
+  if (!emitsVariable(q)) return;
+  const { stdType, listName, vocab } = resolveType(q);
+  const orOther = q.orOther && OTHER_TYPES.has(stdType);
+  const base = listName ? (state.choicesByList[listName] ?? []) : [];
+  const choices =
+    orOther && !base.some((c) => c.name === OTHER_CODE)
+      ? [...base, { name: OTHER_CODE, label: otherLabelFor(state.otherLang) }]
+      : base;
+  const group = {
+    group: ctx.path,
+    groupLabel: ctx.label,
+    groupAppearance: ctx.appearance,
+  };
 
   state.variables.push({
-    name,
+    name: q.name,
     type: stdType,
-    label: readLabel(row, state.labelCol, state.preferred),
-    group,
-    groupLabel: gm.label,
-    groupAppearance: gm.appearance,
+    label: pick(q.label, state.lang),
+    ...group,
     listName,
     vocab,
     choices,
     ...optionalText({
-      hint: readLangColumn(row, 'hint', state.labelCol, state.preferred),
-      guidanceHint: readGuidanceHint(row, state.labelCol, state.preferred),
+      hint: pick(q.hint, state.lang).trim(),
+      guidanceHint: pick(q.guidanceHint, state.lang).trim(),
     }),
   });
 
-  if (!isOrOther(stdType, rawType)) return;
-  const companionName = name + OTHER_SUFFIX;
-  if (state.authoredNames.has(companionName)) return;
+  const companionName = q.name + OTHER_SUFFIX;
+  if (!orOther || state.authoredNames.has(companionName)) return;
   state.variables.push({
     name: companionName,
     type: OTHER_COMPANION_TYPE,
-    label: otherLabelFor(state.lang),
-    group,
-    groupLabel: gm.label,
-    groupAppearance: gm.appearance,
+    label: otherLabelFor(state.otherLang),
+    ...group,
     listName: '',
     vocab: '',
     choices: [],
   });
+}
+
+function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
+  for (const item of items) {
+    if (item.kind === 'question') {
+      pushQuestion(item, ctx, state);
+      continue;
+    }
+    project(
+      item.children,
+      {
+        path: ctx.path ? `${ctx.path}/${item.name}` : item.name,
+        label: pick(item.label, state.lang),
+        appearance: item.appearance,
+      },
+      state,
+    );
+  }
+}
+
+function authoredNames(items: Item[], into = new Set<string>()): Set<string> {
+  for (const item of items) {
+    if (item.name) into.add(item.name);
+    if (item.kind === 'group') authoredNames(item.children, into);
+  }
+  return into;
+}
+
+/**
+ * The DDI's language: `preferred` (settings.default_language) when the form
+ * has it, else the form's first language (`undefined` when untagged).
+ */
+function projectionLanguage(
+  instrument: Instrument,
+  preferred?: string,
+): string | undefined {
+  if (preferred && instrument.languages.includes(preferred)) return preferred;
+  const first = instrument.languages[0];
+  return first === '' ? preferred : first;
+}
+
+/**
+ * The DDI's variables: an {@link Instrument} projected onto one language and
+ * flattened in survey order (group path/label/appearance on each).
+ */
+export function variablesFromInstrument(
+  instrument: Instrument,
+  choicesByList: Record<string, Choice[]>,
+  options: { language?: string } = {},
+): Variable[] {
+  const preferred = options.language ?? instrument.defaultLanguage;
+  const lang = projectionLanguage(instrument, preferred);
+  const state: ProjectState = {
+    variables: [],
+    authoredNames: authoredNames(instrument.body),
+    lang,
+    otherLang: lang || 'en',
+    choicesByList,
+  };
+  project(instrument.body, { path: '', label: '', appearance: '' }, state);
+  return state.variables;
 }
 
 /**
@@ -354,46 +319,9 @@ export function extractVariables(
   choicesByList: Record<string, Choice[]>,
   options: { language?: string } = {},
 ): Variable[] {
-  const labelCol = findLabelCol(surveyRows, options.language);
-  const lang =
-    labelCol === 'label' && options.language
-      ? options.language
-      : langFromLabelCol(labelCol);
-  const authoredNames = new Set(
-    surveyRows.map((r) => toStr(r['name'])).filter(Boolean),
-  );
-
-  const state: ExtractState = {
-    variables: [],
-    groupStack: [],
-    groupMeta: {},
-    authoredNames,
-    lang,
-    labelCol,
-    preferred: options.language,
+  return variablesFromInstrument(
+    instrumentFromXlsform(surveyRows),
     choicesByList,
-  };
-
-  for (const row of surveyRows) {
-    const rawType = toStr(row['type']).trim();
-    if (!rawType) continue;
-    const baseType = rawType.split(/\s+/)[0];
-    const kind = classifyRow(rawType, baseType);
-
-    if (kind === 'open') {
-      openGroup(row, state);
-    } else if (kind === 'close') {
-      closeGroup(state);
-    } else if (kind === 'skip') {
-      continue;
-    } else if (
-      NO_DATA_APPEARANCES.has(toStr(row['appearance']).trim().toLowerCase())
-    ) {
-      continue;
-    } else {
-      pushQuestionRow(row, baseType, rawType, state);
-    }
-  }
-
-  return state.variables;
+    options,
+  );
 }
