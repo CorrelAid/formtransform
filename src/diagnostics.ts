@@ -27,6 +27,8 @@ export type DiagnosticCode =
   | 'code-truncated'
   | 'label-missing'
   | 'hint-dropped'
+  | 'reference-unknown'
+  | 'literal-invalid'
   | 'type-unregistered'
   | 'type-unsupported'
   | 'choice-list-missing'

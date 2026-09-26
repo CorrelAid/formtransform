@@ -20,6 +20,7 @@ import { OTHER_SUFFIX } from '../conventions/other.js';
 import { isFromFileType } from '../conventions/fromFile.js';
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
 import { normalizeName } from './identifiers.js';
+import { expressionReferenceDiagnostics } from './references.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
 const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
@@ -538,6 +539,13 @@ export class XLSValidator {
       if (found) violations.push(found);
     }
     violations.push(...this.exclusiveProblems(surveyData, choicesData));
+    violations.push(
+      ...expressionReferenceDiagnostics(
+        surveyData,
+        choicesData,
+        options.fileChoices,
+      ),
+    );
 
     return violations;
   }
