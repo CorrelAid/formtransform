@@ -41,12 +41,4 @@ export class TSVGenerator {
     }
     return value;
   }
-
-  clear(): void {
-    this.rows = [];
-  }
-
-  getRowCount(): number {
-    return this.rows.length;
-  }
 }

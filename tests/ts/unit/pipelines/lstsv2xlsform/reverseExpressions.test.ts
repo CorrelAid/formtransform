@@ -69,6 +69,16 @@ describe('reverseRelevance — round-trips the forward dialect', () => {
     ["contains(${x}, 'a')", 'contains'],
     ['today()', 'today'],
     ['now()', 'now'],
+    ['count(${langs}) > 1', 'count'],
+    ['sum(${a}) > 1', 'sum'],
+    ['${a} + ${b} > 10', 'plus'],
+    ['${a} - ${b} > 10', 'minus'],
+    ['${a} * ${b} > 10', 'times'],
+    ['${a} div ${b} > 10', 'div'],
+    ['${a} mod 2 = 0', 'mod'],
+    ['if(${a} > 1, 2, 3) = 2', 'if'],
+    ["regex(${x}, '^[0-9]+$')", 'regex'],
+    ['round(floor(${x}) * 2) > 3', 'nested calls'],
   ])('%s (%s)', async (xpath) => {
     const { em, em2 } = await roundTrip(xpath);
     expect(em2).toBe(em);
@@ -125,6 +135,8 @@ describe('reverseConstraint — round-trips the forward dialect', () => {
     ['${age} >= 18 and ${age} <= 65', 'field range'],
     ["contains(., 'x')", 'contains on self'],
     ['round(${x}) > 2', 'round'],
+    ["regex(., '^[A-Z]{2}$')", 'regex on self'],
+    ['. mod 5 = 0', 'mod on self'],
   ])('%s (%s)', async (xpath) => {
     const { em, em2 } = await constraintRoundTrip(xpath);
     expect(em2).toBe(em);
@@ -144,6 +156,29 @@ describe('reverseConstraint — direct unit checks', () => {
   test('range with and reverses correctly', () => {
     expect(reverseConstraint('self >= 1 and self <= 100')).toBe(
       '. >= 1 and . <= 100',
+    );
+  });
+});
+
+describe('rejects EM outside the forward dialect (em-unsupported)', () => {
+  // Each input is valid-looking EM the forward transpiler never writes; the
+  // reverse must refuse it rather than guess.
+  test.each([
+    ['a b', 'two operands without an operator'],
+    ['== 1', 'operator without a left operand'],
+    ['a ==', 'operator without a right operand'],
+    ['!x', 'C-style negation'],
+    ['a & b', 'bitwise and'],
+    ["'x", 'unterminated string'],
+    ['a # b', 'unknown character'],
+    ['unknownfn(a)', 'unknown function'],
+    ["langs_de.NAOK == 'N'", "a select_multiple marker compared with 'N'"],
+    ["'x' == a.NAOK", 'a NAOK marker on the right'],
+    ['a.NAOK > 1', 'a NAOK marker outside =='],
+    ['a.NAOK == b', 'a NAOK marker compared with a non-string'],
+  ])('%s (%s)', (em) => {
+    expect(() => reverseRelevance(em, selectCtx)).toThrow(
+      expect.objectContaining({ code: 'em-unsupported' }),
     );
   });
 });

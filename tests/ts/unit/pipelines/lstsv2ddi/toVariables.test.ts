@@ -30,6 +30,22 @@ describe('lstsvToVariables — type mapping', () => {
   });
 });
 
+describe('lstsvToVariables — type overrides', () => {
+  test('`!` (dropdown) is a select_one, `T` (long text) is text', () => {
+    const vars = lstsvToVariables([
+      LANG,
+      row({ class: 'Q', 'type/scale': '!', name: 'land', text: 'Land' }),
+      row({ class: 'A', name: 'de', text: 'Deutschland' }),
+      row({ class: 'Q', 'type/scale': 'T', name: 'essay', text: 'Essay' }),
+    ]);
+    expect(vars.map((v) => [v.name, v.type])).toEqual([
+      ['land', 'select_one'],
+      ['essay', 'text'],
+    ]);
+    expect(vars[0].choices).toEqual([{ name: 'de', label: 'Deutschland' }]);
+  });
+});
+
 describe('lstsvToVariables — choices', () => {
   test('A rows attach as select_one choices', () => {
     const vars = lstsvToVariables([

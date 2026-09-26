@@ -83,6 +83,7 @@ describe('lstsv2xlsform round-trip', () => {
       expect(normalizeChoices(observed.choices)).toEqual(
         normalizeChoices(original.choices ?? []),
       );
+      expect(observed.settings).toEqual(original.settings ?? []);
     },
   );
 });

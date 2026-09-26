@@ -18,7 +18,9 @@
  *   reverse  tsv     → ddi        same variables + response domains as the forward
  *                                 DDI (names sanitized, since LimeSurvey names are
  *                                 alphanumeric-only)
- *   reverse  tsv     → xlsform    question names + types survive
+ *   reverse  tsv     → xlsform    every question's type, relevant, constraint and
+ *                                 appearance match the source, except the pinned
+ *                                 KNOWN_REVERSE_XLSFORM_DIFFS
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -31,6 +33,10 @@ import { lstsvToDdiXml } from '../../../src/pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
 import { XLSLoader } from '../../../src/xlsform/loader.js';
 import { XLSFormToTSVConverter } from '../../../src/pipelines/xlsform2lstsv/index.js';
+import { METADATA_ROW_TYPES } from '../../../src/conventions/metadata.js';
+import { otherCompanionBase } from '../../../src/conventions/other.js';
+import { FieldSanitizer } from '../../../src/xlsform/sanitize.js';
+import { normalizeName } from '../../../src/xlsform/identifiers.js';
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -64,6 +70,114 @@ const REVERSE_DDI_STRUCTURAL_DIFF: Record<string, string> = {
   all_types_survey:
     'metadata/hidden rows (start, end, today, deviceid, username, audit, hidden1) are ' +
     'variables in the forward DDI but are skipped by the TSV, so the reverse cannot know them',
+};
+
+/**
+ * What tsv → xlsform measurably does not give back, per survey (see
+ * reverseXlsformDiffs). Exact: a fix or a new loss both fail the suite, so the
+ * list only shrinks deliberately.
+ */
+const KNOWN_REVERSE_XLSFORM_DIFFS: Record<
+  string,
+  { why: string; diffs: string[] }
+> = {
+  all_types_survey: {
+    why: 'a matrix (label header + list-nolabel rows) comes back as the canonical table-list grid, so the header row and the per-row appearance are gone; `likert` has no LimeSurvey equivalent',
+    diffs: [
+      'q_likert.appearance: likert -> ∅',
+      'matrix_header: missing',
+      'skill_python.appearance: list-nolabel -> ∅',
+      'skill_js.appearance: list-nolabel -> ∅',
+      'skill_sql.appearance: list-nolabel -> ∅',
+    ],
+  },
+  complex_xpath_survey: {
+    why: '#98: the reverse EM parser drops parentheses; true()/false() come back as 1/0',
+    diffs: [
+      "eligible_participant.relevant: ${age} >= 18 and (${country} = 'USA' or ${country} = 'Canada') -> ${age} >= 18 and ${country} = 'USA' or ${country} = 'Canada'",
+      'age_category.relevant: if(${age} > 18, true(), false()) -> if(${age} > 18, 1, 0)',
+      "complex_validation.relevant: ${consent} = 'yes' and (${age} >= 18 or ${country} = 'USA') -> ${consent} = 'yes' and ${age} >= 18 or ${country} = 'USA'",
+    ],
+  },
+  testA: {
+    why: "`likert` has no LimeSurvey equivalent; answer codes are cut to LimeSurvey's 5 characters (`andere` \u2192 `ander`)",
+    diffs: [
+      'wohlfuehlen.appearance: likert -> ∅',
+      'freundschaften.appearance: likert -> ∅',
+      'eigene_ideen.appearance: likert -> ∅',
+      'problemloesung.appearance: likert -> ∅',
+      'skills_gelernt.appearance: likert -> ∅',
+      'beruf_pre.appearance: likert -> ∅',
+      'beruf_post.appearance: likert -> ∅',
+      'nps_score.appearance: likert -> ∅',
+      "geschlecht_andere.relevant: ${geschlecht} = 'andere' -> ${geschlecht} = 'ander'",
+    ],
+  },
+  testB: {
+    why: 'answer codes are cut to 5 characters and deduplicated (`project-beta` \u2192 `proj1`); a matrix comes back as the canonical table-list grid (header row and per-row appearance gone)',
+    diffs: [
+      "project_role_project-alpha.relevant: selected(${projectid}, 'project-alpha') -> selected(${projectid}, 'proje')",
+      "project_role_project-beta.relevant: selected(${projectid}, 'project-beta') -> selected(${projectid}, 'proj1')",
+      "project_role_project-gamma.relevant: selected(${projectid}, 'project-gamma') -> selected(${projectid}, 'proj2')",
+      'rating_technologies_tools_header: missing',
+      "sosci_survey.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'sosci_survey.appearance: list-nolabel -> ∅',
+      "python.relevant: selected(${projectroleprojectal}, 'role-data-analysis') -> selected(${projectroleprojectal}, 'roled')",
+      'python.appearance: list-nolabel -> ∅',
+      "rstats.relevant: selected(${projectroleprojectal}, 'role-data-analysis') -> selected(${projectroleprojectal}, 'roled')",
+      'rstats.appearance: list-nolabel -> ∅',
+      "powerbi.relevant: selected(${projectroleprojectbe}, 'role-visualization') -> selected(${projectroleprojectbe}, 'rolev')",
+      'powerbi.appearance: list-nolabel -> ∅',
+      "excel.relevant: selected(${projectroleprojectbe}, 'role-visualization') -> selected(${projectroleprojectbe}, 'rolev')",
+      'excel.appearance: list-nolabel -> ∅',
+      "sql.relevant: selected(${projectroleprojectbe}, 'role-data-engineering') -> selected(${projectroleprojectbe}, 'roled')",
+      'sql.appearance: list-nolabel -> ∅',
+      "git.relevant: selected(${projectroleprojectbe}, 'role-data-engineering') -> selected(${projectroleprojectbe}, 'roled')",
+      'git.appearance: list-nolabel -> ∅',
+      "jupyter.relevant: selected(${projectroleprojectga}, 'role-machine-learning') -> selected(${projectroleprojectga}, 'rolem')",
+      'jupyter.appearance: list-nolabel -> ∅',
+      "tensorflow.relevant: selected(${projectroleprojectga}, 'role-machine-learning') -> selected(${projectroleprojectga}, 'rolem')",
+      'tensorflow.appearance: list-nolabel -> ∅',
+      'rating_techniques_header.type: select_one -> begin_group',
+      'rating_techniques_header.appearance: label -> table-list',
+      "survey_design.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'survey_design.appearance: list-nolabel -> ∅',
+      "indicator_development.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'indicator_development.appearance: list-nolabel -> ∅',
+      "data_collection.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'data_collection.appearance: list-nolabel -> ∅',
+      "data_cleaning.relevant: selected(${projectroleprojectal}, 'role-data-analysis') -> selected(${projectroleprojectal}, 'roled')",
+      'data_cleaning.appearance: list-nolabel -> ∅',
+      "descriptive_statistics.relevant: selected(${projectroleprojectal}, 'role-data-analysis') -> selected(${projectroleprojectal}, 'roled')",
+      'descriptive_statistics.appearance: list-nolabel -> ∅',
+      "data_visualization.relevant: selected(${projectroleprojectbe}, 'role-visualization') -> selected(${projectroleprojectbe}, 'rolev')",
+      'data_visualization.appearance: list-nolabel -> ∅',
+      "data_engineering.relevant: selected(${projectroleprojectbe}, 'role-data-engineering') -> selected(${projectroleprojectbe}, 'roled')",
+      'data_engineering.appearance: list-nolabel -> ∅',
+      "automation.relevant: selected(${projectroleprojectbe}, 'role-data-engineering') -> selected(${projectroleprojectbe}, 'roled')",
+      'automation.appearance: list-nolabel -> ∅',
+      "projectplanning.relevant: selected(${projectroleprojectga}, 'role-project-management') -> selected(${projectroleprojectga}, 'rolep')",
+      'projectplanning.appearance: list-nolabel -> ∅',
+      "mlmodeling.relevant: selected(${projectroleprojectga}, 'role-machine-learning') -> selected(${projectroleprojectga}, 'rolem')",
+      'mlmodeling.appearance: list-nolabel -> ∅',
+      'rating_topics_header.type: select_one -> begin_group',
+      'rating_topics_header.appearance: label -> table-list',
+      "wirkungsmessung.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'wirkungsmessung.appearance: list-nolabel -> ∅',
+      "research_design.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'research_design.appearance: list-nolabel -> ∅',
+      "survey_research.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'survey_research.appearance: list-nolabel -> ∅',
+      "data_protection.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'data_protection.appearance: list-nolabel -> ∅',
+      "resilience_mental_health.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'resilience_mental_health.appearance: list-nolabel -> ∅',
+      "education_research.relevant: selected(${projectroleprojectal}, 'role-survey-design') -> selected(${projectroleprojectal}, 'roles')",
+      'education_research.appearance: list-nolabel -> ∅',
+      "past_applications_details.relevant: ${pastapplications} = 'not_successful' -> ${pastapplications} = 'notsu'",
+      "gender_self_identification.relevant: ${gender} = 'self_identification' -> ${gender} = 'selfi'",
+    ],
+  },
 };
 
 interface SurveyCase {
@@ -117,6 +231,69 @@ function discoverCases(): SurveyCase[] {
 }
 
 const CASES = discoverCases();
+
+type Row = Record<string, unknown>;
+
+/** Types the reverse spells differently by design: LimeSurvey has one numeric
+ * type (N → decimal) and `string` is XLSForm's alias of `text`. */
+const REVERSE_TYPE = (t: string): string =>
+  ({ integer: 'decimal', int: 'decimal', string: 'text' })[t] ?? t;
+
+/**
+ * Per question, what tsv → xlsform does not give back: `<name>.<field>: a -> b`,
+ * or `<name>: missing`. Names are mapped the way the forward TSV writes them
+ * (sanitized, unique, ≤ 20 chars); `${ref}`s inside expressions likewise.
+ * Groups, metadata rows and `end_*` rows are not questions and are skipped.
+ */
+function reverseXlsformDiffs(c: SurveyCase, back: Row[]): string[] {
+  const sanitizer = new FieldSanitizer(() => {});
+  const lsName = new Map<string, string>();
+  for (const r of c.survey) {
+    const t = String(r.type ?? '').trim();
+    const n = String(r.name ?? '').trim();
+    if (!n || t.startsWith('end')) continue;
+    try {
+      lsName.set(n, sanitizer.sanitizeNameUnique(n));
+    } catch {
+      /* a name with nothing usable: reported as missing below */
+    }
+  }
+  const mapName = (n: string) => {
+    const base = otherCompanionBase(n);
+    if (base && lsName.has(base)) return `${lsName.get(base)}_other`;
+    return lsName.get(n) ?? normalizeName(n);
+  };
+  const expr = (v: unknown) =>
+    String(v ?? '')
+      .replace(/\$\{\s*([^}\s]+)\s*\}/g, (_, n: string) => `\${${mapName(n)}}`)
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const byName = new Map(back.map((r) => [String(r.name), r]));
+  const diffs: string[] = [];
+  for (const r of c.survey) {
+    const t = String(r.type ?? '').trim();
+    const base = t.split(/\s+/)[0];
+    if (!t || /^(begin|end)[_ ]/.test(t) || METADATA_ROW_TYPES.includes(base)) {
+      continue;
+    }
+    const name = String(r.name ?? '');
+    const b = byName.get(mapName(name));
+    if (!b) {
+      diffs.push(`${name}: missing`);
+      continue;
+    }
+    const backType = String(b.type ?? '').split(/\s+/)[0];
+    if (REVERSE_TYPE(base) !== backType) {
+      diffs.push(`${name}.type: ${base} -> ${backType}`);
+    }
+    for (const f of ['relevant', 'constraint', 'appearance']) {
+      const [a, z] = [expr(r[f]), expr(b[f])];
+      if (a !== z) diffs.push(`${name}.${f}: ${a || '∅'} -> ${z || '∅'}`);
+    }
+  }
+  return diffs;
+}
 
 /** `prodDate` is build-time wallclock; scrub so comparison survives the calendar. */
 function scrubProdDate(xml: string): string {
@@ -220,21 +397,12 @@ describe.each(CASES.map((c) => [c.name, c] as const))(
       ).toEqual(variableShape(forward));
     });
 
-    test('tsv → xlsform preserves question names and types', () => {
+    test('tsv → xlsform gives back each question, except the pinned losses', () => {
       const tsv = fs.readFileSync(path.join(c.dir, 'tsv.tsv'), 'utf-8');
       const back = lstsvToXlsform(tsv, { skipValidation: true });
-      const backRows = back.survey.filter(
-        (r) => !String(r.type ?? '').startsWith('begin_'),
+      expect(reverseXlsformDiffs(c, back.survey as Row[])).toEqual(
+        KNOWN_REVERSE_XLSFORM_DIFFS[name]?.diffs ?? [],
       );
-      expect(
-        backRows.length,
-        `${name}: reverse produced no questions`,
-      ).toBeGreaterThan(0);
-      for (const row of backRows) {
-        expect(String(row.type ?? ''), `${name}: row without a type`).not.toBe(
-          '',
-        );
-      }
     });
   },
 );
