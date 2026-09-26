@@ -5,8 +5,42 @@ import { ChoiceManager } from './choiceManager.js';
 import { GroupEmitter } from './groupEmitter.js';
 import { Counters } from './counters.js';
 import { deduplicateNames } from '../../utils/helpers.js';
+import type { ChoiceRow } from '../../xlsform/types.js';
 import { consoleWarning, warning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
+
+/**
+ * The LimeSurvey code of each choice: sanitized, cut to 5 characters, and
+ * made unique within the list (`code-duplicate` warning when a suffix is
+ * needed). A nameless choice gets `fallback()`. Every list emitter (answers,
+ * subquestions, a grid's shared scale) goes through here, so the codes match
+ * what ChoiceManager.buildAnswerCodeMap resolves in expressions.
+ */
+export function answerCodes(
+  choices: ChoiceRow[],
+  sanitize: (code: string) => string,
+  fallback: () => string,
+  onWarning: WarningHandler,
+  listName?: string,
+): string[] {
+  const rawNames = choices.map((choice) => {
+    const raw = choice.name?.trim() ?? '';
+    return raw ? sanitize(raw) : fallback();
+  });
+  const names = deduplicateNames(rawNames, 5);
+  names.forEach((name, i) => {
+    if (name !== rawNames[i]) {
+      onWarning(
+        warning(
+          'code-duplicate',
+          `Duplicate answer code "${rawNames[i]}" resolved to "${name}"`,
+          listName,
+        ),
+      );
+    }
+  });
+  return names;
+}
 
 export interface AnswerHelpers {
   sanitizeAnswerCode(code: string): string;
@@ -54,29 +88,16 @@ export class AnswerEmitter {
       lsType.answerClass ||
       (xfTypeInfo.base === 'select_multiple' ? 'SQ' : 'A');
 
-    // Pre-compute and deduplicate sanitized choice names
-    const rawNames = choices.map((choice) => {
-      const rawName =
-        choice.name && choice.name.trim() !== '' ? choice.name.trim() : '';
-      if (rawName) return helpers.sanitizeAnswerCode(rawName);
-      if (answerClass === 'SQ') {
-        return `SQ${this.counters.subquestionSeq++}`;
-      }
-      return `A${this.counters.answerSeq++}`;
-    });
-
-    const choiceNames = deduplicateNames(rawNames, 5);
-    for (let i = 0; i < rawNames.length; i++) {
-      if (choiceNames[i] !== rawNames[i]) {
-        this.onWarning(
-          warning(
-            'code-duplicate',
-            `Duplicate answer code "${rawNames[i]}" resolved to "${choiceNames[i]}"`,
-            xfTypeInfo.listName ?? undefined,
-          ),
-        );
-      }
-    }
+    const choiceNames = answerCodes(
+      choices,
+      (code) => helpers.sanitizeAnswerCode(code),
+      () =>
+        answerClass === 'SQ'
+          ? `SQ${this.counters.subquestionSeq++}`
+          : `A${this.counters.answerSeq++}`,
+      this.onWarning,
+      xfTypeInfo.listName ?? undefined,
+    );
 
     for (let i = 0; i < choices.length; i++) {
       const choice = choices[i];

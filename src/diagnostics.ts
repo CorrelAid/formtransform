@@ -24,6 +24,7 @@ export type DiagnosticCode =
   | 'code-invalid'
   | 'code-too-long'
   | 'code-duplicate'
+  | 'grid-list-mismatch'
   | 'code-missing'
   | 'code-empty-after-sanitize'
   | 'code-truncated'
