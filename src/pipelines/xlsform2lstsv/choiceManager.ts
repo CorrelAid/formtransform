@@ -1,4 +1,5 @@
-import { ChoiceRow, SurveyRow } from '../../xlsform/types.js';
+import type { QuestionItem } from '../../instrument/types.js';
+import { ChoiceRow } from '../../xlsform/types.js';
 import { normalizeName } from '../../xlsform/identifiers.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TypeInfo } from './typeMapper.js';
@@ -65,16 +66,16 @@ export class ChoiceManager {
   }
 
   buildQuestionToListMap(
-    surveyData: SurveyRow[],
+    questions: QuestionItem[],
     parseType: (type: string) => TypeInfo,
     sanitizeName: (name: string) => string,
   ): void {
     this.questionToListMap = new Map();
     this.questionBaseTypeMap = new Map();
-    for (const row of surveyData) {
-      const typeInfo = parseType(row.type || '');
-      if (typeInfo.listName && row.name) {
-        const sanitizedName = sanitizeName(row.name.trim());
+    for (const q of questions) {
+      const typeInfo = parseType(q.rawType);
+      if (typeInfo.listName && q.name) {
+        const sanitizedName = sanitizeName(q.name);
         this.questionToListMap.set(sanitizedName, typeInfo.listName);
         this.questionBaseTypeMap.set(sanitizedName, typeInfo.base);
       }

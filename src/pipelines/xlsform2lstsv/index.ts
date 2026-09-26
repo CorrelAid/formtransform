@@ -16,6 +16,7 @@ import { OtherPatternDetector } from './otherPatternDetector.js';
 import { OTHER_SUFFIX } from '../../conventions/other.js';
 import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
 import type { Item } from '../../instrument/types.js';
+import { allItems, allQuestions } from '../../instrument/walk.js';
 
 /** What closes a group in the row stream processRow reads. */
 const END_GROUP_ROW: SurveyRow = { type: 'end_group' };
@@ -166,15 +167,6 @@ class Conversion {
     settingsData: SettingsRow[],
     fileChoices: Record<string, ChoiceRow[]>,
   ): string {
-    this.fileChoices = { ...registeredFileChoices(surveyData), ...fileChoices };
-    this.rowCheck = {
-      listNames: XLSValidator.listNamesOf(choicesData),
-      fileChoices: this.fileChoices,
-    };
-
-    // Pre-scan for welcome/end notes (must happen before group identification)
-    this.surveySettingsEmitter.captureNotes(surveyData);
-
     // The survey as a tree (#69): the group pre-scans read it, and the rows
     // are emitted by walking it.
     const instrument = instrumentFromXlsform(
@@ -183,19 +175,30 @@ class Conversion {
       settingsData,
     );
 
+    // Pre-scan for welcome/end notes (must happen before group identification)
+    this.surveySettingsEmitter.captureNotes(allQuestions(instrument.body));
+    // Every item's source row, in survey order: what the row-based scans read.
+    const rows = allItems(instrument.body).map((item) => item.row as SurveyRow);
+
+    this.fileChoices = { ...registeredFileChoices(rows), ...fileChoices };
+    this.rowCheck = {
+      listNames: XLSValidator.listNamesOf(choicesData),
+      fileChoices: this.fileChoices,
+    };
+
     // Parent-only groups (no direct questions) and message-only groups (only
     // a welcome/end note)
     this.groupProcessor.identifyGroups(instrument.body);
 
     // Cache survey data for pattern detection
-    this.surveyDataCache = surveyData;
+    this.surveyDataCache = rows;
 
     // Set base language from settings first
     this.languageHandler.setBaseLanguage(settingsData[0] || {});
 
     // Detect available languages from survey data (will use baseLanguage for ordering)
     this.languageHandler.detectAvailableLanguages(
-      surveyData,
+      rows,
       choicesData,
       settingsData,
     );
@@ -205,14 +208,14 @@ class Conversion {
     this.choiceManager.addFileChoices(this.fileChoices);
 
     // Pre-scan: register all field names to detect and resolve collisions
-    this.fieldNameHandler.registerFieldNames(surveyData);
+    this.fieldNameHandler.registerFieldNames(rows);
 
     // Build answer code and question-to-list maps for relevance rewriting
     this.choiceManager.buildAnswerCodeMap((code) =>
       this.fieldNameHandler.sanitizeAnswerCode(code),
     );
     this.choiceManager.buildQuestionToListMap(
-      surveyData,
+      allQuestions(instrument.body),
       (type) => this.typeMapper.parseType(type),
       (name) => this.fieldNameHandler.sanitizeName(name),
     );
@@ -230,10 +233,10 @@ class Conversion {
     if (this.configManager.getConfig().convertOtherPattern) {
       const sanitize = (name: string) =>
         this.fieldNameHandler.sanitizeName(name);
-      for (const row of surveyData) {
+      for (const row of rows) {
         const companion = this.otherPatternDetector.companionOf(
           row,
-          surveyData,
+          rows,
           sanitize,
         );
         if (!companion) continue;
