@@ -85,7 +85,8 @@ jobs:
           npm init -y >/dev/null
           npm pkg set type=module
           npm install --ignore-scripts "$GITHUB_WORKSPACE"/assets/correlaid-formtransform-*.tgz
-          node -e "import('@correlaid/formtransform').then((m) => { if (!m.XLSFormToTSVConverter) process.exit(1); })"
+          node -e "import('@correlaid/formtransform').then((m) => { if (!m.xlsformToLstsv) process.exit(1); })"
+          node -e "import('@correlaid/formtransform/internals').then((m) => { if (!m.TypeMapper) process.exit(1); })"
           npx --no-install formtransform --help >/dev/null
 
       - name: Upload to the release (never overwrite)

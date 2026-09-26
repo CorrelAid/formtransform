@@ -76,13 +76,12 @@ filesystem, no network. With files from an `<input type="file">`:
 ```typescript
 import {
   XLSLoader,
-  XLSValidator,
   parseResponses,
-  buildDdiXml,
+  xlsformToDdi,
   buildDataCsv,
   extractVariables,
   choicesByListFromRows,
-  lstsvToDdiXml,
+  lstsvToDdi,
   lstsvToDataCsv,
 } from '@correlaid/formtransform';
 
@@ -90,16 +89,10 @@ import {
 const form = XLSLoader.parseXLSData(await formFile.arrayBuffer(), {
   skipValidation: true, // the LimeSurvey name subset doesn't apply to DDI
 });
-// The subset check for DDI: types, choice lists, unique names/codes.
-const errors = XLSValidator.validateSubset(form.surveyData, form.choicesData, {
-  target: 'ddi',
-}).filter((v) => v.severity === 'error');
-if (errors.length) throw new Error(errors.map((e) => e.message).join('\n'));
 const rows = parseResponses(await dataFile.text(), dataFile.name);
-const xml = buildDdiXml(form.surveyData, form.choicesData, {
-  settings: form.settingsData[0],
-  submissions: rows,
-});
+// Checks the DDI subset (types, choice lists, unique names/codes) and throws a
+// ConversionError listing every problem.
+const xml = xlsformToDdi(form, { submissions: rows });
 const csv = buildDataCsv(
   extractVariables(form.surveyData, choicesByListFromRows(form.choicesData)),
   rows,
@@ -108,7 +101,7 @@ const csv = buildDataCsv(
 // LimeSurvey
 const tsv = await tsvFile.text();
 const lsRows = parseResponses(await dataFile.text(), dataFile.name);
-const lsXml = lstsvToDdiXml(tsv, { submissions: lsRows });
+const lsXml = lstsvToDdi(tsv, { submissions: lsRows });
 const lsCsv = lstsvToDataCsv(tsv, lsRows, {
   onWarning: (msg) => console.warn(msg), // option codes missing from the TSV
 });
