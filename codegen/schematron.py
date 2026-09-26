@@ -81,7 +81,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
         <assert test="%P%qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="%P%qstn/%P%qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="%P%varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="%P%concept and normalize-space(%P%concept) != ''">Variable <value-of select="@name"/> is missing a concept element.</assert>
+        <assert test="%P%concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
         <assert test="not(%P%labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
         <assert test="count(%P%notes) &lt;= 1">Variable <value-of select="@name"/> has multiple notes elements. Only one notes element per variable is allowed.</assert>
     </rule>
@@ -90,7 +90,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
     <rule context="%P%varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="{vg_type_test}">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only {vg_type_msg} are supported.</assert>
-        <assert test="%P%concept and normalize-space(%P%concept) != ''">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
+        <assert test="%P%concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
         <assert test="not(%P%labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
     </rule>
 

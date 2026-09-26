@@ -355,3 +355,26 @@ def test_unnamespaced_rules_reject_the_same(variant_id, mutator, message, worker
     """The rules repeat without the ddi: prefix for documents that omit the
     namespace; the same mutations must fail there too."""
     _run_assert_mutation(variant_id, mutator, message, worker_jar, java_bin, tmp_path, strip_ns=True)
+
+
+def test_several_concepts_are_allowed(worker_jar, java_bin, tmp_path):
+    """DDI 2.5 allows any number of <concept> (e.g. one per language, #124);
+    the concept assert must not crash on two, and still rejects all-empty."""
+    from .fixtures import load_registry
+
+    variant = next(e for e in load_registry() if e.get("@id") == "type:select_one")
+    xml = load_example_ddi(variant)
+    two = re.sub(
+        r"(<concept>[^<]*</concept>)",
+        r'\1<concept xml:lang="en">Search tag</concept>',
+        xml,
+        count=2,
+    )
+    rc, out = _validate(java_bin, worker_jar, two.encode(), tmp_path)
+    assert rc == 0, out[out.index("{") :][:800]
+
+    empty = re.sub(r"<concept>[^<]*</concept>", "<concept> </concept>", two)
+    empty = re.sub(r'<concept xml:lang="en">[^<]*</concept>', '<concept xml:lang="en"></concept>', empty)
+    rc, out = _validate(java_bin, worker_jar, empty.encode(), tmp_path)
+    messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
+    assert rc == 1 and any("missing a concept element" in m for m in messages), messages
