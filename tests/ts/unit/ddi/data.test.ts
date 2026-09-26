@@ -226,3 +226,10 @@ describe('buildDataCsv', () => {
     );
   });
 });
+
+describe('buildDataCsv — a one-column empty row', () => {
+  test('is written as "" so readers keep the case', () => {
+    const csv = buildDataCsv([v({ name: 'q', type: 'text' })], [{ q: '' }]);
+    expect(csv).toBe('q\r\n""\r\n');
+  });
+});

@@ -11,7 +11,9 @@
  *   (`beruf_post` → `berufpost`), so every key is matched on {@link normKey}.
  * - **`select_multiple`** is one column per option, `q[code]`, holding `Y` when
  *   ticked. Codes may be truncated to 5 characters, so they are matched back to
- *   the parsed choice codes by prefix; see {@link matchChoice}.
+ *   the parsed choice codes by prefix; see {@link matchChoice}. A
+ *   `select_multiple_from_file` carries no choices in the TSV, so its codes
+ *   come from the registered vocabulary.
  * - **Arrays (`F`)** are one column per subquestion, `array[sq]`, holding the
  *   answer code. Each becomes the grid variable named after the subquestion.
  * - **Native "other"** (`other=Y`): a list stores `-oth-` and a multiple choice
@@ -27,6 +29,10 @@ import type { Submission } from '../../ddi/data.js';
 
 import { OTHER_CODE, OTHER_SUFFIX } from '../../conventions/other.js';
 import { ConversionError } from '../../diagnostics.js';
+import { registeredVocabCodes } from '../../vocab.js';
+import { fromFileTypeFor } from '../../conventions/fromFile.js';
+
+const MULTIPLE_FROM_FILE = fromFileTypeFor('select_multiple');
 
 /** LimeSurvey's stored value for the "other" option of a list question. */
 const LS_OTHER_VALUE = '-oth-';
@@ -102,6 +108,16 @@ function matchChoice(subkey: string, variable: Variable): string | null {
     );
   }
   return null;
+}
+
+/** A from_file variable with its registered vocabulary's codes as choices. */
+function withVocabChoices(v: Variable): Variable {
+  if (v.choices.length > 0 || !v.vocab) return v;
+  const choices = registeredVocabCodes(v.vocab).map((name) => ({
+    name,
+    label: name,
+  }));
+  return { ...v, choices };
 }
 
 /** Space-joined ticked choice codes of a `select_multiple`. */
@@ -182,6 +198,12 @@ export function normalizeLimeSurveyResponses(
       const key = normKey(v.name);
       if (v.type === 'select_multiple') {
         out[v.name] = multiValue(v, bracketed.get(key), warnOnce);
+      } else if (v.type === MULTIPLE_FROM_FILE) {
+        out[v.name] = multiValue(
+          withVocabChoices(v),
+          bracketed.get(key),
+          warnOnce,
+        );
       } else if (isArrayMember(v)) {
         out[v.name] = subValue(bracketed.get(normKey(v.group)), v.name) ?? '';
       } else if (otherBases.has(v.name)) {

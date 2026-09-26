@@ -165,6 +165,9 @@ function quoteField(value: string): string {
 }
 
 function csvLine(fields: string[]): string {
+  // A lone empty field would be a blank line, which CSV readers drop as no
+  // row at all; quote it so the case survives.
+  if (fields.length === 1 && fields[0] === '') return '""\r\n';
   return `${fields.map(quoteField).join(',')}\r\n`;
 }
 
