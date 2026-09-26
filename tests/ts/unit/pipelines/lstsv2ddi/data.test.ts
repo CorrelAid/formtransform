@@ -171,3 +171,64 @@ describe('lstsvToDataCsv', () => {
     expect(at('qtext')).toBe('"a, b"');
   });
 });
+
+describe('normalizeLimeSurveyResponses — export quirks (#106)', () => {
+  const vars = [
+    v({
+      name: 'col',
+      type: 'select_one',
+      choices: [
+        { name: 'r', label: 'Red' },
+        { name: 'g', label: 'Green' },
+      ],
+    }),
+    v({
+      name: 'sm',
+      type: 'select_multiple',
+      choices: [
+        { name: 'a', label: 'A' },
+        { name: 'b', label: 'B' },
+        { name: 'c', label: 'C' },
+        { name: 'd', label: 'D' },
+      ],
+    }),
+    v({ name: 'txt', type: 'text' }),
+  ];
+  const one = (row: Record<string, unknown>) =>
+    normalizeLimeSurveyResponses(vars, [row])[0];
+
+  test('N/A passes through as a literal select_one value', () => {
+    expect(one({ col: 'N/A' }).col).toBe('N/A');
+  });
+
+  test('ticked forms Y / yes / 1 / true count, anything else does not', () => {
+    const row = one({
+      'sm[a]': 'Y',
+      'sm[b]': 'yes',
+      'sm[c]': 1,
+      'sm[d]': true,
+    });
+    expect(row.sm).toBe('a b c d');
+    expect(
+      one({ 'sm[a]': 'N', 'sm[b]': '', 'sm[c]': 0, 'sm[d]': null }).sm,
+    ).toBe('');
+  });
+
+  test('null / undefined values become empty', () => {
+    const row = one({ col: null, txt: undefined });
+    expect(row).toEqual({ col: '', sm: '', txt: '' });
+  });
+
+  test('_comment, token and lastpage columns are ignored', () => {
+    const row = one({
+      col: 'r',
+      col_comment: 'why',
+      'sm[a]': 'Y',
+      'sm[a_comment]': 'because',
+      token: 'abc',
+      lastpage: '2',
+      startlanguage: 'de',
+    });
+    expect(row).toEqual({ col: 'r', sm: 'a', txt: '' });
+  });
+});

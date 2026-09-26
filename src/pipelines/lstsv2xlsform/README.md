@@ -121,14 +121,13 @@ listed here must match exactly.
    string containing HTML markup. Nothing records whether the original was
    authored as markdown or as HTML, so authored HTML is also converted — the
    correct behaviour for this direction, but not a literal round-trip.
-6. **Multi-language is implemented but lightly tested.** Per-language
-   `S`/`SL`/`Q`/`G` rows merge into `label::<lang>`-style object maps (keyed
-   correctly even though `G` rows put the label in `name` and the hint in `text`
-   — the reverse of `Q` rows). Covered by unit tests, not by any fixture (none is
-   multilingual). In particular the *G-translation-block* edge case — LimeSurvey
-   re-blocks base-language rows before each additional language, per group flush
-   rather than globally — is simplified to a single global pass. A
-   multi-**group** multilingual survey could break this.
+6. **Multi-language.** Per-language `S`/`SL`/`Q`/`G` rows merge into
+   `label::<lang>`-style object maps (keyed correctly even though `G` rows put
+   the label in `name` and the hint in `text` — the reverse of `Q` rows). A
+   group's translated `G` rows share its sequence key and continue the same
+   group, whether they come interleaved or in LimeSurvey's per-language blocks
+   (`knownLosses.test.ts` covers a multi-group survey; `multilingual_survey`
+   covers the fixture path).
 7. **`regexMatch` argument order is assumed.** `convertConstraint()`'s
    early-return path for a bare `regexMatch(...)` literal in the original XPath
    (an escape hatch for EM-flavoured syntax) swaps the arguments —

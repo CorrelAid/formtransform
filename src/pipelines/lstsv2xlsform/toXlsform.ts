@@ -299,17 +299,26 @@ interface GroupBucket {
   rows: Row[];
 }
 
-/** Split rows into per-group buckets. A `G` row starts a new bucket; there is
- * no explicit close row in LimeSurvey TSV — the next `G` row (or EOF) ends it. */
+/** Split rows into per-group buckets. A `G` row with a new sequence key starts
+ * a bucket; there is no explicit close row in LimeSurvey TSV — the next `G`
+ * row (or EOF) ends it. */
 function splitIntoGroups(rows: Row[]): GroupBucket[] {
   const buckets: GroupBucket[] = [];
+  // A group has one G row per language, all with its sequence key; each
+  // translation continues the same bucket instead of opening a new group.
+  const bySeq = new Map<string, GroupBucket>();
   let current: GroupBucket | null = null;
   for (const row of rows) {
     const cls = cell(row, 'class');
     if (cls === 'S' || cls === 'SL') continue;
     if (cls === 'G') {
-      current = { seqKey: cell(row, 'type/scale'), rows: [] };
-      buckets.push(current);
+      const seqKey = cell(row, 'type/scale');
+      current = bySeq.get(seqKey) ?? null;
+      if (!current) {
+        current = { seqKey, rows: [] };
+        bySeq.set(seqKey, current);
+        buckets.push(current);
+      }
       continue;
     }
     current?.rows.push(row);
@@ -337,6 +346,8 @@ interface ArrayQuestion {
   kind: 'array';
   name: string;
   subquestionNames: string[];
+  /** Each subquestion's own relevance (a grid member's `relevant`). */
+  subquestionRelevance: Map<string, string>;
 }
 
 type LogicalQuestion = PlainQuestion | ArrayQuestion;
@@ -357,7 +368,12 @@ function readLogicalQuestions(
       const lsType = cell(row, 'type/scale');
       const name = cell(row, 'name');
       if (lsType === 'F') {
-        currentArray = { kind: 'array', name, subquestionNames: [] };
+        currentArray = {
+          kind: 'array',
+          name,
+          subquestionNames: [],
+          subquestionRelevance: new Map(),
+        };
         items.push(currentArray);
         currentQuestionName = null;
       } else {
@@ -381,6 +397,10 @@ function readLogicalQuestions(
     }
     if (cls === 'SQ' && currentArray) {
       currentArray.subquestionNames.push(cell(row, 'name'));
+      currentArray.subquestionRelevance.set(
+        cell(row, 'name'),
+        cell(row, 'relevance'),
+      );
       choicesByName.set(cell(row, 'name'), []);
       continue;
     }
@@ -815,10 +835,16 @@ function emitArrayQuestion(
   const listName = item.name;
   emitChoiceList(listName, choicesByName.get(item.name) ?? [], ctx);
   for (const sqName of item.subquestionNames) {
-    ctx.survey.push({
+    const row: SurveyRow = {
       type: `select_one ${listName}`,
       name: sqName,
       label: htmlLabel(ctx.label(`SQ:${sqName}`)),
-    });
+    };
+    const relevant = reverseRelevance(
+      item.subquestionRelevance.get(sqName) ?? '',
+      ctx.selectCtx,
+    );
+    if (relevant) row.relevant = relevant;
+    ctx.survey.push(row);
   }
 }

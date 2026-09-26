@@ -10,8 +10,9 @@ function row(fields: Partial<Row> & Pick<Row, 'class'>): Row {
 }
 
 describe('validateLstsvSubset', () => {
+  // `!` (dropdown list) regressed once: keep it on the list.
   test('supported question codes produce no violations', () => {
-    const rows = ['L', 'M', 'N', 'D', 'S', 'T', 'X', 'F'].map((c, i) =>
+    const rows = ['L', '!', 'M', 'N', 'D', 'S', 'T', 'X', 'F'].map((c, i) =>
       row({ class: 'Q', 'type/scale': c, name: `q${i}` }),
     );
     expect(validateLstsvSubset(rows)).toEqual([]);
@@ -23,6 +24,7 @@ describe('validateLstsvSubset', () => {
     ]);
     expect(v).toHaveLength(1);
     expect(v[0].severity).toBe('error');
+    expect(v[0].code).toBe('lstsv-outside-subset');
     expect(v[0].message).toMatch(
       /unsupported LimeSurvey question type "R".*ranked/,
     );
