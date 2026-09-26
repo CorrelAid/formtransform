@@ -64,6 +64,11 @@ export interface QuestionItem extends ItemBase {
   default: string;
   /** The `parameters` cell as authored. */
   parameters: string;
+  /**
+   * The free-text "other" answer's label, when the source has one apart from
+   * a companion question (LimeSurvey's `other_replace_text`).
+   */
+  otherLabel?: Text;
 }
 
 export type Item = GroupItem | QuestionItem;
