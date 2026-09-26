@@ -209,8 +209,15 @@ function collectLabelMaps(rows: Row[]): {
     const key = `${cls}:${cell(row, 'name')}`;
     put(textByKey, key, lang, cell(row, 'text'));
     put(helpByKey, key, lang, cell(row, 'help'));
-    // The native "other" box's label: the XLSForm companion's label.
+    // The native "other" box's label: the XLSForm companion's label; the
+    // validation tip: the XLSForm constraint_message.
     if (cls === 'Q') {
+      put(
+        textByKey,
+        `TIP:${cell(row, 'name')}`,
+        lang,
+        cell(row, 'em_validation_q_tip'),
+      );
       put(
         textByKey,
         `OTHER:${cell(row, 'name')}`,
@@ -352,6 +359,14 @@ interface ArrayQuestion {
 
 type LogicalQuestion = PlainQuestion | ArrayQuestion;
 
+/** A multiple choice's defaults sit on its SQ rows as `Y`: add the code. */
+function addDefaultTick(item: LogicalQuestion | undefined, row: Row): void {
+  if (item?.kind !== 'plain' || cell(row, 'default') !== 'Y') return;
+  item.defaultVal = [item.defaultVal, cell(row, 'name')]
+    .filter(Boolean)
+    .join(' ');
+}
+
 /** Walk one group's base-language rows into an ordered logical-question list. */
 function readLogicalQuestions(
   baseRows: Row[],
@@ -406,6 +421,7 @@ function readLogicalQuestions(
     }
     if ((cls === 'A' || cls === 'SQ') && currentQuestionName) {
       choicesByName.get(currentQuestionName)!.push(cell(row, 'name'));
+      if (cls === 'SQ') addDefaultTick(items[items.length - 1], row);
       continue;
     }
     if (cls === 'A' && currentArray) {
@@ -718,6 +734,8 @@ function buildPlainQuestionRow(
   if (relevant) row.relevant = relevant;
   const constraint = reverseConstraint(item.emValidationQ);
   if (constraint) row.constraint = constraint;
+  const tip = ctx.label(`TIP:${item.name}`);
+  if (tip) row.constraint_message = htmlLabel(tip);
   return row;
 }
 

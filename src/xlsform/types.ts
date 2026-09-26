@@ -11,7 +11,7 @@ export interface SurveyRow {
   required?: string;
   relevant?: string;
   constraint?: string;
-  constraint_message?: string;
+  constraint_message?: string | Record<string, string>;
   calculation?: string;
   default?: string;
   _languages?: string[];
