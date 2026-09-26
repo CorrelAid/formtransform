@@ -55,6 +55,9 @@ const PROD_DATE = '2020-01-01';
  * stops applying fails the suite rather than rotting.
  */
 const REVERSE_DDI_STRUCTURAL_DIFF: Record<string, string> = {
+  appearances_survey:
+    'a label/list-nolabel matrix is a LimeSurvey array, so the reverse DDI makes its rows a ' +
+    'grid (emitted first); the forward DDI treats only table-list as a grid and keeps them standalone',
   multilingual_survey:
     'the TSV carries one row set per language; the reverse keeps the base language only',
   complex_survey:
@@ -81,6 +84,16 @@ const KNOWN_REVERSE_XLSFORM_DIFFS: Record<
   string,
   { why: string; diffs: string[] }
 > = {
+  appearances_survey: {
+    why: 'a matrix (label header + list-nolabel rows) comes back as the canonical table-list grid; `likert` has no LimeSurvey equivalent',
+    diffs: [
+      'zufrieden.appearance: likert -> ∅',
+      'kopf.type: select_one -> begin_group',
+      'kopf.appearance: label -> table-list',
+      'bus.appearance: list-nolabel -> ∅',
+      'bahn.appearance: list-nolabel -> ∅',
+    ],
+  },
   all_types_survey: {
     why: 'a matrix (label header + list-nolabel rows) comes back as the canonical table-list grid, so the header row and the per-row appearance are gone; `likert` has no LimeSurvey equivalent',
     diffs: [
