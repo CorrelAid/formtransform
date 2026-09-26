@@ -9,8 +9,10 @@ const tsParser = tseslint.parser;
 
 // Module boundaries (ARCHITECTURE.md): a format module never imports another
 // format module or a pipeline, and a pipeline never imports a sibling pipeline.
-// Shared code lives in src/conventions/, src/ddi/ (the Variable hub),
-// src/diagnostics.ts or src/utils/.
+// Shared code lives in src/conventions/, src/instrument/ (the parsed model),
+// src/ddi/ (the Variable hub), src/diagnostics.ts or src/utils/. The
+// instrument model imports none of the format modules or pipelines: parsers
+// and emitters depend on it, never the other way round.
 const FORMATS = ['xlsform', 'lstsv', 'ddi'];
 const PIPELINES = readdirSync(new URL('./src/pipelines/', import.meta.url), {
   withFileTypes: true,
@@ -69,8 +71,27 @@ const boundaryRules = [
   })),
 ];
 
+const instrumentRule = {
+  files: ['src/instrument/**/*.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: [...FORMATS.map((f) => `../${f}/*`), '../pipelines/*'],
+            message:
+              'src/instrument/ is the shared model: it must not import a format module or a pipeline (ARCHITECTURE.md).',
+          },
+        ],
+      },
+    ],
+  },
+};
+
 export default defineConfig([
   ...boundaryRules,
+  instrumentRule,
 
   // Global: fail on eslint-disable directives that no longer suppress anything,
   // so dead disables can't accumulate.
