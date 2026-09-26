@@ -1,25 +1,12 @@
 import { SurveyRow } from '../../xlsform/types.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { SKIP_TYPES } from './constants.js';
+import type { Item, QuestionItem } from '../../instrument/types.js';
 
 export interface GroupInfo {
   originalName: string;
   sanitizedName: string;
   emittedAsGroup: boolean;
-}
-
-/** A row whose `type` opens or closes a group, recognised in both forms. */
-function isBeginGroup(type: string): boolean {
-  return type === 'begin_group' || type === 'begin group';
-}
-
-function isEndGroup(type: string): boolean {
-  return type === 'end_group' || type === 'end group';
-}
-
-/** Map an "open" row to its group name, with the trim applied. */
-function beginGroupName(row: SurveyRow): string {
-  return (row.name || '').trim();
 }
 
 /** Config flags read by {@link isMessageNoteRow} — a narrow shape to avoid coupling. */
@@ -36,16 +23,6 @@ function isMessageNoteRow(row: SurveyRow, flags: WelcomeEndFlags): boolean {
     (Boolean(flags.convertWelcomeNote) && rowName === 'welcome') ||
     (Boolean(flags.convertEndNote) && rowName === 'end')
   );
-}
-
-/** Per-group bookkeeping during the message-only prescan. */
-interface MessageGroupInfo {
-  hasMessageNote: boolean;
-  hasOtherContent: boolean;
-}
-
-function extractBaseType(row: SurveyRow): string {
-  return (row.type || '').trim().split(/\s+/)[0];
 }
 
 /**
@@ -66,77 +43,36 @@ export class GroupProcessor {
   }
 
   /**
-   * Pre-scan survey data to identify groups whose only direct content is a
-   * welcome or end note. These groups are silently suppressed.
+   * Classify every closed group of the Instrument's tree (#69):
+   * - message-only: its direct content is only a welcome/end note (suppressed);
+   * - parent-only: it has no direct questions, only child groups (flattened).
+   * Skipped types (metadata, …) count as no content. Groups the sheet never
+   * closed are neither.
    */
-  identifyMessageOnlyGroups(surveyData: SurveyRow[]): void {
-    const messageOnly = new Set<string>();
-    const stack: string[] = [];
-    const groupInfo = new Map<string, MessageGroupInfo>();
+  identifyGroups(body: Item[]): void {
     const flags = this.configManager.getConfig();
-
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      if (isBeginGroup(type)) {
-        const name = beginGroupName(row);
-        stack.push(name);
-        groupInfo.set(name, { hasMessageNote: false, hasOtherContent: false });
-        continue;
-      }
-      if (isEndGroup(type)) {
-        const name = stack.pop();
-        if (name === undefined) continue;
-        const info = groupInfo.get(name);
-        if (info && info.hasMessageNote && !info.hasOtherContent) {
-          messageOnly.add(name);
-        }
-        continue;
-      }
-      if (
-        !type ||
-        stack.length === 0 ||
-        SKIP_TYPES.includes(extractBaseType(row))
-      )
-        continue;
-      const info = groupInfo.get(stack[stack.length - 1]);
-      if (!info) continue;
-      if (isMessageNoteRow(row, flags)) info.hasMessageNote = true;
-      else info.hasOtherContent = true;
-    }
-
-    this.messageOnlyGroups = messageOnly;
-  }
-
-  /**
-   * Pre-scan survey data to identify parent-only groups.
-   * A parent-only group contains no direct questions — only child groups.
-   */
-  identifyParentOnlyGroups(surveyData: SurveyRow[]): void {
+    const messageOnly = new Set<string>();
     const parentOnly = new Set<string>();
-    const stack: string[] = [];
-    const hasDirectContent = new Map<string, boolean>();
-
-    for (const row of surveyData) {
-      const type = (row.type || '').trim();
-      if (isBeginGroup(type)) {
-        const name = beginGroupName(row);
-        stack.push(name);
-        hasDirectContent.set(name, false);
-        continue;
-      }
-      if (isEndGroup(type)) {
-        const name = stack.pop();
-        if (name !== undefined && !hasDirectContent.get(name)) {
-          parentOnly.add(name);
+    const visit = (items: Item[]) => {
+      for (const item of items) {
+        if (item.kind !== 'group') continue;
+        visit(item.children);
+        if (!item.closed) continue;
+        const content = item.children.filter(
+          (c): c is QuestionItem =>
+            c.kind === 'question' && !SKIP_TYPES.includes(c.type),
+        );
+        const notes = content.filter((c) =>
+          isMessageNoteRow(c.row as SurveyRow, flags),
+        );
+        if (notes.length > 0 && notes.length === content.length) {
+          messageOnly.add(item.name);
         }
-        continue;
+        if (content.length === 0) parentOnly.add(item.name);
       }
-      if (!type || SKIP_TYPES.includes(extractBaseType(row))) continue;
-      if (stack.length > 0) {
-        hasDirectContent.set(stack[stack.length - 1], true);
-      }
-    }
-
+    };
+    visit(body);
+    this.messageOnlyGroups = messageOnly;
     this.parentOnlyGroups = parentOnly;
   }
 }
