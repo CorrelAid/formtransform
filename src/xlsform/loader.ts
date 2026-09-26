@@ -19,6 +19,11 @@ type RowData = Record<string, unknown>;
 export interface LoadOptions {
   /** Skip the sheet/column/name checks (the LimeSurvey name gate). */
   skipValidation?: boolean;
+  /**
+   * Skip only the name/code check, for a caller that runs
+   * `validateSubset` itself (which covers it and reports every finding).
+   */
+  skipNameCheck?: boolean;
   /** Receives non-fatal findings (invalid language codes, unexpected columns). */
   onWarning?: WarningHandler;
 }
@@ -162,6 +167,7 @@ export class XLSLoader {
         hasSurveySheet,
         hasChoicesSheet,
         onWarning: options.onWarning,
+        skipNameCheck: options.skipNameCheck,
       });
     }
 

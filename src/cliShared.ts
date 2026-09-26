@@ -17,6 +17,7 @@ import {
 import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import { parseResponses } from './responseFile.js';
 import { XLSLoader } from './xlsform/loader.js';
+import type { LoadOptions } from './xlsform/loader.js';
 
 export const PROG = 'formtransform';
 
@@ -61,12 +62,9 @@ export function readInput(positionals: string[], usage: () => void): Buffer {
 }
 
 /** Parse an XLSForm workbook from bytes, exiting cleanly on failure. */
-export function loadXlsform(
-  bytes: Buffer,
-  skipValidation: boolean,
-): XLSFormData {
+export function loadXlsform(bytes: Buffer, options: LoadOptions): XLSFormData {
   try {
-    return XLSLoader.parseXLSData(bytes, { skipValidation });
+    return XLSLoader.parseXLSData(bytes, options);
   } catch (err) {
     return die(`failed to parse XLSForm: ${(err as Error).message}`);
   }

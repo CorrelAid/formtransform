@@ -74,6 +74,8 @@ export interface ValidateAllOpts {
   choicesSheetName?: string;
   /** Receives non-fatal findings (empty sheet, unexpected column). */
   onWarning?: WarningHandler;
+  /** Leave out the name/code check (the caller runs `validateSubset`). */
+  skipNameCheck?: boolean;
 }
 
 /** What {@link XLSValidator.rowDiagnostic} needs to know about the form. */
@@ -310,6 +312,7 @@ export class XLSValidator {
       surveySheetName = 'survey',
       choicesSheetName = 'choices',
       onWarning = consoleWarning,
+      skipNameCheck = false,
     } = opts;
 
     // Validate required sheets
@@ -330,7 +333,7 @@ export class XLSValidator {
     }
 
     // Reject names/codes LimeSurvey cannot represent (strict by default).
-    this.validateNamesAndCodes(surveyData, choicesData);
+    if (!skipNameCheck) this.validateNamesAndCodes(surveyData, choicesData);
   }
 
   /**
