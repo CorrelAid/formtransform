@@ -218,12 +218,12 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   };
   const hint = ctx.label(group.hint);
   if (hint) row.hint = htmlLabel(hint);
-  if (group.appearance) row.appearance = group.appearance;
+  if (group.appearance) row.appearance = appearanceCell(group);
   if (group.relevant) row.relevant = group.relevant;
   Object.assign(row, group.columns);
   ctx.survey.push(row);
   emitItems(group.children, ctx);
-  ctx.survey.push({ type: 'end_group' });
+  ctx.survey.push({ type: 'end_group', ...group.endColumns });
 }
 
 function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
@@ -285,7 +285,7 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
   const plain: Array<[string, string]> = [
     ['required', q.required ? requiredCell(q) : ''],
     ['default', q.default],
-    ['appearance', q.appearance],
+    ['appearance', appearanceCell(q)],
     ['parameters', q.parameters],
     ['relevant', q.relevant],
     ['constraint', q.constraint],
@@ -294,6 +294,13 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
   // The columns the model doesn't lift, as the form had them (#160).
   Object.assign(row, q.columns);
   return row;
+}
+
+/** The appearance cell: as the source row had it (`Minimal`), else the model's. */
+function appearanceCell(item: Item): string {
+  const cell = item.row['appearance'];
+  const raw = typeof cell === 'string' ? cell.trim() : '';
+  return raw.toLowerCase() === item.appearance && raw ? raw : item.appearance;
 }
 
 /** The `required` cell: as the source row had it (`TRUE`), else `yes`. */

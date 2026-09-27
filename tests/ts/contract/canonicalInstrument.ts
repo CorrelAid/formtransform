@@ -9,6 +9,7 @@ import { TYPE_MAP } from '../../../src/generated/DdiMappings.js';
 import { isMetadataType } from '../../../src/conventions/metadata.js';
 import { OTHER_CODE } from '../../../src/conventions/other.js';
 import { isExclusive } from '../../../src/conventions/exclusive.js';
+import { allColumns } from '../../../src/conventions/columns.js';
 import { languageTagOf } from '../../../src/utils/languageUtils.js';
 import type {
   Instrument,
@@ -45,6 +46,13 @@ function text(t: Text | undefined, ctx: Ctx): Record<string, string> {
   return out;
 }
 
+/** The appearance cell: as authored when only its case differs. */
+function appearance(item: Item): string {
+  const cell = item.row['appearance'];
+  const raw = typeof cell === 'string' ? cell.trim() : '';
+  return raw && raw.toLowerCase() === item.appearance ? raw : item.appearance;
+}
+
 /** The `required` cell a required question has: as authored, else `yes`. */
 function required(q: QuestionItem): string | false {
   if (!q.required) return false;
@@ -76,7 +84,7 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     constraintMessage: text(q.constraintMessage, ctx),
     required: required(q),
     default: q.default,
-    appearance: q.appearance,
+    appearance: appearance(q),
     parameters: q.parameters.trim(),
     columns: q.columns ?? {},
   };
@@ -86,15 +94,14 @@ function items(list: Item[], ctx: Ctx): Canon[] {
   const out: Canon[] = [];
   for (const item of list) {
     if (item.kind === 'group') {
-      // A group with nothing in it is not carried.
-      if (!item.children.length) continue;
       out.push({
         group: item.name,
         label: text(item.label, ctx),
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
-        appearance: item.appearance,
+        appearance: appearance(item),
         columns: item.columns ?? {},
+        endColumns: item.endColumns ?? {},
         children: items(item.children, ctx),
       });
     } else if (!kept(item)) {
@@ -111,7 +118,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         label: text(item.label, ctx),
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
-        appearance: item.appearance,
+        appearance: appearance(item),
         columns: item.columns ?? {},
       });
     } else {
@@ -156,14 +163,14 @@ function lists(ctx: Ctx): Canon {
   return out;
 }
 
+/** Settings by column: one per language for a `{ lang: text }` one. */
 function settings(instrument: Instrument, ctx: Ctx): Canon {
-  const out: Canon = {};
-  for (const [key, value] of Object.entries(instrument.settings)) {
-    if (typeof value === 'string' || typeof value === 'number') {
-      if (String(value).trim()) out[key] = String(value).trim();
-    } else if (key === 'form_title' && value && typeof value === 'object') {
-      out[key] = text(value as Text, ctx);
-    }
+  const { form_title: title, ...rest } = instrument.settings;
+  const out: Canon = { ...allColumns(rest) };
+  if (title && typeof title === 'object') {
+    out['form_title'] = text(title as Text, ctx);
+  } else if (typeof title === 'string' || typeof title === 'number') {
+    if (String(title).trim()) out['form_title'] = String(title).trim();
   }
   return out;
 }

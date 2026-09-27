@@ -4,6 +4,7 @@
  * `<notes type="cdl:<field>">`.
  */
 import conventions from '../generated/conventions.js';
+import { allColumns } from '../conventions/columns.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { parseParameters } from '../utils/parameters.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
@@ -28,7 +29,9 @@ export function addFieldNotes(el: XmlElement, v: Variable): void {
     el.textChild('notes', v.default, { type: NOTES.default.type });
   }
   if (v.appearance) {
-    el.textChild('notes', v.appearance, { type: NOTES.appearance.type });
+    el.textChild('notes', v.appearanceCell ?? v.appearance, {
+      type: NOTES.appearance.type,
+    });
   }
   // As authored (#160): a range's bounds are its valrng too, and a
   // guidance_hint inside is its ivuInstr too, but only the cell says so.
@@ -60,14 +63,19 @@ export function addGroupFieldNotes(
       type: NOTES.hint.type,
     });
   }
-  if (group.appearance && !(grid && group.appearance === GRID_APPEARANCE)) {
-    el.textChild('notes', group.appearance, { type: NOTES.appearance.type });
+  const gridOnly =
+    grid && group.appearance === GRID_APPEARANCE && !group.appearanceCell;
+  if (group.appearance && !gridOnly) {
+    el.textChild('notes', group.appearanceCell ?? group.appearance, {
+      type: NOTES.appearance.type,
+    });
   }
   // Its txt is its name, for readers that show one (#160).
   if (group.unlabelled) {
     el.textChild('notes', 'yes', { type: NOTES.no_label.type });
   }
   addColumnNotes(el, group.columns);
+  addColumnNotes(el, group.endColumns, NOTES.end_column.type);
 }
 
 /** Settings in a standard element: `titl`, `IDNo`, `verStmt/version`. */
@@ -82,13 +90,19 @@ export function addSettingNotes(
   stdy: XmlElement,
   settings: Record<string, unknown>,
 ): void {
-  const keys = Object.keys(settings).sort();
-  for (const [key, value] of keys.map((k) => [k, settings[k]] as const)) {
-    if (STANDARD_SETTINGS.has(key)) continue;
-    if (typeof value !== 'string' && typeof value !== 'number') continue;
-    const text = String(value).trim();
-    if (!text) continue;
-    stdy.textChild('notes', text, { type: NOTES.setting.type, subject: key });
+  // A setting per language is one note per `<key>::<language>` (#160).
+  const cells = allColumns(settings);
+  for (const column of Object.keys(cells).sort()) {
+    const base = column.split('::')[0];
+    // A standard setting, or one of its languages when titl/parTitl has them.
+    if (STANDARD_SETTINGS.has(column)) continue;
+    if (STANDARD_SETTINGS.has(base) && typeof settings[base] === 'object') {
+      continue;
+    }
+    stdy.textChild('notes', cells[column], {
+      type: NOTES.setting.type,
+      subject: column,
+    });
   }
 }
 
@@ -161,7 +175,7 @@ export function addRowFieldNotes(stdy: XmlElement, v: Variable): void {
     });
   }
   if (v.appearance) {
-    stdy.textChild('notes', v.appearance, {
+    stdy.textChild('notes', v.appearanceCell ?? v.appearance, {
       type: NOTES.row_appearance.type,
       subject,
     });

@@ -223,6 +223,16 @@ function emptyQuestion(name: string): QuestionItem {
   };
 }
 
+/**
+ * An appearance note: the model's lowercase, the cell as authored in the row
+ * when its case differs (#160). No note keeps what the item has.
+ */
+function setAppearance(item: Item, cell: string): void {
+  if (!cell) return;
+  item.appearance = cell.toLowerCase();
+  if (cell !== item.appearance) item.row = { ...item.row, appearance: cell };
+}
+
 /** Columns the model doesn't lift (`cdl:column`), by column name. */
 function columnsOf(
   node: XmlNode,
@@ -239,6 +249,11 @@ function columnsOf(
 /** `columns`, absent when there are none. */
 function withColumns(columns: Record<string, string>) {
   return Object.keys(columns).length ? { columns } : {};
+}
+
+/** `endColumns`, absent when there are none. */
+function withEndColumns(endColumns: Record<string, string>) {
+  return Object.keys(endColumns).length ? { endColumns } : {};
 }
 
 /** Split `<first> <rest>` subjects (a row's or choice's columns) by first. */
@@ -280,7 +295,7 @@ function readNotes(q: QuestionItem, node: XmlNode, state: ReadState): void {
     q.row = { ...q.row, required };
   }
   q.default = noteText(node, FIELDS.default.type, state);
-  q.appearance = noteText(node, FIELDS.appearance.type, state);
+  setAppearance(q, noteText(node, FIELDS.appearance.type, state));
   q.parameters = noteText(node, FIELDS.parameters.type, state);
   const columns = columnsOf(node);
   if (Object.keys(columns).length) q.columns = columns;
@@ -655,14 +670,14 @@ function groupItem(id: string, state: ReadState): GroupItem {
       : childTexts(grp, 'txt', state),
     hint: texts(notesOf(grp, FIELDS.hint.type), state),
     relevant: noteText(grp, LOGIC.relevant.type, state),
-    appearance:
-      noteText(grp, FIELDS.appearance.type, state) ||
-      (grid ? GRID_APPEARANCE : ''),
+    appearance: grid ? GRID_APPEARANCE : '',
     row: {},
     ...withColumns(columnsOf(grp)),
+    ...withEndColumns(columnsOf(grp, FIELDS.end_column.type)),
     children: lead,
     closed: true,
   };
+  setAppearance(item, noteText(grp, FIELDS.appearance.type, state));
   state.groupItems.set(grp.attrs['name'] ?? id, item);
   return item;
 }
@@ -869,7 +884,9 @@ function readRowFields(
       const hint = hints.get(item.name);
       if (hint) item.hint = texts(hint, state);
       item.relevant ||= subjectText(relevants, item.name);
-      item.appearance ||= subjectText(appearances, item.name);
+      if (!item.appearance) {
+        setAppearance(item, subjectText(appearances, item.name));
+      }
       const own = columns.get(item.name);
       if (own) item.columns = own;
     }

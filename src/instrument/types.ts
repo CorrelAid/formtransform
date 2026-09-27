@@ -56,6 +56,8 @@ export interface GroupItem extends ItemBase {
   children: Item[];
   /** The source closed it (an `end_group` row); unclosed groups end with the survey. */
   closed: boolean;
+  /** Its `end_group` row's cells but the type (`name`, `$kuid`), by column (#160). */
+  endColumns?: Record<string, string>;
 }
 
 export interface QuestionItem extends ItemBase {

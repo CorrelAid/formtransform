@@ -36,7 +36,7 @@ const conventions = {
             "var",
             "varGrp"
           ],
-          "text": "the appearance cell, lowercased"
+          "text": "the appearance cell as authored (readers compare it lowercased)"
         },
         "parameters": {
           "type": "cdl:parameters",
@@ -194,6 +194,14 @@ const conventions = {
           ],
           "subject": "the row's name, a space, the column",
           "text": "the cell of a column the model doesn't lift, of a note row or cdl:row"
+        },
+        "end_column": {
+          "type": "cdl:end_column",
+          "on": [
+            "varGrp[@type='section' or @type='grid']"
+          ],
+          "subject": "the column",
+          "text": "a cell of the group's end_group row but its type (a name, Kobo's $kuid)"
         }
       },
       "fields": {
@@ -299,6 +307,9 @@ const conventions = {
         },
         "InstrumentChoice.columns": {
           "cdlNote": "cdl:choice_column"
+        },
+        "GroupItem.endColumns": {
+          "cdlNote": "cdl:end_column"
         }
       },
       "liftedColumns": {

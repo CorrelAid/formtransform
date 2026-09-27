@@ -47,6 +47,10 @@ export interface DdiGroup {
   unlabelled?: boolean;
   /** Its columns the model doesn't lift: `cdl:column` notes (#160). */
   columns?: Record<string, string>;
+  /** Its `end_group` row's cells: `cdl:end_column` notes (#160). */
+  endColumns?: Record<string, string>;
+  /** The appearance cell when its case isn't `appearance`'s (#160). */
+  appearanceCell?: string;
   /** `hint` in the form's other languages. */
   hintTranslations?: Translations;
 }
@@ -119,6 +123,13 @@ export interface Variable {
   orOther?: 'shorthand' | 'added';
   /** The `or_other` companion the projection added, not an authored row. */
   synthesized?: boolean;
+  /** The appearance cell when its case isn't `appearance`'s (#160). */
+  appearanceCell?: string;
+  /**
+   * Stands for a group with nothing in it the codebook has (`groups` ends
+   * with it): a section `varGrp` placed by `cdl:position` (#160).
+   */
+  emptyGroup?: boolean;
   /**
    * Its columns the model doesn't lift: `cdl:column` notes, a row's without
    * data or a note's `cdl:row_column` (#160).

@@ -29,13 +29,12 @@ function cellText(value: unknown): string {
  */
 export function otherColumns(
   row: Record<string, unknown>,
-  sheet: Sheet,
+  sheet: Sheet | null,
 ): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [key, value] of Object.entries(row)) {
-    if (key.startsWith('_') || liftedBy[sheet].has(key.split('::')[0])) {
-      continue;
-    }
+    if (key.startsWith('_')) continue;
+    if (sheet && liftedBy[sheet].has(key.split('::')[0])) continue;
     const cells: Array<[string, unknown]> =
       value !== null && typeof value === 'object'
         ? Object.entries(value).map(([lang, v]) => [`${key}::${lang}`, v])
@@ -46,4 +45,14 @@ export function otherColumns(
     }
   }
   return out;
+}
+
+/**
+ * A row's every cell but the loader's, by column name, `{ lang: text }`
+ * cells one per language: a settings row, an `end_group` row.
+ */
+export function allColumns(
+  row: Record<string, unknown>,
+): Record<string, string> {
+  return otherColumns(row, null);
 }

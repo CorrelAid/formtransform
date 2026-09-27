@@ -352,6 +352,7 @@ function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
     }),
     ...(q.relevant.trim() ? { relevant: q.relevant.trim() } : {}),
     ...(q.appearance ? { appearance: q.appearance } : {}),
+    ...appearanceCell(q),
     ...(translations ? { translations } : {}),
     ...columnsOf(q),
     group: ctx.path,
@@ -362,6 +363,15 @@ function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
     choices: [],
     ...groupsOf(ctx),
   });
+}
+
+/** The appearance cell as authored, when its case isn't the model's (#160). */
+function appearanceCell(item: Item): { appearanceCell?: string } {
+  const cell = item.row['appearance'];
+  const raw = typeof cell === 'string' ? cell.trim() : '';
+  return raw && raw !== item.appearance && raw.toLowerCase() === item.appearance
+    ? { appearanceCell: raw }
+    : {};
 }
 
 /** An item's or choice's columns the model doesn't lift, absent when none. */
@@ -432,6 +442,7 @@ function pushQuestion(
     ...logicOf(q, state.lang),
     ...(translations ? { translations } : {}),
     ...(added ? { orOther: otherOrigin(q) } : {}),
+    ...appearanceCell(q),
     ...columnsOf(q),
   });
 
@@ -461,7 +472,12 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
         ? {}
         : { unlabelled: true }),
       ...columnsOf(item),
+      ...appearanceCell(item),
+      ...(item.endColumns && Object.keys(item.endColumns).length
+        ? { endColumns: item.endColumns }
+        : {}),
     };
+    const before = state.variables.length;
     project(
       item.children,
       {
@@ -473,6 +489,22 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       },
       state,
     );
+    // Nothing in it the codebook has: still a group, placed where it was.
+    if (state.variables.length === before) {
+      state.variables.push({
+        name: item.name,
+        type: 'begin_group',
+        label: '',
+        group: path,
+        groupLabel: label,
+        groupAppearance: item.appearance,
+        listName: '',
+        vocab: '',
+        choices: [],
+        groups: [...ctx.groups, group],
+        emptyGroup: true,
+      });
+    }
   }
 }
 
