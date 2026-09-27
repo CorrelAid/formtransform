@@ -24,6 +24,11 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_person" name="person" type="section" var="V_beruf V_bildung" varGrp="VG_sprachen VG_quelle">
+      <txt>Zur Person</txt>
+      <txt xml:lang="en">About you</txt>
+      <concept>Zur Person</concept>
+    </varGrp>
     <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
       <txt>Wie sehr vertrauen Sie …</txt>
       <txt xml:lang="en">How much do you trust …</txt>
@@ -39,56 +44,41 @@
       <txt xml:lang="en">How did you hear about us?</txt>
       <concept>Wie haben Sie von uns erfahren?</concept>
     </varGrp>
-    <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
-        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
-        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
-        <qstnLit>… dem Parlament?</qstnLit>
-        <qstnLit xml:lang="en">… parliament?</qstnLit>
-        <ivuInstr>Skala vorlesen</ivuInstr>
-        <ivuInstr xml:lang="en">Read the scale</ivuInstr>
+    <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <preQTxt>Alle Angaben sind freiwillig.
+
+Aktuelle Tätigkeit</preQTxt>
+        <preQTxt xml:lang="en">All answers are optional.
+
+Current job</preQTxt>
+        <qstnLit>Was ist Ihr Beruf?</qstnLit>
+        <qstnLit xml:lang="en">What is your occupation?</qstnLit>
+        <ivuInstr>Nicht vorlesen</ivuInstr>
       </qstn>
-      <catgry>
-        <catValu>1</catValu>
-        <labl>gar nicht</labl>
-        <labl xml:lang="en">not at all</labl>
-      </catgry>
-      <catgry>
-        <catValu>2</catValu>
-        <labl>etwas</labl>
-        <labl xml:lang="en">somewhat</labl>
-      </catgry>
-      <catgry>
-        <catValu>3</catValu>
-        <labl>sehr</labl>
-        <labl xml:lang="en">very much</labl>
-      </catgry>
-      <concept>… dem Parlament?</concept>
-      <varFormat type="numeric" schema="other"/>
+      <concept>Was ist Ihr Beruf?</concept>
+      <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
+    <var ID="V_bildung" name="bildung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
-        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
-        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
-        <qstnLit>… der Polizei?</qstnLit>
-        <qstnLit xml:lang="en">… the police?</qstnLit>
+        <qstnLit>Höchster Abschluss?</qstnLit>
+        <qstnLit xml:lang="en">Highest degree?</qstnLit>
       </qstn>
       <catgry>
         <catValu>1</catValu>
-        <labl>gar nicht</labl>
-        <labl xml:lang="en">not at all</labl>
+        <labl>Kein Abschluss</labl>
+        <labl xml:lang="en">No degree</labl>
       </catgry>
       <catgry>
         <catValu>2</catValu>
-        <labl>etwas</labl>
-        <labl xml:lang="en">somewhat</labl>
+        <labl>Hauptschulabschluss</labl>
       </catgry>
       <catgry>
         <catValu>3</catValu>
-        <labl>sehr</labl>
-        <labl xml:lang="en">very much</labl>
+        <labl>Abitur</labl>
+        <labl xml:lang="en">A levels</labl>
       </catgry>
-      <concept>… der Polizei?</concept>
+      <concept>Höchster Abschluss?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sprachen_de" name="sprachen_de" intrvl="discrete" files="F1">
@@ -157,41 +147,56 @@
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${quelle} = 'other'</notes>
     </var>
-    <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Alle Angaben sind freiwillig.
-
-Aktuelle Tätigkeit</preQTxt>
-        <preQTxt xml:lang="en">All answers are optional.
-
-Current job</preQTxt>
-        <qstnLit>Was ist Ihr Beruf?</qstnLit>
-        <qstnLit xml:lang="en">What is your occupation?</qstnLit>
-        <ivuInstr>Nicht vorlesen</ivuInstr>
-      </qstn>
-      <concept>Was ist Ihr Beruf?</concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_bildung" name="bildung" intrvl="discrete" files="F1">
+    <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
-        <qstnLit>Höchster Abschluss?</qstnLit>
-        <qstnLit xml:lang="en">Highest degree?</qstnLit>
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
+        <qstnLit>… dem Parlament?</qstnLit>
+        <qstnLit xml:lang="en">… parliament?</qstnLit>
+        <ivuInstr>Skala vorlesen</ivuInstr>
+        <ivuInstr xml:lang="en">Read the scale</ivuInstr>
       </qstn>
       <catgry>
         <catValu>1</catValu>
-        <labl>Kein Abschluss</labl>
-        <labl xml:lang="en">No degree</labl>
+        <labl>gar nicht</labl>
+        <labl xml:lang="en">not at all</labl>
       </catgry>
       <catgry>
         <catValu>2</catValu>
-        <labl>Hauptschulabschluss</labl>
+        <labl>etwas</labl>
+        <labl xml:lang="en">somewhat</labl>
       </catgry>
       <catgry>
         <catValu>3</catValu>
-        <labl>Abitur</labl>
-        <labl xml:lang="en">A levels</labl>
+        <labl>sehr</labl>
+        <labl xml:lang="en">very much</labl>
       </catgry>
-      <concept>Höchster Abschluss?</concept>
+      <concept>… dem Parlament?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
+        <qstnLit>… der Polizei?</qstnLit>
+        <qstnLit xml:lang="en">… the police?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>gar nicht</labl>
+        <labl xml:lang="en">not at all</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>etwas</labl>
+        <labl xml:lang="en">somewhat</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>sehr</labl>
+        <labl xml:lang="en">very much</labl>
+      </catgry>
+      <concept>… der Polizei?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>

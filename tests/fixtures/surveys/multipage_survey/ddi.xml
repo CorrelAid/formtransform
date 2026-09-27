@@ -23,6 +23,14 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_page1" name="page1" type="section" var="V_name V_age">
+      <txt>Page One</txt>
+      <concept>Page One</concept>
+    </varGrp>
+    <varGrp ID="VG_page2" name="page2" type="section" var="V_favcolor">
+      <txt>Page Two</txt>
+      <concept>Page Two</concept>
+    </varGrp>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Your name</qstnLit>

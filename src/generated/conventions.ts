@@ -243,8 +243,8 @@ const conventions = {
           "lsTsvColumn": "relevance",
           "lsSyntax": "ExpressionScript (EM)",
           "ddi": {
-            "element": "var/universe[@clusion='I'] + var/notes[@type='cdl:relevant']",
-            "note": "The universe is prose formtransform generates from the expression and the referenced questions' labels (see ddiEncoding.universe); the typed note carries the XPath verbatim. A select_multiple's go on its varGrp[@type='multipleResp'] (the semi-open pair's on its varGrp[@type='other']), with the universe prose also on each binary var. Until every group has a varGrp (formtransform#152), the enclosing groups' conditions are ANDed into each variable's own.",
+            "element": "var/universe[@clusion='I'] + var/notes[@type='cdl:relevant']; a group's on its varGrp",
+            "note": "The universe is prose formtransform generates from the expression and the referenced questions' labels (see ddiEncoding.universe); the typed note carries the XPath verbatim. A select_multiple's go on its varGrp[@type='multipleResp'] (the semi-open pair's on its varGrp[@type='other']), with the universe prose also on each binary var. A group's own relevant is on its varGrp (type='section' or 'grid', formtransform#152). Each note carries its element's own condition; each universe states who is asked, i.e. the enclosing groups' conditions ANDed with its own.",
             "lossy": false
           }
         },

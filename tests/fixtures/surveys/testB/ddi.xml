@@ -28,6 +28,36 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_group_lt58n55" name="group_lt58n55" type="section" varGrp="VG_group_lt58n55_rating_technologies_tools VG_group_lt58n55_rating_techniques VG_group_lt58n55_rating_topics VG_group_lt58n55_group_pr7pr34">
+      <txt>Deine Fähigkeiten und Erfahrungen</txt>
+      <txt xml:lang="en">Your skills and experiences</txt>
+      <concept>Deine Fähigkeiten und Erfahrungen</concept>
+    </varGrp>
+    <varGrp ID="VG_group_lt58n55_rating_technologies_tools" name="group_lt58n55/rating_technologies_tools" type="section" var="V_sosci_survey V_python V_rstats V_powerbi V_excel V_sql V_git V_jupyter V_tensorflow V_tools_other">
+      <txt>Tools</txt>
+      <txt xml:lang="en">Tools</txt>
+      <concept>Tools</concept>
+    </varGrp>
+    <varGrp ID="VG_group_lt58n55_rating_techniques" name="group_lt58n55/rating_techniques" type="section" var="V_survey_design V_indicator_development V_data_collection V_data_cleaning V_descriptive_statistics V_data_visualization V_data_engineering V_automation V_projectplanning V_mlmodeling">
+      <txt>Techniken</txt>
+      <txt xml:lang="en">Techniques</txt>
+      <concept>Techniken</concept>
+    </varGrp>
+    <varGrp ID="VG_group_lt58n55_rating_topics" name="group_lt58n55/rating_topics" type="section" var="V_wirkungsmessung V_research_design V_survey_research V_data_protection V_resilience_mental_health V_education_research">
+      <txt>Themen</txt>
+      <txt xml:lang="en">Topics</txt>
+      <concept>Themen</concept>
+    </varGrp>
+    <varGrp ID="VG_group_lt58n55_group_pr7pr34" name="group_lt58n55/group_pr7pr34" type="section" var="V_motivation_skills V_motivation_why V_past_applications V_past_applications_details">
+      <txt>Du und das Projekt</txt>
+      <txt xml:lang="en">You and the project</txt>
+      <concept>Du und das Projekt</concept>
+    </varGrp>
+    <varGrp ID="VG_demographics" name="demographics" type="section" var="V_first_name V_last_name V_email_address V_gender V_gender_self_identification">
+      <txt>Über dich</txt>
+      <txt xml:lang="en">About you</txt>
+      <concept>Über dich</concept>
+    </varGrp>
     <varGrp ID="VG_project_id" name="project_id" type="multipleResp" var="V_project_id_project-alpha V_project_id_project-beta V_project_id_project-gamma">
       <txt>Für welche Projekte möchtest Du dich bewerben?</txt>
       <txt xml:lang="en">Which project(s) do you want to apply for?</txt>

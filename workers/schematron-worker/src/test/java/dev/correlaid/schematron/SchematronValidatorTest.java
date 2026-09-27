@@ -96,7 +96,7 @@ class SchematronValidatorTest {
         List<ValidationError> errors = schValidator.validate(xml);
         assertFalse(errors.isEmpty(), "Expected errors for bad varGrp type");
         assertTrue(
-            errors.stream().anyMatch(e -> e.message.contains("has type=\"section\"")),
+            errors.stream().anyMatch(e -> e.message.contains("has type=\"subject\"")),
             "Expected varGrp type error, got: " + formatErrors(errors)
         );
     }

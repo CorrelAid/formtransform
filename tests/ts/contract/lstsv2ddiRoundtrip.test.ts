@@ -33,6 +33,19 @@ function scrub(xml: string): string {
   );
 }
 
+/**
+ * LimeSurvey needs every question in a group, so xlsform2lstsv puts the
+ * top-level questions into one named `defaults.groupName` ("Questions"). The
+ * TSV can't tell it from an authored group, so lstsv2ddi keeps it as a
+ * `section` (#152); the XLSForm had none.
+ */
+function withoutWrapperGroup(xml: string): string {
+  return xml.replace(
+    /\n\s*<varGrp ID="VG_Questions" name="Questions" type="section"[^>]*>[\s\S]*?<\/varGrp>/,
+    '',
+  );
+}
+
 interface Case {
   id: string;
   dir: string;
@@ -65,6 +78,6 @@ describe('lstsv2ddi round-trip', () => {
     const committed = fs.readFileSync(path.join(dir, 'ddi.xml'), 'utf-8');
     // xlsform2ddi's snapshots use the folder name as the study title.
     const observed = lstsvToDdiXml(tsv, { assetName: id });
-    expect(scrub(observed)).toBe(scrub(committed));
+    expect(withoutWrapperGroup(scrub(observed))).toBe(scrub(committed));
   });
 });

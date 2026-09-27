@@ -7,6 +7,8 @@
  * - `select_multiple` expands into `<varGrp type="multipleResp">` + binary vars
  * - grid groups (`appearance="table-list"`) as `<varGrp type="grid">`
  * - the semi-open `_other` pattern as `<varGrp type="other">`
+ * - every other group as `<varGrp type="section">`, nested by `@varGrp` (#152)
+ * - `<var>`s in survey order (#152)
  * - external code lists (`select_*_from_file`) as `<concept vocab="…">`
  */
 
@@ -20,13 +22,15 @@ import {
 import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
-import { Choice, Translations, Variable } from './types.js';
+import { Choice, DdiGroup, Translations, Variable } from './types.js';
 import { joinTranslations, localizedChild, textsOf } from './translations.js';
 import {
   addLogicNotes,
+  addRelevantNote,
   addUniverse,
   addValrng,
   logicContext,
+  universeOf,
   type LogicContext,
 } from './logic.js';
 import { registeredVocabCodes } from '../conventions/fromFile.js';
@@ -179,7 +183,7 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
 
   if (spec.logic) {
     addValrng(varEl, spec.logic.v);
-    addUniverse(varEl, spec.logic.v, spec.logic.ctx);
+    addUniverse(varEl, universeOf(spec.logic.v), spec.logic.ctx);
   }
 
   if (!vocab) {
@@ -204,7 +208,7 @@ function addGroupLogic(
   ctx: LogicContext,
   notes?: { note: InlineNotes; name: string },
 ): void {
-  addUniverse(grpEl, v, ctx);
+  addUniverse(grpEl, universeOf(v), ctx);
   if (notes) addGroupNote(grpEl, notes.note, notes.name);
   addLogicNotes(grpEl, v);
 }
@@ -230,7 +234,7 @@ function addBinaryVar(
   localizedChild(qstn, 'preQTxt', questionLabel, textsOf(question, 'label'));
   localizedChild(qstn, 'qstnLit', choiceLabel, choice.translations);
   // The question's notes are on its varGrp; the prose also here, for readers.
-  addUniverse(varEl, question, ctx);
+  addUniverse(varEl, universeOf(question), ctx);
 
   for (const val of ['0', '1']) {
     varEl.child('catgry').textChild('catValu', val);
@@ -387,12 +391,23 @@ export interface BuildDdiOptions {
   prodDate?: string;
 }
 
+/**
+ * One question's `<var>`s, in survey order (#152): a plain variable (`grid`:
+ * the grid group it is a member of), a `select_multiple`'s binaries, or a
+ * semi-open pair.
+ */
+export type EmitUnit =
+  | { kind: 'var'; v: Variable; grid?: string }
+  | { kind: 'multi'; v: Variable }
+  | { kind: 'other'; p: OtherPattern };
+
 /** Returned by {@link splitDataVars}: every data var bucketed by its emit role. */
 export interface DataVarBuckets {
   otherPatterns: Map<string, OtherPattern>;
   gridGroups: Map<string, Variable[]>;
   multiRespGroups: Map<string, Variable>;
-  standaloneVars: Variable[];
+  /** The questions in survey order, which the `<var>`s and data columns follow. */
+  units: EmitUnit[];
 }
 
 /** Sort the flat data vars into the four emit roles `dataDscr` walks through. */
@@ -407,22 +422,28 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
 
   const gridGroups = new Map<string, Variable[]>();
   const multiRespGroups = new Map<string, Variable>();
-  const standaloneVars: Variable[] = [];
+  const units: EmitUnit[] = [];
 
   for (const v of dataVars) {
-    if (baseNamesInOther.has(v.name) || otherVarNames.has(v.name)) continue;
-    if (v.type === 'select_multiple') {
+    // A semi-open pair is emitted where its select is; the companion with it.
+    if (otherVarNames.has(v.name)) continue;
+    const pattern = otherPatterns.get(v.name);
+    if (pattern && baseNamesInOther.has(v.name)) {
+      units.push({ kind: 'other', p: pattern });
+    } else if (v.type === 'select_multiple') {
       multiRespGroups.set(v.name, v);
+      units.push({ kind: 'multi', v });
     } else if (v.group && isGridGroup(dataVars, v.group)) {
       const members = gridGroups.get(v.group) ?? [];
       members.push(v);
       gridGroups.set(v.group, members);
+      units.push({ kind: 'var', v, grid: v.group });
     } else {
-      standaloneVars.push(v);
+      units.push({ kind: 'var', v });
     }
   }
 
-  return { otherPatterns, gridGroups, multiRespGroups, standaloneVars };
+  return { otherPatterns, gridGroups, multiRespGroups, units };
 }
 
 /** Emit `<stdyDscr>` (citation + orphan notes appended). */
@@ -486,6 +507,73 @@ function addGroupNote(
   if (note) localizedChild(grpEl, 'notes', note, notes.translations[name]);
 }
 
+/** A group with what it directly contains, by `varGrp` ID reference. */
+interface GroupNode {
+  group: DdiGroup;
+  /** Its conditions and its enclosing groups', outermost first. */
+  universe: string[];
+  /** IDs of the plain `<var>`s directly in it. */
+  vars: string[];
+  /** IDs of the `<varGrp>`s directly in it. */
+  groups: string[];
+}
+
+/** The variable a unit is placed by. */
+function unitVar(unit: EmitUnit): Variable {
+  return unit.kind === 'other' ? unit.p.base : unit.v;
+}
+
+/**
+ * Every group that has a variable under it, by path in survey order, with
+ * its direct members (#152). A grid member belongs to its grid's `varGrp`;
+ * a `select_multiple` and a semi-open pair are represented by theirs.
+ */
+function groupTree(units: EmitUnit[]): Map<string, GroupNode> {
+  const tree = new Map<string, GroupNode>();
+  for (const unit of units) {
+    const chain = unitVar(unit).groups ?? [];
+    chain.forEach((group, i) => {
+      if (tree.has(group.path)) return;
+      tree.set(group.path, {
+        group,
+        universe: chain.slice(0, i + 1).map((g) => g.relevant),
+        vars: [],
+        groups: [],
+      });
+      if (i > 0)
+        tree.get(chain[i - 1].path)?.groups.push(makeGrpId(group.path));
+    });
+    const inner = chain.length ? tree.get(chain[chain.length - 1].path) : null;
+    if (!inner) continue;
+    if (unit.kind === 'multi') inner.groups.push(makeGrpId(unit.v.name));
+    else if (unit.kind === 'other')
+      inner.groups.push(makeGrpId(unit.p.base.name));
+    else if (!unit.grid) inner.vars.push(makeVarId(unit.v.name));
+  }
+  return tree;
+}
+
+/** A plain group as `<varGrp type="section">` (#152). */
+function addSection(
+  dataDscr: XmlElement,
+  node: GroupNode,
+  ctx: LogicContext,
+): void {
+  const { group } = node;
+  const grpEl = dataDscr.child('varGrp', {
+    ID: makeGrpId(group.path),
+    name: group.path,
+    type: 'section',
+    ...(node.vars.length ? { var: node.vars.join(' ') } : {}),
+    ...(node.groups.length ? { varGrp: node.groups.join(' ') } : {}),
+  });
+  const label = group.label || group.name;
+  localizedChild(grpEl, 'txt', label, group.translations);
+  grpEl.textChild('concept', label);
+  addUniverse(grpEl, node.universe, ctx);
+  addRelevantNote(grpEl, group.relevant);
+}
+
 /** Emit every `<varGrp>` element into `<dataDscr>` (must come before `<var>`). */
 function addVarGroups(
   dataDscr: XmlElement,
@@ -495,19 +583,28 @@ function addVarGroups(
   ctx: LogicContext,
 ): void {
   const { gridGroups, multiRespGroups, otherPatterns } = buckets;
+  const tree = groupTree(buckets.units);
+
+  for (const node of tree.values()) {
+    if (!gridGroups.has(node.group.path)) addSection(dataDscr, node, ctx);
+  }
 
   for (const [groupName, members] of gridGroups) {
     const group = getGroupLabel(dataVars, groupName);
+    const node = tree.get(groupName);
     const grpEl = dataDscr.child('varGrp', {
       ID: makeGrpId(groupName),
       name: groupName,
       type: 'grid',
       var: members.map((m) => makeVarId(m.name)).join(' '),
+      ...(node?.groups.length ? { varGrp: node.groups.join(' ') } : {}),
     });
     localizedChild(grpEl, 'txt', group.label, group.translations);
     grpEl.textChild('concept', group.label);
+    if (node) addUniverse(grpEl, node.universe, ctx);
     // A lead-in note belongs to the group: a member's preQTxt must equal txt.
     addGroupNote(grpEl, notes, members[0]?.name ?? '');
+    if (node) addRelevantNote(grpEl, node.group.relevant);
   }
 
   for (const [smName, smVar] of multiRespGroups) {
@@ -535,56 +632,63 @@ function addVars(
   buckets: DataVarBuckets,
   ctx: LogicContext,
 ): void {
-  const { gridGroups, multiRespGroups, standaloneVars, otherPatterns } =
-    buckets;
-
-  for (const [groupName, members] of gridGroups) {
-    const group = getGroupLabel(dataVars, groupName);
-    for (const v of members) {
+  for (const unit of buckets.units) {
+    if (unit.kind === 'multi') {
+      for (const choice of unit.v.choices) {
+        addBinaryVar(
+          dataDscr,
+          `${unit.v.name}_${choice.name}`,
+          unit.v,
+          choice,
+          ctx,
+        );
+      }
+    } else if (unit.kind === 'other') {
+      emitOtherPatternVars(dataDscr, unit.p, ctx);
+    } else if (unit.grid) {
+      const group = getGroupLabel(dataVars, unit.grid);
       // preQTxt must equal the group's txt (Schematron), so a member's own
       // hint has no slot; validateSubset warns `hint-dropped`.
       addVarElement(dataDscr, {
-        varId: makeVarId(v.name),
-        name: v.name,
-        label: v.label,
-        varType: v.type,
-        choices: v.choices,
+        varId: makeVarId(unit.v.name),
+        name: unit.v.name,
+        label: unit.v.label,
+        varType: unit.v.type,
+        choices: unit.v.choices,
         opts: { preQTxt: group.label, preQTxtTranslations: group.translations },
-        guidanceHint: v.guidanceHint,
-        ...specTranslations(v, false),
-        logic: { v, ctx },
+        guidanceHint: unit.v.guidanceHint,
+        ...specTranslations(unit.v, false),
+        logic: { v: unit.v, ctx },
       });
+    } else {
+      addStandaloneVar(dataDscr, unit.v, notes, ctx);
     }
   }
+}
 
-  for (const [smName, smVar] of multiRespGroups) {
-    for (const choice of smVar.choices) {
-      addBinaryVar(dataDscr, `${smName}_${choice.name}`, smVar, choice, ctx);
-    }
-  }
-
-  for (const p of otherPatterns.values()) {
-    emitOtherPatternVars(dataDscr, p, ctx);
-  }
-
-  for (const v of standaloneVars) {
-    addVarElement(dataDscr, {
-      varId: makeVarId(v.name),
-      name: v.name,
-      label: v.label,
-      varType: v.type,
-      choices: v.choices,
-      opts: {
-        vocab: v.vocab,
-        preQTxt: notes.text[v.name] ?? '',
-        preQTxtTranslations: notes.translations[v.name],
-      },
-      hint: v.hint,
-      guidanceHint: v.guidanceHint,
-      ...specTranslations(v),
-      logic: { v, ctx },
-    });
-  }
+/** A variable outside any grid, pair or `select_multiple`. */
+function addStandaloneVar(
+  dataDscr: XmlElement,
+  v: Variable,
+  notes: InlineNotes,
+  ctx: LogicContext,
+): void {
+  addVarElement(dataDscr, {
+    varId: makeVarId(v.name),
+    name: v.name,
+    label: v.label,
+    varType: v.type,
+    choices: v.choices,
+    opts: {
+      vocab: v.vocab,
+      preQTxt: notes.text[v.name] ?? '',
+      preQTxtTranslations: notes.translations[v.name],
+    },
+    hint: v.hint,
+    guidanceHint: v.guidanceHint,
+    ...specTranslations(v),
+    logic: { v, ctx },
+  });
 }
 
 /**

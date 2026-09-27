@@ -24,6 +24,10 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_main" name="main" type="section" var="V_comment" varGrp="VG_fav_color">
+      <txt>Main Questions</txt>
+      <concept>Main Questions</concept>
+    </varGrp>
     <varGrp ID="VG_fav_color" name="fav_color" type="other" var="V_fav_color V_fav_color_other">
       <txt>What is your _favorite_ color?</txt>
       <concept>What is your _favorite_ color?</concept>

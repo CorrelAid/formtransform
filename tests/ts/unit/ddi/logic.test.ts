@@ -99,7 +99,7 @@ describe('relevant', () => {
     expect(v).toContain('string-length(${a}) &gt; 3</notes>');
   });
 
-  test("a group's condition is ANDed into each member's", () => {
+  test("a group's condition is on its section; the universe states both", () => {
     const xml = ddi([
       { type: 'select_one yn', name: 'dog', label: 'Dog?' },
       {
@@ -112,11 +112,23 @@ describe('relevant', () => {
       { type: 'text', name: 't', label: 'T', relevant: '${age} > 1' },
       { type: 'end_group' },
     ]);
-    expect(varXml(xml, 'age')).toContain(
+    const section = xml.slice(
+      xml.indexOf('<varGrp ID="VG_g"'),
+      xml.indexOf('</varGrp>'),
+    );
+    expect(section).toContain('type="section" var="V_age V_t"');
+    expect(section).toContain('Only if “Dog?” = Yes</universe>');
+    expect(section).toContain(
       `subject="xlsform-xpath">\${dog} = 'yes'</notes>`,
     );
+    // A member's note is its own condition only.
+    expect(varXml(xml, 'age')).not.toContain('<notes');
+    expect(varXml(xml, 'age')).toContain('Only if “Dog?” = Yes</universe>');
     expect(varXml(xml, 't')).toContain(
-      `subject="xlsform-xpath">(\${dog} = 'yes') and (\${age} &gt; 1)</notes>`,
+      `subject="xlsform-xpath">\${age} &gt; 1</notes>`,
+    );
+    expect(varXml(xml, 't')).toContain(
+      'Only if “Dog?” = Yes and “Age” &gt; 1</universe>',
     );
   });
 

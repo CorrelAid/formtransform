@@ -21,6 +21,24 @@ export interface Choice {
   translations?: Translations;
 }
 
+/**
+ * A group the variable is in (#152): one object per group, shared by all its
+ * members, so the DDI can give every group a `<varGrp>`.
+ */
+export interface DdiGroup {
+  /** Its own name. */
+  name: string;
+  /** Slash-joined path from the top level, the `varGrp/@name`. */
+  path: string;
+  label: string;
+  /** `label` in the form's other languages. */
+  translations?: Translations;
+  /** Lowercased `appearance`. */
+  appearance: string;
+  /** Its own `relevant` (XPath); `''` when none. */
+  relevant: string;
+}
+
 /** A variable's texts in one of the form's other languages. */
 export interface VariableTexts {
   label?: string;
@@ -55,8 +73,13 @@ export interface Variable {
   /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
   guidanceHint?: string;
   /**
-   * XLSForm `relevant` (XPath), with the enclosing groups' conditions ANDed
-   * in: `<universe>` prose plus a `cdl:relevant` note (#151).
+   * The enclosing groups, outermost first (#152). Without it the codebook
+   * has no `section` groups.
+   */
+  groups?: DdiGroup[];
+  /**
+   * Its own XLSForm `relevant` (XPath): a `cdl:relevant` note, and with the
+   * groups' conditions the `<universe>` prose (#151).
    */
   relevant?: string;
   /** XLSForm `constraint` (XPath): a `cdl:constraint` note, maybe `<valrng>`. */

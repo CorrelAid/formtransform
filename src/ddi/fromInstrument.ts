@@ -28,7 +28,13 @@ import type {
 } from '../instrument/types.js';
 import { warning, type WarningHandler } from '../diagnostics.js';
 import { languageTagOf } from '../utils/languageUtils.js';
-import type { Choice, Translations, Variable, VariableTexts } from './types.js';
+import type {
+  Choice,
+  DdiGroup,
+  Translations,
+  Variable,
+  VariableTexts,
+} from './types.js';
 
 // Semi-open "other" convention: the `or_other` type shorthand (and a
 // LimeSurvey `other=Y`) is expanded into an `other` category plus a
@@ -108,31 +114,24 @@ interface GroupContext {
   /** The group's label in every language, for its translations. */
   labelText: Text;
   appearance: string;
-  /** The enclosing groups' `relevant` expressions, outermost first. */
-  relevant: string[];
+  /** The enclosing groups, outermost first (#152). */
+  groups: DdiGroup[];
 }
 
-/**
- * All of `conditions` as one XPath: each parenthesized, ANDed. Until every
- * group has a `varGrp` (#152), a variable carries its groups' conditions.
- */
-function allOf(conditions: string[]): string {
-  const parts = conditions.map((c) => c.trim()).filter(Boolean);
-  return parts.length === 1
-    ? parts[0]
-    : parts.map((c) => `(${c})`).join(' and ');
+/** The groups a variable is in, absent at the top level. */
+function groupsOf(ctx: GroupContext): Pick<Variable, 'groups'> {
+  return ctx.groups.length ? { groups: ctx.groups } : {};
 }
 
-/** A question's logic fields, absent when empty (#151). */
+/** A question's own logic fields, absent when empty (#151). */
 function logicOf(
   q: QuestionItem,
-  ctx: GroupContext,
   lang: string | undefined,
 ): Pick<
   Variable,
   'relevant' | 'constraint' | 'constraintMessage' | 'required'
 > {
-  const relevant = allOf([...ctx.relevant, q.relevant]);
+  const relevant = q.relevant.trim();
   const message = pick(q.constraintMessage, lang).trim();
   return {
     ...(relevant ? { relevant } : {}),
@@ -288,10 +287,7 @@ function pushCompanion(
 ): void {
   const name = q.name + OTHER_SUFFIX;
   if (state.authoredNames.has(name)) return;
-  const relevant = allOf([
-    ...ctx.relevant,
-    otherCompanionRelevance(stdType, q.name),
-  ]);
+  const relevant = otherCompanionRelevance(stdType, q.name);
   const translations: Record<string, VariableTexts> = {};
   const groupLabels = translationsOf(ctx.labelText, state.others) ?? {};
   for (const [, tag] of state.others) {
@@ -310,6 +306,7 @@ function pushCompanion(
     listName: '',
     vocab: '',
     choices: [],
+    ...groupsOf(ctx),
     relevant,
     ...(Object.keys(translations).length ? { translations } : {}),
   });
@@ -357,7 +354,8 @@ function pushQuestion(
       hint: pick(q.hint, state.lang).trim(),
       guidanceHint: pick(q.guidanceHint, state.lang).trim(),
     }),
-    ...logicOf(q, ctx, state.lang),
+    ...groupsOf(ctx),
+    ...logicOf(q, state.lang),
     ...(translations ? { translations } : {}),
   });
 
@@ -370,14 +368,25 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       pushQuestion(item, ctx, state);
       continue;
     }
+    const path = ctx.path ? `${ctx.path}/${item.name}` : item.name;
+    const label = pick(item.label, state.lang);
+    const translations = translationsOf(item.label, state.others);
+    const group: DdiGroup = {
+      name: item.name,
+      path,
+      label,
+      ...(translations ? { translations } : {}),
+      appearance: item.appearance,
+      relevant: item.relevant.trim(),
+    };
     project(
       item.children,
       {
-        path: ctx.path ? `${ctx.path}/${item.name}` : item.name,
-        label: pick(item.label, state.lang),
+        path,
+        label,
         labelText: item.label,
         appearance: item.appearance,
-        relevant: [...ctx.relevant, item.relevant],
+        groups: [...ctx.groups, group],
       },
       state,
     );
@@ -440,7 +449,7 @@ export function variablesFromInstrument(
   };
   project(
     instrument.body,
-    { path: '', label: '', labelText: {}, appearance: '', relevant: [] },
+    { path: '', label: '', labelText: {}, appearance: '', groups: [] },
     state,
   );
   return state.variables;
