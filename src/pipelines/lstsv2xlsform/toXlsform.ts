@@ -35,21 +35,21 @@ import {
   otherCompanionRelevance,
   otherLabelFor,
 } from '../../conventions/other.js';
-import {
-  fromFileTypeFor,
-  vocabFromCssClass,
-} from '../../conventions/fromFile.js';
 import { GRID_APPEARANCE } from '../../conventions/grid.js';
 
 /** The registry appearance for a group shown as one page. */
 const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
 
 import { formatDefaultLanguage } from './languageNames.js';
-import {
-  CANONICAL_TEXT_TYPE,
-  resolveType,
-} from '../../instrument/lstsvTypes.js';
-import type { ResolvedType } from '../../instrument/lstsvTypes.js';
+import { instrumentFromLstsv } from '../../instrument/fromLstsv.js';
+import { allQuestions } from '../../instrument/walk.js';
+import type {
+  GroupItem,
+  Instrument,
+  Item,
+  QuestionItem,
+  Text,
+} from '../../instrument/types.js';
 import { htmlToMarkdown } from '../../utils/markdownRenderer.js';
 import {
   reverseRelevance,
@@ -75,79 +75,19 @@ function htmlLabel(v: LabelValue): LabelValue {
   );
 }
 
-// ── Multi-language label collection ─────────────────────────────────────
+// ── Instrument → XLSForm (#69, phase 4) ──────────────────────────────────
 
-/**
- * Accumulate `text`/`help` per (stable key, language) across every row, so a
- * later structural pass (over base-language rows only) can look up the full
- * multilingual value for any item regardless of row order.
- *
- * Keys: `G` rows use `type/scale` (LimeSurvey's own cross-language group
- * identity — the `name` column holds the rendered label, which differs per
- * language); every other class uses `name` (stable across languages).
- */
-function collectLabelMaps(rows: Row[]): {
-  textByKey: Map<string, Map<string, string>>;
-  helpByKey: Map<string, Map<string, string>>;
-} {
-  const textByKey = new Map<string, Map<string, string>>();
-  const helpByKey = new Map<string, Map<string, string>>();
-
-  const put = (
-    store: Map<string, Map<string, string>>,
-    key: string,
-    lang: string,
-    value: string,
-  ): void => {
-    if (!value) return;
-    (store.get(key) ?? store.set(key, new Map()).get(key)!).set(lang, value);
-  };
-
-  for (const row of rows) {
-    const cls = cell(row, 'class');
-    const lang = cell(row, 'language');
-    if (!cls || !lang) continue;
-    if (cls === 'G') {
-      // G rows invert Q's columns: `name` holds the rendered label, `text`
-      // holds the hint (see xlsformConverter#addGroup).
-      const key = `G:${cell(row, 'type/scale')}`;
-      put(textByKey, key, lang, cell(row, 'name'));
-      put(helpByKey, key, lang, cell(row, 'text'));
-      continue;
-    }
-    const key = `${cls}:${cell(row, 'name')}`;
-    put(textByKey, key, lang, cell(row, 'text'));
-    put(helpByKey, key, lang, cell(row, 'help'));
-    // The native "other" box's label: the XLSForm companion's label; the
-    // validation tip: the XLSForm constraint_message.
-    if (cls === 'Q') {
-      put(
-        textByKey,
-        `TIP:${cell(row, 'name')}`,
-        lang,
-        cell(row, 'em_validation_q_tip'),
-      );
-      put(
-        textByKey,
-        `OTHER:${cell(row, 'name')}`,
-        lang,
-        cell(row, 'other_replace_text'),
-      );
-    }
-  }
-
-  return { textByKey, helpByKey };
-}
-
-/** Collapse a per-language map to a plain string (1 language) or object map. */
-function collapseLabel(
-  map: Map<string, string> | undefined,
+/** Collapse a {@link Text} to a plain string (1 language) or `{lang: text}`. */
+function collapseText(
+  text: Text | undefined,
   languages: string[],
   baseLanguage: string,
 ): LabelValue {
-  if (!map || map.size === 0) return '';
+  const entries = Object.entries(text ?? {}).filter(([, v]) => v !== '');
+  if (entries.length === 0) return '';
+  const map = new Map(entries);
   if (languages.length <= 1) {
-    return map.get(baseLanguage) ?? [...map.values()][0] ?? '';
+    return map.get(baseLanguage) ?? entries[0][1] ?? '';
   }
   const obj: Record<string, string> = {};
   for (const lang of languages) {
@@ -157,206 +97,6 @@ function collapseLabel(
   // Empty object would be truthy (breaks `label(...) || fallback` callers).
   return Object.keys(obj).length > 0 ? obj : '';
 }
-
-// ── Survey-level settings (S / SL rows) ─────────────────────────────────
-
-interface SurveySettings {
-  languages: string[];
-  baseLanguage: string;
-  formTitle: LabelValue;
-  style: string;
-  welcomeLabel?: LabelValue;
-  endLabel?: LabelValue;
-}
-
-function readSettings(
-  rows: Row[],
-  textByKey: Map<string, Map<string, string>>,
-): SurveySettings {
-  const sRow = (name: string): Row | undefined =>
-    rows.find((r) => cell(r, 'class') === 'S' && cell(r, 'name') === name);
-
-  const baseLanguage = cell(sRow('language') ?? {}, 'text') || 'en';
-  const additional = cell(sRow('additional_languages') ?? {}, 'text');
-  const languages = additional
-    ? [baseLanguage, ...additional.split(/\s+/).filter(Boolean)]
-    : [baseLanguage];
-
-  const format = cell(sRow('format') ?? {}, 'text');
-  const style = format === 'G' ? 'pages' : '';
-
-  const formTitle = collapseLabel(
-    textByKey.get('SL:surveyls_title'),
-    languages,
-    baseLanguage,
-  );
-  const welcomeMap = textByKey.get('SL:surveyls_welcometext');
-  const endMap = textByKey.get('SL:surveyls_endtext');
-
-  return {
-    languages,
-    baseLanguage,
-    formTitle,
-    style,
-    welcomeLabel: welcomeMap
-      ? collapseLabel(welcomeMap, languages, baseLanguage)
-      : undefined,
-    endLabel: endMap
-      ? collapseLabel(endMap, languages, baseLanguage)
-      : undefined,
-  };
-}
-
-// ── Group bucketing ──────────────────────────────────────────────────────
-
-interface GroupBucket {
-  seqKey: string;
-  /** All rows (all languages) belonging to this group, in document order. */
-  rows: Row[];
-  /** The group's EM relevance (its G rows all carry the same one). */
-  relevance: string;
-  /** Rows before any G row: top-level questions, no group wrapper. */
-  implicit?: boolean;
-}
-
-/** Split rows into per-group buckets. A `G` row with a new sequence key starts
- * a bucket; there is no explicit close row in LimeSurvey TSV — the next `G`
- * row (or EOF) ends it. */
-function splitIntoGroups(rows: Row[]): GroupBucket[] {
-  const buckets: GroupBucket[] = [];
-  // A group has one G row per language, all with its sequence key; each
-  // translation continues the same bucket instead of opening a new group.
-  const bySeq = new Map<string, GroupBucket>();
-  let current: GroupBucket | null = null;
-  for (const row of rows) {
-    const cls = cell(row, 'class');
-    if (cls === 'S' || cls === 'SL') continue;
-    if (cls === 'G') {
-      const seqKey = cell(row, 'type/scale');
-      current = bySeq.get(seqKey) ?? null;
-      if (!current) {
-        current = { seqKey, rows: [], relevance: cell(row, 'relevance') };
-        bySeq.set(seqKey, current);
-        buckets.push(current);
-      }
-      continue;
-    }
-    // Questions before the first G row belong to no group (lstsv2ddi keeps
-    // them too); they used to vanish.
-    if (!current) {
-      current = { seqKey: '', rows: [], relevance: '', implicit: true };
-      buckets.push(current);
-    }
-    current.rows.push(row);
-  }
-  return buckets;
-}
-
-// ── Question-level reconstruction ───────────────────────────────────────
-
-interface PlainQuestion {
-  kind: 'plain';
-  name: string;
-  lsType: string;
-  cssclass: string;
-  /** The Q row itself, for type-resolving attributes (date_format, bounds). */
-  row: Row;
-  mandatory: string;
-  defaultVal: string;
-  otherFlag: boolean;
-  relevance: string;
-  emValidationQ: string;
-}
-
-interface ArrayQuestion {
-  kind: 'array';
-  name: string;
-  subquestionNames: string[];
-  /** Each subquestion's own relevance (a grid member's `relevant`). */
-  subquestionRelevance: Map<string, string>;
-}
-
-type LogicalQuestion = PlainQuestion | ArrayQuestion;
-
-/** A multiple choice's defaults sit on its SQ rows as `Y`: add the code. */
-function addDefaultTick(item: LogicalQuestion | undefined, row: Row): void {
-  if (item?.kind !== 'plain' || cell(row, 'default') !== 'Y') return;
-  item.defaultVal = [item.defaultVal, cell(row, 'name')]
-    .filter(Boolean)
-    .join(' ');
-}
-
-/** Walk one group's base-language rows into an ordered logical-question list. */
-function readLogicalQuestions(
-  baseRows: Row[],
-  languages: string[],
-): { items: LogicalQuestion[]; choicesByName: Map<string, string[]> } {
-  const items: LogicalQuestion[] = [];
-  const choicesByName = new Map<string, string[]>();
-  let currentQuestionName: string | null = null;
-  let currentArray: ArrayQuestion | null = null;
-
-  for (const row of baseRows) {
-    const cls = cell(row, 'class');
-    if (cls === 'Q') {
-      const lsType = cell(row, 'type/scale');
-      const name = cell(row, 'name');
-      if (lsType === 'F') {
-        currentArray = {
-          kind: 'array',
-          name,
-          subquestionNames: [],
-          subquestionRelevance: new Map(),
-        };
-        items.push(currentArray);
-        currentQuestionName = null;
-      } else {
-        currentArray = null;
-        currentQuestionName = name;
-        items.push({
-          kind: 'plain',
-          name,
-          lsType,
-          cssclass: cell(row, 'cssclass'),
-          row,
-          mandatory: cell(row, 'mandatory'),
-          defaultVal: cell(row, 'default'),
-          otherFlag: cell(row, 'other') === 'Y',
-          relevance: cell(row, 'relevance'),
-          emValidationQ: cell(row, 'em_validation_q'),
-        });
-        choicesByName.set(name, []);
-      }
-      continue;
-    }
-    if (cls === 'SQ' && currentArray) {
-      currentArray.subquestionNames.push(cell(row, 'name'));
-      currentArray.subquestionRelevance.set(
-        cell(row, 'name'),
-        cell(row, 'relevance'),
-      );
-      choicesByName.set(cell(row, 'name'), []);
-      continue;
-    }
-    if ((cls === 'A' || cls === 'SQ') && currentQuestionName) {
-      choicesByName.get(currentQuestionName)!.push(cell(row, 'name'));
-      if (cls === 'SQ') addDefaultTick(items[items.length - 1], row);
-      continue;
-    }
-    if (cls === 'A' && currentArray) {
-      // Shared answer scale for the array — keyed by the array's own name.
-      (
-        choicesByName.get(currentArray.name) ??
-        choicesByName.set(currentArray.name, []).get(currentArray.name)!
-      ).push(cell(row, 'name'));
-    }
-  }
-
-  void languages; // reserved for future per-language choice ordering checks
-  return { items, choicesByName };
-}
-
-// ── Group-name / appearance heuristic ────────────────────────────────────
 
 /** Best-effort machine name for a plain group whose original name is lost —
  * only its rendered label survives in the TSV. */
@@ -371,371 +111,241 @@ function slugifyGroupName(label: string): string {
   return slug || 'group';
 }
 
-// ── Main entry point ─────────────────────────────────────────────────────
-
 export interface XlsformOutput {
   survey: SurveyRow[];
   choices: ChoiceRow[];
   settings: SettingsRow[];
 }
 
-/** Pre-scan: walk every bucket's base-language rows to enumerate the `select_multiple`
- * questions in the document (so the `selected()` reconstruction context can be built
- * globally — relevance can reference any question, not just the current group). */
-function collectSelectMultiples(
-  buckets: GroupBucket[],
-  baseLanguage: string,
-  languages: string[],
-): Array<{ name: string; codes: string[] }> {
-  const out: Array<{ name: string; codes: string[] }> = [];
-  for (const bucket of buckets) {
-    const baseRows = bucket.rows.filter(
-      (r) => cell(r, 'language') === baseLanguage,
-    );
-    const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
-    for (const item of items) {
-      if (
-        item.kind === 'plain' &&
-        item.lsType === 'M' &&
-        !vocabFromCssClass(item.cssclass)
-      ) {
-        const codes = choicesByName.get(item.name) ?? [];
-        // LimeSurvey's native "other" (other=Y) is the implicit `other` code,
-        // which the forward path references as `<question>_other`.
-        out.push({
-          name: item.name,
-          codes: item.otherFlag ? [...codes, OTHER_CODE] : codes,
-        });
-      }
-    }
-  }
-  return out;
-}
-
-/** Shared inputs for {@link emitBucketOpen}. */
-interface BucketOpenCtx {
-  bucket: GroupBucket;
-  buckets: GroupBucket[];
-  baseLanguage: string;
-  baseRows: Row[];
+interface EmitCtx {
+  label: (text: Text | undefined) => LabelValue;
   languages: string[];
-  label: (key: string) => LabelValue;
+  baseLanguage: string;
+  lists: Instrument['lists'];
+  survey: SurveyRow[];
+  choices: ChoiceRow[];
   selectCtx: SelectContext;
   /** `format=G` (style: pages): each LimeSurvey group is one page. */
   pages: boolean;
 }
 
-/** Compute the begin-group row for one bucket. Returns `{ row, isSyntheticDefault }`:
- * when the bucket is the auto-injected single-default group, we elide the wrapper. */
-function emitBucketOpen(ctx: BucketOpenCtx): {
-  row: SurveyRow | null;
-  isSyntheticDefault: boolean;
-} {
-  const { bucket, buckets, baseLanguage, baseRows, languages, label } = ctx;
-  if (bucket.implicit) return { row: null, isSyntheticDefault: true };
-  const groupLabel = label(`G:${bucket.seqKey}`);
-  const groupLabelText =
-    typeof groupLabel === 'string'
-      ? groupLabel
-      : (groupLabel[baseLanguage] ?? '');
-  const { items } = readLogicalQuestions(baseRows, languages);
-  const hasArray = items.some((i) => i.kind === 'array');
-  const isSyntheticDefault =
-    buckets.length === 1 &&
-    groupLabelText === defaultConfig.defaults.groupName &&
-    !hasArray;
-  if (isSyntheticDefault) return { row: null, isSyntheticDefault: true };
-
-  const arrayItem = items.find((i): i is ArrayQuestion => i.kind === 'array');
-  let groupName: string;
-  let groupAppearance: string | undefined;
-  if (items.length === 1 && arrayItem) {
-    groupName = arrayItem.name;
-    groupAppearance = GRID_APPEARANCE;
-  } else {
-    groupName = slugifyGroupName(groupLabelText);
-    // A page per group is what XLSForm's field-list group means.
-    if (ctx.pages) groupAppearance = PAGE_APPEARANCE;
-  }
-  const row: SurveyRow = {
-    type: 'begin_group',
-    name: groupName,
-    label: htmlLabel(groupLabel),
-  };
-  if (groupAppearance) row.appearance = groupAppearance;
-  const relevant = reverseRelevance(bucket.relevance, ctx.selectCtx);
-  if (relevant) row.relevant = relevant;
-  return { row, isSyntheticDefault: false };
-}
-
-/** Emit a bucket's rows + its (optional) begin/end_group wrappers into `ctx.survey`/`ctx.choices`. */
-function emitBucket(
-  bucket: GroupBucket,
-  buckets: GroupBucket[],
-  baseLanguage: string,
-  languages: string[],
-  ctx: EmitCtx,
-): void {
-  const baseRows = bucket.rows.filter(
-    (r) => cell(r, 'language') === baseLanguage,
-  );
-  const { row: openRow, isSyntheticDefault } = emitBucketOpen({
-    bucket,
-    buckets,
-    baseLanguage,
-    baseRows,
-    languages,
-    label: ctx.label,
-    selectCtx: ctx.selectCtx,
-    pages: ctx.pages,
-  });
-  const { items, choicesByName } = readLogicalQuestions(baseRows, languages);
-  if (openRow) ctx.survey.push(openRow);
-  emitQuestions(items, choicesByName, ctx);
-  if (!isSyntheticDefault) ctx.survey.push({ type: 'end_group' });
+/**
+ * Every multiple choice, with its codes (and `other` for a native other), so
+ * `selected()` can be rebuilt for a reference from anywhere in the survey.
+ */
+function selectMultiples(
+  instrument: Instrument,
+): Array<{ name: string; codes: string[] }> {
+  return allQuestions(instrument.body)
+    .filter((q) => q.type === 'select_multiple' && q.list)
+    .map((q) => {
+      const codes = (instrument.lists[q.list] ?? []).map((c) => c.name);
+      return {
+        name: q.name,
+        codes: q.orOther ? [...codes, OTHER_CODE] : codes,
+      };
+    });
 }
 
 /** Render the settings sheet — non-default values only. */
-function buildSettingsRow(settings: SurveySettings): SettingsRow[] {
+function buildSettingsRow(
+  instrument: Instrument,
+  baseLanguage: string,
+): SettingsRow[] {
   const row: SettingsRow = {};
-  if (settings.baseLanguage !== defaultConfig.defaults.language) {
-    row.default_language = formatDefaultLanguage(settings.baseLanguage);
+  if (baseLanguage !== defaultConfig.defaults.language) {
+    row.default_language = formatDefaultLanguage(baseLanguage);
   }
-  const formTitleBase =
-    typeof settings.formTitle === 'string'
-      ? settings.formTitle
-      : settings.formTitle[settings.baseLanguage];
-  if (formTitleBase && formTitleBase !== defaultConfig.defaults.surveyTitle) {
-    row.form_title = formTitleBase;
+  const title = instrument.settings['form_title'];
+  if (
+    typeof title === 'string' &&
+    title &&
+    title !== defaultConfig.defaults.surveyTitle
+  ) {
+    row.form_title = title;
   }
-  if (settings.style) row.style = settings.style;
+  const style = instrument.settings['style'];
+  if (typeof style === 'string' && style) row.style = style;
   return Object.keys(row).length > 0 ? [row] : [];
 }
 
 /**
  * Reconstruct XLSForm survey/choices/settings rows from parsed LimeSurvey
- * structure-TSV rows. See the module docstring for scope and known lossy
+ * structure-TSV rows: parsed into the Instrument (`instrumentFromLstsv`),
+ * then emitted from it. See the module docstring for the known lossy
  * reconstructions.
  */
 export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
-  const { textByKey, helpByKey } = collectLabelMaps(rows);
-  const settings = readSettings(rows, textByKey);
-  const { languages, baseLanguage } = settings;
+  return xlsformFromInstrument(instrumentFromLstsv(rows));
+}
 
-  const label = (key: string): LabelValue =>
-    collapseLabel(textByKey.get(key), languages, baseLanguage);
-  const help = (key: string): LabelValue =>
-    collapseLabel(helpByKey.get(key), languages, baseLanguage);
-
-  const buckets = splitIntoGroups(rows);
-  const selectCtx = buildSelectContext(
-    collectSelectMultiples(buckets, baseLanguage, languages),
-  );
-
-  const survey: SurveyRow[] = [];
-  const choices: ChoiceRow[] = [];
+/** Emit an {@link Instrument} as XLSForm sheets. */
+export function xlsformFromInstrument(instrument: Instrument): XlsformOutput {
+  const baseLanguage =
+    instrument.defaultLanguage ?? defaultConfig.defaults.language;
+  const languages = instrument.defaultLanguage
+    ? instrument.languages
+    : [baseLanguage];
   const ctx: EmitCtx = {
-    label,
-    help,
+    label: (text) => collapseText(text, languages, baseLanguage),
     languages,
     baseLanguage,
-    survey,
-    choices,
-    selectCtx,
-    pages: settings.style === 'pages',
+    lists: instrument.lists,
+    survey: [],
+    choices: [],
+    selectCtx: buildSelectContext(selectMultiples(instrument)),
+    pages: instrument.settings['style'] === 'pages',
   };
-
-  if (settings.welcomeLabel) {
-    survey.push({
-      type: 'note',
-      name: 'welcome',
-      label: htmlLabel(settings.welcomeLabel),
-    });
+  const groups = instrument.body.filter((i) => i.kind === 'group');
+  const content = instrument.body.filter((i) => !isMessageNote(i));
+  for (const item of instrument.body) {
+    if (item.kind === 'question') {
+      emitQuestion(item, instrument.body, ctx);
+    } else if (isSyntheticDefault(item, groups.length, content.length, ctx)) {
+      emitItems(item.children, ctx);
+    } else {
+      emitGroup(item, ctx);
+    }
   }
-
-  for (const bucket of buckets) {
-    emitBucket(bucket, buckets, baseLanguage, languages, ctx);
-  }
-
-  if (settings.endLabel) {
-    survey.push({
-      type: 'note',
-      name: 'end',
-      label: htmlLabel(settings.endLabel),
-    });
-  }
-
   return {
-    survey,
-    choices,
-    settings: buildSettingsRow(settings),
+    survey: ctx.survey,
+    choices: ctx.choices,
+    settings: buildSettingsRow(instrument, baseLanguage),
   };
 }
 
-interface EmitCtx {
-  label: (key: string) => LabelValue;
-  help: (key: string) => LabelValue;
-  languages: string[];
-  baseLanguage: string;
-  survey: SurveyRow[];
-  choices: ChoiceRow[];
-  selectCtx: SelectContext;
-  pages: boolean;
-}
-
-/** Set of question names whose base select natively carries `other=Y` (so the
- * `other` choice must be re-attached on the XLSForm side too). */
-function collectOtherBaseNames(items: LogicalQuestion[]): Set<string> {
-  return new Set(
-    items
-      .filter((i): i is PlainQuestion => i.kind === 'plain' && i.otherFlag)
-      .map((i) => i.name),
+/** The welcome / end note the parser made from the survey's messages. */
+function isMessageNote(item: Item): boolean {
+  return (
+    item.kind === 'question' &&
+    item.rawType === 'note' &&
+    (item.name === 'welcome' || item.name === 'end') &&
+    !('class' in item.row)
   );
 }
 
-/** `select_*` (plain or `_from_file`) get their type string with the list or
- * vocab attached; non-selects pass through unchanged. */
-function composeTypeWithList(
-  base: string,
-  item: PlainQuestion,
-  otherBaseNames: Set<string>,
-  choicesByName: Map<string, string[]>,
+/**
+ * The group the forward path adds when a form has none: a lone group with
+ * the default name and no grid. Its questions come back ungrouped.
+ */
+function isSyntheticDefault(
+  group: GroupItem,
+  groupCount: number,
+  contentCount: number,
   ctx: EmitCtx,
-): { type: string; emittedChoices: boolean } {
-  const vocab = vocabFromCssClass(item.cssclass);
-  if (vocab) {
-    const fromFile = fromFileTypeFor(base);
-    return { type: `${fromFile} ${vocab}.csv`, emittedChoices: false };
+): boolean {
+  const label = ctx.label(group.label);
+  const text =
+    typeof label === 'string' ? label : (label[ctx.baseLanguage] ?? '');
+  return (
+    groupCount === 1 &&
+    contentCount === 1 &&
+    group.appearance !== GRID_APPEARANCE &&
+    !group.children.some((c) => c.kind === 'group') &&
+    text === defaultConfig.defaults.groupName
+  );
+}
+
+function emitItems(items: Item[], ctx: EmitCtx): void {
+  for (const item of items) {
+    if (item.kind === 'group') emitGroup(item, ctx);
+    else emitQuestion(item, items, ctx);
   }
-  if (base === 'select_one' || base === 'select_multiple') {
-    const listName = item.name;
-    emitChoiceList(
-      listName,
-      choicesByName.get(item.name) ?? [],
-      ctx,
-      exclusiveCodes(item.row),
+}
+
+function emitGroup(group: GroupItem, ctx: EmitCtx): void {
+  const isGrid = group.appearance === GRID_APPEARANCE;
+  const label = ctx.label(group.label);
+  const text =
+    typeof label === 'string' ? label : (label[ctx.baseLanguage] ?? '');
+  const row: SurveyRow = {
+    type: 'begin_group',
+    name: isGrid ? group.name : slugifyGroupName(text),
+    label: htmlLabel(label),
+  };
+  if (isGrid) row.appearance = GRID_APPEARANCE;
+  // A page per group is what XLSForm's field-list group means.
+  else if (ctx.pages) row.appearance = PAGE_APPEARANCE;
+  const relevant = reverseRelevance(
+    cell(group.row as Row, 'relevance'),
+    ctx.selectCtx,
+  );
+  if (relevant) row.relevant = relevant;
+  ctx.survey.push(row);
+  if (isGrid) emitGrid(group, ctx);
+  else emitItems(group.children, ctx);
+  ctx.survey.push({ type: 'end_group' });
+}
+
+/** A `table-list` grid: its shared list, then one `select_one` per row. */
+function emitGrid(group: GroupItem, ctx: EmitCtx): void {
+  emitChoiceList(group.name, ctx);
+  for (const member of group.children) {
+    if (member.kind !== 'question') continue;
+    const row: SurveyRow = {
+      type: `select_one ${group.name}`,
+      name: member.name,
+      label: htmlLabel(ctx.label(member.label)),
+    };
+    const relevant = reverseRelevance(
+      cell(member.row as Row, 'relevance'),
+      ctx.selectCtx,
     );
-    if (otherBaseNames.has(item.name)) {
+    if (relevant) row.relevant = relevant;
+    ctx.survey.push(row);
+  }
+}
+
+function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
+  if (isMessageNote(q)) {
+    ctx.survey.push({
+      type: 'note',
+      name: q.name,
+      label: htmlLabel(ctx.label(q.label)),
+    });
+    return;
+  }
+  const source = q.row as Row;
+  if (q.list) {
+    emitChoiceList(q.list, ctx, exclusiveCodes(source));
+    if (q.orOther) {
       ctx.choices.push({
-        list_name: listName,
+        list_name: q.list,
         name: OTHER_CODE,
         label: perLanguageOtherLabel(ctx.languages),
       });
     }
-    return { type: `${base} ${listName}`, emittedChoices: true };
   }
-  return { type: base, emittedChoices: false };
-}
-
-/** True when this Q is the `<base>_other` free-text companion of a sibling select. */
-function isOtherCompanionRow(
-  resolvedBase: string,
-  name: string,
-  otherBaseNames: Set<string>,
-): boolean {
-  return (
-    resolvedBase === CANONICAL_TEXT_TYPE &&
-    name.endsWith(OTHER_CODE) &&
-    otherBaseNames.has(name.slice(0, -OTHER_CODE.length))
-  );
-}
-
-/** Resolve the per-row SurveyRow cell values from the precomputed item + ctx. */
-function buildPlainQuestionRow(
-  item: PlainQuestion,
-  type: string,
-  isOtherCompanion: boolean,
-  resolved: ResolvedType,
-  ctx: EmitCtx,
-): SurveyRow {
   const row: SurveyRow = {
-    type,
-    name: isOtherCompanion
-      ? item.name.slice(0, -OTHER_CODE.length) + OTHER_SUFFIX
-      : item.name,
-    label: htmlLabel(ctx.label(`Q:${item.name}`)),
+    type: q.rawType,
+    name: q.name,
+    label: htmlLabel(ctx.label(q.label)),
   };
-  const helpVal = ctx.help(`Q:${item.name}`);
-  if (helpVal) row.hint = htmlLabel(helpVal);
-  if (item.mandatory === 'Y') row.required = 'yes';
-  if (item.defaultVal) row.default = item.defaultVal;
-  if (resolved.appearance) row.appearance = resolved.appearance;
-  if (resolved.parameters) row.parameters = resolved.parameters;
-  const relevant = reverseRelevance(item.relevance, ctx.selectCtx);
+  const hint = ctx.label(q.hint);
+  if (hint) row.hint = htmlLabel(hint);
+  if (q.required) row.required = 'yes';
+  if (q.default) row.default = q.default;
+  if (q.appearance) row.appearance = q.appearance;
+  if (q.parameters) row.parameters = q.parameters;
+  const relevant = reverseRelevance(cell(source, 'relevance'), ctx.selectCtx);
   if (relevant) row.relevant = relevant;
-  const constraint = reverseConstraint(item.emValidationQ);
+  const constraint = reverseConstraint(cell(source, 'em_validation_q'));
   if (constraint) row.constraint = constraint;
-  const tip = ctx.label(`TIP:${item.name}`);
+  const tip = ctx.label(q.constraintMessage);
   if (tip) row.constraint_message = htmlLabel(tip);
-  return row;
-}
+  ctx.survey.push(row);
 
-/** Emit survey/choice rows for one group's logical questions, in order,
- * reconstructing the `other` pattern across the base select + its companion. */
-function emitQuestions(
-  items: LogicalQuestion[],
-  choicesByName: Map<string, string[]>,
-  ctx: EmitCtx,
-): void {
-  const otherBaseNames = collectOtherBaseNames(items);
-
-  for (const item of items) {
-    if (item.kind === 'array') {
-      emitArrayQuestion(item, choicesByName, ctx);
-      continue;
-    }
-    const resolved = resolveType(item.lsType, item.row);
-    const { type } = composeTypeWithList(
-      resolved.base,
-      item,
-      otherBaseNames,
-      choicesByName,
-      ctx,
-    );
-    const isOtherCompanion = isOtherCompanionRow(
-      resolved.base,
-      item.name,
-      otherBaseNames,
-    );
-    ctx.survey.push(
-      buildPlainQuestionRow(item, type, isOtherCompanion, resolved, ctx),
-    );
-    if (otherBaseNames.has(item.name) && !hasExplicitCompanion(items, item)) {
-      ctx.survey.push(otherCompanionRow(item.name, resolved.base, ctx));
-    }
+  const companion = `${q.name}${OTHER_SUFFIX}`;
+  if (q.orOther && !siblings.some((s) => s.name === companion)) {
+    const label =
+      ctx.label(q.otherLabel) || perLanguageOtherLabel(ctx.languages);
+    ctx.survey.push({
+      type: OTHER_COMPANION_TYPE,
+      name: companion,
+      label: htmlLabel(label),
+      relevant: otherCompanionRelevance(q.type, q.name),
+    });
   }
-}
-
-/**
- * Whether the TSV still carries the companion as its own `<q>other` text
- * question (what formtransform wrote before #79).
- */
-function hasExplicitCompanion(
-  items: LogicalQuestion[],
-  parent: PlainQuestion,
-): boolean {
-  return items.some(
-    (i) => i.kind === 'plain' && i.name === `${parent.name}${OTHER_CODE}`,
-  );
-}
-
-/**
- * The `<q>_other` companion for a select with LimeSurvey's native "other":
- * labelled by `other_replace_text`, else the canonical "other" label.
- */
-function otherCompanionRow(
-  name: string,
-  baseSelect: string,
-  ctx: EmitCtx,
-): SurveyRow {
-  const label =
-    ctx.label(`OTHER:${name}`) || perLanguageOtherLabel(ctx.languages);
-  return {
-    type: OTHER_COMPANION_TYPE,
-    name: `${name}${OTHER_SUFFIX}`,
-    label: htmlLabel(label),
-    relevant: otherCompanionRelevance(baseSelect, name),
-  };
 }
 
 function perLanguageOtherLabel(languages: string[]): LabelValue {
@@ -747,16 +357,15 @@ function perLanguageOtherLabel(languages: string[]): LabelValue {
 
 function emitChoiceList(
   listName: string,
-  codes: string[],
   ctx: EmitCtx,
   exclusive: Set<string> = new Set(),
 ): void {
-  for (const code of codes) {
+  for (const choice of ctx.lists[listName] ?? []) {
     ctx.choices.push({
       list_name: listName,
-      name: code,
-      label: htmlLabel(ctx.label(`A:${code}`) || ctx.label(`SQ:${code}`)),
-      ...(exclusive.has(code)
+      name: choice.name,
+      label: htmlLabel(ctx.label(choice.label)),
+      ...(exclusive.has(choice.name)
         ? { [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0] }
         : {}),
     });
@@ -772,28 +381,4 @@ function exclusiveCodes(row: Row): Set<string> {
       .map((c) => c.trim())
       .filter(Boolean),
   );
-}
-
-/** Emit a `table-list` grid: one `select_one` per subquestion, sharing the
- * array's own (already-legal) name as their synthesized list_name. */
-function emitArrayQuestion(
-  item: ArrayQuestion,
-  choicesByName: Map<string, string[]>,
-  ctx: EmitCtx,
-): void {
-  const listName = item.name;
-  emitChoiceList(listName, choicesByName.get(item.name) ?? [], ctx);
-  for (const sqName of item.subquestionNames) {
-    const row: SurveyRow = {
-      type: `select_one ${listName}`,
-      name: sqName,
-      label: htmlLabel(ctx.label(`SQ:${sqName}`)),
-    };
-    const relevant = reverseRelevance(
-      item.subquestionRelevance.get(sqName) ?? '',
-      ctx.selectCtx,
-    );
-    if (relevant) row.relevant = relevant;
-    ctx.survey.push(row);
-  }
 }

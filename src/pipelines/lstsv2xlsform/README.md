@@ -146,7 +146,11 @@ listed here must match exactly.
    `style: pages` is lost, and so is a `style: pages` group that wasn't one.
 10. **`true()` / `false()` come back as `1` / `0`.** The forward writes EM
     `1` / `0`, which can't be told apart from the numbers.
-11. **Group relevance includes the enclosing groups'.** LimeSurvey groups are
+11. **An array inside a mixed group is a nested grid.** A LimeSurvey group
+    holding an `F` array next to other questions comes back as that group
+    with a `table-list` group inside, named after the array; a group holding
+    only the array is the grid itself.
+12. **Group relevance includes the enclosing groups'.** LimeSurvey groups are
     flat, so the forward ANDs every enclosing group's condition into each G
     row; the reverse gives each (flat) group that combined condition.
 
