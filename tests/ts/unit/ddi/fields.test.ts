@@ -138,7 +138,8 @@ describe('cdl: notes', () => {
     ]);
     const v = varXml(xml, 'q');
     expect(v).toContain('<notes type="cdl:default">no</notes>');
-    expect(v).toContain('<notes type="cdl:appearance">minimal</notes>');
+    // As authored (#160); readers compare it lowercased.
+    expect(v).toContain('<notes type="cdl:appearance">Minimal</notes>');
     // The cell as authored (#160); its guidance_hint is the ivuInstr too.
     expect(v).toContain(
       '<notes type="cdl:parameters">randomize=true; guidance_hint=Only once</notes>',

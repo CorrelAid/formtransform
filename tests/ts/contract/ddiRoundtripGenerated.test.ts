@@ -172,7 +172,7 @@ const block: fc.Arbitrary<Block> = fc.oneof(
       t: texts,
       unlabelled: fc.boolean(),
       relevant: fc.boolean(),
-      inner: fc.array(question, { minLength: 1, maxLength: 3 }),
+      inner: fc.array(question, { maxLength: 3 }),
       nested: fc.array(question, { maxLength: 2 }),
     }),
   },
@@ -218,7 +218,15 @@ function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
   };
   survey.forEach((row, i) => {
     const type = String(row['type']);
-    if (type === 'end_group') return;
+    if (type === 'end_group') {
+      if (i % 2 === 0) row['$kuid'] = `k${i}`;
+      return;
+    }
+    // The appearance cell's case, as some authors write it.
+    if (typeof row['appearance'] === 'string' && i % 3 === 2) {
+      const a = row['appearance'];
+      row['appearance'] = a.charAt(0).toUpperCase() + a.slice(1);
+    }
     if (i % 2 === 0) media(row, String(row['name']));
     if (type === 'text' && i % 3 === 0) row['read_only'] = 'yes';
     if (type.startsWith('select_one') && i % 3 === 1) {

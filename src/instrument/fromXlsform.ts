@@ -3,7 +3,7 @@
  * sees: `label::<lang>` columns (JSON fixtures, hand-built rows) and the
  * loader's `{ lang: text }` cells.
  */
-import { otherColumns } from '../conventions/columns.js';
+import { allColumns, otherColumns } from '../conventions/columns.js';
 import { extractLanguageCode, languageTagOf } from '../utils/languageUtils.js';
 import type {
   GroupItem,
@@ -146,7 +146,11 @@ function parseBody(survey: Row[]): Item[] {
       stack.push(group);
     } else if (/^end[_ ]group$/.test(rawType)) {
       const closed = stack.pop();
-      if (closed) closed.closed = true;
+      if (closed) {
+        closed.closed = true;
+        const { type: _, ...cells } = allColumns(row);
+        if (Object.keys(cells).length) closed.endColumns = cells;
+      }
     } else {
       append(question(row, rawType));
     }

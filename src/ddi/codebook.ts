@@ -1009,7 +1009,9 @@ export function buildDdiCodebook(
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  const described = variables.filter((v) => v.row === undefined);
+  const described = variables.filter(
+    (v) => v.row === undefined && !v.emptyGroup,
+  );
   const ctx = logicContext(described, lang, questionIds(buckets.units));
   addVarGroups(
     dataDscr,

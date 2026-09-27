@@ -239,3 +239,54 @@ describe("columns the model doesn't lift (#160)", () => {
     expect(back.choices[0]).toMatchObject({ f: 'a', 'media::image': 'y.png' });
   });
 });
+
+describe('the last cells (#160)', () => {
+  const back = (
+    survey: Record<string, unknown>[],
+    settings: Record<string, unknown> = {},
+  ) =>
+    ddiToXlsform(buildDdiXml(survey, [], { prodDate: '2020-01-01', settings }));
+
+  test('an empty group keeps its place', () => {
+    const { survey } = back([
+      { type: 'text', name: 'a', label: 'A' },
+      { type: 'begin_group', name: 'empty', label: 'Empty' },
+      { type: 'end_group' },
+      { type: 'text', name: 'b', label: 'B' },
+    ]);
+    expect(survey.map((r) => r.name ?? r.type)).toEqual([
+      'a',
+      'empty',
+      'end_group',
+      'b',
+    ]);
+  });
+
+  test("an end_group row's cells", () => {
+    const { survey } = back([
+      { type: 'begin_group', name: 'g', label: 'G' },
+      { type: 'text', name: 'a', label: 'A' },
+      { type: 'end_group', name: 'g', $kuid: 'k1' },
+    ]);
+    expect(survey[2]).toEqual({ type: 'end_group', name: 'g', $kuid: 'k1' });
+  });
+
+  test("an appearance's case", () => {
+    const { survey } = back([
+      { type: 'text', name: 'a', label: 'A', appearance: 'Multiline' },
+    ]);
+    expect(survey[0]).toMatchObject({ appearance: 'Multiline' });
+  });
+
+  test('a setting per language, and a boolean one', () => {
+    const { settings } = back([{ type: 'text', name: 'a', label: 'A' }], {
+      instance_name: { de: 'Name', en: 'Name (en)' },
+      allow_choice_duplicates: true,
+    });
+    expect(settings[0]).toMatchObject({
+      'instance_name::de': 'Name',
+      'instance_name::en': 'Name (en)',
+      allow_choice_duplicates: 'true',
+    });
+  });
+});

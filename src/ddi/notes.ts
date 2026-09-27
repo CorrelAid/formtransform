@@ -103,7 +103,7 @@ export function classifyNotes(variables: Variable[]): ClassifiedNotes {
   let pending: number[] = [];
 
   variables.forEach((v, i) => {
-    if (v.row !== undefined) {
+    if (v.row !== undefined || v.emptyGroup) {
       placed.push(i);
       return;
     }
@@ -181,7 +181,7 @@ function placements(
       });
       emptyGroups.push(chain.slice(0, depth + 1));
     });
-    positions.push(positionOf(variables, i));
+    if (!variables[i].emptyGroup) positions.push(positionOf(variables, i));
   }
   return { positions, emptyGroups };
 }
