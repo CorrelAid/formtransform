@@ -6,14 +6,18 @@
  *
  * With `expressions`, relevance and constraints are reversed from
  * LimeSurvey's Expression Manager into XPath (`reverseExpressions.ts`),
- * throwing `em-unsupported` on anything outside the forward dialect. Without,
- * they stay `''` (the DDI carries none, so a DDI conversion never fails on
- * them).
+ * throwing `em-unsupported` on anything outside the forward dialect (or, with
+ * `onWarning`, reporting it and leaving it out). Without, they stay `''`.
  */
 import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { fromFileTypeFor, vocabFromCssClass } from '../conventions/fromFile.js';
 import { resolveType } from './lstsvTypes.js';
+import {
+  ConversionError,
+  warning,
+  type WarningHandler,
+} from '../diagnostics.js';
 import {
   buildSelectContext,
   reverseConstraint,
@@ -319,6 +323,7 @@ function messageNote(
 function reverseAllExpressions(
   body: Item[],
   lists: Record<string, InstrumentChoice[]>,
+  onWarning?: WarningHandler,
 ): void {
   const selectCtx = buildSelectContext(
     allQuestions(body)
@@ -331,11 +336,29 @@ function reverseAllExpressions(
         };
       }),
   );
+  // With a warning handler, an expression outside the dialect is reported
+  // and left out; without one, it throws.
+  const reverse = (item: Item, column: string, fn: (em: string) => string) => {
+    try {
+      return fn(cell(item.row as Row, column));
+    } catch (error) {
+      if (!onWarning || !(error instanceof ConversionError)) throw error;
+      onWarning(
+        warning(
+          error.code,
+          `${column} of "${item.name}" is left out: ${error.message}`,
+          item.name,
+        ),
+      );
+      return '';
+    }
+  };
   for (const item of allItems(body)) {
-    const row = item.row as Row;
-    item.relevant = reverseRelevance(cell(row, 'relevance'), selectCtx);
+    item.relevant = reverse(item, 'relevance', (em) =>
+      reverseRelevance(em, selectCtx),
+    );
     if (item.kind === 'question') {
-      item.constraint = reverseConstraint(cell(row, 'em_validation_q'));
+      item.constraint = reverse(item, 'em_validation_q', reverseConstraint);
     }
   }
 }
@@ -343,6 +366,11 @@ function reverseAllExpressions(
 export interface LstsvParseOptions {
   /** Reverse relevance/constraints into XPath (default: leave them empty). */
   expressions?: boolean;
+  /**
+   * With `expressions`: report an expression outside the dialect here and
+   * leave it out, instead of throwing.
+   */
+  onWarning?: WarningHandler;
 }
 
 /** Parse LimeSurvey structure-TSV rows into an Instrument. */
@@ -378,7 +406,9 @@ export function instrumentFromLstsv(
     ...parseBody(baseRows, state),
     ...messageNote('end', 'surveyls_endtext', state),
   ];
-  if (options.expressions) reverseAllExpressions(body, state.lists);
+  if (options.expressions) {
+    reverseAllExpressions(body, state.lists, options.onWarning);
+  }
   return {
     languages: languages.length ? languages : [''],
     ...(base ? { defaultLanguage: base } : {}),

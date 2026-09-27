@@ -151,8 +151,11 @@
         <qstnLit>Sonstiges:</qstnLit>
         <qstnLit xml:lang="en">Other:</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Wie haben Sie von uns erfahren?“ = Sonstiges:</universe>
+      <universe clusion="I" xml:lang="en">Only if “How did you hear about us?” = Other:</universe>
       <concept>Sonstiges:</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${quelle} = 'other'</notes>
     </var>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

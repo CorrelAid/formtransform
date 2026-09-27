@@ -75,8 +75,10 @@
       <qstn responseDomainType="text">
         <qstnLit>Sonstiges (bitte angeben)</qstnLit>
       </qstn>
+      <universe clusion="I">Only if “Welche dieser Geräte besitzen Sie?” includes Sonstiges</universe>
       <concept>Sonstiges (bitte angeben)</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${geraetebesitz}, 'other')</notes>
     </var>
   </dataDscr>
 </codeBook>

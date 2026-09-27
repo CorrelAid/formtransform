@@ -29,7 +29,7 @@
         <assert test="ddi:varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
         <assert test="ddi:concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
         <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
-        <assert test="count(ddi:notes) &lt;= 1">Variable <value-of select="@name"/> has multiple notes elements. Only one notes element per variable is allowed.</assert>
+        <assert test="every $l in distinct-values(ddi:notes[not(@type)]/string(@xml:lang)) satisfies count(ddi:notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
     <!-- Variable group essentials -->
@@ -54,7 +54,7 @@
         <assert test="varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
         <assert test="concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
         <assert test="not(labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
-        <assert test="count(notes) &lt;= 1">Variable <value-of select="@name"/> has multiple notes elements. Only one notes element per variable is allowed.</assert>
+        <assert test="every $l in distinct-values(notes[not(@type)]/string(@xml:lang)) satisfies count(notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
     <!-- Variable group essentials -->

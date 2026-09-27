@@ -52,31 +52,35 @@ path never guess at them.
 
 ## Why there is no `ddi2xlsform` or `ddi2lstsv`
 
-Deliberate, not a gap. **DDI is the terminus of the pipeline graph** — it
-describes a *dataset*, not an *instrument*, so it does not carry the information
-a survey needs to run.
+Not yet. **DDI is the terminus of the pipeline graph for now**: it describes a
+*dataset*, not an *instrument*, and a reverse path needs the whole instrument.
+The plan to carry all of it is #155 (#151–#154).
 
 The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit: `name`,
 `type`, `label`, group path/label/appearance, `listName`, `vocab`, `choices`,
-and the question's `hint` (`<preQTxt>`) and `guidance_hint` (`<ivuInstr>`).
-Everything that makes a form behave is absent:
+the question's `hint` (`<preQTxt>`) and `guidance_hint` (`<ivuInstr>`), and
+since #151 its logic:
 
-- **no `relevant`** — DDI Codebook 2.5 has no machine-readable expression syntax
-  at all, so skip logic is dropped on the way in. `convention:logicMapping`
-  ([`registry/conventions/logicMapping.jsonld`](../../registry/conventions/logicMapping.jsonld))
-  records this and requires tools to report it as loss.
-- **no `constraint`** — same reason.
-- **no `required`, `default`, per-question `appearance`, `calculation`.**
+- **`relevant`, `constraint`, `constraint_message`, `required`.** DDI Codebook
+  2.5 has no expression syntax, so each is written twice: readable
+  (`<universe>` prose, `<valrng>` for a simple numeric range) and exact, in a
+  typed note (`<notes type="cdl:relevant" subject="xlsform-xpath">`).
+  `convention:logicMapping`
+  ([`registry/conventions/logicMapping.jsonld`](../../registry/conventions/logicMapping.jsonld),
+  `ddiEncoding`) defines them. A group's condition is ANDed into each
+  variable's own until groups get a `varGrp` (#152).
+- **still absent:** `default`, per-question `appearance`, `calculation`, plain
+  group structure, question order (#152, #153).
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV
 carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T`
 type overrides. It is a form definition in a different dialect, so reversing it
-is a translation problem. Reversing DDI is not — it is a *reconstruction*
-problem, and the missing pieces cannot be inferred from a codebook.
+is a translation problem. Reversing a codebook without those pieces is a
+*reconstruction* problem, and they cannot be inferred from it.
 
-The failure mode matters more than the missing feature. A `ddi2xlsform` would
-emit a survey that looks correct and behaves wrongly: no skip logic, no
-validation, nothing mandatory. Silently producing a broken instrument is worse
+The failure mode matters more than the missing feature. A `ddi2xlsform` before
+the rest of #155 would emit a survey that looks correct and behaves wrongly: no
+defaults, no appearances, flattened groups. Silently producing a broken instrument is worse
 than declining to produce one — the same reasoning behind
 `validateLstsvSubset` rejecting out-of-subset input rather than guessing at it.
 

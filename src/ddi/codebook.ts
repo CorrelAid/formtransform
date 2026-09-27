@@ -22,6 +22,13 @@ import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
 import { Choice, Translations, Variable } from './types.js';
 import { joinTranslations, localizedChild, textsOf } from './translations.js';
+import {
+  addLogicNotes,
+  addUniverse,
+  addValrng,
+  logicContext,
+  type LogicContext,
+} from './logic.js';
 import { registeredVocabCodes } from '../conventions/fromFile.js';
 import { languageTagOf } from '../utils/languageUtils.js';
 
@@ -89,6 +96,8 @@ interface AddVarSpec {
   labelTranslations?: Translations;
   hintTranslations?: Translations;
   guidanceHintTranslations?: Translations;
+  /** The variable whose logic (#151) this `<var>` carries. */
+  logic?: { v: Variable; ctx: LogicContext };
 }
 
 /** An {@link AddVarSpec}'s translations, read off its source variable. */
@@ -129,7 +138,8 @@ function categoricalFormat(
 }
 
 /**
- * Append one `<var>`. Element order: `qstn → catgry* → concept → varFormat`.
+ * Append one `<var>`. Element order: `qstn → valrng → universe → catgry* →
+ * concept → varFormat → notes`.
  * With `vocab`, no `<catgry>` is emitted and `<concept>` carries `@vocab`.
  */
 function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
@@ -167,6 +177,11 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
     }
   }
 
+  if (spec.logic) {
+    addValrng(varEl, spec.logic.v);
+    addUniverse(varEl, spec.logic.v, spec.logic.ctx);
+  }
+
   if (!vocab) {
     for (const choice of choices) {
       const catgry = varEl.child('catgry');
@@ -177,22 +192,35 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
 
   varEl.textChild('concept', label, vocab ? { vocab } : {});
   varEl.child('varFormat', { type: fmtType, schema: 'other' });
+  if (spec.logic) addLogicNotes(varEl, spec.logic.v);
 
   return varEl;
+}
+
+/** A group-level question's logic on its `<varGrp>`: universe, then notes. */
+function addGroupLogic(
+  grpEl: XmlElement,
+  v: Variable,
+  ctx: LogicContext,
+  notes?: { note: InlineNotes; name: string },
+): void {
+  addUniverse(grpEl, v, ctx);
+  if (notes) addGroupNote(grpEl, notes.note, notes.name);
+  addLogicNotes(grpEl, v);
 }
 
 /** Append a binary 0/1 `<var>` for one `select_multiple` option. */
 function addBinaryVar(
   parent: XmlElement,
-  varId: string,
   name: string,
   question: Variable,
   choice: Choice,
+  ctx: LogicContext,
 ): XmlElement {
   const questionLabel = question.label;
   const choiceLabel = choice.label;
   const varEl = parent.child('var', {
-    ID: varId,
+    ID: makeVarId(name),
     name,
     intrvl: 'discrete',
     files: 'F1',
@@ -201,6 +229,8 @@ function addBinaryVar(
   const qstn = varEl.child('qstn', { responseDomainType: 'multiple' });
   localizedChild(qstn, 'preQTxt', questionLabel, textsOf(question, 'label'));
   localizedChild(qstn, 'qstnLit', choiceLabel, choice.translations);
+  // The question's notes are on its varGrp; the prose also here, for readers.
+  addUniverse(varEl, question, ctx);
 
   for (const val of ['0', '1']) {
     varEl.child('catgry').textChild('catValu', val);
@@ -241,7 +271,11 @@ function detectOtherPatterns(variables: Variable[]): Map<string, OtherPattern> {
 }
 
 /** Emit the parent `<varGrp type="other">` (+ child multipleResp for multi). */
-function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
+function emitOtherPattern(
+  dataDscr: XmlElement,
+  p: OtherPattern,
+  ctx: LogicContext,
+): void {
   const { base, otherVar } = p;
   const label = base.label;
   const labelTranslations = textsOf(base, 'label');
@@ -264,6 +298,8 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
     });
     localizedChild(parentEl, 'txt', label, labelTranslations);
     parentEl.textChild('concept', label);
+    // No var has the question's name: the parent group carries its logic.
+    addGroupLogic(parentEl, base, ctx);
 
     const childEl = dataDscr.child('varGrp', {
       ID: childId,
@@ -286,20 +322,18 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
 }
 
 /** Emit the `<var>` elements associated with an `_other` pattern. */
-function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
+function emitOtherPatternVars(
+  dataDscr: XmlElement,
+  p: OtherPattern,
+  ctx: LogicContext,
+): void {
   const { base, otherVar } = p;
   const baseName = base.name;
 
   if (p.isMulti) {
     for (const choice of base.choices) {
       if (choice.name === OTHER_CODE) continue;
-      addBinaryVar(
-        dataDscr,
-        makeVarId(`${baseName}_${choice.name}`),
-        `${baseName}_${choice.name}`,
-        base,
-        choice,
-      );
+      addBinaryVar(dataDscr, `${baseName}_${choice.name}`, base, choice, ctx);
     }
   } else {
     addVarElement(dataDscr, {
@@ -311,6 +345,7 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
       hint: base.hint,
       guidanceHint: base.guidanceHint,
       ...specTranslations(base),
+      logic: { v: base, ctx },
     });
   }
 
@@ -324,6 +359,7 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
     hint: otherVar.hint,
     guidanceHint: otherVar.guidanceHint,
     ...specTranslations(otherVar),
+    logic: { v: otherVar, ctx },
   });
 }
 
@@ -456,9 +492,9 @@ function addVarGroups(
   dataVars: Variable[],
   notes: InlineNotes,
   buckets: DataVarBuckets,
-  otherPatterns: Map<string, OtherPattern>,
+  ctx: LogicContext,
 ): void {
-  const { gridGroups, multiRespGroups } = buckets;
+  const { gridGroups, multiRespGroups, otherPatterns } = buckets;
 
   for (const [groupName, members] of gridGroups) {
     const group = getGroupLabel(dataVars, groupName);
@@ -483,11 +519,11 @@ function addVarGroups(
     });
     localizedChild(grpEl, 'txt', smVar.label, textsOf(smVar, 'label'));
     grpEl.textChild('concept', smVar.label);
-    addGroupNote(grpEl, notes, smName);
+    addGroupLogic(grpEl, smVar, ctx, { note: notes, name: smName });
   }
 
   for (const p of otherPatterns.values()) {
-    emitOtherPattern(dataDscr, p);
+    emitOtherPattern(dataDscr, p, ctx);
   }
 }
 
@@ -497,9 +533,10 @@ function addVars(
   dataVars: Variable[],
   notes: InlineNotes,
   buckets: DataVarBuckets,
-  otherPatterns: Map<string, OtherPattern>,
+  ctx: LogicContext,
 ): void {
-  const { gridGroups, multiRespGroups, standaloneVars } = buckets;
+  const { gridGroups, multiRespGroups, standaloneVars, otherPatterns } =
+    buckets;
 
   for (const [groupName, members] of gridGroups) {
     const group = getGroupLabel(dataVars, groupName);
@@ -515,24 +552,19 @@ function addVars(
         opts: { preQTxt: group.label, preQTxtTranslations: group.translations },
         guidanceHint: v.guidanceHint,
         ...specTranslations(v, false),
+        logic: { v, ctx },
       });
     }
   }
 
   for (const [smName, smVar] of multiRespGroups) {
     for (const choice of smVar.choices) {
-      addBinaryVar(
-        dataDscr,
-        makeVarId(`${smName}_${choice.name}`),
-        `${smName}_${choice.name}`,
-        smVar,
-        choice,
-      );
+      addBinaryVar(dataDscr, `${smName}_${choice.name}`, smVar, choice, ctx);
     }
   }
 
   for (const p of otherPatterns.values()) {
-    emitOtherPatternVars(dataDscr, p);
+    emitOtherPatternVars(dataDscr, p, ctx);
   }
 
   for (const v of standaloneVars) {
@@ -550,6 +582,7 @@ function addVars(
       hint: v.hint,
       guidanceHint: v.guidanceHint,
       ...specTranslations(v),
+      logic: { v, ctx },
     });
   }
 }
@@ -596,8 +629,9 @@ export function buildDdiCodebook(
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  addVarGroups(dataDscr, dataVars, notes, buckets, buckets.otherPatterns);
-  addVars(dataDscr, dataVars, notes, buckets, buckets.otherPatterns);
+  const ctx = logicContext(variables, lang);
+  addVarGroups(dataDscr, dataVars, notes, buckets, ctx);
+  addVars(dataDscr, dataVars, notes, buckets, ctx);
 
   return root;
 }

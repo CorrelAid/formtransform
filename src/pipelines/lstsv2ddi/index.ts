@@ -18,6 +18,7 @@ import { normalizeLimeSurveyResponses } from './data.js';
 import type { NormalizeResponsesOptions } from './data.js';
 import { lstsvProjection, lstsvToVariables } from './toVariables.js';
 import { ConversionError } from '../../diagnostics.js';
+import type { WarningHandler } from '../../diagnostics.js';
 
 export { parseLstsv } from '../../lstsv/parser.js';
 export { lstsvToVariables } from './toVariables.js';
@@ -32,6 +33,8 @@ export interface LstsvToDdiOptions extends BuildDdiOptions {
    * default: an unsupported code would otherwise silently mis-type a variable.
    */
   skipValidation?: boolean;
+  /** Receives what the DDI leaves out, e.g. an expression it can't reverse. */
+  onWarning?: WarningHandler;
 }
 
 /** Parse a TSV and apply the reverse subset check unless skipped. */
@@ -65,14 +68,14 @@ export function lstsvToDdiXml(
   tsv: string,
   options: LstsvToDdiOptions = {},
 ): string {
-  const { skipValidation, ...ddiOptions } = options;
+  const { skipValidation, onWarning, ...ddiOptions } = options;
   const rows = parseChecked(tsv, skipValidation);
 
   const title = rows.find(
     (r) => r.class?.trim() === 'SL' && r.name?.trim() === 'surveyls_title',
   )?.text;
 
-  const { variables, language } = lstsvProjection(rows);
+  const { variables, language } = lstsvProjection(rows, onWarning);
   const opts: BuildDdiOptions = { ...ddiOptions };
   if (!opts.assetName && title?.trim()) {
     opts.settings = { form_title: title.trim(), ...opts.settings };

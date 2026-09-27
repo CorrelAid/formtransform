@@ -109,8 +109,10 @@
       <qstn responseDomainType="text">
         <qstnLit>Sonstiges:</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Welcher Track hat Ihnen am besten gefallen?“ = Sonstiges:</universe>
       <concept>Sonstiges:</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${q_sel1_other} = 'other'</notes>
     </var>
     <var ID="V_q_selm_other_red" name="q_selm_other_red" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
@@ -158,8 +160,10 @@
       <qstn responseDomainType="text">
         <qstnLit>Sonstiges:</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Welche Tracks würden Sie erneut besuchen?“ enthält Sonstiges:</universe>
       <concept>Sonstiges:</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${q_selm_other}, 'other')</notes>
     </var>
     <var ID="V_orphan_before" name="orphan_before" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -355,6 +359,7 @@
       </qstn>
       <concept>Wie lautet Ihre E-Mail-Adresse?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_q_hint" name="q_hint" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -368,8 +373,13 @@
       <qstn responseDomainType="numeric">
         <qstnLit>Wie alt sind Sie?</qstnLit>
       </qstn>
+      <valrng>
+        <range min="18" max="120"/>
+      </valrng>
       <concept>Wie alt sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= 18 and . &lt;= 120</notes>
+      <notes type="cdl:constraint_message">Bitte geben Sie ein gültiges Alter zwischen 18 und 120 ein</notes>
     </var>
     <var ID="V_q_default" name="q_default" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -382,16 +392,21 @@
       <qstn responseDomainType="text">
         <qstnLit>Wie sollen wir Sie kontaktieren?</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Wie lautet Ihre E-Mail-Adresse?“ ist beantwortet</universe>
       <concept>Wie sollen wir Sie kontaktieren?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${q_mandatory} != ''</notes>
     </var>
     <var ID="V_q_all_features" name="q_all_features" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Freiwillig, aber willkommen</preQTxt>
         <qstnLit>Haben Sie noch Anmerkungen?</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Wie lautet Ihre E-Mail-Adresse?“ ist beantwortet</universe>
       <concept>Haben Sie noch Anmerkungen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${q_mandatory} != ''</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
   </dataDscr>
 </codeBook>

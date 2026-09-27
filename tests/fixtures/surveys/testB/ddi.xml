@@ -32,21 +32,34 @@
       <txt>Für welche Projekte möchtest Du dich bewerben?</txt>
       <txt xml:lang="en">Which project(s) do you want to apply for?</txt>
       <concept>Für welche Projekte möchtest Du dich bewerben?</concept>
+      <notes type="cdl:required">yes</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-alpha" name="project_role_project-alpha" type="multipleResp" var="V_project_role_project-alpha_role-survey-design V_project_role_project-alpha_role-data-analysis V_project_role_project-alpha_team_coordinator V_project_role_project-alpha_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</txt>
       <txt xml:lang="en">Which role do you think you could fill in Project Alpha?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</concept>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-alpha')</notes>
+      <notes type="cdl:required">yes</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-beta" name="project_role_project-beta" type="multipleResp" var="V_project_role_project-beta_role-visualization V_project_role_project-beta_role-data-engineering V_project_role_project-beta_team_coordinator V_project_role_project-beta_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Beta?</txt>
       <txt xml:lang="en">Which role do you see yourself in for Project Beta?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Beta?</concept>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-beta')</notes>
+      <notes type="cdl:required">yes</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-gamma" name="project_role_project-gamma" type="multipleResp" var="V_project_role_project-gamma_role-project-management V_project_role_project-gamma_role-machine-learning V_project_role_project-gamma_team_coordinator V_project_role_project-gamma_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Gamma?</txt>
       <txt xml:lang="en">Which role do you see yourself in for Project Gamma?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Gamma?</concept>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-gamma')</notes>
+      <notes type="cdl:required">yes</notes>
     </varGrp>
     <var ID="V_project_id_project-alpha" name="project_id_project-alpha" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
@@ -103,6 +116,8 @@
         <qstnLit>Umfragedesign und Datenerhebung</qstnLit>
         <qstnLit xml:lang="en">Survey design and data collection</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -119,6 +134,8 @@
         <qstnLit>Datenanalyse</qstnLit>
         <qstnLit xml:lang="en">Data analysis</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -135,6 +152,8 @@
         <qstnLit>Teamkoordinator:in</qstnLit>
         <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -151,6 +170,8 @@
         <qstnLit>Team Trainee</qstnLit>
         <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -167,6 +188,8 @@
         <qstnLit>Datenvisualisierung</qstnLit>
         <qstnLit xml:lang="en">Data visualization</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -183,6 +206,8 @@
         <qstnLit>Data Engineering</qstnLit>
         <qstnLit xml:lang="en">Data engineering</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -199,6 +224,8 @@
         <qstnLit>Teamkoordinator:in</qstnLit>
         <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -215,6 +242,8 @@
         <qstnLit>Team Trainee</qstnLit>
         <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -231,6 +260,8 @@
         <qstnLit>Projektmanagement</qstnLit>
         <qstnLit xml:lang="en">Project management</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -247,6 +278,8 @@
         <qstnLit>Machine Learning</qstnLit>
         <qstnLit xml:lang="en">Machine learning</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -263,6 +296,8 @@
         <qstnLit>Teamkoordinator:in</qstnLit>
         <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -279,6 +314,8 @@
         <qstnLit>Team Trainee</qstnLit>
         <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <catgry>
         <catValu>0</catValu>
       </catgry>
@@ -293,6 +330,8 @@
         <qstnLit>SoSci Survey</qstnLit>
         <qstnLit xml:lang="en">SoSci Survey</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -315,12 +354,16 @@
       </catgry>
       <concept>SoSci Survey</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_python" name="python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Python</qstnLit>
         <qstnLit xml:lang="en">Python</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Datenanalyse</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Data analysis</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -343,12 +386,16 @@
       </catgry>
       <concept>Python</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_rstats" name="rstats" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>R</qstnLit>
         <qstnLit xml:lang="en">R</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Datenanalyse</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Data analysis</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -371,12 +418,16 @@
       </catgry>
       <concept>R</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_powerbi" name="powerbi" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Power BI</qstnLit>
         <qstnLit xml:lang="en">Power BI</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Datenvisualisierung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data visualization</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -399,12 +450,16 @@
       </catgry>
       <concept>Power BI</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_excel" name="excel" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Microsoft Excel</qstnLit>
         <qstnLit xml:lang="en">Microsoft Excel</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Datenvisualisierung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data visualization</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -427,12 +482,16 @@
       </catgry>
       <concept>Microsoft Excel</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_sql" name="sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>SQL</qstnLit>
         <qstnLit xml:lang="en">SQL</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Data Engineering</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data engineering</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -455,12 +514,16 @@
       </catgry>
       <concept>SQL</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_git" name="git" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Git</qstnLit>
         <qstnLit xml:lang="en">Git</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Data Engineering</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data engineering</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -483,12 +546,16 @@
       </catgry>
       <concept>Git</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_jupyter" name="jupyter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Jupyter Notebooks</qstnLit>
         <qstnLit xml:lang="en">Jupyter Notebooks</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Gamma?“ enthält Machine Learning</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Gamma?” includes Machine learning</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -511,12 +578,16 @@
       </catgry>
       <concept>Jupyter Notebooks</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_tensorflow" name="tensorflow" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>TensorFlow / PyTorch</qstnLit>
         <qstnLit xml:lang="en">TensorFlow / PyTorch</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Gamma?“ enthält Machine Learning</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Gamma?” includes Machine learning</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -539,6 +610,8 @@
       </catgry>
       <concept>TensorFlow / PyTorch</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -555,6 +628,8 @@
         <qstnLit>Entwicklung von Fragebögen</qstnLit>
         <qstnLit xml:lang="en">Survey design</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -577,12 +652,16 @@
       </catgry>
       <concept>Entwicklung von Fragebögen</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_indicator_development" name="indicator_development" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Entwicklung von Indikatoren</qstnLit>
         <qstnLit xml:lang="en">Development of indicators</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -605,12 +684,16 @@
       </catgry>
       <concept>Entwicklung von Indikatoren</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_data_collection" name="data_collection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenerhebung</qstnLit>
         <qstnLit xml:lang="en">Data collection</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -633,12 +716,16 @@
       </catgry>
       <concept>Datenerhebung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_data_cleaning" name="data_cleaning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenbereinigung</qstnLit>
         <qstnLit xml:lang="en">Data cleaning</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Datenanalyse</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Data analysis</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -661,12 +748,16 @@
       </catgry>
       <concept>Datenbereinigung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_descriptive_statistics" name="descriptive_statistics" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Deskriptive Statistik</qstnLit>
         <qstnLit xml:lang="en">Descriptive statistics</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Datenanalyse</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Data analysis</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -689,12 +780,16 @@
       </catgry>
       <concept>Deskriptive Statistik</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_data_visualization" name="data_visualization" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenvisualisierung</qstnLit>
         <qstnLit xml:lang="en">Data visualization</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Datenvisualisierung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data visualization</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -717,12 +812,16 @@
       </catgry>
       <concept>Datenvisualisierung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_data_engineering" name="data_engineering" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Data Engineering</qstnLit>
         <qstnLit xml:lang="en">Data engineering</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Data Engineering</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data engineering</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -745,12 +844,16 @@
       </catgry>
       <concept>Data Engineering</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_automation" name="automation" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Automatisierung</qstnLit>
         <qstnLit xml:lang="en">Automation</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Beta?“ enthält Data Engineering</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Beta?” includes Data engineering</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -773,12 +876,16 @@
       </catgry>
       <concept>Automatisierung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_projectplanning" name="projectplanning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Projektplanung</qstnLit>
         <qstnLit xml:lang="en">Project planning</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Gamma?“ enthält Projektmanagement</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Gamma?” includes Project management</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -801,12 +908,16 @@
       </catgry>
       <concept>Projektplanung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-project-management')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_mlmodeling" name="mlmodeling" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>ML-Modellierung</qstnLit>
         <qstnLit xml:lang="en">ML modeling</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Gamma?“ enthält Machine Learning</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you see yourself in for Project Gamma?” includes Machine learning</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -829,12 +940,16 @@
       </catgry>
       <concept>ML-Modellierung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_wirkungsmessung" name="wirkungsmessung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Wirkungsmessung</qstnLit>
         <qstnLit xml:lang="en">Impact Measurement</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -857,12 +972,16 @@
       </catgry>
       <concept>Wirkungsmessung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_research_design" name="research_design" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Research Design</qstnLit>
         <qstnLit xml:lang="en">Research Design</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -885,12 +1004,16 @@
       </catgry>
       <concept>Research Design</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_survey_research" name="survey_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Umfrageforschung</qstnLit>
         <qstnLit xml:lang="en">Survey Research</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -913,12 +1036,16 @@
       </catgry>
       <concept>Umfrageforschung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_data_protection" name="data_protection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenschutz</qstnLit>
         <qstnLit xml:lang="en">Data protection</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -941,12 +1068,16 @@
       </catgry>
       <concept>Datenschutz</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_resilience_mental_health" name="resilience_mental_health" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Resilienz und Mentale Gesundheit</qstnLit>
         <qstnLit xml:lang="en">Resilience and mental health</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -969,12 +1100,16 @@
       </catgry>
       <concept>Resilienz und Mentale Gesundheit</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_education_research" name="education_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Bildungsforschung o.ä.</qstnLit>
         <qstnLit xml:lang="en">Education research (or similar)</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „In welcher Rolle siehst du dich im Projekt Projekt Alpha?“ enthält Umfragedesign und Datenerhebung</universe>
+      <universe clusion="I" xml:lang="en">Only if “Which role do you think you could fill in Project Alpha?” includes Survey design and data collection</universe>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
@@ -997,6 +1132,8 @@
       </catgry>
       <concept>Bildungsforschung o.ä.</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1007,6 +1144,7 @@
       </qstn>
       <concept>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_motivation_why" name="motivation_why" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1017,6 +1155,7 @@
       </qstn>
       <concept>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_past_applications" name="past_applications" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -1042,6 +1181,7 @@
       </catgry>
       <concept>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1050,8 +1190,11 @@
         <qstnLit>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</qstnLit>
         <qstnLit xml:lang="en">If you can remember, please specify which project(s) you have applied for.</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?“ = Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.</universe>
+      <universe clusion="I" xml:lang="en">Only if “Have you applied to a CorrelAid project in the past?” = Yes, but I have not been successful / all my applications have been rejected so far.</universe>
       <concept>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${past_applications} = 'not_successful'</notes>
     </var>
     <var ID="V_first_name" name="first_name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1060,6 +1203,7 @@
       </qstn>
       <concept>Wie lautet dein Vorname?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_last_name" name="last_name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1068,6 +1212,7 @@
       </qstn>
       <concept>Wie lautet dein Nachname?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_email_address" name="email_address" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1076,6 +1221,9 @@
       </qstn>
       <concept>Unter welcher E-Mail Adresse können wir dich erreichen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:constraint" subject="xlsform-xpath">regex(., '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')</notes>
+      <notes type="cdl:constraint_message">Please specify a valid email address.</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -1111,6 +1259,7 @@
       </catgry>
       <concept>Was ist dein Geschlecht?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -1119,8 +1268,12 @@
         <qstnLit>Mein Geschlecht ist:</qstnLit>
         <qstnLit xml:lang="en">My gender is:</qstnLit>
       </qstn>
+      <universe clusion="I">Nur wenn „Was ist dein Geschlecht?“ = Mein Geschlecht ist (eigene Angabe):</universe>
+      <universe clusion="I" xml:lang="en">Only if “What is your gender?” = My gender is (manually specify):</universe>
       <concept>Mein Geschlecht ist:</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${gender} = 'self_identification'</notes>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_consent_privacy_policy" name="consent_privacy_policy" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -1136,6 +1289,7 @@
       </catgry>
       <concept>Einwilligung in die Datenschutzerklärung</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
   </dataDscr>
 </codeBook>
