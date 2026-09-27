@@ -35,6 +35,7 @@ export function addFieldNotes(el: XmlElement, v: Variable): void {
   if (v.parameters) {
     el.textChild('notes', v.parameters, { type: NOTES.parameters.type });
   }
+  addColumnNotes(el, v.columns);
 }
 
 /** A `select_multiple`'s exclusive choices as one `cdl:exclusive` note. */
@@ -66,6 +67,7 @@ export function addGroupFieldNotes(
   if (group.unlabelled) {
     el.textChild('notes', 'yes', { type: NOTES.no_label.type });
   }
+  addColumnNotes(el, group.columns);
 }
 
 /** Settings in a standard element: `titl`, `IDNo`, `verStmt/version`. */
@@ -142,9 +144,10 @@ export function addRowLabel(stdy: XmlElement, v: Variable): void {
   }
 }
 
-/** A note row's or data-less row's hint, relevant and appearance, by its name. */
+/** A note row's or data-less row's hint, relevant, appearance and columns, by its name. */
 export function addRowFieldNotes(stdy: XmlElement, v: Variable): void {
   const subject = v.name;
+  addColumnNotes(stdy, v.columns, NOTES.row_column.type, `${subject} `);
   if (v.hint) {
     localizedChild(stdy, 'notes', v.hint, textsOf(v, 'hint'), {
       type: NOTES.row_hint.type,
@@ -162,6 +165,42 @@ export function addRowFieldNotes(stdy: XmlElement, v: Variable): void {
       type: NOTES.row_appearance.type,
       subject,
     });
+  }
+}
+
+/**
+ * Columns the model doesn't lift (#160), one note each with the column's
+ * name as its subject (`prefix` first: the row or choice it belongs to).
+ */
+function addColumnNotes(
+  el: XmlElement,
+  columns: Record<string, string> | undefined,
+  type: string = NOTES.column.type,
+  prefix = '',
+): void {
+  for (const [column, cell] of Object.entries(columns ?? {})) {
+    el.textChild('notes', cell, { type, subject: prefix + column });
+  }
+}
+
+/**
+ * The choices' columns the model doesn't lift (`cdl:choice_column`), on the
+ * first question that uses the list: `written` has the lists already done.
+ */
+export function addChoiceColumnNotes(
+  el: XmlElement,
+  v: Variable,
+  written: Set<string>,
+): void {
+  if (!v.listName || written.has(v.listName)) return;
+  written.add(v.listName);
+  for (const choice of v.choices) {
+    addColumnNotes(
+      el,
+      choice.columns,
+      NOTES.choice_column.type,
+      `${choice.name} `,
+    );
   }
 }
 

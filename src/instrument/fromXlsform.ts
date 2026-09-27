@@ -3,6 +3,7 @@
  * sees: `label::<lang>` columns (JSON fixtures, hand-built rows) and the
  * loader's `{ lang: text }` cells.
  */
+import { otherColumns } from '../conventions/columns.js';
 import { extractLanguageCode, languageTagOf } from '../utils/languageUtils.js';
 import type {
   GroupItem,
@@ -90,7 +91,13 @@ function baseFields(row: Row) {
     relevant: cellString(row['relevant']).trim(),
     appearance: cellString(row['appearance']).trim().toLowerCase(),
     row,
+    ...withColumns(otherColumns(row, 'survey')),
   };
+}
+
+/** `columns`, absent when there are none. */
+function withColumns(columns: Record<string, string>) {
+  return Object.keys(columns).length ? { columns } : {};
 }
 
 function question(row: Row, rawType: string): QuestionItem {
@@ -156,6 +163,7 @@ function parseLists(choices: Row[]): Record<string, InstrumentChoice[]> {
       name: cellString(row['name']),
       label: readText(row, 'label'),
       row,
+      ...withColumns(otherColumns(row, 'choices')),
     });
   }
   return lists;

@@ -208,11 +208,11 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
 {subject_rules}
     </rule>
 """
-    # At most one note of each cdl: type per element and language (on stdyDscr,
-    # where the subject names what a note is about: per subject too).
+    # At most one note of each cdl: type per element, subject and language
+    # (a subject names what the note is about: a column, a row).
     cdl_note_uniqueness = """\
     <rule context="%P%var | %P%varGrp">
-        <assert test="every $t in distinct-values(%P%notes[starts-with(@type, 'cdl:')]/@type) satisfies every $l in distinct-values(%P%notes[@type = $t]/string(@xml:lang)) satisfies count(%P%notes[@type = $t][string(@xml:lang) = $l]) &lt;= 1"><value-of select="@name"/> has more than one note of one cdl: type in one language.</assert>
+        <assert test="every $t in distinct-values(%P%notes[starts-with(@type, 'cdl:')]/@type) satisfies every $s in distinct-values(%P%notes[@type = $t]/string(@subject)) satisfies every $l in distinct-values(%P%notes[@type = $t][string(@subject) = $s]/string(@xml:lang)) satisfies count(%P%notes[@type = $t][string(@subject) = $s][string(@xml:lang) = $l]) &lt;= 1"><value-of select="@name"/> has more than one note of one cdl: type in one language.</assert>
     </rule>
     <rule context="%P%stdyDscr">
         <assert test="every $t in distinct-values(%P%notes[starts-with(@type, 'cdl:')]/@type) satisfies every $s in distinct-values(%P%notes[@type = $t]/string(@subject)) satisfies every $l in distinct-values(%P%notes[@type = $t][string(@subject) = $s]/string(@xml:lang)) satisfies count(%P%notes[@type = $t][string(@subject) = $s][string(@xml:lang) = $l]) &lt;= 1">The study has more than one note of one cdl: type about one subject in one language.</assert>

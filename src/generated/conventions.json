@@ -159,6 +159,32 @@
             "varGrp[@type='section' or @type='grid']"
           ],
           "text": "yes: the group has no label; its txt is its name, for readers that show one"
+        },
+        "column": {
+          "type": "cdl:column",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "subject": "the column, as the sheet names it (media::image::Deutsch (de))",
+          "text": "the cell of a survey column the model doesn't lift (liftedColumns)"
+        },
+        "choice_column": {
+          "type": "cdl:choice_column",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "subject": "the choice's code, a space, the column",
+          "text": "the cell of a choices column the model doesn't lift; on the first question that uses the list"
+        },
+        "row_column": {
+          "type": "cdl:row_column",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the row's name, a space, the column",
+          "text": "the cell of a column the model doesn't lift, of a note row or cdl:row"
         }
       },
       "fields": {
@@ -180,7 +206,7 @@
           "note": "On a var (a select_multiple's or pair's on its varGrp), and on a section; a grid's table-list is its type='grid', so only a grid appearance other than that is noted."
         },
         "ItemBase.row": {
-          "loss": "Columns the model does not lift (media, calculation, …) are not carried."
+          "loss": "The source row itself; its columns the model doesn't lift are `columns`."
         },
         "GroupItem.kind": {
           "ddi": "a group is a varGrp"
@@ -240,7 +266,7 @@
         },
         "InstrumentChoice.row": {
           "ddi": "exclusive: a cdl:exclusive note on the select_multiple's varGrp listing the codes",
-          "note": "The choice sheet's other columns are not carried."
+          "note": "Its other columns are `columns`."
         },
         "Instrument.languages": {
           "ddi": "xml:lang siblings of every text (convention:languageTagging); a language's own name in a cdl:language note"
@@ -257,7 +283,37 @@
         },
         "Instrument.body": {
           "ddi": "dataDscr: varGrp and var, in survey order; note rows in preQTxt (names: cdl:note_names) or as stdyDscr notes type='instruction'; rows without data as cdl:row; their fields in cdl:row_*; where the stdyDscr ones are: cdl:position"
+        },
+        "ItemBase.columns": {
+          "cdlNote": "cdl:column",
+          "note": "On the var (a select_multiple's or pair's varGrp) or the group's varGrp; a note's or data-less row's as cdl:row_column."
+        },
+        "InstrumentChoice.columns": {
+          "cdlNote": "cdl:choice_column"
         }
+      },
+      "liftedColumns": {
+        "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's.",
+        "survey": [
+          "type",
+          "name",
+          "label",
+          "hint",
+          "guidance_hint",
+          "relevant",
+          "appearance",
+          "constraint",
+          "constraint_message",
+          "required",
+          "default",
+          "parameters"
+        ],
+        "choices": [
+          "list_name",
+          "name",
+          "label",
+          "exclusive"
+        ]
       }
     },
     "exclusiveChoice": {

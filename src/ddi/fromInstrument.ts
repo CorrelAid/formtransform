@@ -353,6 +353,7 @@ function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
     ...(q.relevant.trim() ? { relevant: q.relevant.trim() } : {}),
     ...(q.appearance ? { appearance: q.appearance } : {}),
     ...(translations ? { translations } : {}),
+    ...columnsOf(q),
     group: ctx.path,
     groupLabel: ctx.label,
     groupAppearance: ctx.appearance,
@@ -361,6 +362,15 @@ function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
     choices: [],
     ...groupsOf(ctx),
   });
+}
+
+/** An item's or choice's columns the model doesn't lift, absent when none. */
+function columnsOf(x: { columns?: Record<string, string> }): {
+  columns?: Record<string, string>;
+} {
+  return x.columns && Object.keys(x.columns).length
+    ? { columns: x.columns }
+    : {};
 }
 
 /** A row with no data column: a metadata row, a matrix header. */
@@ -422,6 +432,7 @@ function pushQuestion(
     ...logicOf(q, state.lang),
     ...(translations ? { translations } : {}),
     ...(added ? { orOther: otherOrigin(q) } : {}),
+    ...columnsOf(q),
   });
 
   if (other) pushCompanion(q, stdType, other, ctx, state);
@@ -449,6 +460,7 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       ...(Object.values(item.label).some((t) => t.trim())
         ? {}
         : { unlabelled: true }),
+      ...columnsOf(item),
     };
     project(
       item.children,
@@ -546,6 +558,7 @@ export function choicesFromInstrument(
           label: pick(c.label, lang),
           ...(translations ? { translations } : {}),
           ...(isExclusive(c.row) ? { exclusive: true } : {}),
+          ...columnsOf(c),
         };
       }),
     ]),
