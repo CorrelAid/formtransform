@@ -140,7 +140,8 @@ The migration runs in phases, each keeping every snapshot byte-identical:
    `label::<lang>` columns reach LimeSurvey too. What still takes a source
    row is row-shaped by nature (subset validation, the matrix pattern), and
    the choices sheet stays rows until lists carry vocabulary options.
-4. Instrument → XLSForm emitter replaces lstsv2xlsform's row walk.
+4. **Instrument → XLSForm emitter replaces lstsv2xlsform's row walk.** Done:
+   `lstsvRowsToXlsform` is `xlsformFromInstrument(instrumentFromLstsv(rows))`.
 5. An expression AST in the model, so relevance/constraints are parsed once
    (today: the XPath parser forward, the EM parser in reverse).
 

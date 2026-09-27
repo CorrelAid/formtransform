@@ -61,6 +61,8 @@ function collectTranslations(rows: Row[]): Translations {
     } else if (cls === 'A' || cls === 'SQ') {
       const key = `${cls}:${lastQ.get(lang) ?? ''}:${cell(row, 'name')}`;
       put(`label:${key}`, lang, cell(row, 'text'));
+    } else if (cls === 'SL') {
+      put(`label:SL:${cell(row, 'name')}`, lang, cell(row, 'text'));
     }
   }
   return out;
@@ -165,6 +167,29 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
   };
 }
 
+/**
+ * An A/SQ row: an option of `owner`'s list. A multiple choice's defaults sit
+ * on its SQ rows as `Y`.
+ */
+function addChoice(
+  row: Row,
+  owner: string,
+  question: QuestionItem | null,
+  state: ParseState,
+): void {
+  const cls = cell(row, 'class');
+  if (cls === 'SQ' && question && cell(row, 'default') === 'Y') {
+    question.default = [question.default, cell(row, 'name')]
+      .filter(Boolean)
+      .join(' ');
+  }
+  (state.lists[owner] ??= []).push({
+    name: cell(row, 'name'),
+    label: text(state, `label:${cls}:${owner}:${cell(row, 'name')}`),
+    row,
+  });
+}
+
 /** Walk the base-language rows into groups, questions and choice lists. */
 function parseBody(baseRows: Row[], state: ParseState): Item[] {
   const body: Item[] = [];
@@ -172,6 +197,7 @@ function parseBody(baseRows: Row[], state: ParseState): Item[] {
   let array: GroupItem | null = null;
   // The LimeSurvey code of the current non-array question (its list's name).
   let question = '';
+  let current: QuestionItem | null = null;
   const into = () => (group ? group.children : body);
   for (const row of baseRows) {
     const cls = cell(row, 'class');
@@ -189,23 +215,21 @@ function parseBody(baseRows: Row[], state: ParseState): Item[] {
       body.push(group);
       array = null;
       question = '';
+      current = null;
     } else if (cls === 'Q' && cell(row, 'type/scale') === 'F') {
       array = arrayGroup(row, state);
       into().push(array);
       question = '';
+      current = null;
     } else if (cls === 'Q') {
       array = null;
       question = cell(row, 'name');
-      into().push(questionItem(row, state));
+      current = questionItem(row, state);
+      into().push(current);
     } else if (cls === 'SQ' && array) {
       array.children.push(gridMember(row, array, state));
     } else if ((cls === 'A' || cls === 'SQ') && (array || question)) {
-      const owner = array ? array.name : question;
-      (state.lists[owner] ??= []).push({
-        name: cell(row, 'name'),
-        label: text(state, `label:${cls}:${owner}:${cell(row, 'name')}`),
-        row,
-      });
+      addChoice(row, array ? array.name : question, current, state);
     }
   }
   return body.map(unwrapLoneArray);
@@ -247,6 +271,38 @@ function unwrapLoneArray(item: Item): Item {
     : item;
 }
 
+/**
+ * The survey's welcome / end text as the XLSForm note it came from (the
+ * forward path promotes `note` rows named `welcome` / `end`).
+ */
+function messageNote(
+  name: string,
+  setting: string,
+  state: ParseState,
+): QuestionItem[] {
+  const label = text(state, `label:SL:${setting}`);
+  if (Object.keys(label).length === 0) return [];
+  const row = { type: 'note', name };
+  return [
+    {
+      kind: 'question',
+      ...emptyItem(row),
+      label,
+      type: 'note',
+      rawType: 'note',
+      list: '',
+      file: '',
+      orOther: false,
+      guidanceHint: {},
+      constraint: '',
+      constraintMessage: {},
+      required: false,
+      default: '',
+      parameters: '',
+    },
+  ];
+}
+
 /** Parse LimeSurvey structure-TSV rows into an Instrument. */
 export function instrumentFromLstsv(rows: Row[]): Instrument {
   const setting = (name: string) =>
@@ -283,6 +339,10 @@ export function instrumentFromLstsv(rows: Row[]): Instrument {
         : {}),
     },
     lists: state.lists,
-    body: parseBody(baseRows, state),
+    body: [
+      ...messageNote('welcome', 'surveyls_welcometext', state),
+      ...parseBody(baseRows, state),
+      ...messageNote('end', 'surveyls_endtext', state),
+    ],
   };
 }
