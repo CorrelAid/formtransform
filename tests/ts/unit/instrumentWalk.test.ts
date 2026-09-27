@@ -47,3 +47,34 @@ describe('group structure', () => {
     ).toEqual(['A', 'B']);
   });
 });
+
+describe('question fields from the Instrument (#69, 3b-2)', () => {
+  const q = async (row: Row, choices: Row[] = []) =>
+    parseTSV(
+      await xlsformToLstsv(
+        { surveyData: [row] as never, choicesData: choices as never },
+        { skipValidation: true },
+      ),
+    ).find((r) => r.class === 'Q');
+
+  test('required accepts TRUE / 1 / Yes, as XLSForm does', async () => {
+    for (const required of ['TRUE', '1', 'Yes', 'yes']) {
+      expect(
+        (await q({ type: 'text', name: 'a', label: 'A?', required }))
+          ?.mandatory,
+      ).toBe('Y');
+    }
+    expect(
+      (await q({ type: 'text', name: 'a', label: 'A?', required: 'no' }))
+        ?.mandatory,
+    ).toBe('');
+  });
+
+  test('an appearance is matched case-insensitively', async () => {
+    const row = await q(
+      { type: 'select_one l', name: 'a', label: 'A?', appearance: 'Minimal' },
+      [{ list_name: 'l', name: 'x', label: 'X' }],
+    );
+    expect(row?.['type/scale']).toBe('!');
+  });
+});

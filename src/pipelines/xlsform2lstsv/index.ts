@@ -15,11 +15,9 @@ import { RowEmitter } from './rowEmitter.js';
 import { OtherPatternDetector } from './otherPatternDetector.js';
 import { OTHER_SUFFIX } from '../../conventions/other.js';
 import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
-import type { Item } from '../../instrument/types.js';
+import type { Item, QuestionItem } from '../../instrument/types.js';
 import { allItems, allQuestions } from '../../instrument/walk.js';
 
-/** What closes a group in the row stream processRow reads. */
-const END_GROUP_ROW: SurveyRow = { type: 'end_group' };
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
 import { GroupEmitter } from './groupEmitter.js';
 import { MatrixHandler, MatrixHelpers } from './matrixHandler.js';
@@ -282,54 +280,35 @@ class Conversion {
     for (const item of items) {
       const row = item.row as SurveyRow;
       if (item.kind === 'question') {
-        if (!this.collapsedCompanions.has(row)) this.processRow(row);
+        if (!this.collapsedCompanions.has(row)) this.processQuestion(item);
         continue;
       }
-      this.processRow(row);
+      this.validateRow(row);
+      this.handleBeginGroup(row);
       this.walk(item.children);
-      if (item.closed) this.processRow(END_GROUP_ROW);
+      if (item.closed) this.handleEndGroup();
     }
   }
 
-  private processRow(row: SurveyRow): void {
-    const xfType = (row.type || '').trim();
-
-    if (!xfType) return;
-
-    const baseType = xfType.split(/\s+/)[0];
-
-    // Silently skip metadata types
-    if (SKIP_TYPES.includes(baseType)) return;
-
-    // Skip notes that have been promoted to welcome/end messages
-    if (xfType === 'note') {
-      const name = (row.name || '').trim().toLowerCase();
+  /** Emit one question item (skipping metadata and promoted welcome/end notes). */
+  private processQuestion(q: QuestionItem): void {
+    const row = q.row as SurveyRow;
+    // Metadata types are skipped silently.
+    if (SKIP_TYPES.includes(q.type)) return;
+    // Notes promoted to welcome/end messages are not questions.
+    if (q.rawType === 'note') {
+      const name = q.name.toLowerCase();
       const cfg = this.configManager.getConfig();
       if (cfg.convertWelcomeNote && name === 'welcome') return;
       if (cfg.convertEndNote && name === 'end') return;
     }
-
-    // Validate the type is registered and emittable. Two failure modes:
-    //   1. registered but unsupported by LimeSurvey TSV (no native slot)
-    //   2. not registered at all (convention:unregisteredRows)
     this.validateRow(row);
-
-    if (xfType === 'begin_group' || xfType === 'begin group') {
-      this.handleBeginGroup(row);
-      return;
-    }
-    if (xfType === 'end_group' || xfType === 'end group') {
-      this.handleEndGroup();
-      return;
-    }
-
     // Auto-create a group for questions outside any explicit group.
     if (this.isOutsideAnyGroup()) {
       this.rowEmitter.flushGroupContent();
       this.groupEmitter.addAutoGroupForOrphans();
     }
-
-    this.addQuestion(row);
+    this.addQuestion(q);
   }
 
   /**
@@ -397,8 +376,9 @@ class Conversion {
 
   // ── Question emission ────────────────────────────────────────────────
 
-  private addQuestion(row: SurveyRow): void {
-    let xfTypeInfo = this.typeMapper.parseType(row.type || '');
+  private addQuestion(q: QuestionItem): void {
+    const row = q.row as SurveyRow;
+    let xfTypeInfo = this.typeMapper.parseType(q.rawType);
 
     // select_*_from_file → emit as its base select with the referenced CSV's
     // options inlined. `cdl_vocab` records the source vocabulary (filename minus
@@ -410,8 +390,7 @@ class Conversion {
       xfTypeInfo = { ...xfTypeInfo, base: FROM_FILE_BASE[xfTypeInfo.base] };
     }
 
-    const appearance =
-      typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
+    const appearance = q.appearance;
 
     // Dispatch through the matrix cases (in-table-list, label, list-nolabel).
     // The handler returns true if it consumed the row as part of a matrix,
@@ -427,16 +406,11 @@ class Conversion {
 
     // Warn on unsupported appearances: not in the registry allowlist, or
     // registered but not valid for this question type.
-    this.appearanceHandler.warnUnsupported(
-      row.name,
-      appearance,
-      xfTypeInfo.base,
-    );
+    this.appearanceHandler.warnUnsupported(q.name, appearance, xfTypeInfo.base);
 
-    const questionName =
-      row.name && row.name.trim() !== ''
-        ? this.fieldNameHandler.sanitizeName(row.name.trim())
-        : `Q${this.counters.getQuestionSeq()}`;
+    const questionName = q.name
+      ? this.fieldNameHandler.sanitizeName(q.name)
+      : `Q${this.counters.getQuestionSeq()}`;
 
     this.counters.bumpQuestionSeq();
 
@@ -449,18 +423,14 @@ class Conversion {
       xfTypeInfo.base,
     );
 
-    const fields = this.computeQuestionFields(row, xfTypeInfo, lsType);
+    const fields = this.computeQuestionFields(q, xfTypeInfo, lsType);
 
     const ctx: QuestionRowContext = {
       lsType,
       fields,
       cdlVocab,
       attributes: {
-        ...parameterAttributes(
-          xfTypeInfo.base,
-          row['parameters'],
-          questionName,
-        ),
+        ...parameterAttributes(xfTypeInfo.base, q.parameters, questionName),
         ...this.exclusiveAttribute(xfTypeInfo.base, xfTypeInfo.listName),
       },
     };
@@ -477,11 +447,7 @@ class Conversion {
     if (xfTypeInfo.base !== 'note' && xfTypeInfo.listName) {
       this.answerEmitter.addAnswers(xfTypeInfo, lsType, {
         ...this.answerHelpers(),
-        defaultCodes: new Set(
-          typeof row.default === 'string'
-            ? row.default.trim().split(/\s+/).filter(Boolean)
-            : [],
-        ),
+        defaultCodes: new Set(q.default.split(/\s+/).filter(Boolean)),
       });
     }
   }
@@ -491,7 +457,7 @@ class Conversion {
    * (relevance, validation, mandatory, other, default, hidden, hide_tip).
    */
   private computeQuestionFields(
-    row: SurveyRow,
+    q: QuestionItem,
     xfTypeInfo: { base: string },
     lsType: { other?: boolean; dateFormat?: string },
   ): {
@@ -507,13 +473,13 @@ class Conversion {
     // `calculate` is not registered, so it never gets here (validateRow).
     const isNote = xfTypeInfo.base === 'note';
 
-    const relevance = this.transpilerHelper.convertRelevance(row.relevant);
+    const relevance = this.transpilerHelper.convertRelevance(q.relevant);
     const emValidation = isNote
       ? ''
-      : this.transpilerHelper.convertConstraint(row.constraint || '');
-    const mandatory = isNote ? '' : this.mandatoryValue(row);
-    const other = this.computeOtherFlag(row, lsType, isNote);
-    const defaultVal = isNote ? '' : this.defaultValue(row, xfTypeInfo.base);
+      : this.transpilerHelper.convertConstraint(q.constraint);
+    const mandatory = isNote || !q.required ? '' : 'Y';
+    const other = this.computeOtherFlag(q.row, lsType, isNote);
+    const defaultVal = isNote ? '' : this.defaultValue(q, xfTypeInfo.base);
     // Suppress LimeSurvey's stock per-question tips ("Only numbers may be
     // entered", "Select all that apply", …) on real questions. Notes (type X)
     // carry no tip, so leave them alone.
@@ -540,18 +506,10 @@ class Conversion {
    * becomes the emitted (sanitized, deduplicated) answer code; a
    * select_multiple's defaults go on its SQ rows instead (addAnswers).
    */
-  private defaultValue(row: SurveyRow, base: string): string {
-    const raw = typeof row.default === 'string' ? row.default.trim() : '';
-    if (!raw) return '';
-    if (base === 'select_multiple') return '';
-    if (base !== 'select_one') return raw;
-    return this.choiceManager.lookupAnswerCode(row.name?.trim() ?? '', raw)
-      .code;
-  }
-
-  /** Map the XLSForm `required` cell to LimeSurvey's `Y` (true) or empty. */
-  private mandatoryValue(row: SurveyRow): string {
-    return row.required === 'yes' || row.required === 'true' ? 'Y' : '';
+  private defaultValue(q: QuestionItem, base: string): string {
+    if (!q.default || base === 'select_multiple') return '';
+    if (base !== 'select_one') return q.default;
+    return this.choiceManager.lookupAnswerCode(q.name, q.default).code;
   }
 
   /** `other=Y` if either the type is a select that natively carries `other`
