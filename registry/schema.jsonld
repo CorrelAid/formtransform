@@ -37,7 +37,8 @@
         "conventions": "Read at runtime by the library via src/generated/conventions.json.",
         "examples": "Feeds the per-entity fixtures under registry/entities/<slug>/ (xlsform.xlsx + blessed snapshots).",
         "validation": "Read only by codegen._validate_registry / conformance tests (structural integrity, no output).",
-        "docs": "No runtime effect — rendered only into registry/entities/<slug>/docs.md, skills/cdl-survey-types/ and the docs site."
+        "docs": "No runtime effect — rendered only into registry/entities/<slug>/docs.md, skills/cdl-survey-types/ and the docs site.",
+        "catalogue": "Read into src/generated/QuestionTypes.ts, the labelled catalogue exported as QUESTION_TYPES."
       },
       "classes": {
         "QuestionType": {
@@ -66,9 +67,18 @@
               "type": "string",
               "required": true,
               "consumedBy": [
-                "docs"
+                "docs",
+                "catalogue"
               ],
               "description": "Canonical human-readable name in English."
+            },
+            "prefLabelDe": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "catalogue"
+              ],
+              "description": "The German name (skos:prefLabel@de, via the prefLabelDe context term): shown by German UIs (qwacback's question-type catalogue)."
             },
             "useWhen": {
               "type": "string",
@@ -423,8 +433,17 @@
               "type": "string",
               "required": true,
               "consumedBy": [
-                "docs"
+                "docs",
+                "catalogue"
               ]
+            },
+            "prefLabelDe": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "catalogue"
+              ],
+              "description": "The German name (skos:prefLabel@de, via the prefLabelDe context term): shown by German UIs (qwacback's question-type catalogue)."
             },
             "xlsform": {
               "type": "object",
@@ -503,8 +522,17 @@
               "type": "string",
               "required": true,
               "consumedBy": [
-                "docs"
+                "docs",
+                "catalogue"
               ]
+            },
+            "prefLabelDe": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "catalogue"
+              ],
+              "description": "The German name (skos:prefLabel@de, via the prefLabelDe context term): shown by German UIs (qwacback's question-type catalogue)."
             },
             "skos:broader": {
               "type": "reference | reference[]",
@@ -676,9 +704,18 @@
               "required": true,
               "consumedBy": [
                 "examples",
-                "docs"
+                "docs",
+                "catalogue"
               ],
               "description": "English canonical variant kind name (e.g. `Single Choice with Other`). NOT the fixture subject."
+            },
+            "prefLabelDe": {
+              "type": "string",
+              "required": true,
+              "consumedBy": [
+                "catalogue"
+              ],
+              "description": "The German name (skos:prefLabel@de, via the prefLabelDe context term): shown by German UIs (qwacback's question-type catalogue)."
             },
             "skos:broader": {
               "type": "reference",
@@ -707,7 +744,8 @@
                   "required": true,
                   "consumedBy": [
                     "examples",
-                    "docs"
+                    "docs",
+                    "catalogue"
                   ]
                 },
                 "withLongList": {
@@ -715,7 +753,8 @@
                   "required": true,
                   "consumedBy": [
                     "examples",
-                    "docs"
+                    "docs",
+                    "catalogue"
                   ]
                 },
                 "appearanceString": {
@@ -723,7 +762,8 @@
                   "required": false,
                   "consumedBy": [
                     "examples",
-                    "docs"
+                    "docs",
+                    "catalogue"
                   ],
                   "description": "Optional XLSForm appearance value applied by this variant."
                 }
