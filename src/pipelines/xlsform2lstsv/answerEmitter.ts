@@ -114,7 +114,12 @@ export class AnswerEmitter {
               relevance: `({${this.groupEmitter.getCurrentGroup() || 'parent'}} == "${choice.filter}")`,
             }
           : {}),
-        text: this.languageHandler.renderLabel(choice.label, lang, choiceName),
+        text: this.languageHandler.renderText(
+          choice,
+          'label',
+          lang,
+          choiceName,
+        ),
         ...(answerClass === 'SQ' &&
         helpers.defaultCodes?.has(choice.name?.trim() ?? '')
           ? { default: 'Y' }

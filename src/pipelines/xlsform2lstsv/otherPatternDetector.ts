@@ -101,8 +101,9 @@ export class OtherPatternDetector {
     );
     if (!expected) return;
     for (const choice of removed) {
-      const label = this.languageHandler.getLanguageSpecificValue(
-        choice.label,
+      const label = this.languageHandler.textIn(
+        choice,
+        'label',
         this.languageHandler.getBaseLanguage(),
       );
       if (label && label.trim() && label.trim() !== expected) {

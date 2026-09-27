@@ -78,3 +78,39 @@ describe('question fields from the Instrument (#69, 3b-2)', () => {
     expect(row?.['type/scale']).toBe('!');
   });
 });
+
+describe('label::<lang> columns reach LimeSurvey (#69, 3b-3)', () => {
+  test('each language becomes its own rows', async () => {
+    const rows = parseTSV(
+      await xlsformToLstsv({
+        surveyData: [
+          {
+            type: 'select_one l',
+            name: 'q',
+            'label::Deutsch (de)': 'Frage?',
+            'label::English (en)': 'Question?',
+            'hint::Deutsch (de)': 'Hinweis',
+          },
+        ] as never,
+        choicesData: [
+          {
+            list_name: 'l',
+            name: 'y',
+            'label::Deutsch (de)': 'Ja',
+            'label::English (en)': 'Yes',
+          },
+        ] as never,
+        settingsData: [{ default_language: 'Deutsch (de)' }] as never,
+      }),
+    );
+    const byLang = (cls: string) =>
+      Object.fromEntries(
+        rows.filter((r) => r.class === cls).map((r) => [r.language, r.text]),
+      );
+    expect(byLang('Q')).toEqual({ de: 'Frage?', en: 'Question?' });
+    expect(byLang('A')).toEqual({ de: 'Ja', en: 'Yes' });
+    expect(rows.find((r) => r.class === 'Q' && r.language === 'de')?.help).toBe(
+      'Hinweis',
+    );
+  });
+});

@@ -152,8 +152,8 @@ export class MatrixHandler {
       name: questionName,
       relevance,
       mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, questionName),
-      help: this.languageHandler.renderLabel(row.hint, lang),
+      text: this.languageHandler.renderText(row, 'label', lang, questionName),
+      help: this.languageHandler.renderText(row, 'hint', lang),
       ...(hideTip ? { hide_tip: hideTip } : {}),
     }));
   }
@@ -185,8 +185,8 @@ export class MatrixHandler {
       name: questionName,
       relevance,
       mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, questionName),
-      help: this.languageHandler.renderLabel(row.hint, lang),
+      text: this.languageHandler.renderText(row, 'label', lang, questionName),
+      help: this.languageHandler.renderText(row, 'hint', lang),
       ...(hideTip ? { hide_tip: hideTip } : {}),
     }));
   }
@@ -207,7 +207,7 @@ export class MatrixHandler {
       name: sqName,
       relevance,
       mandatory,
-      text: this.languageHandler.renderLabel(row.label, lang, sqName),
+      text: this.languageHandler.renderText(row, 'label', lang, sqName),
     }));
   }
 
@@ -234,8 +234,9 @@ export class MatrixHandler {
           class: 'A',
           name: choiceName,
           relevance: '',
-          text: this.languageHandler.renderLabel(
-            choice.label,
+          text: this.languageHandler.renderText(
+            choice,
+            'label',
             lang,
             choiceName,
           ),

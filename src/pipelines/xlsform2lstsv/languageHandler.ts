@@ -4,31 +4,43 @@ import { markdownToHtml } from '../../utils/markdownRenderer.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { toLimeSurveyLanguage } from '../../conventions/language.js';
 import { ConversionError, consoleWarning, warning } from '../../diagnostics.js';
+import { readText } from '../../instrument/fromXlsform.js';
+import type { Text } from '../../instrument/types.js';
 
 /** A value that could carry per-language sub-objects (label, hint, settings). */
 function isLanguageMap(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-/** Push every per-language code on `row` into `codes` (`_languages` first, else keys of label/hint). */
-function harvestRowCodes(row: SurveyRow | ChoiceRow, codes: Set<string>): void {
-  if (row._languages) {
-    for (const lang of row._languages) codes.add(lang);
-    return;
-  }
-  const fields: unknown[] = [row.label, (row as SurveyRow).hint];
-  for (const field of fields) {
-    if (isLanguageMap(field)) {
-      for (const lang of Object.keys(field)) codes.add(lang);
-    }
-  }
+/** The language tags a row's label/hint carry: `{lang: text}` keys and `label::<lang>` columns. */
+function taggedLanguages(row: SurveyRow | ChoiceRow): string[] {
+  return [
+    ...Object.keys(readText(row, 'label')),
+    ...Object.keys(readText(row, 'hint')),
+  ].filter((lang) => lang !== '');
 }
 
-/** True when `row` carries an explicit `_languages` array OR an object-valued label/hint. */
+/** Push every per-language code on `row` into `codes` (`_languages` first, else its tags). */
+function harvestRowCodes(row: SurveyRow | ChoiceRow, codes: Set<string>): void {
+  for (const lang of row._languages ?? taggedLanguages(row)) codes.add(lang);
+}
+
+/** True when `row` carries an explicit `_languages` array OR tagged label/hint text. */
 function rowIsMultilingual(row: SurveyRow | ChoiceRow): boolean {
-  if (row._languages) return true;
-  const fields: unknown[] = [row.label, (row as SurveyRow).hint];
-  return fields.some(isLanguageMap);
+  return Boolean(row._languages) || taggedLanguages(row).length > 0;
+}
+
+/**
+ * A {@link Text} in the shape renderLabel takes: the untagged string alone,
+ * else the `{lang: text}` map (`undefined` when there is no text).
+ */
+function legacyValue(text: Text): unknown {
+  const langs = Object.keys(text);
+  if (langs.length === 0) return undefined;
+  if (langs.length === 1 && langs[0] === '') return text[''];
+  return Object.fromEntries(
+    Object.entries(text).filter(([lang]) => lang !== ''),
+  );
 }
 
 /** True when any settings entry is a per-language object (form_title, etc.). */
@@ -167,6 +179,32 @@ export class LanguageHandler {
    * Resolve a multilingual label/hint value for the given language and optionally
    * convert it from markdown to HTML. Falls back to `fallback` when no value is found.
    */
+  /**
+   * Render a row's `field` (`label`, `hint`, …) in `lang`, read the way the
+   * Instrument reads it (#69): a plain cell, `{lang: text}`, or
+   * `<field>::<lang>` columns.
+   */
+  renderText(
+    row: Record<string, unknown>,
+    field: string,
+    lang: string,
+    fallback = '',
+  ): string {
+    return this.renderLabel(legacyValue(readText(row, field)), lang, fallback);
+  }
+
+  /** The row's `field` in `lang`, unrendered (no markdown). */
+  textIn(
+    row: Record<string, unknown>,
+    field: string,
+    lang: string,
+  ): string | undefined {
+    return this.getLanguageSpecificValue(
+      legacyValue(readText(row, field)),
+      lang,
+    );
+  }
+
   renderLabel(value: unknown, lang: string, fallback = ''): string {
     const raw = this.getLanguageSpecificValue(value, lang) || fallback;
     return this.configManager.getConfig().convertMarkdown
