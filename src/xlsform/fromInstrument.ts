@@ -31,6 +31,7 @@ import type {
 } from '../instrument/types.js';
 import { htmlToMarkdown } from '../utils/markdownRenderer.js';
 import { languageTagOf } from '../utils/languageUtils.js';
+import { withoutSpacedGuidance } from '../utils/parameters.js';
 
 type Row = Record<string, string>;
 
@@ -270,10 +271,13 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     name: q.name,
     label: htmlLabel(ctx.label(q.label)),
   };
+  // A guidance_hint inside `parameters` stays there, unless pyxform would
+  // reject it (text with spaces): then it is the guidance_hint column.
+  const { parameters, moved } = withoutSpacedGuidance(q.parameters);
+  const inParameters = !moved && /(^|;)\s*guidance_hint\s*=/.test(parameters);
   const texts: Array<[string, Text]> = [
     ['hint', q.hint],
-    // guidance_hint kept inside `parameters` stays there.
-    ...(/(^|;)\s*guidance_hint\s*=/.test(q.parameters)
+    ...(inParameters
       ? []
       : [['guidance_hint', q.guidanceHint] as [string, Text]]),
     ['constraint_message', q.constraintMessage],
@@ -286,7 +290,7 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     ['required', q.required ? requiredCell(q) : ''],
     ['default', q.default],
     ['appearance', appearanceCell(q)],
-    ['parameters', q.parameters],
+    ['parameters', parameters],
     ['relevant', q.relevant],
     ['constraint', q.constraint],
   ];

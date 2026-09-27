@@ -137,25 +137,11 @@ def test_survey_fixture_is_valid_xlsform(survey_dir: Path, tmp_path: Path) -> No
 _BACK = [d for d in _SURVEYS if (d / "ddi2xlsform.json").exists()]
 
 
-@pytest.mark.parametrize(
-    "survey_dir",
-    [
-        pytest.param(
-            d,
-            marks=pytest.mark.xfail(
-                strict=True,
-                reason=f"gives back its source's cells (#160), which pyxform rejects: {_PYXFORM_INVALID[d.name]}",
-            ),
-        )
-        if d.name in _PYXFORM_INVALID
-        else d
-        for d in _BACK
-    ],
-    ids=[d.name for d in _BACK],
-)
+@pytest.mark.parametrize("survey_dir", _BACK, ids=[d.name for d in _BACK])
 def test_ddi2xlsform_output_is_valid_xlsform(survey_dir: Path, tmp_path: Path) -> None:
     """The form ddi2xlsform gives back from each blessed codebook is valid
-    XLSForm when its source is: qwacback exports it to Kobo."""
+    XLSForm, even where its source isn't (a guidance_hint with spaces in
+    parameters goes to its column): qwacback exports it to Kobo."""
     for csv in (REPO_ROOT / "registry" / "vocab").glob("*.csv"):
         shutil.copy(csv, tmp_path / csv.name)
     xlsx = _json_xlsx(survey_dir / "ddi2xlsform.json", tmp_path / f"{survey_dir.name}.xlsx")

@@ -15,6 +15,7 @@ import { buildDdiXml } from '../../../src/pipelines/xlsform2ddi/index.js';
 import { instrumentFromDdi } from '../../../src/instrument/fromDdi.js';
 import { instrumentFromXlsform } from '../../../src/instrument/fromXlsform.js';
 import { ddiToXlsform } from '../../../src/pipelines/ddi2xlsform/index.js';
+import { withoutSpacedGuidance } from '../../../src/utils/parameters.js';
 import { canonical } from './canonicalInstrument.js';
 import { cases, ROOT } from './roundtripCases.js';
 
@@ -54,19 +55,33 @@ describe('XLSForm → DDI → XLSForm sheets', () => {
   });
 });
 
+/** A form ddi2xlsform repairs: a guidance_hint pyxform rejects in parameters. */
+const repaired = (c: { survey: Record<string, unknown>[] }) =>
+  c.survey.some(
+    (r) =>
+      withoutSpacedGuidance(
+        typeof r['parameters'] === 'string' ? r['parameters'] : '',
+      ).moved,
+  );
+
 describe('DDI → XLSForm → DDI gives the same codebook', () => {
+  const again = (xml: string) => {
+    const sheets = ddiToXlsform(xml);
+    return buildDdiXml(sheets.survey, sheets.choices, {
+      prodDate: '2020-01-01',
+      settings: sheets.settings[0] ?? {},
+    });
+  };
+
   test.each(CASES)('$name', (c) => {
     const xml = buildDdiXml(c.survey, c.choices, {
       prodDate: '2020-01-01',
       settings: c.settings[0] ?? {},
     });
-    const sheets = ddiToXlsform(xml);
-    expect(
-      buildDdiXml(sheets.survey, sheets.choices, {
-        prodDate: '2020-01-01',
-        settings: sheets.settings[0] ?? {},
-      }),
-    ).toBe(xml);
+    const once = again(xml);
+    // A repaired form's codebook changes once, then stays.
+    expect(once === xml).toBe(!repaired(c));
+    expect(again(once)).toBe(once);
   });
 });
 
