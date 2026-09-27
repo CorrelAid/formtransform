@@ -223,6 +223,48 @@ function emptyQuestion(name: string): QuestionItem {
   };
 }
 
+/** Columns the model doesn't lift (`cdl:column`), by column name. */
+function columnsOf(
+  node: XmlNode,
+  type: string = FIELDS.column.type,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const note of notesOf(node, type)) {
+    const subject = note.attrs['subject'];
+    if (subject) out[subject] = textContent(note).trim();
+  }
+  return out;
+}
+
+/** `columns`, absent when there are none. */
+function withColumns(columns: Record<string, string>) {
+  return Object.keys(columns).length ? { columns } : {};
+}
+
+/** Split `<first> <rest>` subjects (a row's or choice's columns) by first. */
+function columnsBy(
+  node: XmlNode,
+  type: string,
+): Map<string, Record<string, string>> {
+  const out = new Map<string, Record<string, string>>();
+  for (const [subject, cell] of Object.entries(columnsOf(node, type))) {
+    const at = subject.indexOf(' ');
+    if (at < 1) continue;
+    const key = subject.slice(0, at);
+    out.set(key, { ...out.get(key), [subject.slice(at + 1)]: cell });
+  }
+  return out;
+}
+
+/** The choices' columns (`cdl:choice_column`) onto the list's choices. */
+function readChoiceColumns(node: XmlNode, list: string, state: ReadState) {
+  const byCode = columnsBy(node, FIELDS.choice_column.type);
+  for (const choice of state.lists[list] ?? []) {
+    const columns = byCode.get(choice.name);
+    if (columns) choice.columns = { ...choice.columns, ...columns };
+  }
+}
+
 /** The logic and field notes on a `var` or a question's `varGrp`. */
 function readNotes(q: QuestionItem, node: XmlNode, state: ReadState): void {
   q.relevant = noteText(node, LOGIC.relevant.type, state);
@@ -240,6 +282,8 @@ function readNotes(q: QuestionItem, node: XmlNode, state: ReadState): void {
   q.default = noteText(node, FIELDS.default.type, state);
   q.appearance = noteText(node, FIELDS.appearance.type, state);
   q.parameters = noteText(node, FIELDS.parameters.type, state);
+  const columns = columnsOf(node);
+  if (Object.keys(columns).length) q.columns = columns;
 }
 
 /** `qstn`'s texts: label, hint, guidance hint. */
@@ -332,6 +376,7 @@ function plainQuestion(
       (c) => !orOther || c.name !== OTHER_CODE,
     );
     q.list = listFor(choices, listName(v, named, state), state);
+    readChoiceColumns(v, q.list, state);
   }
   q.orOther = orOther;
   if (q.type === 'range') q.parameters = rangeParameters(v, q.parameters);
@@ -387,6 +432,7 @@ function multiQuestion(
     choices.push({ name: OTHER_CODE, label, row: {} });
   }
   q.list = listFor(choices, listName(grp, name, state), state);
+  readChoiceColumns(grp, q.list, state);
   q.rawType = rawTypeOf(q);
   return q;
 }
@@ -613,6 +659,7 @@ function groupItem(id: string, state: ReadState): GroupItem {
       noteText(grp, FIELDS.appearance.type, state) ||
       (grid ? GRID_APPEARANCE : ''),
     row: {},
+    ...withColumns(columnsOf(grp)),
     children: lead,
     closed: true,
   };
@@ -812,6 +859,7 @@ function readRowFields(
   const hints = bySubject(stdy, FIELDS.row_hint.type);
   const relevants = bySubject(stdy, FIELDS.row_relevant.type);
   const appearances = bySubject(stdy, FIELDS.row_appearance.type);
+  const columns = columnsBy(stdy, FIELDS.row_column.type);
   const visit = (list: Item[]) => {
     for (const item of list) {
       if (item.kind === 'group') {
@@ -822,6 +870,8 @@ function readRowFields(
       if (hint) item.hint = texts(hint, state);
       item.relevant ||= subjectText(relevants, item.name);
       item.appearance ||= subjectText(appearances, item.name);
+      const own = columns.get(item.name);
+      if (own) item.columns = own;
     }
   };
   visit(items);

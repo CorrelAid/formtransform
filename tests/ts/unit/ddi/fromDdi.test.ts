@@ -181,3 +181,61 @@ describe('cells as authored (#160)', () => {
     ]);
   });
 });
+
+describe("columns the model doesn't lift (#160)", () => {
+  const survey = [
+    { type: 'begin_group', name: 'g', label: 'G', intent: 'field-list' },
+    {
+      type: 'select_one yn',
+      name: 'q',
+      label: 'Q',
+      choice_filter: "f = 'a'",
+      'media::image::Deutsch (de)': 'q.png',
+    },
+    { type: 'note', name: 'n', label: 'N', 'media::audio': 'n.mp3' },
+    { type: 'end_group' },
+  ];
+  const choices = [
+    {
+      list_name: 'yn',
+      name: 'y',
+      label: 'Yes',
+      f: 'a',
+      'media::image': 'y.png',
+    },
+    { list_name: 'yn', name: 'n', label: 'No' },
+  ];
+  const xml = buildDdiXml(survey, choices, { prodDate: '2020-01-01' });
+
+  test('are cdl:column, cdl:choice_column and cdl:row_column notes', () => {
+    expect(xml).toContain(
+      `<notes type="cdl:column" subject="choice_filter">f = 'a'</notes>`,
+    );
+    expect(xml).toContain(
+      '<notes type="cdl:column" subject="media::image::Deutsch (de)">q.png</notes>',
+    );
+    expect(xml).toContain(
+      '<notes type="cdl:choice_column" subject="y media::image">y.png</notes>',
+    );
+    expect(xml).toContain(
+      '<notes type="cdl:row_column" subject="n media::audio">n.mp3</notes>',
+    );
+    expect(xml).toContain(
+      '<notes type="cdl:column" subject="intent">field-list</notes>',
+    );
+  });
+
+  test('come back as the form had them', () => {
+    const back = ddiToXlsform(xml);
+    expect(back.survey[0]).toMatchObject({ intent: 'field-list' });
+    expect(back.survey[1]).toMatchObject({
+      choice_filter: "f = 'a'",
+      'media::image::Deutsch (de)': 'q.png',
+    });
+    expect(back.survey[2]).toMatchObject({
+      name: 'n',
+      'media::audio': 'n.mp3',
+    });
+    expect(back.choices[0]).toMatchObject({ f: 'a', 'media::image': 'y.png' });
+  });
+});

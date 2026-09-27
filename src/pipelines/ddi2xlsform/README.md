@@ -37,6 +37,7 @@ Standard DDI first, `cdl:` notes where DDI has no element
 | exclusive | `cdl:exclusive` on the select_multiple's `varGrp` |
 | settings | `titl` (+ `parTitl` per language), `IDNo`, `verStmt/version`, `codeBook/@xml:lang`, every other setting a `cdl:setting` |
 | language columns | `xml:lang`; the form's name for each (`label::Deutsch (de)`) in `cdl:language` |
+| every other column (media, `choice_filter`, `read_only`, `$kuid`, …) | `cdl:column` (subject: the column) on the `var` / `varGrp`; a choice's `cdl:choice_column` (subject: `<code> <column>`) on the first question using the list; a note's or data-less row's `cdl:row_column` on `stdyDscr` |
 
 ## Input it accepts
 
@@ -61,9 +62,8 @@ out):
 
 1. **Rows no registry type covers** (`calculate`, …) and **groups with
    nothing in them**.
-2. **Columns the model doesn't lift**: on the survey sheet (media,
-   `choice_filter`, …), on the choices sheet every column but `exclusive`.
-   Settings that are neither a string nor a number.
+2. **Settings that are neither a string nor a number**, a column of an
+   `end_group` row, and the case of an `appearance` (it comes back lowercase).
 3. **Whitespace in the type cell** comes back as one space.
 
 ## Tests

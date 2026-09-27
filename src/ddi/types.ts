@@ -21,6 +21,8 @@ export interface Choice {
   translations?: Translations;
   /** Marked `exclusive` (convention:exclusiveChoice): a `cdl:exclusive` note. */
   exclusive?: boolean;
+  /** The choices sheet's other columns: `cdl:choice_column` notes (#160). */
+  columns?: Record<string, string>;
 }
 
 /**
@@ -43,6 +45,8 @@ export interface DdiGroup {
   hint: string;
   /** It has no label of its own: `label` is its name (`cdl:no_label`, #160). */
   unlabelled?: boolean;
+  /** Its columns the model doesn't lift: `cdl:column` notes (#160). */
+  columns?: Record<string, string>;
   /** `hint` in the form's other languages. */
   hintTranslations?: Translations;
 }
@@ -115,6 +119,11 @@ export interface Variable {
   orOther?: 'shorthand' | 'added';
   /** The `or_other` companion the projection added, not an authored row. */
   synthesized?: boolean;
+  /**
+   * Its columns the model doesn't lift: `cdl:column` notes, a row's without
+   * data or a note's `cdl:row_column` (#160).
+   */
+  columns?: Record<string, string>;
   /**
    * A row with no data column (a metadata row, a matrix header): its type
    * cell, a `cdl:row` note (#160).

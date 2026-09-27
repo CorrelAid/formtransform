@@ -24,6 +24,11 @@ export interface InstrumentChoice {
   label: Text;
   /** The source row, for columns the model doesn't lift yet. */
   row: Record<string, unknown>;
+  /**
+   * The choices sheet's other columns, by column name (`media::image`): an
+   * XLSForm's; other sources have none (#160).
+   */
+  columns?: Record<string, string>;
 }
 
 /** Fields every item has. */
@@ -38,6 +43,12 @@ interface ItemBase {
   appearance: string;
   /** The source row, for columns the model doesn't lift yet. */
   row: Record<string, unknown>;
+  /**
+   * The survey sheet's columns the model doesn't lift, by column name
+   * (`media::image::Deutsch (de)`, `choice_filter`): an XLSForm's; other
+   * sources have none (#160).
+   */
+  columns?: Record<string, string>;
 }
 
 export interface GroupItem extends ItemBase {

@@ -26,6 +26,7 @@ import conventions from '../generated/conventions.js';
 import { Choice, DdiGroup, Translations, Variable } from './types.js';
 import { localizedChild, textsOf } from './translations.js';
 import {
+  addChoiceColumnNotes,
   addExclusiveNote,
   addFieldNotes,
   addGroupFieldNotes,
@@ -203,6 +204,7 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
     addLogicNotes(varEl, spec.logic.v);
     addFieldNotes(varEl, spec.logic.v);
     addListNote(varEl, spec.logic.v, spec.opts?.listDefault ?? name);
+    addChoiceColumnNotes(varEl, spec.logic.v, spec.logic.ctx.listsWritten);
   }
   addNoteNames(varEl, spec.opts?.noteNames);
 
@@ -296,6 +298,7 @@ function addGroupLogic(
   addFieldNotes(grpEl, v);
   addExclusiveNote(grpEl, v.choices);
   addListNote(grpEl, v, v.name);
+  addChoiceColumnNotes(grpEl, v, ctx.listsWritten);
 }
 
 /** A semi-open pair written with the `or_other` shorthand (#160). */

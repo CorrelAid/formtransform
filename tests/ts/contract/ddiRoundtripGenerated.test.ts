@@ -192,6 +192,8 @@ const block: fc.Arbitrary<Block> = fc.oneof(
 
 const form = fc.record({
   multilingual: fc.boolean(),
+  /** Columns the model doesn't lift, on some rows of both sheets. */
+  columns: fc.boolean(),
   settings: fc.record({
     form_title: fc.option(word, { nil: undefined }),
     form_id: fc.option(fc.constantFrom('f1', 'survey_2'), { nil: undefined }),
@@ -202,6 +204,33 @@ const form = fc.record({
 });
 
 type Form = typeof form extends fc.Arbitrary<infer F> ? F : never;
+
+/**
+ * Columns the model doesn't lift, on every other row: media (per language
+ * in a multilingual form), `read_only`, `choice_filter`, a choice filter.
+ */
+function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
+  const media = (row: Row, file: string) => {
+    if (multilingual) {
+      row[`media::image::${LANGS[0]}`] = `${file}-de.png`;
+      row[`media::image::${LANGS[1]}`] = `${file}-en.png`;
+    } else row['media::image'] = `${file}.png`;
+  };
+  survey.forEach((row, i) => {
+    const type = String(row['type']);
+    if (type === 'end_group') return;
+    if (i % 2 === 0) media(row, String(row['name']));
+    if (type === 'text' && i % 3 === 0) row['read_only'] = 'yes';
+    if (type.startsWith('select_one') && i % 3 === 1) {
+      row['choice_filter'] = "filter = 'a'";
+    }
+  });
+  choices.forEach((row, i) => {
+    if (i % 2 === 0)
+      media(row, `${String(row['list_name'])}_${String(row['name'])}`);
+    if (i % 3 === 0) row['filter'] = 'a';
+  });
+}
 
 /** Serialize a generated form to XLSForm rows. */
 function sheets(f: Form) {
@@ -360,6 +389,7 @@ function sheets(f: Form) {
       survey.push({ type: 'end_group' });
     }
   }
+  if (f.columns) addColumns(survey, choices, f.multilingual);
   const settings: Row = Object.fromEntries(
     Object.entries(f.settings).filter(([, v]) => v !== undefined),
   );

@@ -44,6 +44,8 @@ export interface LogicContext {
   ids: Map<string, string>;
   /** Each data question's position in the form, from 1 (`qstn/@seqNo`). */
   seqNo: Map<string, number>;
+  /** Lists whose choices' columns are written already (#160). */
+  listsWritten: Set<string>;
 }
 
 /** The languages a variable's texts come in: its base and translations. */
@@ -66,6 +68,7 @@ export function logicContext(
         .filter((v) => v.type !== 'note')
         .map((v, i): [string, number] => [v.name, i + 1]),
     ),
+    listsWritten: new Set(),
   };
 }
 

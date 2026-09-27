@@ -78,6 +78,7 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     default: q.default,
     appearance: q.appearance,
     parameters: q.parameters.trim(),
+    columns: q.columns ?? {},
   };
 }
 
@@ -93,12 +94,17 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
         appearance: item.appearance,
+        columns: item.columns ?? {},
         children: items(item.children, ctx),
       });
     } else if (!kept(item)) {
       continue;
     } else if (isMetadataType(ALIASES[item.type] ?? item.type)) {
-      out.push({ metadata: item.name, type: item.type });
+      out.push({
+        metadata: item.name,
+        type: item.type,
+        columns: item.columns ?? {},
+      });
     } else if (item.type === 'note') {
       out.push({
         note: item.name,
@@ -106,6 +112,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
         appearance: item.appearance,
+        columns: item.columns ?? {},
       });
     } else {
       out.push(question(item, ctx));
@@ -142,6 +149,7 @@ function lists(ctx: Ctx): Canon {
             name: c.name,
             label: text(c.label, ctx),
             ...(isExclusive(c.row) ? { exclusive: true } : {}),
+            columns: c.columns ?? {},
           },
     );
   }

@@ -220,6 +220,7 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   if (hint) row.hint = htmlLabel(hint);
   if (group.appearance) row.appearance = group.appearance;
   if (group.relevant) row.relevant = group.relevant;
+  Object.assign(row, group.columns);
   ctx.survey.push(row);
   emitItems(group.children, ctx);
   ctx.survey.push({ type: 'end_group' });
@@ -290,6 +291,8 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     ['constraint', q.constraint],
   ];
   for (const [column, value] of plain) if (value) row[column] = value;
+  // The columns the model doesn't lift, as the form had them (#160).
+  Object.assign(row, q.columns);
   return row;
 }
 
@@ -320,6 +323,7 @@ function emitChoiceList(
       ...(exclusive.has(choice.name) || isExclusive(choice.row)
         ? { [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0] }
         : {}),
+      ...choice.columns,
     });
   }
 }
