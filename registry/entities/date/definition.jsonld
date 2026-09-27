@@ -3,6 +3,10 @@
     "@version": 1.1,
     "@vocab": "https://civic-data.de/survey/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "prefLabelDe": {
+      "@id": "skos:prefLabel",
+      "@language": "de"
+    },
     "type": "https://civic-data.de/survey/type/",
     "variant": "https://civic-data.de/survey/variant/",
     "composite": "https://civic-data.de/survey/composite/"
@@ -12,6 +16,7 @@
       "@id": "type:date",
       "@type": "QuestionType",
       "skos:prefLabel": "Date",
+      "prefLabelDe": "Datum",
       "xlsform": {
         "typeString": "date"
       },

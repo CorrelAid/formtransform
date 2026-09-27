@@ -28,8 +28,13 @@ export interface QuestionTypeEntry {
    * a composite spans several rows, so it has no single type cell.
    */
   typeString?: string;
-  /** Display label, from `skos:prefLabel`. */
+  /** Display label in English, from `skos:prefLabel`. */
   label: string;
+  /**
+   * Display label per language: `en` (`label`) and, where the registry
+   * has one, `de` (`skos:prefLabel@de`, the `prefLabelDe` term).
+   */
+  labels: { readonly en: string; readonly de?: string };
   /** Methodology guidance, from `useWhen`. Empty for structural rows. */
   useWhen: string;
   kind: 'question' | 'metadata' | 'structural';
@@ -42,6 +47,15 @@ export interface QuestionTypeEntry {
   /** Accepted alternative `type` strings (e.g. `string` for `text`). */
   aliases?: readonly string[];
   constraints?: QuestionTypeConstraints;
+  /**
+   * A variant's modifiers, from the registry's `presentation`: an "other"
+   * answer with a text field, a long list (and its appearance).
+   */
+  presentation?: {
+    readonly withOther: boolean;
+    readonly withLongList: boolean;
+    readonly appearanceString?: string;
+  };
 }
 
 /**
@@ -54,6 +68,7 @@ export const QUESTION_TYPES = {
   grid: {
     id: "composite:grid",
     label: "Grid / Matrix Group",
+    labels: {"en": "Grid / Matrix Group", "de": "Matrix-Gruppe"},
     kind: "question",
     useWhen: "When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements).",
     isVariant: false,
@@ -64,6 +79,7 @@ export const QUESTION_TYPES = {
   begin_group: {
     id: "type:begin_group",
     label: "Group (Begin)",
+    labels: {"en": "Group (Begin)", "de": "Gruppe (Beginn)"},
     kind: "structural",
     useWhen: "",
     isVariant: false,
@@ -73,6 +89,7 @@ export const QUESTION_TYPES = {
   date: {
     id: "type:date",
     label: "Date",
+    labels: {"en": "Date", "de": "Datum"},
     kind: "question",
     useWhen: "When capturing a specific calendar date (e.g. date of birth, appointment date).",
     isVariant: false,
@@ -83,6 +100,7 @@ export const QUESTION_TYPES = {
   decimal: {
     id: "type:decimal",
     label: "Decimal/Float",
+    labels: {"en": "Decimal/Float", "de": "Dezimalzahl"},
     kind: "question",
     useWhen: "When collecting open decimal numeric values without predefined categories (e.g. height in metres, temperature).",
     isVariant: false,
@@ -93,6 +111,7 @@ export const QUESTION_TYPES = {
   end_group: {
     id: "type:end_group",
     label: "Group (End)",
+    labels: {"en": "Group (End)", "de": "Gruppe (Ende)"},
     kind: "structural",
     useWhen: "",
     isVariant: false,
@@ -102,6 +121,7 @@ export const QUESTION_TYPES = {
   integer: {
     id: "type:integer",
     label: "Integer",
+    labels: {"en": "Integer", "de": "Ganzzahl"},
     kind: "question",
     useWhen: "When collecting open integer values without predefined categories, where respondents provide a raw number (e.g. age, household size).",
     isVariant: false,
@@ -113,6 +133,7 @@ export const QUESTION_TYPES = {
   note: {
     id: "type:note",
     label: "Note (Display Text)",
+    labels: {"en": "Note (Display Text)", "de": "Hinweis (Anzeigetext)"},
     kind: "question",
     useWhen: "When displaying non-interactive informational text, instructions, or section headers that require no respondent answer.",
     isVariant: false,
@@ -123,6 +144,7 @@ export const QUESTION_TYPES = {
   range: {
     id: "type:range",
     label: "Range",
+    labels: {"en": "Range", "de": "Schieberegler"},
     kind: "question",
     useWhen: "When collecting a number on a bounded scale set with `parameters` (`start`, `end`, `step`), e.g. a 0–100 percentage or a 1–10 rating. LimeSurvey enforces the bounds and, for whole-number steps, integers; it does not enforce the step itself.",
     isVariant: false,
@@ -133,6 +155,7 @@ export const QUESTION_TYPES = {
   select_multiple: {
     id: "type:select_multiple",
     label: "Select Multiple",
+    labels: {"en": "Select Multiple", "de": "Mehrfachauswahl"},
     kind: "question",
     useWhen: "When options are not mutually exclusive and respondents may select any number of applicable answers (e.g. languages spoken, devices owned).",
     isVariant: false,
@@ -143,6 +166,7 @@ export const QUESTION_TYPES = {
   select_multiple_from_file: {
     id: "type:select_multiple_from_file",
     label: "Select Multiple (from file)",
+    labels: {"en": "Select Multiple (from file)", "de": "Mehrfachauswahl (aus Datei)"},
     kind: "question",
     useWhen: "When selecting from a long non-exclusive list of options maintained as a controlled vocabulary, allowing multiple selections.",
     isVariant: false,
@@ -153,6 +177,7 @@ export const QUESTION_TYPES = {
   select_one: {
     id: "type:select_one",
     label: "Select One",
+    labels: {"en": "Select One", "de": "Einfachauswahl"},
     kind: "question",
     useWhen: "When answer categories are exhaustive and mutually exclusive, and exactly one option should be selected (e.g. education level, employment status).",
     isVariant: false,
@@ -163,6 +188,7 @@ export const QUESTION_TYPES = {
   select_one_from_file: {
     id: "type:select_one_from_file",
     label: "Select One (from file)",
+    labels: {"en": "Select One (from file)", "de": "Einfachauswahl (aus Datei)"},
     kind: "question",
     useWhen: "When selecting from a long closed list of exhaustive, mutually exclusive options maintained as a controlled vocabulary (e.g. country, occupation), presented via dropdown or autocomplete.",
     isVariant: false,
@@ -173,6 +199,7 @@ export const QUESTION_TYPES = {
   text: {
     id: "type:text",
     label: "Text (Short Free Text)",
+    labels: {"en": "Text (Short Free Text)", "de": "Text (kurze Freitextantwort)"},
     kind: "question",
     useWhen: "When responses are free text that cannot be meaningfully pre-categorised, or when exploring unknown topics exploratively.",
     isVariant: false,
@@ -184,6 +211,7 @@ export const QUESTION_TYPES = {
   time: {
     id: "type:time",
     label: "Time",
+    labels: {"en": "Time", "de": "Uhrzeit"},
     kind: "question",
     useWhen: "When capturing a time of day without an associated date (e.g. preferred appointment time).",
     isVariant: false,
@@ -194,46 +222,55 @@ export const QUESTION_TYPES = {
   select_multiple_long_list: {
     id: "variant:select_multiple_long_list",
     label: "Select Multiple (Long List)",
+    labels: {"en": "Select Multiple (Long List)", "de": "Mehrfachauswahl (lange Liste)"},
     kind: "question",
     useWhen: "When selecting multiple answers from a long non-exclusive list maintained as a controlled vocabulary, presented via a compact interface.",
     isVariant: true,
     isComposite: false,
     typeString: "select_multiple",
     base: "select_multiple",
+    presentation: {"appearanceString": "minimal", "withOther": false, "withLongList": true},
   },
   select_multiple_other: {
     id: "variant:select_multiple_other",
     label: "Select Multiple with Other",
+    labels: {"en": "Select Multiple with Other", "de": "Mehrfachauswahl mit „Sonstiges“"},
     kind: "question",
     useWhen: "When a multi-select question has an open-ended 'other' response option for unlisted selections.",
     isVariant: true,
     isComposite: false,
     typeString: "select_multiple",
     base: "select_multiple",
+    presentation: {"withOther": true, "withLongList": false},
   },
   select_one_long_list: {
     id: "variant:select_one_long_list",
     label: "Select One (Long List)",
+    labels: {"en": "Select One (Long List)", "de": "Einfachauswahl (lange Liste)"},
     kind: "question",
     useWhen: "When selecting one answer from a long closed list (typically 15+ options) such as countries or occupations, where a dropdown or autocomplete interface is preferable to many radio buttons.",
     isVariant: true,
     isComposite: false,
     typeString: "select_one",
     base: "select_one",
+    presentation: {"appearanceString": "minimal", "withOther": false, "withLongList": true},
   },
   select_one_other: {
     id: "variant:select_one_other",
     label: "Select One with Other",
+    labels: {"en": "Select One with Other", "de": "Einfachauswahl mit „Sonstiges“"},
     kind: "question",
     useWhen: "When a single-select question has an open-ended 'other' response option for answers not covered by the predefined categories.",
     isVariant: true,
     isComposite: false,
     typeString: "select_one",
     base: "select_one",
+    presentation: {"withOther": true, "withLongList": false},
   },
   start: {
     id: "metadataRow:start",
     label: "start",
+    labels: {"en": "start"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -243,6 +280,7 @@ export const QUESTION_TYPES = {
   end: {
     id: "metadataRow:end",
     label: "end",
+    labels: {"en": "end"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -252,6 +290,7 @@ export const QUESTION_TYPES = {
   today: {
     id: "metadataRow:today",
     label: "today",
+    labels: {"en": "today"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -261,6 +300,7 @@ export const QUESTION_TYPES = {
   deviceid: {
     id: "metadataRow:deviceid",
     label: "deviceid",
+    labels: {"en": "deviceid"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -270,6 +310,7 @@ export const QUESTION_TYPES = {
   username: {
     id: "metadataRow:username",
     label: "username",
+    labels: {"en": "username"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -279,6 +320,7 @@ export const QUESTION_TYPES = {
   hidden: {
     id: "metadataRow:hidden",
     label: "hidden",
+    labels: {"en": "hidden"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,
@@ -288,6 +330,7 @@ export const QUESTION_TYPES = {
   audit: {
     id: "metadataRow:audit",
     label: "audit",
+    labels: {"en": "audit"},
     kind: "metadata",
     useWhen: "skip silently — device/session metadata rows carry no authored content",
     isVariant: false,

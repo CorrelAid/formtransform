@@ -2,12 +2,37 @@ import { describe, it, expect } from 'vitest';
 import { QUESTION_TYPES, APPEARANCES, TYPE_MAPPINGS } from '../../../src/index';
 
 /**
- * The two generated catalogues are a public API: qwac renders type labels and
- * matrix previews from them, formulaid derives its question-type union from
- * them. These tests guard the shape consumers rely on, and the invariants that
+ * The two generated catalogues are a public API: qwacback serves type labels
+ * and presentation from them (CorrelAid/qwacback#40), formulaid derives its
+ * question-type union from them. These tests guard the shape consumers rely on, and the invariants that
  * would silently break a consumer if the registry lost an entry.
  */
 describe('QUESTION_TYPES', () => {
+  it('labels every registered type in English and German (#161)', () => {
+    for (const [slug, entry] of Object.entries(QUESTION_TYPES)) {
+      expect(entry.labels.en, `${slug}.labels.en`).toBe(entry.label);
+      // Metadata rows come from a convention, not the registry: no German.
+      if (entry.kind === 'metadata') continue;
+      expect(entry.labels.de, `${slug}.labels.de`).toBeTruthy();
+    }
+    expect(QUESTION_TYPES.select_one.labels.de).toBe('Einfachauswahl');
+  });
+
+  it("gives every variant the registry's presentation (#161)", () => {
+    for (const [slug, entry] of Object.entries(QUESTION_TYPES)) {
+      if (!entry.isVariant) continue;
+      expect(entry.presentation, `${slug}.presentation`).toBeDefined();
+    }
+    expect(QUESTION_TYPES.select_one_other.presentation).toEqual({
+      withOther: true,
+      withLongList: false,
+    });
+    expect(QUESTION_TYPES.select_one_long_list.presentation).toMatchObject({
+      withLongList: true,
+      appearanceString: 'minimal',
+    });
+  });
+
   it('covers every type string TYPE_MAPPINGS knows, aliases included', () => {
     const catalogued = new Set<string>();
     for (const entry of Object.values(QUESTION_TYPES)) {

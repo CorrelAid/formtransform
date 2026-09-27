@@ -4,6 +4,10 @@
     "@vocab": "https://civic-data.de/survey/",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "prefLabelDe": {
+      "@id": "skos:prefLabel",
+      "@language": "de"
+    },
     "type": "https://civic-data.de/survey/type/",
     "variant": "https://civic-data.de/survey/variant/",
     "composite": "https://civic-data.de/survey/composite/",
@@ -29,6 +33,7 @@
       "@id": "type:end_group",
       "@type": "StructuralType",
       "skos:prefLabel": "Group (End)",
+      "prefLabelDe": "Gruppe (Ende)",
       "xlsform": {
         "typeString": "end_group"
       },
@@ -45,6 +50,7 @@
       "@id": "type:select_one_from_file",
       "@type": "QuestionType",
       "skos:prefLabel": "Select One (from file)",
+      "prefLabelDe": "Einfachauswahl (aus Datei)",
       "xlsform": {
         "typeString": "select_one_from_file",
         "requiresListName": true
@@ -75,6 +81,7 @@
       "@id": "type:select_multiple_from_file",
       "@type": "QuestionType",
       "skos:prefLabel": "Select Multiple (from file)",
+      "prefLabelDe": "Mehrfachauswahl (aus Datei)",
       "xlsform": {
         "typeString": "select_multiple_from_file",
         "requiresListName": true
@@ -217,6 +224,7 @@
       "@id": "type:begin_group",
       "@type": "StructuralType",
       "skos:prefLabel": "Group (Begin)",
+      "prefLabelDe": "Gruppe (Beginn)",
       "xlsform": {
         "typeString": "begin_group"
       },

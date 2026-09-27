@@ -140,8 +140,10 @@ generate surveys rather than convert them:
 import { QUESTION_TYPES, APPEARANCES, TYPE_MAPPINGS } from '@correlaid/formtransform';
 
 QUESTION_TYPES.select_one.label;          // "Select One"
+QUESTION_TYPES.select_one.labels.de;      // "Einfachauswahl"
 QUESTION_TYPES.select_one.useWhen;        // when to reach for this type
 QUESTION_TYPES.select_one_other.base;     // "select_one" — a variant of it
+QUESTION_TYPES.select_one_other.presentation; // { withOther: true, withLongList: false }
 QUESTION_TYPES.grid.bases;                // composites span several types
 QUESTION_TYPES.select_one.constraints;    // name/choice-code limits
 APPEARANCES.label.carriesData;            // false — a matrix header stores no answer
@@ -149,7 +151,8 @@ TYPE_MAPPINGS.select_one.limeSurveyType;  // "L" — how it converts
 ```
 
 `QUESTION_TYPES` is keyed by registry slug and answers *what a row can be*
-(label, guidance, variant → base, authoring constraints, metadata rows);
+(labels in English and German, guidance, variant → base and presentation,
+authoring constraints, metadata rows);
 `TYPE_MAPPINGS` answers *how it converts*. Both are generated from `registry/` —
 never hardcode a type list or a label in a consumer.
 

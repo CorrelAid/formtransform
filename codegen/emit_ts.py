@@ -419,12 +419,16 @@ def _entry_lines(
     is_composite: bool,
     aliases: list[str] | None = None,
     constraints: dict[str, Any] | None = None,
+    label_de: str | None = None,
+    presentation: dict[str, Any] | None = None,
 ) -> list[str]:
     """One `QUESTION_TYPES` record entry."""
+    labels = {"en": label, **({"de": label_de} if label_de else {})}
     lines = [
         f"  {_ts_key(key)}: {{",
         f"    id: {json.dumps(entry_id)},",
         f"    label: {json.dumps(label, ensure_ascii=False)},",
+        f"    labels: {json.dumps(labels, ensure_ascii=False)},",
         f"    kind: {json.dumps(kind)},",
         f"    useWhen: {json.dumps(use_when, ensure_ascii=False)},",
         f"    isVariant: {'true' if is_variant else 'false'},",
@@ -442,6 +446,8 @@ def _entry_lines(
         lines.append(f"    aliases: {json.dumps(aliases)},")
     if constraints:
         lines.append(f"    constraints: {json.dumps(constraints, ensure_ascii=False)},")
+    if presentation:
+        lines.append(f"    presentation: {json.dumps(presentation, ensure_ascii=False)},")
     lines.append("  },")
     return lines
 
@@ -490,8 +496,13 @@ def generate_question_types(registry: dict[str, Any], output: Path):
         "   * a composite spans several rows, so it has no single type cell.",
         "   */",
         "  typeString?: string;",
-        "  /** Display label, from `skos:prefLabel`. */",
+        "  /** Display label in English, from `skos:prefLabel`. */",
         "  label: string;",
+        "  /**",
+        "   * Display label per language: `en` (`label`) and, where the registry",
+        "   * has one, `de` (`skos:prefLabel@de`, the `prefLabelDe` term).",
+        "   */",
+        "  labels: { readonly en: string; readonly de?: string };",
         "  /** Methodology guidance, from `useWhen`. Empty for structural rows. */",
         "  useWhen: string;",
         "  kind: 'question' | 'metadata' | 'structural';",
@@ -504,6 +515,15 @@ def generate_question_types(registry: dict[str, Any], output: Path):
         "  /** Accepted alternative `type` strings (e.g. `string` for `text`). */",
         "  aliases?: readonly string[];",
         "  constraints?: QuestionTypeConstraints;",
+        "  /**",
+        "   * A variant's modifiers, from the registry's `presentation`: an \"other\"",
+        "   * answer with a text field, a long list (and its appearance).",
+        "   */",
+        "  presentation?: {",
+        "    readonly withOther: boolean;",
+        "    readonly withLongList: boolean;",
+        "    readonly appearanceString?: string;",
+        "  };",
         "}",
         "",
         "/**",
@@ -531,6 +551,7 @@ def generate_question_types(registry: dict[str, Any], output: Path):
                 entry_id=type_id,
                 type_string=data["xlsform"]["typeString"],
                 label=data.get("skos:prefLabel", slug),
+                label_de=data.get("prefLabelDe"),
                 kind=kinds[t],
                 use_when=data.get("useWhen", ""),
                 bases=[],
@@ -552,11 +573,13 @@ def generate_question_types(registry: dict[str, Any], output: Path):
                 entry_id=type_id,
                 type_string=type_string,
                 label=data.get("skos:prefLabel", slug),
+                label_de=data.get("prefLabelDe"),
                 kind="question",
                 use_when=data.get("useWhen", ""),
                 bases=bases,
                 is_variant=is_variant,
                 is_composite=not is_variant,
+                presentation=data.get("presentation"),
             )
 
     # Metadata rows are not registry entities — they come from the
