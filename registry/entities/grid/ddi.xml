@@ -26,7 +26,7 @@
       <concept>Vertrauen in Institutionen</concept>
     </varGrp>
     <var ID="V_vertrauenparlament" name="vertrauenparlament" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <preQTxt>Vertrauen in Institutionen</preQTxt>
         <qstnLit>Das Parlament</qstnLit>
       </qstn>
@@ -54,7 +54,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_vertrauenpolizei" name="vertrauenpolizei" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="2">
         <preQTxt>Vertrauen in Institutionen</preQTxt>
         <qstnLit>Die Polizei</qstnLit>
       </qstn>

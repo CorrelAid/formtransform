@@ -24,17 +24,19 @@
     <varGrp ID="VG_seite1" name="seite1" type="section" var="V_wohnort V_anmerkung V_zufrieden">
       <txt>Über Sie</txt>
       <concept>Über Sie</concept>
+      <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_matrix" name="matrix" type="section" var="V_bus V_bahn">
       <txt>Wie oft nutzen Sie …</txt>
       <concept>Wie oft nutzen Sie …</concept>
+      <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_raster" name="raster" type="grid" var="V_preis V_takt">
       <txt>Wie wichtig ist Ihnen …</txt>
       <concept>Wie wichtig ist Ihnen …</concept>
     </varGrp>
     <var ID="V_wohnort" name="wohnort" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <qstnLit>Wo wohnen Sie?</qstnLit>
       </qstn>
       <catgry>
@@ -47,16 +49,18 @@
       </catgry>
       <concept>Wo wohnen Sie?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">minimal</notes>
     </var>
     <var ID="V_anmerkung" name="anmerkung" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Möchten Sie etwas ergänzen?</qstnLit>
       </qstn>
       <concept>Möchten Sie etwas ergänzen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">multiline</notes>
     </var>
     <var ID="V_zufrieden" name="zufrieden" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="3">
         <qstnLit>Wie zufrieden sind Sie?</qstnLit>
       </qstn>
       <catgry>
@@ -73,9 +77,10 @@
       </catgry>
       <concept>Wie zufrieden sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_bus" name="bus" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="4">
         <qstnLit>Bus</qstnLit>
       </qstn>
       <catgry>
@@ -88,9 +93,10 @@
       </catgry>
       <concept>Bus</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">list-nolabel</notes>
     </var>
     <var ID="V_bahn" name="bahn" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="5">
         <qstnLit>Bahn</qstnLit>
       </qstn>
       <catgry>
@@ -103,9 +109,10 @@
       </catgry>
       <concept>Bahn</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">list-nolabel</notes>
     </var>
     <var ID="V_preis" name="preis" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="6">
         <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
         <qstnLit>… der Preis?</qstnLit>
       </qstn>
@@ -121,7 +128,7 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="7">
         <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
         <qstnLit>… der Takt?</qstnLit>
       </qstn>
@@ -137,14 +144,14 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_herkunft" name="herkunft" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="8">
         <qstnLit>Herkunftsland?</qstnLit>
       </qstn>
       <concept vocab="iso_3166_1">Herkunftsland?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_reisen" name="reisen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="9">
         <qstnLit>Wohin sind Sie gereist?</qstnLit>
       </qstn>
       <concept vocab="iso_3166_1">Wohin sind Sie gereist?</concept>

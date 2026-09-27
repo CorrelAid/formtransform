@@ -134,8 +134,8 @@ describe('xlsform → multilingual DDI', () => {
       [],
       { ...OPTS, settings: { default_language: 'Deutsch (de)' } },
     );
-    expect(xml).toContain('<preQTxt>Aktuelle Tätigkeit</preQTxt>');
-    expect(xml).not.toContain('<preQTxt xml:lang');
+    expect(xml).toContain('<postQTxt>Aktuelle Tätigkeit</postQTxt>');
+    expect(xml).not.toContain('<postQTxt xml:lang');
   });
 
   test("or_other's unauthored texts are LimeSurvey's, in each language", () => {

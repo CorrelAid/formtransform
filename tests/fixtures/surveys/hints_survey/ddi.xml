@@ -26,27 +26,26 @@
       <txt>Welche Medien nutzen Sie?</txt>
       <concept>Welche Medien nutzen Sie?</concept>
     </varGrp>
-    <var ID="V_personen" name="personen" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
-        <preQTxt>Die folgenden Fragen betreffen Ihren Haushalt.
-
-Sie selbst mitgezählt.</preQTxt>
+    <var ID="V_personen" name="personen" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="1">
+        <preQTxt>Die folgenden Fragen betreffen Ihren Haushalt.</preQTxt>
         <qstnLit>Wie viele Personen leben in Ihrem Haushalt?</qstnLit>
+        <postQTxt>Sie selbst mitgezählt.</postQTxt>
       </qstn>
       <concept>Wie viele Personen leben in Ihrem Haushalt?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Bitte möglichst genau.</preQTxt>
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Was ist Ihr Beruf?</qstnLit>
+        <postQTxt>Bitte möglichst genau.</postQTxt>
         <ivuInstr>Bei Unklarheit nach der Tätigkeit fragen.</ivuInstr>
       </qstn>
       <concept>Was ist Ihr Beruf?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_ehrenamt" name="ehrenamt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="3">
         <qstnLit>Sind Sie ehrenamtlich tätig?</qstnLit>
         <ivuInstr>Auch gelegentliches Engagement zählt.</ivuInstr>
       </qstn>
@@ -62,9 +61,10 @@ Sie selbst mitgezählt.</preQTxt>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="4">
         <preQTxt>Welche Medien nutzen Sie?</preQTxt>
         <qstnLit>Fernsehen</qstnLit>
+        <postQTxt>Mehrfachnennung möglich.</postQTxt>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -76,9 +76,10 @@ Sie selbst mitgezählt.</preQTxt>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="4">
         <preQTxt>Welche Medien nutzen Sie?</preQTxt>
         <qstnLit>Radio</qstnLit>
+        <postQTxt>Mehrfachnennung möglich.</postQTxt>
       </qstn>
       <catgry>
         <catValu>0</catValu>

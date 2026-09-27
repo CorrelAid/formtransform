@@ -34,6 +34,7 @@
     <varGrp ID="VG_wirkung" name="wirkung" type="section" var="V_wohlfuehlen V_freundschaften V_eigene_ideen V_problemloesung V_skills_gelernt V_beruf_pre V_beruf_post V_attribution_beruf">
       <txt>wirkung</txt>
       <concept>wirkung</concept>
+      <notes type="cdl:hint">Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):</notes>
     </varGrp>
     <varGrp ID="VG_erfahrungen" name="erfahrungen" type="section" var="V_projekte V_am_meisten_gebracht V_verbesserungen">
       <txt>erfahrungen</txt>
@@ -52,7 +53,7 @@
       <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</concept>
     </varGrp>
     <var ID="V_dauer" name="dauer" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <qstnLit>Wie lange kommst du schon zu TestWerk?</qstnLit>
       </qstn>
       <catgry>
@@ -80,7 +81,7 @@
       <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_haeufigkeit" name="haeufigkeit" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="2">
         <qstnLit>Wie oft kommst du ungefähr?</qstnLit>
       </qstn>
       <catgry>
@@ -103,16 +104,16 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
     </var>
-    <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
-        <preQTxt>z.B. 10, 50, 100...</preQTxt>
+    <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="3">
         <qstnLit>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</qstnLit>
+        <postQTxt>z.B. 10, 50, 100...</postQTxt>
       </qstn>
       <concept>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_hauptwerkstatt" name="hauptwerkstatt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="4">
         <qstnLit>In welcher Werkstatt bist du hauptsächlich?</qstnLit>
       </qstn>
       <catgry>
@@ -140,7 +141,7 @@
       <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_bereiche_holz" name="bereiche_holz" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="5">
         <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
         <qstnLit>Holzwerkstatt</qstnLit>
       </qstn>
@@ -154,7 +155,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_metall" name="bereiche_metall" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="5">
         <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
         <qstnLit>Metallwerkstatt</qstnLit>
       </qstn>
@@ -168,7 +169,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_textil" name="bereiche_textil" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="5">
         <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
         <qstnLit>Textilwerkstatt</qstnLit>
       </qstn>
@@ -182,7 +183,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_digital" name="bereiche_digital" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="5">
         <preQTxt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</preQTxt>
         <qstnLit>Medienwerkstatt/Digital</qstnLit>
       </qstn>
@@ -196,7 +197,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_vorwissen" name="vorwissen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="6">
         <qstnLit>Hattest du vorher schon handwerkliche Erfahrung?</qstnLit>
       </qstn>
       <catgry>
@@ -216,7 +217,7 @@
       <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_wohlfuehlen" name="wohlfuehlen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="7">
         <qstnLit>Ich fühle mich bei TestWerk wohl und akzeptiert.</qstnLit>
       </qstn>
       <catgry>
@@ -242,9 +243,10 @@
       <concept>Ich fühle mich bei TestWerk wohl und akzeptiert.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_freundschaften" name="freundschaften" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="8">
         <qstnLit>Ich habe bei TestWerk Freund*innen gefunden.</qstnLit>
       </qstn>
       <catgry>
@@ -270,9 +272,10 @@
       <concept>Ich habe bei TestWerk Freund*innen gefunden.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_eigene_ideen" name="eigene_ideen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="9">
         <qstnLit>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</qstnLit>
       </qstn>
       <catgry>
@@ -298,9 +301,10 @@
       <concept>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_problemloesung" name="problemloesung" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="10">
         <qstnLit>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</qstnLit>
       </qstn>
       <catgry>
@@ -326,9 +330,10 @@
       <concept>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_skills_gelernt" name="skills_gelernt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="11">
         <qstnLit>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</qstnLit>
       </qstn>
       <catgry>
@@ -354,9 +359,10 @@
       <concept>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_beruf_pre" name="beruf_pre" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="12">
         <preQTxt>Jetzt denk mal an deine berufliche Zukunft:</preQTxt>
         <qstnLit>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</qstnLit>
       </qstn>
@@ -383,9 +389,10 @@
       <concept>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_beruf_post" name="beruf_post" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="13">
         <qstnLit>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</qstnLit>
       </qstn>
       <catgry>
@@ -411,42 +418,48 @@
       <concept>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_attribution_beruf" name="attribution_beruf" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
-        <preQTxt>0% = gar nicht, 100% = komplett</preQTxt>
+      <qstn responseDomainType="numeric" seqNo="14">
         <qstnLit>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</qstnLit>
+        <postQTxt>0% = gar nicht, 100% = komplett</postQTxt>
+        <backward qstn="V_beruf_post V_beruf_pre"/>
       </qstn>
+      <valrng>
+        <range min="0" max="100"/>
+      </valrng>
       <universe clusion="I">Only if “Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.” ≠ “Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.”</universe>
       <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${beruf_post} != ${beruf_pre}</notes>
+      <notes type="cdl:parameters">step=5</notes>
     </var>
     <var ID="V_projekte" name="projekte" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="15">
         <qstnLit>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</qstnLit>
       </qstn>
       <concept>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_am_meisten_gebracht" name="am_meisten_gebracht" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="16">
         <qstnLit>Was hat dir bei TestWerk am meisten gebracht?</qstnLit>
       </qstn>
       <concept>Was hat dir bei TestWerk am meisten gebracht?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_verbesserungen" name="verbesserungen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="17">
         <qstnLit>Was könnten wir besser machen?</qstnLit>
       </qstn>
       <concept>Was könnten wir besser machen?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_nps_score" name="nps_score" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
-        <preQTxt>0 = auf keinen Fall, 10 = auf jeden Fall</preQTxt>
+      <qstn responseDomainType="category" seqNo="18">
         <qstnLit>Würdest du TestWerk Freund*innen empfehlen?</qstnLit>
+        <postQTxt>0 = auf keinen Fall, 10 = auf jeden Fall</postQTxt>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -495,9 +508,10 @@
       <concept>Würdest du TestWerk Freund*innen empfehlen?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_alter" name="alter" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="19">
         <qstnLit>Wie alt bist du? (optional)</qstnLit>
       </qstn>
       <catgry>
@@ -520,7 +534,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geschlecht" name="geschlecht" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="20">
         <qstnLit>Geschlecht (optional)</qstnLit>
       </qstn>
       <catgry>
@@ -547,8 +561,9 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_geschlecht_andere" name="geschlecht_andere" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="21">
         <qstnLit>Falls &quot;Anderes&quot;: Bitte angeben (optional)</qstnLit>
+        <backward qstn="V_geschlecht"/>
       </qstn>
       <universe clusion="I">Only if “Geschlecht (optional)” = Anderes Geschlecht</universe>
       <concept>Falls &quot;Anderes&quot;: Bitte angeben (optional)</concept>

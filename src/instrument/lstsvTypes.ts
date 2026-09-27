@@ -67,6 +67,14 @@ function resolveParameterized(
 }
 const CANONICAL_NUMERIC_TYPE = canonicalTypeFor('N');
 
+/**
+ * The type LimeSurvey's integer-only numeric question is, with the flag's
+ * attribute: a parameterless type whose `integerOnly` is always set.
+ */
+const INTEGER_TYPE: [string, string] | undefined = Object.entries(TYPE_MAPPINGS)
+  .filter(([, m]) => m.limeSurveyType === 'N' && m.integerOnly && !m.parameters)
+  .map(([t, m]): [string, string] => [t, m.integerOnly!.attribute])[0];
+
 /** Appearance name → LS type-override code it produces (e.g. `minimal` → `!`). */
 const APPEARANCE_BY_OVERRIDE: Record<string, string> = {};
 for (const [name, spec] of Object.entries(APPEARANCES)) {
@@ -97,7 +105,12 @@ export function resolveType(lsCode: string, row: Row): ResolvedType {
       return { base: 'select_multiple' };
     case 'N':
       return (
-        resolveParameterized(lsCode, row) ?? { base: CANONICAL_NUMERIC_TYPE }
+        resolveParameterized(lsCode, row) ?? {
+          base:
+            INTEGER_TYPE && cell(row, INTEGER_TYPE[1]) === '1'
+              ? INTEGER_TYPE[0]
+              : CANONICAL_NUMERIC_TYPE,
+        }
       );
     case 'D':
       return {

@@ -17,7 +17,7 @@ A		1		1-2 Mal insgesamt		en
 A		2		Ab und zu (1x im Monat)		en											
 A		3		Regelmäßig (mehrmals im Monat)		en											
 A		4		Sehr oft (jede Woche oder öfter)		en											
-Q	N	stundengesamt	1	Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)	z.B. 10, 50, 100...	en								1			
+Q	N	stundengesamt	1	Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)	z.B. 10, 50, 100...	en								1			1
 Q	L	hauptwerkstatt	1	In welcher Werkstatt bist du hauptsächlich?		en			Y					1			
 A		holz		Holzwerkstatt		en											
 A		metal		Metallwerkstatt		en											

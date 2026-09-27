@@ -22,7 +22,7 @@
   </fileDscr>
   <dataDscr>
     <var ID="V_anmerkungen" name="anmerkungen" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Haben Sie weitere Anmerkungen?</qstnLit>
       </qstn>
       <concept>Haben Sie weitere Anmerkungen?</concept>

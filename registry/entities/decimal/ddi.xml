@@ -22,7 +22,7 @@
   </fileDscr>
   <dataDscr>
     <var ID="V_schlafdauer" name="schlafdauer" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+      <qstn responseDomainType="numeric" seqNo="1">
         <qstnLit>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</qstnLit>
       </qstn>
       <concept>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</concept>

@@ -211,7 +211,9 @@
             "qstnLit",
             "labl",
             "preQTxt",
+            "postQTxt",
             "ivuInstr",
+            "universe",
             "notes"
           ],
           "baseLanguage": "settings.default_language, else the form's first language; declared as codeBook/@xml:lang whenever the form has more than one language (or default_language is set). Its elements are untagged and come first.",

@@ -22,7 +22,7 @@
   </fileDscr>
   <dataDscr>
     <var ID="V_bildungsgrad" name="bildungsgrad" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <qstnLit>Was ist Ihr höchster Bildungsabschluss?</qstnLit>
       </qstn>
       <catgry>

@@ -90,11 +90,11 @@ too).
 These are the fields where a round-trip is **not** byte-exact. Anything not
 listed here must match exactly.
 
-1. **`N` → `integer` vs `decimal` — unrecoverable.** Both map to LimeSurvey `N`
-   with no distinguishing attribute anywhere (`TYPE_MAPPINGS` entries are
-   identical bar the key). No signal exists to read back without changing the
-   LimeSurvey side. `lstsvRowsToXlsform` emits the canonical `decimal`;
-   `integer` fixtures round-trip with `type` differing.
+1. **`N` → `integer` vs `decimal`.** Both are LimeSurvey `N`; an `integer`
+   also sets `num_value_int_only=1` (LimeSurvey's "only integer values", the
+   registry's `integerOnly`), so an `N` with it reads back as `integer` and one
+   without as `decimal`. A decimal question someone set to integer-only in
+   LimeSurvey comes back as `integer`, which is what it accepts.
 
    An `N` with both bound attributes is read back as `range` (the only type
    that writes them). Its `step` is not stored: `num_value_int_only=1` comes

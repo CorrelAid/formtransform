@@ -11,6 +11,7 @@
       </prodStmt>
     </citation>
     <notes type="instruction" subject="thankyou">Thank you!</notes>
+    <notes type="cdl:setting" subject="style">pages</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -26,27 +27,29 @@
     <varGrp ID="VG_page1" name="page1" type="section" var="V_name V_age">
       <txt>Page One</txt>
       <concept>Page One</concept>
+      <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_page2" name="page2" type="section" var="V_favcolor">
       <txt>Page Two</txt>
       <concept>Page Two</concept>
+      <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Your name</qstnLit>
       </qstn>
       <concept>Your name</concept>
       <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_age" name="age" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="2">
         <qstnLit>Your age</qstnLit>
       </qstn>
       <concept>Your age</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_favcolor" name="favcolor" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="3">
         <qstnLit>Favourite colour</qstnLit>
       </qstn>
       <catgry>

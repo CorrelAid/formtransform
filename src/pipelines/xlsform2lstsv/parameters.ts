@@ -6,17 +6,18 @@
  */
 import { TYPE_MAPPINGS } from '../../generated/TypeMappings.js';
 import { ConversionError } from '../../diagnostics.js';
+import { parseParameters } from '../../utils/parameters.js';
 
-/** Parse `key=value` pairs separated by spaces, commas or semicolons. */
-export function parseParameters(cell: unknown): Record<string, string> {
-  const out: Record<string, string> = {};
-  if (typeof cell !== 'string' && typeof cell !== 'number') return out;
-  for (const token of String(cell).split(/[\s,;]+/)) {
-    const eq = token.indexOf('=');
-    if (eq <= 0) continue;
-    out[token.slice(0, eq).trim().toLowerCase()] = token.slice(eq + 1).trim();
-  }
-  return out;
+export { parseParameters };
+
+/** ODK allows a descending range (start > end); LimeSurvey only has bounds. */
+function ascending(values: Record<string, string>): void {
+  if (!('start' in values && 'end' in values)) return;
+  const [lo, hi] = [Number(values.start), Number(values.end)].sort(
+    (a, b) => a - b,
+  );
+  values.start = String(lo);
+  values.end = String(hi);
 }
 
 const isNumber = (v: string) => v !== '' && Number.isFinite(Number(v));
@@ -32,6 +33,10 @@ export function parameterAttributes(
   questionName: string,
 ): Record<string, string> {
   const mapping = TYPE_MAPPINGS[baseType];
+  // An integer is LimeSurvey's numeric question accepting whole numbers only.
+  if (mapping?.integerOnly && !mapping.parameters) {
+    return { [mapping.integerOnly.attribute]: '1' };
+  }
   if (!mapping?.parameters) return {};
 
   const values = { ...mapping.parameters, ...parseParameters(cell) };
@@ -51,14 +56,7 @@ export function parameterAttributes(
       `${baseType} '${questionName}': step must not be 0`,
     );
   }
-  // ODK allows a descending range (start > end); LimeSurvey only has bounds.
-  if ('start' in values && 'end' in values) {
-    const [lo, hi] = [Number(values.start), Number(values.end)].sort(
-      (a, b) => a - b,
-    );
-    values.start = String(lo);
-    values.end = String(hi);
-  }
+  ascending(values);
 
   const attrs: Record<string, string> = {};
   for (const [key, attr] of Object.entries(mapping.parameterAttributes ?? {})) {

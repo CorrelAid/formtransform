@@ -30,7 +30,7 @@
       <concept>Welche dieser Geräte besitzen Sie?</concept>
     </varGrp>
     <var ID="V_geraetebesitz_smart" name="geraetebesitz_smart" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="1">
         <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
         <qstnLit>Smartphone</qstnLit>
       </qstn>
@@ -44,7 +44,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_lapt" name="geraetebesitz_lapt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="1">
         <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
         <qstnLit>Laptop</qstnLit>
       </qstn>
@@ -58,7 +58,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_tabl" name="geraetebesitz_tabl" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="1">
         <preQTxt>Welche dieser Geräte besitzen Sie?</preQTxt>
         <qstnLit>Tablet</qstnLit>
       </qstn>
@@ -72,8 +72,9 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_other" name="geraetebesitz_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Sonstiges (bitte angeben)</qstnLit>
+        <backward qstn="VG_geraetebesitz"/>
       </qstn>
       <universe clusion="I">Only if “Welche dieser Geräte besitzen Sie?” includes Sonstiges</universe>
       <concept>Sonstiges (bitte angeben)</concept>

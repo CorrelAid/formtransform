@@ -45,22 +45,20 @@
       <concept>Wie haben Sie von uns erfahren?</concept>
     </varGrp>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Alle Angaben sind freiwillig.
-
-Aktuelle Tätigkeit</preQTxt>
-        <preQTxt xml:lang="en">All answers are optional.
-
-Current job</preQTxt>
+      <qstn responseDomainType="text" seqNo="1">
+        <preQTxt>Alle Angaben sind freiwillig.</preQTxt>
+        <preQTxt xml:lang="en">All answers are optional.</preQTxt>
         <qstnLit>Was ist Ihr Beruf?</qstnLit>
         <qstnLit xml:lang="en">What is your occupation?</qstnLit>
+        <postQTxt>Aktuelle Tätigkeit</postQTxt>
+        <postQTxt xml:lang="en">Current job</postQTxt>
         <ivuInstr>Nicht vorlesen</ivuInstr>
       </qstn>
       <concept>Was ist Ihr Beruf?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_bildung" name="bildung" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="2">
         <qstnLit>Höchster Abschluss?</qstnLit>
         <qstnLit xml:lang="en">Highest degree?</qstnLit>
       </qstn>
@@ -82,7 +80,7 @@ Current job</preQTxt>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sprachen_de" name="sprachen_de" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="3">
         <preQTxt>Welche Sprachen sprechen Sie?</preQTxt>
         <preQTxt xml:lang="en">Which languages do you speak?</preQTxt>
         <qstnLit>Deutsch</qstnLit>
@@ -98,7 +96,7 @@ Current job</preQTxt>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sprachen_en" name="sprachen_en" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="3">
         <preQTxt>Welche Sprachen sprechen Sie?</preQTxt>
         <preQTxt xml:lang="en">Which languages do you speak?</preQTxt>
         <qstnLit>Englisch</qstnLit>
@@ -114,7 +112,7 @@ Current job</preQTxt>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_quelle" name="quelle" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="4">
         <qstnLit>Wie haben Sie von uns erfahren?</qstnLit>
         <qstnLit xml:lang="en">How did you hear about us?</qstnLit>
       </qstn>
@@ -137,9 +135,10 @@ Current job</preQTxt>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_quelle_other" name="quelle_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="5">
         <qstnLit>Sonstiges:</qstnLit>
         <qstnLit xml:lang="en">Other:</qstnLit>
+        <backward qstn="V_quelle"/>
       </qstn>
       <universe clusion="I">Nur wenn „Wie haben Sie von uns erfahren?“ = Sonstiges:</universe>
       <universe clusion="I" xml:lang="en">Only if “How did you hear about us?” = Other:</universe>
@@ -148,7 +147,7 @@ Current job</preQTxt>
       <notes type="cdl:relevant" subject="xlsform-xpath">${quelle} = 'other'</notes>
     </var>
     <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="6">
         <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
         <preQTxt xml:lang="en">How much do you trust …</preQTxt>
         <qstnLit>… dem Parlament?</qstnLit>
@@ -175,7 +174,7 @@ Current job</preQTxt>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="7">
         <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
         <preQTxt xml:lang="en">How much do you trust …</preQTxt>
         <qstnLit>… der Polizei?</qstnLit>

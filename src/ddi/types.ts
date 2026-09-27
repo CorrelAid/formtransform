@@ -19,6 +19,8 @@ export interface Choice {
   label: string;
   /** `label` in the form's other languages. */
   translations?: Translations;
+  /** Marked `exclusive` (convention:exclusiveChoice): a `cdl:exclusive` note. */
+  exclusive?: boolean;
 }
 
 /**
@@ -37,6 +39,10 @@ export interface DdiGroup {
   appearance: string;
   /** Its own `relevant` (XPath); `''` when none. */
   relevant: string;
+  /** Its `hint`: a `cdl:hint` note (#153); `''` when none. */
+  hint: string;
+  /** `hint` in the form's other languages. */
+  hintTranslations?: Translations;
 }
 
 /** A variable's texts in one of the form's other languages. */
@@ -68,7 +74,7 @@ export interface Variable {
   vocab: string;
   /** Resolved answer options; empty for non-categorical / external-list types. */
   choices: Choice[];
-  /** XLSForm `hint`, emitted as `<qstn><preQTxt>` (after any folded note). */
+  /** XLSForm `hint`, emitted as `<qstn><postQTxt>` (#153). */
   hint?: string;
   /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
   guidanceHint?: string;
@@ -88,6 +94,12 @@ export interface Variable {
   constraintMessage?: string;
   /** XLSForm `required`: a `cdl:required` note. */
   required?: boolean;
+  /** XLSForm `default`: a `cdl:default` note (#153). */
+  default?: string;
+  /** The question's own lowercased `appearance`: a `cdl:appearance` note. */
+  appearance?: string;
+  /** XLSForm `parameters` as authored (#153). */
+  parameters?: string;
   /** Its texts in the form's other languages, by language tag (#135). */
   translations?: Record<string, VariableTexts>;
 }

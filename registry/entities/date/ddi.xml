@@ -22,11 +22,11 @@
   </fileDscr>
   <dataDscr>
     <var ID="V_geburtsdatum" name="geburtsdatum" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Wann wurden Sie geboren?</qstnLit>
       </qstn>
       <concept>Wann wurden Sie geboren?</concept>
-      <varFormat type="character" schema="other"/>
+      <varFormat type="character" schema="other" category="date"/>
     </var>
   </dataDscr>
 </codeBook>

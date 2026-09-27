@@ -15,6 +15,7 @@ import {
   otherLabelFor,
 } from '../conventions/other.js';
 import { isFromFileType, vocabFromFilename } from '../conventions/fromFile.js';
+import { isExclusive } from '../conventions/exclusive.js';
 import {
   TYPE_MAP,
   NON_DDI_EMITTABLE_TYPES,
@@ -123,13 +124,19 @@ function groupsOf(ctx: GroupContext): Pick<Variable, 'groups'> {
   return ctx.groups.length ? { groups: ctx.groups } : {};
 }
 
-/** A question's own logic fields, absent when empty (#151). */
+/** A question's own logic (#151) and form fields (#153), absent when empty. */
 function logicOf(
   q: QuestionItem,
   lang: string | undefined,
 ): Pick<
   Variable,
-  'relevant' | 'constraint' | 'constraintMessage' | 'required'
+  | 'relevant'
+  | 'constraint'
+  | 'constraintMessage'
+  | 'required'
+  | 'default'
+  | 'appearance'
+  | 'parameters'
 > {
   const relevant = q.relevant.trim();
   const message = pick(q.constraintMessage, lang).trim();
@@ -138,6 +145,9 @@ function logicOf(
     ...(q.constraint ? { constraint: q.constraint } : {}),
     ...(q.constraint && message ? { constraintMessage: message } : {}),
     ...(q.required ? { required: true } : {}),
+    ...(q.default ? { default: q.default } : {}),
+    ...(q.appearance ? { appearance: q.appearance } : {}),
+    ...(q.parameters.trim() ? { parameters: q.parameters.trim() } : {}),
   };
 }
 
@@ -371,6 +381,7 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
     const path = ctx.path ? `${ctx.path}/${item.name}` : item.name;
     const label = pick(item.label, state.lang);
     const translations = translationsOf(item.label, state.others);
+    const hintTranslations = translationsOf(item.hint, state.others);
     const group: DdiGroup = {
       name: item.name,
       path,
@@ -378,6 +389,8 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       ...(translations ? { translations } : {}),
       appearance: item.appearance,
       relevant: item.relevant.trim(),
+      hint: pick(item.hint, state.lang).trim(),
+      ...(hintTranslations ? { hintTranslations } : {}),
     };
     project(
       item.children,
@@ -474,6 +487,7 @@ export function choicesFromInstrument(
           name: c.name,
           label: pick(c.label, lang),
           ...(translations ? { translations } : {}),
+          ...(isExclusive(c.row) ? { exclusive: true } : {}),
         };
       }),
     ]),

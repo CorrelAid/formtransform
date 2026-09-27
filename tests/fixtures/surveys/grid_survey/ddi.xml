@@ -32,9 +32,10 @@
       <notes>Nun zu Ihrer Mediennutzung.</notes>
     </varGrp>
     <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
         <qstnLit>… dem Parlament?</qstnLit>
+        <postQTxt>Bundestag</postQTxt>
         <ivuInstr>Skala vorlesen</ivuInstr>
       </qstn>
       <catgry>
@@ -53,7 +54,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="2">
         <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
         <qstnLit>… der Polizei?</qstnLit>
       </qstn>
@@ -73,9 +74,10 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="3">
         <preQTxt>Welche Medien nutzen Sie?</preQTxt>
         <qstnLit>Fernsehen</qstnLit>
+        <postQTxt>Mehrfachnennung möglich</postQTxt>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -87,9 +89,10 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="3">
         <preQTxt>Welche Medien nutzen Sie?</preQTxt>
         <qstnLit>Radio</qstnLit>
+        <postQTxt>Mehrfachnennung möglich</postQTxt>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -100,12 +103,11 @@
       <concept>Welche Medien nutzen Sie?: Radio</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
-    <var ID="V_alter" name="alter" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
-        <preQTxt>Zuletzt eine Angabe zur Person.
-
-In Jahren</preQTxt>
+    <var ID="V_alter" name="alter" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="4">
+        <preQTxt>Zuletzt eine Angabe zur Person.</preQTxt>
         <qstnLit>Wie alt sind Sie?</qstnLit>
+        <postQTxt>In Jahren</postQTxt>
       </qstn>
       <concept>Wie alt sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>

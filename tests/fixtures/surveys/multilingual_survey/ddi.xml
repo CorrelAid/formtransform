@@ -28,17 +28,17 @@
       <concept>Demographics</concept>
     </varGrp>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Enter your full name</preQTxt>
-        <preQTxt xml:lang="es">Ingresa tu nombre completo</preQTxt>
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>What is your name?</qstnLit>
         <qstnLit xml:lang="es">¿Cuál es tu nombre?</qstnLit>
+        <postQTxt>Enter your full name</postQTxt>
+        <postQTxt xml:lang="es">Ingresa tu nombre completo</postQTxt>
       </qstn>
       <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_age" name="age" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="2">
         <qstnLit>What is your age?</qstnLit>
         <qstnLit xml:lang="es">¿Cuál es tu edad?</qstnLit>
       </qstn>
@@ -46,7 +46,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="3">
         <qstnLit>Gender</qstnLit>
         <qstnLit xml:lang="es">Género</qstnLit>
       </qstn>
@@ -69,7 +69,7 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_satisfaction" name="satisfaction" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="4">
         <qstnLit>How satisfied are you?</qstnLit>
         <qstnLit xml:lang="es">¿Qué tan satisfecho estás?</qstnLit>
       </qstn>
