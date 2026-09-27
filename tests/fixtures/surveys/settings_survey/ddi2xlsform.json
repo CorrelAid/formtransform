@@ -1,0 +1,61 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "main",
+      "label": "Main Questions"
+    },
+    {
+      "type": "select_one fav_color",
+      "name": "fav_color",
+      "label": "What is your _favorite_ color?"
+    },
+    {
+      "type": "text",
+      "name": "fav_color_other",
+      "label": "Please specify your color",
+      "relevant": "${fav_color} = 'other'"
+    },
+    {
+      "type": "text",
+      "name": "comment",
+      "label": "Any **comments**?"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "note",
+      "name": "welcome",
+      "label": "**Welcome** to the survey!"
+    },
+    {
+      "type": "note",
+      "name": "end",
+      "label": "**Thank you** for participating!"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "fav_color",
+      "name": "red",
+      "label": "Red"
+    },
+    {
+      "list_name": "fav_color",
+      "name": "blue",
+      "label": "Blue"
+    },
+    {
+      "list_name": "fav_color",
+      "name": "other",
+      "label": "Other"
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "settings_survey",
+      "form_id": "settings_survey"
+    }
+  ]
+}

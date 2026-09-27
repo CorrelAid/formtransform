@@ -5,7 +5,7 @@
 #   npm run bless -- tsv      # registry/entities/<slug>/tsv.tsv
 #   npm run bless -- ddi      # registry/entities/<slug>/ddi.xml
 #   npm run bless -- examples # meta.json + xlsform.xlsx (codegen)
-#   npm run bless -- surveys  # tests/fixtures/surveys/<name>/{tsv.tsv,ddi.xml}
+#   npm run bless -- surveys  # tests/fixtures/surveys/<name>/{tsv.tsv,ddi.xml,ddi2xlsform.json}
 #   npm run bless -- responses# tests/live/limesurvey/expected/ (needs docker)
 #
 # Snapshots are a manual gate: default codegen never touches ddi.xml/tsv.tsv, so

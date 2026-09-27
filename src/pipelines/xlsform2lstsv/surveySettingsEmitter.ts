@@ -44,7 +44,10 @@ export class SurveySettingsEmitter {
    */
   emit(settings: SettingsRow): void {
     const defaults = this.configManager.getDefaults();
-    const surveyTitle = settings.form_title || defaults.surveyTitle;
+    // The fallback for a language a per-language title lacks.
+    const surveyTitle =
+      (typeof settings.form_title === 'string' && settings.form_title) ||
+      defaults.surveyTitle;
 
     this.rowEmitter.addRow(
       this.rowEmitter.row({

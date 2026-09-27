@@ -149,17 +149,15 @@ The migration runs in phases, each keeping every snapshot byte-identical:
    stores the expression text, not the AST: emitters that need structure
    (the EM transpiler) parse it, and XPath is what XLSForm writes back.
 
-### Why there is no `ddi2xlsform` or `ddi2lstsv`
+### The way back from DDI (`ddi2xlsform`)
 
-**DDI is the terminus of the pipeline graph for now.** It describes a *dataset*, not an *instrument*, and a reverse path needs the whole instrument. #155 plans one.
+A DDI codebook describes a *dataset*, not an *instrument*. A codebook formtransform wrote carries the whole instrument too (#155), so `ddi2xlsform` (#154) turns it back into its form: `src/instrument/fromDdi.ts` reads the standard elements and the `cdl:` notes into the Instrument, and the XLSForm emitter both reverse paths share (`src/xlsform/fromInstrument.ts`) writes the sheets. Any other DDI converts as far as its standard elements go, with a warning for each missing field. The round trip is tested on the model, never on bytes; `src/pipelines/ddi2xlsform/README.md` lists the losses. A `ddi2lstsv` would be `ddi2xlsform` → `xlsform2lstsv` and earns no module of its own.
 
-The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit:
+What a CDL codebook carries:
 
 - **`relevant`, `constraint`, `constraint_message`, `required`** survive (#151). DDI Codebook 2.5 has no expression syntax, so each goes in twice: readable (`<universe>` prose, `<valrng>` for a simple numeric range) and exact, in a typed `<notes type="cdl:…">`. `convention:logicMapping` (`ddiEncoding`) defines the notes. A group's own condition is on its `varGrp`; a variable's `<universe>` states its groups' conditions too.
 - **Groups and order** survive (#152): every group is a `<varGrp>` (a plain one `type="section"`), nested through `@varGrp`, and the `<var>`s and data columns follow the survey.
 - **Every other form field** (#153, `convention:ddiFields`): standard DDI where it has a home (the hint as `postQTxt`, `guidance_hint` as `ivuInstr`, `varFormat/@category` for date and time, `var/@dcml="0"` for integer, `valrng` for a range, `qstn/@seqNo` and `qstn/backward`), else a typed note (`cdl:default`, `cdl:appearance`, `cdl:parameters`, a group's `cdl:hint`, `cdl:exclusive`, `cdl:setting`). A unit test fails when a model field has neither nor a documented loss. Not carried: `calculation` and other unlifted columns, a choice list's name, the `or_other` shorthand as such.
-
-Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T` type overrides. It is a form definition in a different dialect, so reversing it is a translation problem. Reversing a codebook without those pieces is a *reconstruction* problem, and they cannot be inferred from it.
 
 ## Development Workflow
 

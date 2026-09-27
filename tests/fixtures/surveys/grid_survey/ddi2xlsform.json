@@ -1,0 +1,85 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "vertrauen",
+      "label": "Wie sehr vertrauen Sie …",
+      "appearance": "table-list"
+    },
+    {
+      "type": "select_one vertrauen",
+      "name": "parlament",
+      "label": "… dem Parlament?",
+      "hint": "Bundestag",
+      "guidance_hint": "Skala vorlesen"
+    },
+    {
+      "type": "select_one vertrauen",
+      "name": "polizei",
+      "label": "… der Polizei?"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "note",
+      "name": "medien_note",
+      "label": "Nun zu Ihrer Mediennutzung."
+    },
+    {
+      "type": "select_multiple medien",
+      "name": "medien",
+      "label": "Welche Medien nutzen Sie?",
+      "hint": "Mehrfachnennung möglich"
+    },
+    {
+      "type": "note",
+      "name": "alter_note",
+      "label": "Zuletzt eine Angabe zur Person."
+    },
+    {
+      "type": "integer",
+      "name": "alter",
+      "label": "Wie alt sind Sie?",
+      "hint": "In Jahren"
+    },
+    {
+      "type": "note",
+      "name": "intro",
+      "label": "Einige Fragen zu Ihrem Vertrauen."
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "vertrauen",
+      "name": "1",
+      "label": "Gar nicht"
+    },
+    {
+      "list_name": "vertrauen",
+      "name": "2",
+      "label": "Etwas"
+    },
+    {
+      "list_name": "vertrauen",
+      "name": "3",
+      "label": "Voll"
+    },
+    {
+      "list_name": "medien",
+      "name": "tv",
+      "label": "Fernsehen"
+    },
+    {
+      "list_name": "medien",
+      "name": "radio",
+      "label": "Radio"
+    }
+  ],
+  "settings": [
+    {
+      "default_language": "German (de)",
+      "form_title": "grid_survey"
+    }
+  ]
+}

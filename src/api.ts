@@ -18,6 +18,11 @@ import type { ChoiceRow, SettingsRow, SurveyRow } from './xlsform/types.js';
 import { XLSFormToTSVConverter } from './pipelines/xlsform2lstsv/index.js';
 import { buildDdiXml } from './pipelines/xlsform2ddi/index.js';
 import { lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
+import {
+  ddiToXlsform as ddiToXlsformSheets,
+  type DdiToXlsformOptions,
+  type XlsformOutput,
+} from './pipelines/ddi2xlsform/index.js';
 import type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
 
 /** An XLSForm: the `.xlsx` bytes, or its loaded sheets. */
@@ -155,6 +160,18 @@ export function xlsformToDdi(
     ...ddiOptions,
     onWarning,
   });
+}
+
+/**
+ * DDI-Codebook 2.5 XML (a codebook or a fragment) → XLSForm sheets
+ * `{ survey, choices, settings }` (#154). Never refuses DDI it can read:
+ * each field it can't supply is a warning.
+ */
+export function ddiToXlsform(
+  xml: string,
+  options: DdiToXlsformOptions = {},
+): XlsformOutput {
+  return ddiToXlsformSheets(xml, { onWarning: onceEach(options.onWarning) });
 }
 
 /** LimeSurvey structure TSV → DDI-Codebook 2.5 XML. */

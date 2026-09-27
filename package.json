@@ -78,6 +78,7 @@
     "concurrently": "^10.0.3",
     "esbuild": "^0.28.1",
     "eslint": "^10.7.0",
+    "fast-check": "^4.10.2",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
     "jscpd": "^5.0.12",

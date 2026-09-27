@@ -1,5 +1,10 @@
 // ── Conversions (one function per direction) ───────────────────────────
-export { xlsformToLstsv, xlsformToDdi, lstsvToDdi } from './api.js';
+export {
+  xlsformToLstsv,
+  xlsformToDdi,
+  lstsvToDdi,
+  ddiToXlsform,
+} from './api.js';
 export type {
   XlsformSource,
   XlsformToLstsvOptions,
@@ -11,6 +16,7 @@ export type {
   XlsformOutput,
 } from './pipelines/lstsv2xlsform/index.js';
 export type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
+export type { DdiToXlsformOptions } from './pipelines/ddi2xlsform/index.js';
 
 // ── Diagnostics ────────────────────────────────────────────────────────
 export { ConversionError, consoleWarning } from './diagnostics.js';

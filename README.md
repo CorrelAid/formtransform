@@ -67,6 +67,7 @@ import {
   xlsformToDdi,
   lstsvToDdi,
   lstsvToXlsform,
+  ddiToXlsform,
 } from '@correlaid/formtransform';
 
 const bytes = await file.arrayBuffer();
@@ -74,6 +75,7 @@ const tsv = await xlsformToLstsv(bytes);
 const xml = xlsformToDdi(bytes);
 const fromLs = lstsvToDdi(tsv);
 const { survey, choices, settings } = lstsvToXlsform(tsv);
+const back = ddiToXlsform(xml); // a codebook, or a <var>/<varGrp> fragment
 ```
 
 Each rejects input outside its subset with a `ConversionError` unless you pass
@@ -124,6 +126,9 @@ formtransform lstsv2ddi survey.tsv -o codebook.xml --data responses.csv
 
 # Convert from LimeSurvey TSV back to XLSForm (emitted as JSON sheets)
 formtransform lstsv2xlsform survey.tsv -o recovered.json
+
+# Convert a DDI codebook (or a <var>/<varGrp> fragment) back to XLSForm (JSON sheets)
+formtransform ddi2xlsform codebook.xml -o form.json
 ```
 
 ### Asking the library what exists
@@ -183,21 +188,22 @@ records how each maps onto it.
 | [LimeSurvey TSV](https://www.limesurvey.org/manual/Tab_Separated_Value_survey_structure) | **Deployment** — recreate the survey in LimeSurvey | type codes (`L`, `M`, `F`, `N`) |
 | [DDI Codebook 2.5](https://ddialliance.org/Specification/DDI-Codebook/2.5/) | **Documentation** — describe the resulting dataset | interval class + response domains (`category`, `multiple`) |
 
-**Supported directions:** four, one per module under `src/pipelines/` —
+**Supported directions:** five, one per module under `src/pipelines/` —
 `xlsform2lstsv` (deploy the survey), `xlsform2ddi` (document the dataset),
-`lstsv2ddi` and `lstsv2xlsform` (the reverse paths). All are lossy for some
+`lstsv2ddi`, `lstsv2xlsform` and `ddi2xlsform` (the reverse paths). All are lossy for some
 types: nested groups flatten in LimeSurvey, choice codes over 5 chars truncate,
 `select_multiple` becomes N binary variables, and the reverse paths cannot
 recover a select's authored `list_name`.
 
-**DDI has no way back yet:** there is no `ddi2xlsform` or `ddi2lstsv`. A CDL
-codebook carries skip logic, validation and `required`: each condition as a
-readable `<universe>` sentence (and a simple numeric range as `<valrng>`), plus
-the exact expression in a typed note such as `<notes type="cdl:relevant"
-subject="xlsform-xpath">` (`convention:logicMapping`). Groups, order, hints,
-defaults, appearances and parameters are in it too, in standard DDI where it
-has a place and typed notes where not (`convention:ddiFields`). The reverse
-parser that reads them back is #154.
+**DDI goes back to XLSForm:** a CDL codebook carries the whole form. Skip
+logic, validation and `required` are each a readable `<universe>` sentence
+(a simple numeric range also `<valrng>`), plus the exact expression in a typed
+note such as `<notes type="cdl:relevant" subject="xlsform-xpath">`
+(`convention:logicMapping`). Groups, order, hints, defaults, appearances and
+parameters are in standard DDI where it has a place and typed notes where not
+(`convention:ddiFields`). `ddiToXlsform` reads it back; any other DDI converts
+as far as its standard elements go, with a warning per missing field
+([`src/pipelines/ddi2xlsform/README.md`](src/pipelines/ddi2xlsform/README.md)).
 
 ## Errors and warnings
 

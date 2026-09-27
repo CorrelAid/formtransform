@@ -8,6 +8,7 @@ import { ConversionError } from './diagnostics.js';
 import { resolveFileChoices } from './fileChoices.js';
 import { lstsvToDataCsv, lstsvToDdiXml } from './pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from './pipelines/lstsv2xlsform/index.js';
+import { ddiToXlsform } from './pipelines/ddi2xlsform/index.js';
 import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import type { XLSFormData } from './xlsform/types.js';
 import { XLSValidator } from './xlsform/validate.js';
@@ -39,6 +40,7 @@ Commands:
   xlsform2ddi     Convert an XLSForm (.xlsx) to a DDI-Codebook 2.5 XML
   lstsv2ddi       Convert a LimeSurvey structure TSV to a DDI-Codebook 2.5 XML
   lstsv2xlsform   Convert a LimeSurvey structure TSV to an XLSForm (.json)
+  ddi2xlsform     Convert a DDI-Codebook 2.5 XML to an XLSForm (.json)
 
 Run "${PROG} <command> --help" for command options.
 `,
@@ -139,7 +141,7 @@ Arguments:
 
 Emits { survey, choices, settings } as JSON. Not a full reverse of
 xlsform2lstsv — see src/pipelines/lstsv2xlsform/README.md for scope and known lossy fields
-(a select's list_name is synthesized; integer/decimal are indistinguishable).
+(a select's list_name is synthesized).
 
 Options:
   -o, --output <file>        Write JSON to <file> (default: stdout)
@@ -465,6 +467,52 @@ function cmdLstsv2xlsform(argv: string[]): void {
   emit(json, values.output as string | undefined);
 }
 
+function ddi2xlsformHelp(): void {
+  process.stdout.write(
+    `${PROG} ddi2xlsform — DDI-Codebook 2.5 XML → XLSForm (JSON)
+
+Usage:
+  ${PROG} ddi2xlsform <input.xml> [-o output.json]
+
+Arguments:
+  input.xml                  A DDI codebook, or a fragment (<dataDscr>, <var>, <varGrp>)
+
+Emits { survey, choices, settings } as JSON. A codebook formtransform wrote
+gives back its form; any other DDI is read as far as its standard elements
+go, with a warning for each field it can't supply. See
+src/pipelines/ddi2xlsform/README.md.
+
+Options:
+  -o, --output <file>        Write JSON to <file> (default: stdout)
+  -h, --help                 Show this help
+`,
+  );
+}
+
+function cmdDdi2xlsform(argv: string[]): void {
+  const { values, positionals } = parse(argv, {
+    output: { type: 'string', short: 'o' },
+    help: { type: 'boolean', short: 'h', default: false },
+  });
+
+  if (values.help) return ddi2xlsformHelp();
+
+  const bytes = readInput(positionals, ddi2xlsformHelp);
+
+  let json: string;
+  try {
+    const xlsform = ddiToXlsform(bytes.toString('utf-8'), {
+      onWarning: (w) =>
+        process.stderr.write(`${PROG}: warning: ${w.message}\n`),
+    });
+    json = JSON.stringify(xlsform, null, 2) + '\n';
+  } catch (err) {
+    return die(`conversion failed: ${(err as Error).message}`);
+  }
+
+  emit(json, values.output as string | undefined);
+}
+
 async function main(): Promise<void> {
   const [command, ...rest] = process.argv.slice(2);
 
@@ -488,6 +536,9 @@ async function main(): Promise<void> {
       break;
     case 'lstsv2xlsform':
       cmdLstsv2xlsform(rest);
+      break;
+    case 'ddi2xlsform':
+      cmdDdi2xlsform(rest);
       break;
     default:
       topHelp();

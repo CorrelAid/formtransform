@@ -1,0 +1,207 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "person",
+      "label": {
+        "de": "Zur Person",
+        "en": "About you"
+      }
+    },
+    {
+      "type": "note",
+      "name": "beruf_note",
+      "label": {
+        "de": "Alle Angaben sind freiwillig.",
+        "en": "All answers are optional."
+      }
+    },
+    {
+      "type": "text",
+      "name": "beruf",
+      "label": {
+        "de": "Was ist Ihr Beruf?",
+        "en": "What is your occupation?"
+      },
+      "hint": {
+        "de": "Aktuelle Tätigkeit",
+        "en": "Current job"
+      },
+      "guidance_hint": {
+        "de": "Nicht vorlesen"
+      }
+    },
+    {
+      "type": "select_one bildung",
+      "name": "bildung",
+      "label": {
+        "de": "Höchster Abschluss?",
+        "en": "Highest degree?"
+      }
+    },
+    {
+      "type": "select_multiple sprachen",
+      "name": "sprachen",
+      "label": {
+        "de": "Welche Sprachen sprechen Sie?",
+        "en": "Which languages do you speak?"
+      }
+    },
+    {
+      "type": "select_one quelle",
+      "name": "quelle",
+      "label": {
+        "de": "Wie haben Sie von uns erfahren?",
+        "en": "How did you hear about us?"
+      }
+    },
+    {
+      "type": "text",
+      "name": "quelle_other",
+      "label": {
+        "de": "Sonstiges:",
+        "en": "Other:"
+      },
+      "relevant": "${quelle} = 'other'"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "vertrauen",
+      "label": {
+        "de": "Wie sehr vertrauen Sie …",
+        "en": "How much do you trust …"
+      },
+      "appearance": "table-list"
+    },
+    {
+      "type": "select_one vertrauen",
+      "name": "parlament",
+      "label": {
+        "de": "… dem Parlament?",
+        "en": "… parliament?"
+      },
+      "guidance_hint": {
+        "de": "Skala vorlesen",
+        "en": "Read the scale"
+      }
+    },
+    {
+      "type": "select_one vertrauen",
+      "name": "polizei",
+      "label": {
+        "de": "… der Polizei?",
+        "en": "… the police?"
+      }
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "note",
+      "name": "intro",
+      "label": {
+        "de": "Willkommen zur Befragung.",
+        "en": "Welcome to the survey."
+      }
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "bildung",
+      "name": "1",
+      "label": {
+        "de": "Kein Abschluss",
+        "en": "No degree"
+      }
+    },
+    {
+      "list_name": "bildung",
+      "name": "2",
+      "label": {
+        "de": "Hauptschulabschluss"
+      }
+    },
+    {
+      "list_name": "bildung",
+      "name": "3",
+      "label": {
+        "de": "Abitur",
+        "en": "A levels"
+      }
+    },
+    {
+      "list_name": "sprachen",
+      "name": "de",
+      "label": {
+        "de": "Deutsch",
+        "en": "German"
+      }
+    },
+    {
+      "list_name": "sprachen",
+      "name": "en",
+      "label": {
+        "de": "Englisch",
+        "en": "English"
+      }
+    },
+    {
+      "list_name": "quelle",
+      "name": "web",
+      "label": {
+        "de": "Webseite",
+        "en": "Website"
+      }
+    },
+    {
+      "list_name": "quelle",
+      "name": "friends",
+      "label": {
+        "de": "Bekannte",
+        "en": "Friends"
+      }
+    },
+    {
+      "list_name": "quelle",
+      "name": "other",
+      "label": {
+        "de": "Sonstiges:",
+        "en": "Other:"
+      }
+    },
+    {
+      "list_name": "vertrauen",
+      "name": "1",
+      "label": {
+        "de": "gar nicht",
+        "en": "not at all"
+      }
+    },
+    {
+      "list_name": "vertrauen",
+      "name": "2",
+      "label": {
+        "de": "etwas",
+        "en": "somewhat"
+      }
+    },
+    {
+      "list_name": "vertrauen",
+      "name": "3",
+      "label": {
+        "de": "sehr",
+        "en": "very much"
+      }
+    }
+  ],
+  "settings": [
+    {
+      "default_language": "German (de)",
+      "form_title": "bilingual_survey",
+      "form_id": "bilingual_survey"
+    }
+  ]
+}

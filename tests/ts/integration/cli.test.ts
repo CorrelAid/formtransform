@@ -369,3 +369,33 @@ describe('argument and input errors exit 1 with a message', () => {
     expect(broken.stderr).toContain('failed to parse data file broken.json');
   });
 });
+
+describe('ddi2xlsform', () => {
+  test('a blessed codebook gives back its form as JSON', () => {
+    const r = cli('ddi2xlsform', join(SURVEYS, 'bilingual_survey', 'ddi.xml'));
+    expect(r.status, r.stderr).toBe(0);
+    const out = JSON.parse(r.stdout) as {
+      survey: Array<Record<string, unknown>>;
+    };
+    expect(out.survey.map((q) => q.name)).toContain('beruf');
+  });
+
+  test('DDI another tool wrote: converted, warnings on stderr', () => {
+    const file = join(dir, 'seed.xml');
+    writeFileSync(
+      file,
+      '<codeBook><dataDscr><var ID="V1" name="x"><qstn responseDomainType="text"><qstnLit>X?</qstnLit></qstn></var></dataDscr></codeBook>',
+    );
+    const r = cli('ddi2xlsform', file);
+    expect(r.status, r.stderr).toBe(0);
+    expect(r.stderr).toContain('Not a CDL codebook');
+  });
+
+  test('broken XML exits 1', () => {
+    const file = join(dir, 'broken.xml');
+    writeFileSync(file, '<codeBook><dataDscr>');
+    const r = cli('ddi2xlsform', file);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain('Not well-formed XML');
+  });
+});

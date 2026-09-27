@@ -50,15 +50,16 @@ then hands the rows to the same `buildDataCsv`:
 These LimeSurvey quirks stay in `lstsv2ddi/`; the shared emitter and the Kobo
 path never guess at them.
 
-## Why there is no `ddi2xlsform` or `ddi2lstsv`
+## The way back from DDI (`ddi2xlsform`)
 
-Not yet. **DDI is the terminus of the pipeline graph for now**: it describes a
-*dataset*, not an *instrument*, and a reverse path needs the whole instrument.
-The plan to carry all of it is #155 (#151–#154).
+A codebook describes a *dataset*, not an *instrument*, but one formtransform
+wrote carries the whole instrument too (#155, #151–#153). `ddi2xlsform`
+(#154) reads it back: [`ddi2xlsform/README.md`](ddi2xlsform/README.md) has
+the mapping, the input it accepts and the known losses.
 
-The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit: `name`,
-`type`, `label`, group path/label/appearance, `listName`, `vocab`, `choices`,
-and since #151–#153 the rest of the form:
+What a CDL codebook carries beyond the canonical `Variable`
+(`src/ddi/types.ts`: `name`, `type`, `label`, group path/label/appearance,
+`listName`, `vocab`, `choices`):
 
 - **`relevant`, `constraint`, `constraint_message`, `required`.** DDI Codebook
   2.5 has no expression syntax, so each is written twice: readable
@@ -76,25 +77,12 @@ and since #151–#153 the rest of the form:
   `varFormat/@category`, `var/@dcml`, `valrng`, `qstn/@seqNo`,
   `qstn/backward`), else a typed note. `convention:ddiFields`
   ([`registry/conventions/ddiFields.jsonld`](../../registry/conventions/ddiFields.jsonld))
-  maps every model field, or names it a loss: `calculation` and other
-  unlifted columns, a list's name, the `or_other` shorthand as such.
+  maps every model field, or names it a loss.
 
-Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV
-carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T`
-type overrides. It is a form definition in a different dialect, so reversing it
-is a translation problem. Reversing a codebook without those pieces is a
-*reconstruction* problem, and they cannot be inferred from it.
-
-The failure mode matters more than the missing feature. A `ddi2xlsform` that
-reads a codebook without the CDL notes (someone else's, or one from before
-formtransform#151–#153) emits a survey that looks correct and behaves wrongly. Silently producing a broken instrument is worse
-than declining to produce one — the same reasoning behind
-`validateLstsvSubset` rejecting out-of-subset input rather than guessing at it.
-
-**If you need this anyway**, the honest shape is a *skeleton* generator: variable
-names, labels, types, choice lists and group structure out of someone else's
-codebook, as a starting point for authoring. That is a legitimate tool, but it
-must never be described or tested as a round-trip, and the reconstructed form
-must be reviewed before deployment. Route it as DDI → XLSForm → `xlsform2lstsv`;
-a separate `ddi2lstsv` earns nothing but a second lossy reconstructor to keep in
-sync.
+DDI formtransform didn't write (a hand-written seed study, another tool's
+codebook) has none of the `cdl:` notes. `ddi2xlsform` still converts it, as a
+skeleton: names, labels, types, choices and groups, with a `ddi-field-missing`
+warning for each field it can't supply. Such a form must be reviewed before it
+is deployed: it has no skip logic, validation or required answers unless
+someone adds them. There is no `ddi2lstsv`; DDI → XLSForm → `xlsform2lstsv`
+does it without a second reconstructor to keep in sync.

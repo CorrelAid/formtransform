@@ -112,8 +112,11 @@ listed here must match exactly.
    arithmetic `+`; `concat()` is never reconstructed.
 4. **Non-grid group machine names are best-effort.** A grid's machine name *is*
    recoverable (from its `F` question's own name — exact). An explicit non-grid
-   group has none in the TSV, so `slugifyGroupName` falls back to: lowercase,
-   strip non-alphanumeric, join the first 4 words, `'group'` if empty.
+   group has only its LimeSurvey group name (its title). The parser keeps it
+   when it is a valid XLSForm name (`Later`) and otherwise slugifies it
+   (`groupName` in `src/instrument/fromLstsv.ts`): lowercase, strip
+   non-alphanumeric, join the first 4 words, `group` if empty, `_2`, `_3` …
+   for a repeat.
 5. **Markdown vs HTML in labels is not distinguishable.** `htmlToMarkdown()`
    (`../../utils/markdownRenderer.ts`) reverses the HTML constructs `marked`
    produces (`<strong>`, `<em>`, `<a>`, `<code>`, `<p>`, `<ul>/<ol>/<li>`,
