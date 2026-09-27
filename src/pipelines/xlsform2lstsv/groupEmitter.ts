@@ -108,9 +108,9 @@ export class GroupEmitter {
       (lang) => ({
         class: 'G',
         'type/scale': groupSeqKey,
-        name: this.languageHandler.renderLabel(row.label, lang, groupName),
+        name: this.languageHandler.renderText(row, 'label', lang, groupName),
         relevance,
-        text: this.languageHandler.renderLabel(row.hint, lang),
+        text: this.languageHandler.renderText(row, 'hint', lang),
       }),
       'direct',
     );
@@ -164,8 +164,8 @@ export class GroupEmitter {
         'type/scale': 'X',
         name: noteName,
         relevance,
-        text: this.languageHandler.renderLabel(noteRow.label, lang, noteName),
-        help: this.languageHandler.renderLabel(noteRow.hint, lang),
+        text: this.languageHandler.renderText(noteRow, 'label', lang, noteName),
+        help: this.languageHandler.renderText(noteRow, 'hint', lang),
       }));
     }
     this.pendingGroupNotes = [];

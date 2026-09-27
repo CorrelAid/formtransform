@@ -134,7 +134,12 @@ The migration runs in phases, each keeping every snapshot byte-identical:
 3. Instrument → LimeSurvey TSV emitter replaces xlsform2lstsv's row walk.
    **3a done:** the converter walks the Instrument's group tree, and its
    group pre-scans (parent-only, message-only, any-group) read the tree.
-   **3b:** the emitters read the model's fields instead of the source row.
+   **3b done:** every pre-scan reads the Instrument; questions are emitted
+   from `QuestionItem` fields; all text (labels, hints, constraint
+   messages, choices) is read the Instrument's way (`readText`), so
+   `label::<lang>` columns reach LimeSurvey too. What still takes a source
+   row is row-shaped by nature (subset validation, the matrix pattern), and
+   the choices sheet stays rows until lists carry vocabulary options.
 4. Instrument → XLSForm emitter replaces lstsv2xlsform's row walk.
 5. An expression AST in the model, so relevance/constraints are parsed once
    (today: the XPath parser forward, the EM parser in reverse).

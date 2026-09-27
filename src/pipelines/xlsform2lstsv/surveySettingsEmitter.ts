@@ -125,7 +125,11 @@ export class SurveySettingsEmitter {
           class: 'SL',
           name: 'surveyls_welcometext',
           language: lang,
-          text: this.languageHandler.renderLabel(this.welcomeNote.label, lang),
+          text: this.languageHandler.renderText(
+            this.welcomeNote,
+            'label',
+            lang,
+          ),
         }),
       );
     }
@@ -135,7 +139,7 @@ export class SurveySettingsEmitter {
           class: 'SL',
           name: 'surveyls_endtext',
           language: lang,
-          text: this.languageHandler.renderLabel(this.endNote.label, lang),
+          text: this.languageHandler.renderText(this.endNote, 'label', lang),
         }),
       );
     }

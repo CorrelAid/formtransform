@@ -544,22 +544,22 @@ class Conversion {
   ): Partial<TSVRowData> & Pick<TSVRowData, 'class' | 'name'> {
     const { lsType, fields, cdlVocab, attributes } = ctx;
     const text = this.fieldNameHandler.convertVariableReferences(
-      this.languageHandler.renderLabel(row.label, lang, questionName),
+      this.languageHandler.renderText(row, 'label', lang, questionName),
     );
     const help = this.fieldNameHandler.convertVariableReferences(
-      this.languageHandler.renderLabel(row.hint, lang),
+      this.languageHandler.renderText(row, 'hint', lang),
     );
     // constraint_message: LimeSurvey's per-language validation tip.
     const tip = fields.isNote
       ? ''
       : this.fieldNameHandler.convertVariableReferences(
-          this.languageHandler.renderLabel(row.constraint_message, lang),
+          this.languageHandler.renderText(row, 'constraint_message', lang),
         );
     // A folded companion's label labels LimeSurvey's native "other" box.
     const companion = this.companionByParent.get(row);
     const otherText = companion
       ? this.fieldNameHandler.convertVariableReferences(
-          this.languageHandler.renderLabel(companion.label, lang),
+          this.languageHandler.renderText(companion, 'label', lang),
         )
       : '';
 
