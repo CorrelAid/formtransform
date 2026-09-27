@@ -20,7 +20,7 @@ import {
   parseXPath,
   type BinaryOp,
   type XPathNode,
-} from './xpathParser.js';
+} from '../../instrument/xpathParser.js';
 import { consoleWarning, warning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { ConversionError } from '../../diagnostics.js';

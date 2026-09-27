@@ -105,10 +105,9 @@ Both DDI pipelines converge on the same emitter: they produce `Variable[]` (`src
 
 ### The Instrument model (#69)
 
-Today two pipelines map rows to rows (`xlsform2lstsv`, `lstsv2xlsform`) and
-re-derive structure the other directions also need: the group tree, grids,
-the other pattern, languages. The target is one parsed model every direction
-goes through:
+Every direction goes through one parsed model, instead of mapping rows to
+rows and re-deriving the group tree, grids, the other pattern and languages
+each time:
 
 ```
 XLSForm rows ──parse──┐                 ┌──▶ Variable[] ──▶ DDI
@@ -142,8 +141,13 @@ The migration runs in phases, each keeping every snapshot byte-identical:
    the choices sheet stays rows until lists carry vocabulary options.
 4. **Instrument → XLSForm emitter replaces lstsv2xlsform's row walk.** Done:
    `lstsvRowsToXlsform` is `xlsformFromInstrument(instrumentFromLstsv(rows))`.
-5. An expression AST in the model, so relevance/constraints are parsed once
-   (today: the XPath parser forward, the EM parser in reverse).
+5. **Expressions in the model.** Done: the Instrument's expression language
+   is XPath, and both parsers live in `src/instrument/` (`xpathParser.ts`,
+   `emParser.ts` + `reverseExpressions.ts`). `instrumentFromLstsv(rows,
+   { expressions: true })` reverses LimeSurvey's EM to XPath once, at parse
+   time, so every emitter reads `relevant` / `constraint` as XPath. The model
+   stores the expression text, not the AST: emitters that need structure
+   (the EM transpiler) parse it, and XPath is what XLSForm writes back.
 
 ### Why there is no `ddi2xlsform` or `ddi2lstsv`
 

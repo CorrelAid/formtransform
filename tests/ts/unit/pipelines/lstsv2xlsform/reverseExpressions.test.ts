@@ -15,7 +15,7 @@ import {
   reverseRelevance,
   reverseConstraint,
   buildSelectContext,
-} from '../../../../../src/pipelines/lstsv2xlsform/reverseExpressions.js';
+} from '../../../../../src/instrument/reverseExpressions.js';
 
 // Mirrors xlsformConverter's buildTranspilerContext for a fixed universe of
 // select_multiple fields, with identity answer-code lookup (code === value,

@@ -1,4 +1,4 @@
-import { ConversionError } from '../../diagnostics.js';
+import { ConversionError } from '../diagnostics.js';
 /**
  * Parse the (bounded) LimeSurvey Expression Manager dialect the forward
  * transpiler emits (`src/converters/xpathTranspiler.ts`) and serialize it back

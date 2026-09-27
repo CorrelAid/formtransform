@@ -35,7 +35,7 @@
  */
 
 import { parseEm, EmNode } from './emParser.js';
-import { ConversionError } from '../../diagnostics.js';
+import { ConversionError } from '../diagnostics.js';
 
 export interface SelectContext {
   /** `${qname}_${code}` → the select_multiple question + choice it refers to. */

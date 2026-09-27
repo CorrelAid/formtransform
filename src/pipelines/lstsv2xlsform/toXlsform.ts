@@ -5,8 +5,9 @@
  * Unlike `lstsv/toVariables.ts` (which feeds the deliberately lossy DDI
  * `Variable` model), this targets XLSForm itself, so it keeps relevance,
  * constraint, required, default, appearance and hint. `relevant`/`constraint`
- * are reversed via `reverseRelevance`/`reverseConstraint` (see
- * `./reverseExpressions.ts`, `./emParser.ts`) — inverting exactly the
+ * are reversed by the parser (instrumentFromLstsv with `expressions`) via
+ * `reverseRelevance`/`reverseConstraint` (see
+ * `src/instrument/reverseExpressions.ts`, `src/instrument/emParser.ts`) — inverting exactly the
  * LimeSurvey Expression Manager dialect the forward transpiler emits, and
  * rejecting anything else. `calculation` is not reversed — the `calculate`
  * XLSForm type isn't registered in the registry at all, so forward can't
@@ -42,7 +43,6 @@ const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
 
 import { formatDefaultLanguage } from './languageNames.js';
 import { instrumentFromLstsv } from '../../instrument/fromLstsv.js';
-import { allQuestions } from '../../instrument/walk.js';
 import type {
   GroupItem,
   Instrument,
@@ -51,12 +51,6 @@ import type {
   Text,
 } from '../../instrument/types.js';
 import { htmlToMarkdown } from '../../utils/markdownRenderer.js';
-import {
-  reverseRelevance,
-  reverseConstraint,
-  buildSelectContext,
-  SelectContext,
-} from './reverseExpressions.js';
 
 type Row = Record<string, string>;
 
@@ -124,27 +118,8 @@ interface EmitCtx {
   lists: Instrument['lists'];
   survey: SurveyRow[];
   choices: ChoiceRow[];
-  selectCtx: SelectContext;
   /** `format=G` (style: pages): each LimeSurvey group is one page. */
   pages: boolean;
-}
-
-/**
- * Every multiple choice, with its codes (and `other` for a native other), so
- * `selected()` can be rebuilt for a reference from anywhere in the survey.
- */
-function selectMultiples(
-  instrument: Instrument,
-): Array<{ name: string; codes: string[] }> {
-  return allQuestions(instrument.body)
-    .filter((q) => q.type === 'select_multiple' && q.list)
-    .map((q) => {
-      const codes = (instrument.lists[q.list] ?? []).map((c) => c.name);
-      return {
-        name: q.name,
-        codes: q.orOther ? [...codes, OTHER_CODE] : codes,
-      };
-    });
 }
 
 /** Render the settings sheet — non-default values only. */
@@ -176,7 +151,9 @@ function buildSettingsRow(
  * reconstructions.
  */
 export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
-  return xlsformFromInstrument(instrumentFromLstsv(rows));
+  return xlsformFromInstrument(
+    instrumentFromLstsv(rows, { expressions: true }),
+  );
 }
 
 /** Emit an {@link Instrument} as XLSForm sheets. */
@@ -193,7 +170,6 @@ export function xlsformFromInstrument(instrument: Instrument): XlsformOutput {
     lists: instrument.lists,
     survey: [],
     choices: [],
-    selectCtx: buildSelectContext(selectMultiples(instrument)),
     pages: instrument.settings['style'] === 'pages',
   };
   const groups = instrument.body.filter((i) => i.kind === 'group');
@@ -266,11 +242,7 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   if (isGrid) row.appearance = GRID_APPEARANCE;
   // A page per group is what XLSForm's field-list group means.
   else if (ctx.pages) row.appearance = PAGE_APPEARANCE;
-  const relevant = reverseRelevance(
-    cell(group.row as Row, 'relevance'),
-    ctx.selectCtx,
-  );
-  if (relevant) row.relevant = relevant;
+  if (group.relevant) row.relevant = group.relevant;
   ctx.survey.push(row);
   if (isGrid) emitGrid(group, ctx);
   else emitItems(group.children, ctx);
@@ -287,11 +259,7 @@ function emitGrid(group: GroupItem, ctx: EmitCtx): void {
       name: member.name,
       label: htmlLabel(ctx.label(member.label)),
     };
-    const relevant = reverseRelevance(
-      cell(member.row as Row, 'relevance'),
-      ctx.selectCtx,
-    );
-    if (relevant) row.relevant = relevant;
+    if (member.relevant) row.relevant = member.relevant;
     ctx.survey.push(row);
   }
 }
@@ -327,10 +295,8 @@ function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
   if (q.default) row.default = q.default;
   if (q.appearance) row.appearance = q.appearance;
   if (q.parameters) row.parameters = q.parameters;
-  const relevant = reverseRelevance(cell(source, 'relevance'), ctx.selectCtx);
-  if (relevant) row.relevant = relevant;
-  const constraint = reverseConstraint(cell(source, 'em_validation_q'));
-  if (constraint) row.constraint = constraint;
+  if (q.relevant) row.relevant = q.relevant;
+  if (q.constraint) row.constraint = q.constraint;
   const tip = ctx.label(q.constraintMessage);
   if (tip) row.constraint_message = htmlLabel(tip);
   ctx.survey.push(row);
