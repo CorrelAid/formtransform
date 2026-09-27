@@ -20,7 +20,8 @@ import {
 import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
-import { Choice, Variable } from './types.js';
+import { Choice, Translations, Variable } from './types.js';
+import { joinTranslations, localizedChild, textsOf } from './translations.js';
 import { registeredVocabCodes } from '../conventions/fromFile.js';
 import { languageTagOf } from '../utils/languageUtils.js';
 
@@ -52,17 +53,26 @@ function isGridGroup(variables: Variable[], groupName: string): boolean {
   return false;
 }
 
-/** Resolve a group's label from its member variables, else the group name. */
-function getGroupLabel(variables: Variable[], groupName: string): string {
+/**
+ * Resolve a group's label from its member variables, else the group name,
+ * with the labeling member's translations of it.
+ */
+function getGroupLabel(
+  variables: Variable[],
+  groupName: string,
+): { label: string; translations: Translations } {
   for (const v of variables) {
-    if (v.group === groupName && v.groupLabel) return v.groupLabel;
+    if (v.group === groupName && v.groupLabel) {
+      return { label: v.groupLabel, translations: textsOf(v, 'groupLabel') };
+    }
   }
-  return groupName;
+  return { label: groupName, translations: {} };
 }
 
 interface AddVarOpts {
   vocab?: string;
   preQTxt?: string;
+  preQTxtTranslations?: Translations;
 }
 
 interface AddVarSpec {
@@ -75,6 +85,25 @@ interface AddVarSpec {
   /** The source variable's hint (→ preQTxt) and guidance hint (→ ivuInstr). */
   hint?: string;
   guidanceHint?: string;
+  /** `label` / `hint` / `guidanceHint` in the form's other languages. */
+  labelTranslations?: Translations;
+  hintTranslations?: Translations;
+  guidanceHintTranslations?: Translations;
+}
+
+/** An {@link AddVarSpec}'s translations, read off its source variable. */
+function specTranslations(
+  v: Variable,
+  withHint = true,
+): Pick<
+  AddVarSpec,
+  'labelTranslations' | 'hintTranslations' | 'guidanceHintTranslations'
+> {
+  return {
+    labelTranslations: textsOf(v, 'label'),
+    ...(withHint ? { hintTranslations: textsOf(v, 'hint') } : {}),
+    guidanceHintTranslations: textsOf(v, 'guidanceHint'),
+  };
 }
 
 /**
@@ -110,6 +139,10 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const preQTxt = [spec.opts?.preQTxt, spec.hint]
     .filter((t): t is string => !!t)
     .join('\n\n');
+  const preQTxtTranslations = joinTranslations(
+    [spec.opts?.preQTxtTranslations, spec.hintTranslations],
+    '\n\n',
+  );
   const [intrvl, typeFormat] = DDI_TYPE_MAP[varType] ?? [
     'discrete',
     'character',
@@ -121,17 +154,24 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
 
   if (label) {
     const qstn = varEl.child('qstn', { responseDomainType: respDomain });
-    if (preQTxt) qstn.textChild('preQTxt', preQTxt);
-    qstn.textChild('qstnLit', label);
+    if (preQTxt) localizedChild(qstn, 'preQTxt', preQTxt, preQTxtTranslations);
+    localizedChild(qstn, 'qstnLit', label, spec.labelTranslations);
     // DDI order within <qstn>: preQTxt, qstnLit, postQTxt, forward, backward, ivuInstr.
-    if (spec.guidanceHint) qstn.textChild('ivuInstr', spec.guidanceHint);
+    if (spec.guidanceHint) {
+      localizedChild(
+        qstn,
+        'ivuInstr',
+        spec.guidanceHint,
+        spec.guidanceHintTranslations,
+      );
+    }
   }
 
   if (!vocab) {
     for (const choice of choices) {
       const catgry = varEl.child('catgry');
       catgry.textChild('catValu', choice.name);
-      catgry.textChild('labl', choice.label);
+      localizedChild(catgry, 'labl', choice.label, choice.translations);
     }
   }
 
@@ -146,9 +186,11 @@ function addBinaryVar(
   parent: XmlElement,
   varId: string,
   name: string,
-  questionLabel: string,
-  choiceLabel: string,
+  question: Variable,
+  choice: Choice,
 ): XmlElement {
+  const questionLabel = question.label;
+  const choiceLabel = choice.label;
   const varEl = parent.child('var', {
     ID: varId,
     name,
@@ -157,8 +199,8 @@ function addBinaryVar(
   });
 
   const qstn = varEl.child('qstn', { responseDomainType: 'multiple' });
-  qstn.textChild('preQTxt', questionLabel);
-  qstn.textChild('qstnLit', choiceLabel);
+  localizedChild(qstn, 'preQTxt', questionLabel, textsOf(question, 'label'));
+  localizedChild(qstn, 'qstnLit', choiceLabel, choice.translations);
 
   for (const val of ['0', '1']) {
     varEl.child('catgry').textChild('catValu', val);
@@ -202,6 +244,7 @@ function detectOtherPatterns(variables: Variable[]): Map<string, OtherPattern> {
 function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
   const { base, otherVar } = p;
   const label = base.label;
+  const labelTranslations = textsOf(base, 'label');
   const baseName = base.name;
 
   if (p.isMulti) {
@@ -219,7 +262,7 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
       var: makeVarId(otherVar.name),
       varGrp: childId,
     });
-    parentEl.textChild('txt', label);
+    localizedChild(parentEl, 'txt', label, labelTranslations);
     parentEl.textChild('concept', label);
 
     const childEl = dataDscr.child('varGrp', {
@@ -228,7 +271,7 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
       type: 'multipleResp',
       var: childMembers,
     });
-    childEl.textChild('txt', label);
+    localizedChild(childEl, 'txt', label, labelTranslations);
     childEl.textChild('concept', label);
   } else {
     const parentEl = dataDscr.child('varGrp', {
@@ -237,7 +280,7 @@ function emitOtherPattern(dataDscr: XmlElement, p: OtherPattern): void {
       type: 'other',
       var: [makeVarId(baseName), makeVarId(otherVar.name)].join(' '),
     });
-    parentEl.textChild('txt', label);
+    localizedChild(parentEl, 'txt', label, labelTranslations);
     parentEl.textChild('concept', label);
   }
 }
@@ -254,8 +297,8 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
         dataDscr,
         makeVarId(`${baseName}_${choice.name}`),
         `${baseName}_${choice.name}`,
-        base.label,
-        choice.label,
+        base,
+        choice,
       );
     }
   } else {
@@ -267,6 +310,7 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
       choices: base.choices,
       hint: base.hint,
       guidanceHint: base.guidanceHint,
+      ...specTranslations(base),
     });
   }
 
@@ -279,6 +323,7 @@ function emitOtherPatternVars(dataDscr: XmlElement, p: OtherPattern): void {
     choices: [],
     hint: otherVar.hint,
     guidanceHint: otherVar.guidanceHint,
+    ...specTranslations(otherVar),
   });
 }
 
@@ -370,7 +415,7 @@ function addStudyDscr(
     if (!note.label) continue;
     const attrs: Record<string, string> = { type: 'instruction' };
     if (note.name) attrs.subject = note.name;
-    stdy.textChild('notes', note.label, attrs);
+    localizedChild(stdy, 'notes', note.label, textsOf(note, 'label'), attrs);
   }
 }
 
@@ -389,29 +434,44 @@ function addFileDscr(
   fileTxt.textChild('format', 'text/csv');
 }
 
+/** Lead-in note text by the variable it precedes, and its translations. */
+interface InlineNotes {
+  text: Record<string, string>;
+  translations: Record<string, Translations>;
+}
+
+/** A group's lead-in note (the one preceding `name`) as `<notes>`. */
+function addGroupNote(
+  grpEl: XmlElement,
+  notes: InlineNotes,
+  name: string,
+): void {
+  const note = notes.text[name];
+  if (note) localizedChild(grpEl, 'notes', note, notes.translations[name]);
+}
+
 /** Emit every `<varGrp>` element into `<dataDscr>` (must come before `<var>`). */
 function addVarGroups(
   dataDscr: XmlElement,
   dataVars: Variable[],
-  notePreqtxt: Record<string, string>,
+  notes: InlineNotes,
   buckets: DataVarBuckets,
   otherPatterns: Map<string, OtherPattern>,
 ): void {
   const { gridGroups, multiRespGroups } = buckets;
 
   for (const [groupName, members] of gridGroups) {
-    const groupLabel = getGroupLabel(dataVars, groupName);
+    const group = getGroupLabel(dataVars, groupName);
     const grpEl = dataDscr.child('varGrp', {
       ID: makeGrpId(groupName),
       name: groupName,
       type: 'grid',
       var: members.map((m) => makeVarId(m.name)).join(' '),
     });
-    grpEl.textChild('txt', groupLabel);
-    grpEl.textChild('concept', groupLabel);
+    localizedChild(grpEl, 'txt', group.label, group.translations);
+    grpEl.textChild('concept', group.label);
     // A lead-in note belongs to the group: a member's preQTxt must equal txt.
-    const note = notePreqtxt[members[0]?.name ?? ''];
-    if (note) grpEl.textChild('notes', note);
+    addGroupNote(grpEl, notes, members[0]?.name ?? '');
   }
 
   for (const [smName, smVar] of multiRespGroups) {
@@ -421,10 +481,9 @@ function addVarGroups(
       type: 'multipleResp',
       var: smVar.choices.map((c) => makeVarId(`${smName}_${c.name}`)).join(' '),
     });
-    grpEl.textChild('txt', smVar.label);
+    localizedChild(grpEl, 'txt', smVar.label, textsOf(smVar, 'label'));
     grpEl.textChild('concept', smVar.label);
-    const note = notePreqtxt[smName];
-    if (note) grpEl.textChild('notes', note);
+    addGroupNote(grpEl, notes, smName);
   }
 
   for (const p of otherPatterns.values()) {
@@ -436,14 +495,14 @@ function addVarGroups(
 function addVars(
   dataDscr: XmlElement,
   dataVars: Variable[],
-  notePreqtxt: Record<string, string>,
+  notes: InlineNotes,
   buckets: DataVarBuckets,
   otherPatterns: Map<string, OtherPattern>,
 ): void {
   const { gridGroups, multiRespGroups, standaloneVars } = buckets;
 
   for (const [groupName, members] of gridGroups) {
-    const groupLabel = getGroupLabel(dataVars, groupName);
+    const group = getGroupLabel(dataVars, groupName);
     for (const v of members) {
       // preQTxt must equal the group's txt (Schematron), so a member's own
       // hint has no slot; validateSubset warns `hint-dropped`.
@@ -453,8 +512,9 @@ function addVars(
         label: v.label,
         varType: v.type,
         choices: v.choices,
-        opts: { preQTxt: groupLabel },
+        opts: { preQTxt: group.label, preQTxtTranslations: group.translations },
         guidanceHint: v.guidanceHint,
+        ...specTranslations(v, false),
       });
     }
   }
@@ -465,8 +525,8 @@ function addVars(
         dataDscr,
         makeVarId(`${smName}_${choice.name}`),
         `${smName}_${choice.name}`,
-        smVar.label,
-        choice.label,
+        smVar,
+        choice,
       );
     }
   }
@@ -484,10 +544,12 @@ function addVars(
       choices: v.choices,
       opts: {
         vocab: v.vocab,
-        preQTxt: notePreqtxt[v.name] ?? '',
+        preQTxt: notes.text[v.name] ?? '',
+        preQTxtTranslations: notes.translations[v.name],
       },
       hint: v.hint,
       guidanceHint: v.guidanceHint,
+      ...specTranslations(v),
     });
   }
 }
@@ -509,7 +571,11 @@ export function buildDdiCodebook(
   } = options;
 
   const classified = classifyNotes(variables);
-  const { dataVars, inlinePreqtxt, orphanNotes } = classified;
+  const { dataVars, orphanNotes } = classified;
+  const notes: InlineNotes = {
+    text: classified.inlinePreqtxt,
+    translations: classified.inlinePreqtxtTranslations,
+  };
 
   const title =
     assetName.trim() || String(settings.form_title ?? '').trim() || 'Untitled';
@@ -530,14 +596,8 @@ export function buildDdiCodebook(
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  addVarGroups(
-    dataDscr,
-    dataVars,
-    inlinePreqtxt,
-    buckets,
-    buckets.otherPatterns,
-  );
-  addVars(dataDscr, dataVars, inlinePreqtxt, buckets, buckets.otherPatterns);
+  addVarGroups(dataDscr, dataVars, notes, buckets, buckets.otherPatterns);
+  addVars(dataDscr, dataVars, notes, buckets, buckets.otherPatterns);
 
   return root;
 }

@@ -9,7 +9,7 @@
  *
  * It keeps what the sources say, in their vocabulary (XLSForm type names,
  * XPath expressions), and every language. Target-specific decisions (names
- * sanitized for LimeSurvey, the DDI's single language) belong to emitters.
+ * sanitized for LimeSurvey, the DDI's base language) belong to emitters.
  */
 
 /**

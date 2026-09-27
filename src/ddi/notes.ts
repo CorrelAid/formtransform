@@ -12,13 +12,16 @@
  * Consecutive inline notes for the same variable join with a blank line.
  */
 
-import { Variable } from './types.js';
+import { joinTranslations, textsOf } from './translations.js';
+import { Translations, Variable } from './types.js';
 
 export interface ClassifiedNotes {
   /** Data-carrying variables in original order (notes removed). */
   dataVars: Variable[];
   /** `variable.name` → combined preceding-note text (joined with `\n\n`). */
   inlinePreqtxt: Record<string, string>;
+  /** The same text in the form's other languages (#135). */
+  inlinePreqtxtTranslations: Record<string, Translations>;
   /** Notes with no data-carrying successor in the same group. */
   orphanNotes: Variable[];
 }
@@ -26,7 +29,7 @@ export interface ClassifiedNotes {
 /** Split notes into inline (`<preQTxt>`) and orphan (`<notes>`) buckets. */
 export function classifyNotes(variables: Variable[]): ClassifiedNotes {
   const dataVars: Variable[] = [];
-  const inline: Record<string, string[]> = {};
+  const inline: Record<string, Variable[]> = {};
   const orphan: Variable[] = [];
   let pending: Variable[] = [];
 
@@ -41,7 +44,7 @@ export function classifyNotes(variables: Variable[]): ClassifiedNotes {
     const sameGroup = pending.filter((n) => n.group === v.group && n.label);
     const diffGroup = pending.filter((n) => n.group !== v.group);
     if (sameGroup.length) {
-      (inline[v.name] ??= []).push(...sameGroup.map((n) => n.label));
+      (inline[v.name] ??= []).push(...sameGroup);
     }
     orphan.push(...diffGroup);
     pending = [];
@@ -52,9 +55,19 @@ export function classifyNotes(variables: Variable[]): ClassifiedNotes {
   orphan.push(...pending);
 
   const inlinePreqtxt: Record<string, string> = {};
-  for (const [name, parts] of Object.entries(inline)) {
-    inlinePreqtxt[name] = parts.join('\n\n');
+  const inlinePreqtxtTranslations: Record<string, Translations> = {};
+  for (const [name, notes] of Object.entries(inline)) {
+    inlinePreqtxt[name] = notes.map((n) => n.label).join('\n\n');
+    inlinePreqtxtTranslations[name] = joinTranslations(
+      notes.map((n) => textsOf(n, 'label')),
+      '\n\n',
+    );
   }
 
-  return { dataVars, inlinePreqtxt, orphanNotes: orphan };
+  return {
+    dataVars,
+    inlinePreqtxt,
+    inlinePreqtxtTranslations,
+    orphanNotes: orphan,
+  };
 }

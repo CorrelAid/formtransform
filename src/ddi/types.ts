@@ -6,10 +6,27 @@
  * its label, enclosing-group metadata, and resolved choices.
  */
 
+/**
+ * The form's own texts in its other languages (#135): language tag → text.
+ * The base-language text stays in the plain field; nothing here is ever a
+ * machine translation.
+ */
+export type Translations = Record<string, string>;
+
 /** A single answer option of a categorical question. */
 export interface Choice {
   name: string;
   label: string;
+  /** `label` in the form's other languages. */
+  translations?: Translations;
+}
+
+/** A variable's texts in one of the form's other languages. */
+export interface VariableTexts {
+  label?: string;
+  hint?: string;
+  guidanceHint?: string;
+  groupLabel?: string;
 }
 
 /** One data-carrying (or note) row of a survey, normalized. */
@@ -36,4 +53,6 @@ export interface Variable {
   hint?: string;
   /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
   guidanceHint?: string;
+  /** Its texts in the form's other languages, by language tag (#135). */
+  translations?: Record<string, VariableTexts>;
 }

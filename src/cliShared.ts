@@ -108,6 +108,7 @@ export function xlsformToDdi(
     ...options,
     settings: data.settingsData[0],
     submissions,
+    onWarning: (w) => process.stderr.write(`${PROG}: warning: ${w.message}\n`),
   });
   if (!submissions) return { xml };
   const variables = extractVariables(

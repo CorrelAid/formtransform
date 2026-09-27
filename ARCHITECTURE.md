@@ -119,7 +119,7 @@ N parsers plus N emitters instead of one module per direction.
 `Instrument` (`src/instrument/types.ts`) keeps what the sources say, in
 XLSForm's vocabulary (type names, XPath) and in every language (`Text`,
 language tag → text); target decisions — LimeSurvey-sanitized names, the
-DDI's single language — belong to emitters. Each item keeps its source row as
+DDI's base language — belong to emitters. Each item keeps its source row as
 an escape hatch for columns the model doesn't lift yet.
 
 The migration runs in phases, each keeping every snapshot byte-identical:

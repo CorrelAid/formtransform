@@ -1,0 +1,51 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip
+S		language	1	de		de								
+S		additional_languages	1	en		de								
+S		format	1	A		de								
+S		shownoanswer	1	N		de								
+SL		surveyls_title	1	Zweisprachige Befragung		de								
+SL		surveyls_title	1	Zweisprachige Befragung		en								
+G	1	G0	1	G0		de								
+G	1	G0	1	G0		en								
+Q	X	intro	1	Willkommen zur Befragung.		de								
+Q	X	intro	1	Welcome to the survey.		en								
+G	2	Zur Person	1			de								
+G	2	About you	1			en								
+Q	X	personnote	1	Alle Angaben sind freiwillig.		de								
+Q	S	beruf	1	Was ist Ihr Beruf?	Aktuelle Tätigkeit	de								1
+Q	L	bildung	1	Höchster Abschluss?		de								1
+A		1		Kein Abschluss		de								
+A		2		Hauptschulabschluss		de								
+A		3		Abitur		de								
+Q	M	sprachen	1	Welche Sprachen sprechen Sie?		de								1
+SQ		de		Deutsch		de								
+SQ		en		Englisch		de								
+Q	L	quelle	1	Wie haben Sie von uns erfahren?		de				Y				1
+A		web		Webseite		de								
+A		frien		Bekannte		de								
+Q	X	personnote	1	All answers are optional.		en								
+Q	S	beruf	1	What is your occupation?	Current job	en								1
+Q	L	bildung	1	Highest degree?		en								1
+A		1		No degree		en								
+A		2		Hauptschulabschluss		en								
+A		3		A levels		en								
+Q	M	sprachen	1	Which languages do you speak?		en								1
+SQ		de		German		en								
+SQ		en		English		en								
+Q	L	quelle	1	How did you hear about us?		en				Y				1
+A		web		Website		en								
+A		frien		Friends		en								
+G	3	Wie sehr vertrauen Sie …	1			de								
+G	3	How much do you trust …	1			en								
+Q	F	vertrauen	1	Wie sehr vertrauen Sie …		de								1
+SQ		parlament	1	… dem Parlament?		de								
+SQ		polizei	1	… der Polizei?		de								
+A		1		gar nicht		de								
+A		2		etwas		de								
+A		3		sehr		de								
+Q	F	vertrauen	1	How much do you trust …		en								1
+SQ		parlament	1	… parliament?		en								
+SQ		polizei	1	… the police?		en								
+A		1		not at all		en								
+A		2		somewhat		en								
+A		3		very much		en								

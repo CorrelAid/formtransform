@@ -16,7 +16,7 @@ import { buildDataCsv } from '../../ddi/data.js';
 import type { Submission } from '../../ddi/data.js';
 import { normalizeLimeSurveyResponses } from './data.js';
 import type { NormalizeResponsesOptions } from './data.js';
-import { lstsvToVariables } from './toVariables.js';
+import { lstsvProjection, lstsvToVariables } from './toVariables.js';
 import { ConversionError } from '../../diagnostics.js';
 
 export { parseLstsv } from '../../lstsv/parser.js';
@@ -72,12 +72,16 @@ export function lstsvToDdiXml(
     (r) => r.class?.trim() === 'SL' && r.name?.trim() === 'surveyls_title',
   )?.text;
 
+  const { variables, language } = lstsvProjection(rows);
   const opts: BuildDdiOptions = { ...ddiOptions };
   if (!opts.assetName && title?.trim()) {
     opts.settings = { form_title: title.trim(), ...opts.settings };
   }
+  // The untagged texts are the base language; say which (#135).
+  if (language) {
+    opts.settings = { default_language: language, ...opts.settings };
+  }
 
-  const variables = lstsvToVariables(rows);
   return buildDdiCodebook(variables, opts).toDocument();
 }
 

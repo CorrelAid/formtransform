@@ -153,6 +153,7 @@ export function xlsformToDdi(
   return buildDdiXml(form.surveyData, form.choicesData, {
     settings: form.settingsData[0],
     ...ddiOptions,
+    onWarning,
   });
 }
 
