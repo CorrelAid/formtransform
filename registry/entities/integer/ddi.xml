@@ -21,8 +21,8 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
-    <var ID="V_alter" name="alter" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_alter" name="alter" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="1">
         <qstnLit>Wie alt sind Sie?</qstnLit>
       </qstn>
       <concept>Wie alt sind Sie?</concept>

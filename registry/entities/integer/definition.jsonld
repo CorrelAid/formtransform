@@ -21,7 +21,11 @@
       "limesurvey": {
         "typeCode": "N",
         "supportsOther": false,
-        "answerClass": null
+        "answerClass": null,
+        "integerOnly": {
+          "attribute": "num_value_int_only",
+          "whenWhole": []
+        }
       },
       "ddi": {
         "intrvl": "contin",

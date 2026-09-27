@@ -59,11 +59,13 @@ export const TYPE_MAPPINGS: Record<string, TypeMapping> = {
     kind: "question",
     limeSurveyType: "N",
     supported: true,
+    integerOnly: {"attribute": "num_value_int_only", "whenWhole": []},
   },
   int: {
     kind: "question",
     limeSurveyType: "N",
     supported: true,
+    integerOnly: {"attribute": "num_value_int_only", "whenWhole": []},
   },
   note: {
     kind: "question",

@@ -24,15 +24,15 @@
   </fileDscr>
   <dataDscr>
     <var ID="V_respondent_name" name="respondent_name" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>What is your name?</qstnLit>
       </qstn>
       <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
     </var>
-    <var ID="V_age" name="age" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="2">
         <qstnLit>What is your age?</qstnLit>
       </qstn>
       <concept>What is your age?</concept>
@@ -40,7 +40,7 @@
       <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="3">
         <qstnLit>Do you consent to participate?</qstnLit>
       </qstn>
       <catgry>

@@ -238,7 +238,7 @@ def _insert_after_first(anchor: str, snippet: str):
 ASSERT_MUTATIONS = [
     ("composite:grid", _dup_first("varGrp"), "Duplicate Variable Group ID"),
     ("type:select_one", _sub1(r'(<var\s[^>]*?)\s+intrvl="[^"]+"', r"\1"), "missing an intrvl attribute"),
-    ("type:select_one", _sub1(r'<qstn responseDomainType="[^"]+">', "<qstn>"), "missing responseDomainType"),
+    ("type:select_one", _sub1(r'<qstn responseDomainType="[^"]+"', "<qstn"), "missing responseDomainType"),
     ("type:select_one", _sub1(r"<qstnLit>.*?</qstnLit>", ""), "missing a question literal"),
     ("type:select_one", _sub1(r"<varFormat[^>]*/>", ""), "missing technical format"),
     (
@@ -272,12 +272,12 @@ ASSERT_MUTATIONS = [
     ),
     (
         "type:select_multiple",
-        _sub1(r'<qstn responseDomainType="multiple">', '<qstn responseDomainType="category">'),
+        _sub1(r'<qstn responseDomainType="multiple"', '<qstn responseDomainType="category"'),
         'should have responseDomainType="multiple"',
     ),
     (
         "composite:grid",
-        _sub1(r'<qstn responseDomainType="category">', '<qstn responseDomainType="text">'),
+        _sub1(r'<qstn responseDomainType="category"', '<qstn responseDomainType="text"'),
         'should have responseDomainType="category"',
     ),
     (

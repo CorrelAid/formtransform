@@ -247,10 +247,10 @@ const CASES = discoverCases();
 
 type Row = Record<string, unknown>;
 
-/** Types the reverse spells differently by design: LimeSurvey has one numeric
- * type (N → decimal) and `string` is XLSForm's alias of `text`. */
+/** Types the reverse spells differently by design: `int` and `string` are
+ * XLSForm's aliases of `integer` and `text`. */
 const REVERSE_TYPE = (t: string): string =>
-  ({ integer: 'decimal', int: 'decimal', string: 'text' })[t] ?? t;
+  ({ int: 'integer', string: 'text' })[t] ?? t;
 
 /**
  * Per question, what tsv → xlsform does not give back: `<name>.<field>: a -> b`,

@@ -188,15 +188,16 @@ records how each maps onto it.
 `lstsv2ddi` and `lstsv2xlsform` (the reverse paths). All are lossy for some
 types: nested groups flatten in LimeSurvey, choice codes over 5 chars truncate,
 `select_multiple` becomes N binary variables, and the reverse paths cannot
-recover a select's authored `list_name` or tell `integer` from `decimal`.
+recover a select's authored `list_name`.
 
 **DDI has no way back yet:** there is no `ddi2xlsform` or `ddi2lstsv`. A CDL
 codebook carries skip logic, validation and `required`: each condition as a
 readable `<universe>` sentence (and a simple numeric range as `<valrng>`), plus
 the exact expression in a typed note such as `<notes type="cdl:relevant"
-subject="xlsform-xpath">` (`convention:logicMapping`). Defaults, appearances
-and the group structure are not in it yet, so a reversed form would still look
-right and behave wrongly. #155 tracks the rest.
+subject="xlsform-xpath">` (`convention:logicMapping`). Groups, order, hints,
+defaults, appearances and parameters are in it too, in standard DDI where it
+has a place and typed notes where not (`convention:ddiFields`). The reverse
+parser that reads them back is #154.
 
 ## Errors and warnings
 

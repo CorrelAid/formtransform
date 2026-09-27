@@ -58,8 +58,7 @@ The plan to carry all of it is #155 (#151–#154).
 
 The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit: `name`,
 `type`, `label`, group path/label/appearance, `listName`, `vocab`, `choices`,
-the question's `hint` (`<preQTxt>`) and `guidance_hint` (`<ivuInstr>`), and
-since #151 its logic:
+and since #151–#153 the rest of the form:
 
 - **`relevant`, `constraint`, `constraint_message`, `required`.** DDI Codebook
   2.5 has no expression syntax, so each is written twice: readable
@@ -72,8 +71,13 @@ since #151 its logic:
 - **groups and order** (#152): every group is a `<varGrp>` (a plain one
   `type="section"`), nested through `@varGrp`, and the `<var>`s follow the
   survey.
-- **still absent:** `default`, per-question `appearance`, `calculation`, the
-  group hint, and a note row apart from the hint after it (#153).
+- **every other field** (#153): standard DDI where it has a home (`postQTxt`
+  for the hint, `ivuInstr` for `guidance_hint`, a note row as `preQTxt`,
+  `varFormat/@category`, `var/@dcml`, `valrng`, `qstn/@seqNo`,
+  `qstn/backward`), else a typed note. `convention:ddiFields`
+  ([`registry/conventions/ddiFields.jsonld`](../../registry/conventions/ddiFields.jsonld))
+  maps every model field, or names it a loss: `calculation` and other
+  unlifted columns, a list's name, the `or_other` shorthand as such.
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV
 carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T`
@@ -81,9 +85,9 @@ type overrides. It is a form definition in a different dialect, so reversing it
 is a translation problem. Reversing a codebook without those pieces is a
 *reconstruction* problem, and they cannot be inferred from it.
 
-The failure mode matters more than the missing feature. A `ddi2xlsform` before
-the rest of #155 would emit a survey that looks correct and behaves wrongly: no
-defaults, no appearances. Silently producing a broken instrument is worse
+The failure mode matters more than the missing feature. A `ddi2xlsform` that
+reads a codebook without the CDL notes (someone else's, or one from before
+formtransform#151–#153) emits a survey that looks correct and behaves wrongly. Silently producing a broken instrument is worse
 than declining to produce one — the same reasoning behind
 `validateLstsvSubset` rejecting out-of-subset input rather than guessing at it.
 

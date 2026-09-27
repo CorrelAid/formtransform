@@ -1,4 +1,4 @@
-/** hint → <preQTxt>, guidance_hint → <ivuInstr> (#76). */
+/** hint → <postQTxt> (#153), guidance_hint → <ivuInstr> (#76). */
 import { describe, test, expect } from 'vitest';
 
 import { buildDdiXml } from '../../../../../src/pipelines/xlsform2ddi/index.js';
@@ -22,7 +22,7 @@ const build = (survey: Row[], options = {}) =>
   buildDdiXml(survey, choices, options);
 
 describe('xlsform → DDI hints', () => {
-  test('hint becomes preQTxt, guidance_hint becomes ivuInstr', () => {
+  test('hint becomes postQTxt, guidance_hint becomes ivuInstr', () => {
     const v = varXml(
       build([
         {
@@ -35,21 +35,24 @@ describe('xlsform → DDI hints', () => {
       ]),
       'job',
     );
-    expect(v).toContain('<preQTxt>Aktueller Beruf</preQTxt>');
+    expect(v).toContain('<postQTxt>Aktueller Beruf</postQTxt>');
     expect(v).toContain('<ivuInstr>Nicht vorlesen</ivuInstr>');
-    expect(v.indexOf('<qstnLit>')).toBeLessThan(v.indexOf('<ivuInstr>'));
+    expect(v).not.toContain('<preQTxt>');
+    // XSD order: qstnLit, postQTxt, ivuInstr.
+    expect(v.indexOf('<qstnLit>')).toBeLessThan(v.indexOf('<postQTxt>'));
+    expect(v.indexOf('<postQTxt>')).toBeLessThan(v.indexOf('<ivuInstr>'));
   });
 
-  test('no hint, no preQTxt or ivuInstr', () => {
+  test('no hint, no postQTxt or ivuInstr', () => {
     const v = varXml(
       build([{ type: 'text', name: 'job', label: 'Beruf?' }]),
       'job',
     );
-    expect(v).not.toContain('<preQTxt>');
+    expect(v).not.toContain('<postQTxt>');
     expect(v).not.toContain('<ivuInstr>');
   });
 
-  test("a preceding note's text comes first, then the hint", () => {
+  test('a preceding note is preQTxt, the hint stays apart as postQTxt', () => {
     const v = varXml(
       build([
         { type: 'note', name: 'intro', label: 'Zu Ihrem Haushalt' },
@@ -57,7 +60,8 @@ describe('xlsform → DDI hints', () => {
       ]),
       'n',
     );
-    expect(v).toContain('<preQTxt>Zu Ihrem Haushalt\n\nMit Kindern</preQTxt>');
+    expect(v).toContain('<preQTxt>Zu Ihrem Haushalt</preQTxt>');
+    expect(v).toContain('<postQTxt>Mit Kindern</postQTxt>');
   });
 
   test('guidance_hint from parameters when there is no column', () => {
@@ -90,7 +94,7 @@ describe('xlsform → DDI hints', () => {
       'job',
     );
     expect(v).toContain('<qstnLit>Beruf?</qstnLit>');
-    expect(v).toContain('<preQTxt>Aktueller Beruf</preQTxt>');
+    expect(v).toContain('<postQTxt>Aktueller Beruf</postQTxt>');
   });
 });
 
@@ -100,7 +104,7 @@ describe("validateSubset — 'hint-dropped'", () => {
       .filter((d) => d.code === 'hint-dropped')
       .map((d) => d.name);
 
-  test('ddi: a select_multiple with a hint or guidance_hint', () => {
+  test('ddi: none, every hint has a place (#153)', () => {
     const survey = [
       { type: 'select_multiple yn', name: 'm', label: 'M?', hint: 'H' },
       { type: 'select_one yn', name: 'o', label: 'O?', hint: 'H' },
@@ -111,7 +115,7 @@ describe("validateSubset — 'hint-dropped'", () => {
         parameters: 'guidance_hint=G',
       },
     ];
-    expect(dropped(survey, 'ddi')).toEqual(['m', 'p']);
+    expect(dropped(survey, 'ddi')).toEqual([]);
   });
 
   test('lstsv: any guidance_hint, not a plain hint', () => {

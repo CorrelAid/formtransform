@@ -23,7 +23,14 @@ import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes } from './notes.js';
 import { Choice, DdiGroup, Translations, Variable } from './types.js';
-import { joinTranslations, localizedChild, textsOf } from './translations.js';
+import { localizedChild, textsOf } from './translations.js';
+import {
+  addExclusiveNote,
+  addFieldNotes,
+  addGroupFieldNotes,
+  addSettingNotes,
+  references,
+} from './fields.js';
 import {
   addLogicNotes,
   addRelevantNote,
@@ -93,7 +100,7 @@ interface AddVarSpec {
   varType: string;
   choices: Choice[];
   opts?: AddVarOpts;
-  /** The source variable's hint (→ preQTxt) and guidance hint (→ ivuInstr). */
+  /** The source variable's hint (→ postQTxt) and guidance hint (→ ivuInstr). */
   hint?: string;
   guidanceHint?: string;
   /** `label` / `hint` / `guidanceHint` in the form's other languages. */
@@ -107,14 +114,13 @@ interface AddVarSpec {
 /** An {@link AddVarSpec}'s translations, read off its source variable. */
 function specTranslations(
   v: Variable,
-  withHint = true,
 ): Pick<
   AddVarSpec,
   'labelTranslations' | 'hintTranslations' | 'guidanceHintTranslations'
 > {
   return {
     labelTranslations: textsOf(v, 'label'),
-    ...(withHint ? { hintTranslations: textsOf(v, 'hint') } : {}),
+    hintTranslations: textsOf(v, 'hint'),
     guidanceHintTranslations: textsOf(v, 'guidanceHint'),
   };
 }
@@ -149,14 +155,6 @@ function categoricalFormat(
 function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const { varId, name, label, varType, choices } = spec;
   const { vocab = '' } = spec.opts ?? {};
-  // A folded note or grid lead-in comes first, then the question's own hint.
-  const preQTxt = [spec.opts?.preQTxt, spec.hint]
-    .filter((t): t is string => !!t)
-    .join('\n\n');
-  const preQTxtTranslations = joinTranslations(
-    [spec.opts?.preQTxtTranslations, spec.hintTranslations],
-    '\n\n',
-  );
   const [intrvl, typeFormat] = DDI_TYPE_MAP[varType] ?? [
     'discrete',
     'character',
@@ -164,44 +162,113 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const respDomain = RESPONSE_DOMAIN_MAP[varType] ?? 'text';
   const fmtType = categoricalFormat(typeFormat, respDomain, choices, vocab);
 
-  const varEl = parent.child('var', { ID: varId, name, intrvl, files: 'F1' });
+  const varEl = parent.child('var', {
+    ID: varId,
+    name,
+    intrvl,
+    // An integer's data has no decimals; a decimal's number of them is open.
+    ...(varType === 'integer' ? { dcml: '0' } : {}),
+    files: 'F1',
+  });
 
-  if (label) {
-    const qstn = varEl.child('qstn', { responseDomainType: respDomain });
-    if (preQTxt) localizedChild(qstn, 'preQTxt', preQTxt, preQTxtTranslations);
-    localizedChild(qstn, 'qstnLit', label, spec.labelTranslations);
-    // DDI order within <qstn>: preQTxt, qstnLit, postQTxt, forward, backward, ivuInstr.
-    if (spec.guidanceHint) {
-      localizedChild(
-        qstn,
-        'ivuInstr',
-        spec.guidanceHint,
-        spec.guidanceHintTranslations,
-      );
-    }
-  }
+  if (label) addQstn(varEl, spec, respDomain);
 
   if (spec.logic) {
     addValrng(varEl, spec.logic.v);
     addUniverse(varEl, universeOf(spec.logic.v), spec.logic.ctx);
   }
 
-  if (!vocab) {
-    for (const choice of choices) {
-      const catgry = varEl.child('catgry');
-      catgry.textChild('catValu', choice.name);
-      localizedChild(catgry, 'labl', choice.label, choice.translations);
-    }
-  }
+  if (!vocab) addCategories(varEl, choices);
 
   varEl.textChild('concept', label, vocab ? { vocab } : {});
-  varEl.child('varFormat', { type: fmtType, schema: 'other' });
-  if (spec.logic) addLogicNotes(varEl, spec.logic.v);
+  varEl.child('varFormat', {
+    type: fmtType,
+    schema: 'other',
+    ...(DATE_TIME.has(varType) ? { category: varType } : {}),
+  });
+  if (spec.logic) {
+    addLogicNotes(varEl, spec.logic.v);
+    addFieldNotes(varEl, spec.logic.v);
+  }
 
   return varEl;
 }
 
-/** A group-level question's logic on its `<varGrp>`: universe, then notes. */
+/**
+ * `<qstn>`: a folded note or a grid's shared text (`preQTxt`), the label,
+ * then the hints and dependencies (#153).
+ */
+function addQstn(varEl: XmlElement, spec: AddVarSpec, respDomain: string) {
+  const qstn = varEl.child('qstn', qstnAttrs(respDomain, spec.logic));
+  const preQTxt = spec.opts?.preQTxt;
+  if (preQTxt) {
+    localizedChild(qstn, 'preQTxt', preQTxt, spec.opts?.preQTxtTranslations);
+  }
+  localizedChild(qstn, 'qstnLit', spec.label, spec.labelTranslations);
+  addQstnTail(qstn, spec, spec.logic);
+}
+
+function addCategories(varEl: XmlElement, choices: Choice[]): void {
+  for (const choice of choices) {
+    const catgry = varEl.child('catgry');
+    catgry.textChild('catValu', choice.name);
+    localizedChild(catgry, 'labl', choice.label, choice.translations);
+  }
+}
+
+/** Types whose format is a `varFormat/@category` of the same name (#153). */
+const DATE_TIME = new Set(['date', 'time']);
+
+/** `<qstn>`'s attributes: its response domain and, known, its position. */
+function qstnAttrs(
+  respDomain: string,
+  logic: AddVarSpec['logic'],
+): Record<string, string> {
+  const seqNo = logic ? logic.ctx.seqNo.get(logic.v.name) : undefined;
+  return {
+    responseDomainType: respDomain,
+    ...(seqNo ? { seqNo: String(seqNo) } : {}),
+  };
+}
+
+/**
+ * `<qstn>` after `qstnLit`, in XSD order: the hint (`postQTxt`), the
+ * questions its condition refers to (`backward`), the guidance hint
+ * (`ivuInstr`).
+ */
+function addQstnTail(
+  qstn: XmlElement,
+  texts: Pick<
+    AddVarSpec,
+    'hint' | 'hintTranslations' | 'guidanceHint' | 'guidanceHintTranslations'
+  >,
+  logic: AddVarSpec['logic'],
+): void {
+  if (texts.hint) {
+    localizedChild(qstn, 'postQTxt', texts.hint, texts.hintTranslations);
+  }
+  if (logic) {
+    const own = logic.ctx.ids.get(logic.v.name);
+    const refs = references(logic.v.relevant ?? '')
+      .map((name) => logic.ctx.ids.get(name))
+      .filter((id): id is string => !!id && id !== own);
+    if (refs.length)
+      qstn.child('backward', { qstn: [...new Set(refs)].join(' ') });
+  }
+  if (texts.guidanceHint) {
+    localizedChild(
+      qstn,
+      'ivuInstr',
+      texts.guidanceHint,
+      texts.guidanceHintTranslations,
+    );
+  }
+}
+
+/**
+ * A group-level question (a `select_multiple`, a semi-open pair) on its
+ * `<varGrp>`: universe, any lead-in note, then its typed notes.
+ */
 function addGroupLogic(
   grpEl: XmlElement,
   v: Variable,
@@ -211,6 +278,8 @@ function addGroupLogic(
   addUniverse(grpEl, universeOf(v), ctx);
   if (notes) addGroupNote(grpEl, notes.note, notes.name);
   addLogicNotes(grpEl, v);
+  addFieldNotes(grpEl, v);
+  addExclusiveNote(grpEl, v.choices);
 }
 
 /** Append a binary 0/1 `<var>` for one `select_multiple` option. */
@@ -230,9 +299,20 @@ function addBinaryVar(
     files: 'F1',
   });
 
-  const qstn = varEl.child('qstn', { responseDomainType: 'multiple' });
+  const logic = { v: question, ctx };
+  const qstn = varEl.child('qstn', qstnAttrs('multiple', logic));
   localizedChild(qstn, 'preQTxt', questionLabel, textsOf(question, 'label'));
   localizedChild(qstn, 'qstnLit', choiceLabel, choice.translations);
+  // The question's hints go with each of its options (#153).
+  addQstnTail(
+    qstn,
+    {
+      hint: question.hint,
+      guidanceHint: question.guidanceHint,
+      ...specTranslations(question),
+    },
+    logic,
+  );
   // The question's notes are on its varGrp; the prose also here, for readers.
   addUniverse(varEl, universeOf(question), ctx);
 
@@ -446,7 +526,7 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
   return { otherPatterns, gridGroups, multiRespGroups, units };
 }
 
-/** Emit `<stdyDscr>` (citation + orphan notes appended). */
+/** Emit `<stdyDscr>` (citation, then orphan notes and `cdl:setting` notes). */
 function addStudyDscr(
   root: XmlElement,
   settings: DdiSettings,
@@ -474,6 +554,7 @@ function addStudyDscr(
     if (note.name) attrs.subject = note.name;
     localizedChild(stdy, 'notes', note.label, textsOf(note, 'label'), attrs);
   }
+  addSettingNotes(stdy, settings);
 }
 
 /** Emit `<fileDscr>` with `caseQnty` set to the submissions count. */
@@ -553,6 +634,24 @@ function groupTree(units: EmitUnit[]): Map<string, GroupNode> {
   return tree;
 }
 
+/**
+ * The element each question's name refers to: its `<var>`, or for a
+ * `select_multiple` (plain or semi-open) its `<varGrp>`.
+ */
+function questionIds(units: EmitUnit[]): Map<string, string> {
+  const ids = new Map<string, string>();
+  for (const unit of units) {
+    if (unit.kind === 'multi') ids.set(unit.v.name, makeGrpId(unit.v.name));
+    else if (unit.kind === 'var') ids.set(unit.v.name, makeVarId(unit.v.name));
+    else {
+      const { base, otherVar, isMulti } = unit.p;
+      ids.set(base.name, isMulti ? makeGrpId(base.name) : makeVarId(base.name));
+      ids.set(otherVar.name, makeVarId(otherVar.name));
+    }
+  }
+  return ids;
+}
+
 /** A plain group as `<varGrp type="section">` (#152). */
 function addSection(
   dataDscr: XmlElement,
@@ -572,6 +671,7 @@ function addSection(
   grpEl.textChild('concept', label);
   addUniverse(grpEl, node.universe, ctx);
   addRelevantNote(grpEl, group.relevant);
+  addGroupFieldNotes(grpEl, group, false);
 }
 
 /** Emit every `<varGrp>` element into `<dataDscr>` (must come before `<var>`). */
@@ -604,7 +704,10 @@ function addVarGroups(
     if (node) addUniverse(grpEl, node.universe, ctx);
     // A lead-in note belongs to the group: a member's preQTxt must equal txt.
     addGroupNote(grpEl, notes, members[0]?.name ?? '');
-    if (node) addRelevantNote(grpEl, node.group.relevant);
+    if (node) {
+      addRelevantNote(grpEl, node.group.relevant);
+      addGroupFieldNotes(grpEl, node.group, true);
+    }
   }
 
   for (const [smName, smVar] of multiRespGroups) {
@@ -647,8 +750,8 @@ function addVars(
       emitOtherPatternVars(dataDscr, unit.p, ctx);
     } else if (unit.grid) {
       const group = getGroupLabel(dataVars, unit.grid);
-      // preQTxt must equal the group's txt (Schematron), so a member's own
-      // hint has no slot; validateSubset warns `hint-dropped`.
+      // preQTxt must equal the group's txt (Schematron); the member's own
+      // hint is its postQTxt.
       addVarElement(dataDscr, {
         varId: makeVarId(unit.v.name),
         name: unit.v.name,
@@ -656,8 +759,9 @@ function addVars(
         varType: unit.v.type,
         choices: unit.v.choices,
         opts: { preQTxt: group.label, preQTxtTranslations: group.translations },
+        hint: unit.v.hint,
         guidanceHint: unit.v.guidanceHint,
-        ...specTranslations(unit.v, false),
+        ...specTranslations(unit.v),
         logic: { v: unit.v, ctx },
       });
     } else {
@@ -733,7 +837,7 @@ export function buildDdiCodebook(
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  const ctx = logicContext(variables, lang);
+  const ctx = logicContext(variables, lang, questionIds(buckets.units));
   addVarGroups(dataDscr, dataVars, notes, buckets, ctx);
   addVars(dataDscr, dataVars, notes, buckets, ctx);
 

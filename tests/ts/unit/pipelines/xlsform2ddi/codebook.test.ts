@@ -66,12 +66,12 @@ describe('file description', () => {
 });
 
 describe('standalone scalar variables', () => {
-  test('integer → contin / numeric / numeric', () => {
+  test('integer → contin / numeric / numeric, no decimals', () => {
     const xml = build([{ type: 'integer', name: 'age', label: 'Age' }]);
     expect(xml).toContain(
-      '<var ID="V_age" name="age" intrvl="contin" files="F1">',
+      '<var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">',
     );
-    expect(xml).toContain('<qstn responseDomainType="numeric">');
+    expect(xml).toContain('<qstn responseDomainType="numeric" seqNo="1">');
     expect(xml).toContain('<varFormat type="numeric" schema="other"/>');
     expect(xml).toContain('<concept>Age</concept>');
   });
@@ -79,13 +79,15 @@ describe('standalone scalar variables', () => {
   test('text → discrete / text / character', () => {
     const xml = build([{ type: 'text', name: 't', label: 'Notes' }]);
     expect(xml).toContain('intrvl="discrete"');
-    expect(xml).toContain('<qstn responseDomainType="text">');
+    expect(xml).toContain('<qstn responseDomainType="text"');
     expect(xml).toContain('<varFormat type="character" schema="other"/>');
   });
 
   test('a variable without a label emits no qstn', () => {
     const xml = build([{ type: 'integer', name: 'x' }]);
-    expect(xml).toContain('<var ID="V_x" name="x" intrvl="contin" files="F1">');
+    expect(xml).toContain(
+      '<var ID="V_x" name="x" intrvl="contin" dcml="0" files="F1">',
+    );
     expect(xml).not.toContain('<qstn');
   });
 });
@@ -98,7 +100,7 @@ describe('select_one', () => {
         { name: '2', label: 'Two' },
       ],
     });
-    expect(xml).toContain('<qstn responseDomainType="category">');
+    expect(xml).toContain('<qstn responseDomainType="category"');
     expect(xml).toContain('<catValu>1</catValu>');
     expect(xml).toContain('<labl>One</labl>');
     expect(count(xml, '<catgry>')).toBe(2);
@@ -127,7 +129,7 @@ describe('select_multiple → multipleResp expansion', () => {
     expect(xml).toContain(
       '<var ID="V_dev_ph" name="dev_ph" intrvl="discrete" files="F1">',
     );
-    expect(xml).toContain('<qstn responseDomainType="multiple">');
+    expect(xml).toContain('<qstn responseDomainType="multiple"');
     expect(xml).toContain('<preQTxt>Devices</preQTxt>');
     expect(xml).toContain('<qstnLit>Phone</qstnLit>');
     expect(xml).toContain('<catValu>0</catValu>');
@@ -243,7 +245,7 @@ describe('external code list (select_*_from_file)', () => {
       },
     ]);
     expect(xml).toContain('<concept vocab="iso_3166_1">Country</concept>');
-    expect(xml).toContain('<qstn responseDomainType="category">');
+    expect(xml).toContain('<qstn responseDomainType="category"');
     expect(xml).not.toContain('<catgry>');
   });
 });

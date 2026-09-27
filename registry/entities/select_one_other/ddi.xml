@@ -26,7 +26,7 @@
       <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
     </varGrp>
     <var ID="V_aufmerksam" name="aufmerksam" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <qstnLit>Wie sind Sie auf unser Angebot aufmerksam geworden?</qstnLit>
       </qstn>
       <catgry>
@@ -49,8 +49,9 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_aufmerksam_other" name="aufmerksam_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Sonstiges (bitte angeben)</qstnLit>
+        <backward qstn="V_aufmerksam"/>
       </qstn>
       <universe clusion="I">Only if “Wie sind Sie auf unser Angebot aufmerksam geworden?” = Sonstiges</universe>
       <concept>Sonstiges (bitte angeben)</concept>

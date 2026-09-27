@@ -33,7 +33,7 @@
       <concept>What is your _favorite_ color?</concept>
     </varGrp>
     <var ID="V_fav_color" name="fav_color" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="1">
         <qstnLit>What is your _favorite_ color?</qstnLit>
       </qstn>
       <catgry>
@@ -52,8 +52,9 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_fav_color_other" name="fav_color_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Please specify your color</qstnLit>
+        <backward qstn="V_fav_color"/>
       </qstn>
       <universe clusion="I">Only if “What is your _favorite_ color?” = Other</universe>
       <concept>Please specify your color</concept>
@@ -61,7 +62,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">${fav_color} = 'other'</notes>
     </var>
     <var ID="V_comment" name="comment" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="3">
         <qstnLit>Any **comments**?</qstnLit>
       </qstn>
       <concept>Any **comments**?</concept>

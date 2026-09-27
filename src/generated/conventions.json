@@ -1,6 +1,166 @@
 {
   "$comment": "GENERATED - DO NOT EDIT. Source: registry/root.jsonld",
   "conventions": {
+    "ddiFields": {
+      "description": "Where each field of a form (the Instrument model, src/instrument/types.ts) goes in a CDL DDI codebook (formtransform#153): a standard DDI 2.5 element or attribute wherever one fits, a typed note `<notes type=\"cdl:<field>\">` (the XSD's controlled-vocabulary extension point, as in convention:logicMapping) only where DDI 2.5 has none, or a documented loss. A unit test fails when a model field has no entry.",
+      "questionText": {
+        "preQTxt": "a note row before the question, or a grid's or select_multiple's shared question text",
+        "qstnLit": "the label",
+        "postQTxt": "the hint shown to respondents with the question",
+        "ivuInstr": "guidance_hint (for interviewers and the codebook, not shown)",
+        "order": "preQTxt, qstnLit, postQTxt, backward, ivuInstr (XSD order)"
+      },
+      "backward": "qstn/backward/@qstn lists the IDs of the questions its own relevant refers to (a var, or the varGrp of a select_multiple or other pair).",
+      "seqNo": "qstn/@seqNo is the question's position among the form's data questions, from 1; a select_multiple's binaries share their question's.",
+      "notes": {
+        "default": {
+          "type": "cdl:default",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "text": "the default cell as authored"
+        },
+        "appearance": {
+          "type": "cdl:appearance",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "text": "the appearance cell, lowercased"
+        },
+        "parameters": {
+          "type": "cdl:parameters",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "text": "the parameters not in a standard element, space-separated key=value"
+        },
+        "hint": {
+          "type": "cdl:hint",
+          "on": [
+            "varGrp[@type='section' or @type='grid']"
+          ],
+          "localized": true
+        },
+        "exclusive": {
+          "type": "cdl:exclusive",
+          "on": [
+            "varGrp[@type='multipleResp']"
+          ],
+          "text": "the exclusive choices' codes, space-separated"
+        },
+        "setting": {
+          "type": "cdl:setting",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the settings key",
+          "keys": [
+            "style"
+          ]
+        }
+      },
+      "fields": {
+        "ItemBase.name": {
+          "ddi": "var/@name; a group's path in varGrp/@name"
+        },
+        "ItemBase.label": {
+          "ddi": "qstn/qstnLit; a group's varGrp/txt"
+        },
+        "ItemBase.hint": {
+          "ddi": "qstn/postQTxt; a group's in a cdl:hint note (varGrp has no hint element)",
+          "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element."
+        },
+        "ItemBase.relevant": {
+          "ddi": "universe + cdl:relevant note (convention:logicMapping)"
+        },
+        "ItemBase.appearance": {
+          "cdlNote": "cdl:appearance",
+          "note": "On a var (a select_multiple's or pair's on its varGrp), and on a section; a grid's table-list is its type='grid', so only a grid appearance other than that is noted."
+        },
+        "ItemBase.row": {
+          "loss": "Columns the model does not lift (media, calculation, …) are not carried."
+        },
+        "GroupItem.kind": {
+          "ddi": "a group is a varGrp"
+        },
+        "GroupItem.children": {
+          "ddi": "varGrp/@var and @varGrp (nesting), var element order and qstn/@seqNo (order)"
+        },
+        "GroupItem.closed": {
+          "loss": "Every group read back is closed."
+        },
+        "QuestionItem.kind": {
+          "ddi": "a question is a var (a select_multiple: a varGrp of binary vars)"
+        },
+        "QuestionItem.type": {
+          "ddi": "qstn/@responseDomainType, var/@intrvl, varFormat/@type, varFormat/@category (date, time), var/@dcml='0' (integer)"
+        },
+        "QuestionItem.rawType": {
+          "loss": "Rebuilt from type, list and the other pattern; the or_other shorthand comes back as the explicit pair, which behaves the same."
+        },
+        "QuestionItem.list": {
+          "loss": "The list name: questions with identical category sets come back sharing one list."
+        },
+        "QuestionItem.file": {
+          "ddi": "concept/@vocab (the file is <vocab>.csv)"
+        },
+        "QuestionItem.orOther": {
+          "ddi": "varGrp[@type='other'] (convention:other)",
+          "note": "Comes back as the explicit pair, see rawType."
+        },
+        "QuestionItem.guidanceHint": {
+          "ddi": "qstn/ivuInstr"
+        },
+        "QuestionItem.constraint": {
+          "ddi": "cdl:constraint note, plus valrng/range for a simple numeric range (convention:logicMapping)"
+        },
+        "QuestionItem.constraintMessage": {
+          "cdlNote": "cdl:constraint_message",
+          "note": "One per language (convention:logicMapping)."
+        },
+        "QuestionItem.required": {
+          "cdlNote": "cdl:required"
+        },
+        "QuestionItem.default": {
+          "cdlNote": "cdl:default"
+        },
+        "QuestionItem.parameters": {
+          "ddi": "range start/end: valrng/range @min/@max; guidance_hint: qstn/ivuInstr; the other parameters (step, randomize, …) in a cdl:parameters note"
+        },
+        "QuestionItem.otherLabel": {
+          "ddi": "the other answer's catgry/labl and the companion's qstnLit"
+        },
+        "InstrumentChoice.name": {
+          "ddi": "catgry/catValu"
+        },
+        "InstrumentChoice.label": {
+          "ddi": "catgry/labl, one per language"
+        },
+        "InstrumentChoice.row": {
+          "ddi": "exclusive: a cdl:exclusive note on the select_multiple's varGrp listing the codes",
+          "note": "The choice sheet's other columns are not carried."
+        },
+        "Instrument.languages": {
+          "ddi": "xml:lang siblings of every text (convention:languageTagging)"
+        },
+        "Instrument.defaultLanguage": {
+          "ddi": "codeBook/@xml:lang"
+        },
+        "Instrument.settings": {
+          "ddi": "form_title: titl; form_id: IDNo; version: verStmt/version; default_language: codeBook/@xml:lang; style: stdyDscr/notes[@type='cdl:setting'][@subject='style']",
+          "note": "Other settings are not carried."
+        },
+        "Instrument.lists": {
+          "ddi": "catgry of each var that uses a list"
+        },
+        "Instrument.body": {
+          "ddi": "dataDscr: varGrp and var, in survey order"
+        }
+      }
+    },
     "exclusiveChoice": {
       "choicesColumn": "exclusive",
       "trueValues": [
@@ -214,7 +374,9 @@
           "qstnLit",
           "labl",
           "preQTxt",
+          "postQTxt",
           "ivuInstr",
+          "universe",
           "notes"
         ],
         "baseLanguage": "settings.default_language, else the form's first language; declared as codeBook/@xml:lang whenever the form has more than one language (or default_language is set). Its elements are untagged and come first.",

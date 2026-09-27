@@ -11,6 +11,7 @@
  */
 import conventions from '../generated/conventions.js';
 import { parseXPath, type XPathNode } from '../instrument/xpathParser.js';
+import { rangeBounds } from './fields.js';
 import { localizedChild } from './translations.js';
 import type { Choice, Variable } from './types.js';
 import type { XmlElement } from './xml.js';
@@ -39,12 +40,17 @@ export interface LogicContext {
   base: string | null;
   /** The codebook's other language tags. */
   others: string[];
+  /** The `<var>` or `<varGrp>` ID a `${name}` refers to (#153). */
+  ids: Map<string, string>;
+  /** Each data question's position in the form, from 1 (`qstn/@seqNo`). */
+  seqNo: Map<string, number>;
 }
 
 /** The languages a variable's texts come in: its base and translations. */
 export function logicContext(
   variables: Variable[],
   base: string | null,
+  ids: Map<string, string> = new Map(),
 ): LogicContext {
   const others = new Set<string>();
   for (const v of variables) {
@@ -54,6 +60,12 @@ export function logicContext(
     byName: new Map(variables.map((v) => [v.name, v])),
     base,
     others: [...others].filter((t) => t !== base),
+    ids,
+    seqNo: new Map(
+      variables
+        .filter((v) => v.type !== 'note')
+        .map((v, i): [string, number] => [v.name, i + 1]),
+    ),
   };
 }
 
@@ -337,12 +349,17 @@ export function simpleRange(constraint: string): Range | null {
   return range;
 }
 
-const NUMERIC_TYPES = new Set(['integer', 'decimal']);
+const NUMERIC_TYPES = new Set(['integer', 'decimal', 'range']);
 
-/** `<valrng><range/></valrng>` for a numeric variable's simple constraint. */
+/**
+ * `<valrng><range/></valrng>`: a numeric variable's simple constraint, else
+ * a `range`'s `start`/`end` (#153).
+ */
 export function addValrng(el: XmlElement, v: Variable): void {
-  if (!v.constraint || !NUMERIC_TYPES.has(v.type)) return;
-  const range = simpleRange(v.constraint);
+  const range =
+    (v.constraint && NUMERIC_TYPES.has(v.type)
+      ? simpleRange(v.constraint)
+      : null) ?? (v.type === 'range' ? rangeBounds(v) : null);
   if (range) el.child('valrng').child('range', range);
 }
 

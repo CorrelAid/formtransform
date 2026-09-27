@@ -177,7 +177,7 @@ describe('notes', () => {
     expect(xml).not.toContain('<preQTxt>Zu Medien');
   });
 
-  test('a grid member hint is dropped (its preQTxt is the grid text)', () => {
+  test("a grid member's hint is its postQTxt (its preQTxt is the grid text)", () => {
     const xml = buildDdiXml(
       [
         {
@@ -192,7 +192,7 @@ describe('notes', () => {
       ],
       yn,
     );
-    expect(xml).not.toContain('Hinweis');
+    expect(xml).toContain('<postQTxt>Hinweis</postQTxt>');
     expect(
       [...xml.matchAll(/<preQTxt>([^<]*)<\/preQTxt>/g)].map((m) => m[1]),
     ).toEqual(['Vertrauen', 'Vertrauen']);

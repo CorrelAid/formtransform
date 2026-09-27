@@ -26,7 +26,7 @@
       <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?</concept>
     </varGrp>
     <var ID="V_wochenende_sa" name="wochenende_sa" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="1">
         <preQTxt>An welchen Tagen des Wochenendes sind Sie erreichbar?</preQTxt>
         <qstnLit>Samstag</qstnLit>
       </qstn>
@@ -40,7 +40,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_wochenende_so" name="wochenende_so" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="1">
         <preQTxt>An welchen Tagen des Wochenendes sind Sie erreichbar?</preQTxt>
         <qstnLit>Sonntag</qstnLit>
       </qstn>

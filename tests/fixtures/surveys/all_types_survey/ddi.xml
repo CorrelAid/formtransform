@@ -39,6 +39,7 @@
     <varGrp ID="VG_matrix_wrapper_matrix_inner" name="matrix_wrapper/matrix_inner" type="section" var="V_skill_python V_skill_js V_skill_sql">
       <txt>Programmierkenntnisse</txt>
       <concept>Programmierkenntnisse</concept>
+      <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_or_other_types" name="or_other_types" type="section" varGrp="VG_q_sel1_other VG_q_selm_other">
       <txt>Weitere Fragen</txt>
@@ -65,63 +66,63 @@
       <concept>Welche Tracks würden Sie erneut besuchen?</concept>
     </varGrp>
     <var ID="V_orphan_before" name="orphan_before" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Wie lautet Ihre Teilnehmer-ID?</qstnLit>
       </qstn>
       <concept>Wie lautet Ihre Teilnehmer-ID?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_text" name="q_text" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Wie heißen Sie (Vor- und Nachname)?</qstnLit>
       </qstn>
       <concept>Wie heißen Sie (Vor- und Nachname)?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_string" name="q_string" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="3">
         <qstnLit>Wie lautet Ihre E-Mail-Adresse?</qstnLit>
       </qstn>
       <concept>Wie lautet Ihre E-Mail-Adresse?</concept>
       <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_q_integer" name="q_integer" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_q_integer" name="q_integer" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="4">
         <qstnLit>An wie vielen Workshops haben Sie bisher teilgenommen?</qstnLit>
       </qstn>
       <concept>An wie vielen Workshops haben Sie bisher teilgenommen?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
-    <var ID="V_q_int" name="q_int" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_q_int" name="q_int" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="5">
         <qstnLit>An wie vielen Sessions haben Sie heute teilgenommen?</qstnLit>
       </qstn>
       <concept>An wie vielen Sessions haben Sie heute teilgenommen?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_decimal" name="q_decimal" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+      <qstn responseDomainType="numeric" seqNo="6">
         <qstnLit>Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?</qstnLit>
       </qstn>
       <concept>Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_date" name="q_date" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="7">
         <qstnLit>Wann sind Sie geboren?</qstnLit>
       </qstn>
       <concept>Wann sind Sie geboren?</concept>
-      <varFormat type="character" schema="other"/>
+      <varFormat type="character" schema="other" category="date"/>
     </var>
     <var ID="V_q_time" name="q_time" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="8">
         <qstnLit>Um wie viel Uhr sind Sie angekommen?</qstnLit>
       </qstn>
       <concept>Um wie viel Uhr sind Sie angekommen?</concept>
-      <varFormat type="character" schema="other"/>
+      <varFormat type="character" schema="other" category="time"/>
     </var>
     <var ID="V_q_select_one" name="q_select_one" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="9">
         <qstnLit>Würden Sie diesen Workshop weiterempfehlen?</qstnLit>
       </qstn>
       <catgry>
@@ -136,7 +137,7 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_select_multi_red" name="q_select_multi_red" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="10">
         <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
         <qstnLit>Frontend-Entwicklung</qstnLit>
       </qstn>
@@ -150,7 +151,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_select_multi_blue" name="q_select_multi_blue" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="10">
         <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
         <qstnLit>Backend-Entwicklung</qstnLit>
       </qstn>
@@ -164,7 +165,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_select_multi_green" name="q_select_multi_green" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="10">
         <preQTxt>An welchen Tracks haben Sie teilgenommen?</preQTxt>
         <qstnLit>Data Science</qstnLit>
       </qstn>
@@ -178,21 +179,23 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_multiline_text" name="q_multiline_text" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="11">
         <qstnLit>Beschreiben Sie bitte Ihre Erfahrungen beim Workshop</qstnLit>
       </qstn>
       <concept>Beschreiben Sie bitte Ihre Erfahrungen beim Workshop</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">multiline</notes>
     </var>
     <var ID="V_q_multiline_string" name="q_multiline_string" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="12">
         <qstnLit>Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?</qstnLit>
       </qstn>
       <concept>Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">multiline</notes>
     </var>
     <var ID="V_q_likert" name="q_likert" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="13">
         <qstnLit>Wie zufrieden waren Sie mit der Organisation insgesamt?</qstnLit>
       </qstn>
       <catgry>
@@ -209,9 +212,10 @@
       </catgry>
       <concept>Wie zufrieden waren Sie mit der Organisation insgesamt?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">likert</notes>
     </var>
     <var ID="V_q_minimal" name="q_minimal" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="14">
         <qstnLit>Bevorzugst du Dropdown?</qstnLit>
       </qstn>
       <catgry>
@@ -224,9 +228,10 @@
       </catgry>
       <concept>Bevorzugst du Dropdown?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">minimal</notes>
     </var>
     <var ID="V_skill_python" name="skill_python" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="15">
         <qstnLit>Python</qstnLit>
       </qstn>
       <catgry>
@@ -247,9 +252,10 @@
       </catgry>
       <concept>Python</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">list-nolabel</notes>
     </var>
     <var ID="V_skill_js" name="skill_js" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="16">
         <qstnLit>JavaScript</qstnLit>
       </qstn>
       <catgry>
@@ -270,9 +276,10 @@
       </catgry>
       <concept>JavaScript</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">list-nolabel</notes>
     </var>
     <var ID="V_skill_sql" name="skill_sql" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="17">
         <qstnLit>SQL</qstnLit>
       </qstn>
       <catgry>
@@ -293,9 +300,10 @@
       </catgry>
       <concept>SQL</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:appearance">list-nolabel</notes>
     </var>
     <var ID="V_q_sel1_other" name="q_sel1_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
+      <qstn responseDomainType="category" seqNo="18">
         <qstnLit>Welcher Track hat Ihnen am besten gefallen?</qstnLit>
       </qstn>
       <catgry>
@@ -318,8 +326,9 @@
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_q_sel1_other_other" name="q_sel1_other_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="19">
         <qstnLit>Sonstiges:</qstnLit>
+        <backward qstn="V_q_sel1_other"/>
       </qstn>
       <universe clusion="I">Nur wenn „Welcher Track hat Ihnen am besten gefallen?“ = Sonstiges:</universe>
       <concept>Sonstiges:</concept>
@@ -327,7 +336,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">${q_sel1_other} = 'other'</notes>
     </var>
     <var ID="V_q_selm_other_red" name="q_selm_other_red" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="20">
         <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
         <qstnLit>Frontend-Entwicklung</qstnLit>
       </qstn>
@@ -341,7 +350,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_selm_other_blue" name="q_selm_other_blue" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="20">
         <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
         <qstnLit>Backend-Entwicklung</qstnLit>
       </qstn>
@@ -355,7 +364,7 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_selm_other_green" name="q_selm_other_green" intrvl="discrete" files="F1">
-      <qstn responseDomainType="multiple">
+      <qstn responseDomainType="multiple" seqNo="20">
         <preQTxt>Welche Tracks würden Sie erneut besuchen?</preQTxt>
         <qstnLit>Data Science</qstnLit>
       </qstn>
@@ -369,8 +378,9 @@
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_q_selm_other_other" name="q_selm_other_other" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="21">
         <qstnLit>Sonstiges:</qstnLit>
+        <backward qstn="VG_q_selm_other"/>
       </qstn>
       <universe clusion="I">Nur wenn „Welche Tracks würden Sie erneut besuchen?“ enthält Sonstiges:</universe>
       <concept>Sonstiges:</concept>
@@ -378,7 +388,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${q_selm_other}, 'other')</notes>
     </var>
     <var ID="V_q_mandatory" name="q_mandatory" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="22">
         <qstnLit>Wie lautet Ihre E-Mail-Adresse?</qstnLit>
       </qstn>
       <concept>Wie lautet Ihre E-Mail-Adresse?</concept>
@@ -386,15 +396,15 @@
       <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_q_hint" name="q_hint" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Format: +49 123 456789</preQTxt>
+      <qstn responseDomainType="text" seqNo="23">
         <qstnLit>Wie lautet Ihre Telefonnummer?</qstnLit>
+        <postQTxt>Format: +49 123 456789</postQTxt>
       </qstn>
       <concept>Wie lautet Ihre Telefonnummer?</concept>
       <varFormat type="character" schema="other"/>
     </var>
-    <var ID="V_q_constraint" name="q_constraint" intrvl="contin" files="F1">
-      <qstn responseDomainType="numeric">
+    <var ID="V_q_constraint" name="q_constraint" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="24">
         <qstnLit>Wie alt sind Sie?</qstnLit>
       </qstn>
       <valrng>
@@ -406,15 +416,17 @@
       <notes type="cdl:constraint_message">Bitte geben Sie ein gültiges Alter zwischen 18 und 120 ein</notes>
     </var>
     <var ID="V_q_default" name="q_default" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="25">
         <qstnLit>In welchem Land leben Sie?</qstnLit>
       </qstn>
       <concept>In welchem Land leben Sie?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:default">Deutschland</notes>
     </var>
     <var ID="V_q_relevant" name="q_relevant" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
+      <qstn responseDomainType="text" seqNo="26">
         <qstnLit>Wie sollen wir Sie kontaktieren?</qstnLit>
+        <backward qstn="V_q_mandatory"/>
       </qstn>
       <universe clusion="I">Nur wenn „Wie lautet Ihre E-Mail-Adresse?“ ist beantwortet</universe>
       <concept>Wie sollen wir Sie kontaktieren?</concept>
@@ -422,15 +434,17 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">${q_mandatory} != ''</notes>
     </var>
     <var ID="V_q_all_features" name="q_all_features" intrvl="discrete" files="F1">
-      <qstn responseDomainType="text">
-        <preQTxt>Freiwillig, aber willkommen</preQTxt>
+      <qstn responseDomainType="text" seqNo="27">
         <qstnLit>Haben Sie noch Anmerkungen?</qstnLit>
+        <postQTxt>Freiwillig, aber willkommen</postQTxt>
+        <backward qstn="V_q_mandatory"/>
       </qstn>
       <universe clusion="I">Nur wenn „Wie lautet Ihre E-Mail-Adresse?“ ist beantwortet</universe>
       <concept>Haben Sie noch Anmerkungen?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${q_mandatory} != ''</notes>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:default">Keine Anmerkungen</notes>
     </var>
   </dataDscr>
 </codeBook>
