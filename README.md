@@ -259,6 +259,13 @@ is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 `count-selected()` constraint. LimeSurvey enforces it through
 `exclude_all_others`; DDI has no field for it.
 
+The `or_other` shorthand writes no text for its "other" answer; the survey
+tool supplies one. LimeSurvey shows its own `Other:` in the survey language
+(`Sonstiges:`), ODK and Kobo an untranslated "Other" / "Specify other.". The
+DDI records LimeSurvey's wording in each of the form's languages, and the DDI
+check warns (`other-shorthand`). To record your own text on every platform,
+write an `other` choice and a `<question>_other` text question instead.
+
 The name and code limits are LimeSurvey's. For DDI, check with
 `validateSubset(survey, choices, { target: 'ddi' })` (CLI: `validate --target
 ddi`; `xlsform2ddi` does it by default): same rules without those limits, since

@@ -10,6 +10,7 @@ import {
   OTHER_CODE,
   OTHER_COMPANION_TYPE,
   OTHER_SUFFIX,
+  limesurveyOtherText,
   otherLabelFor,
 } from '../conventions/other.js';
 import { isFromFileType, vocabFromFilename } from '../conventions/fromFile.js';
@@ -167,7 +168,71 @@ interface ProjectState {
   otherLang: string;
   /** The form's other languages (see {@link otherLanguages}). */
   others: Array<[string, string]>;
+  onWarning?: WarningHandler;
+  /** Languages already warned about having no "other" text. */
+  otherWarned: Set<string>;
   choicesByList: Record<string, Choice[]>;
+}
+
+/**
+ * The "other" answer's text in one language, when the form authors none (the
+ * `or_other` shorthand; LimeSurvey's `other=Y`): what LimeSurvey shows, i.e.
+ * `other_replace_text` if set, else its own `Other:` (`Sonstiges:`).
+ */
+function otherTextIn(
+  q: QuestionItem,
+  key: string,
+  tag: string,
+  state: ProjectState,
+): string {
+  const own = q.otherLabel?.[key]?.trim();
+  if (own) return own;
+  const text = limesurveyOtherText(tag);
+  if (text === null && !state.otherWarned.has(tag)) {
+    state.otherWarned.add(tag);
+    state.onWarning?.(
+      warning(
+        'other-label-missing',
+        `LimeSurvey has no language "${tag}", so the "other" answer of or_other has no text in it${key === (state.lang ?? '') ? '; the DDI uses its code "other"' : ''}. Write an "other" choice and a <question>_other text question to give it one.`,
+        q.name,
+      ),
+    );
+  }
+  return text ?? '';
+}
+
+/** The "other" answer's texts: the base language's and its translations. */
+function otherTexts(
+  q: QuestionItem,
+  state: ProjectState,
+): { label: string; translations?: Translations } {
+  const base =
+    otherTextIn(q, state.lang ?? '', state.otherLang, state) || OTHER_CODE;
+  const translations: Translations = {};
+  for (const [key, tag] of state.others) {
+    const text = otherTextIn(q, key, tag, state);
+    if (text) translations[tag] = text;
+  }
+  return Object.keys(translations).length
+    ? { label: base, translations }
+    : { label: base };
+}
+
+/**
+ * The added `other` choice. Without an authored text, LimeSurvey shows one
+ * element for the answer and its text box, so it shares the companion's
+ * text. With one (`other_replace_text`, from an explicit XLSForm pair), it is
+ * the pair's choice, labelled by convention:other as the XLSForm was.
+ */
+function otherChoice(
+  q: QuestionItem,
+  other: { label: string; translations?: Translations },
+  state: ProjectState,
+): Choice {
+  const authored = Object.values(q.otherLabel ?? {}).some((t) => t.trim());
+  return authored
+    ? { name: OTHER_CODE, label: otherLabelFor(state.otherLang) }
+    : { name: OTHER_CODE, ...other };
 }
 
 /** True when the question is a data-carrying variable of the DDI. */
@@ -175,6 +240,35 @@ function emitsVariable(q: QuestionItem): boolean {
   if (!q.name || SKIP_TYPES.has(q.type)) return false;
   // A registry appearance with carriesData: false (a matrix header).
   return !NO_DATA_APPEARANCES.has(q.appearance);
+}
+
+/** The or_other shorthand's `<base>_other` text variable, unless authored. */
+function pushCompanion(
+  name: string,
+  other: { label: string; translations?: Translations },
+  group: Pick<Variable, 'group' | 'groupLabel' | 'groupAppearance'>,
+  ctx: GroupContext,
+  state: ProjectState,
+): void {
+  if (state.authoredNames.has(name)) return;
+  const translations: Record<string, VariableTexts> = {};
+  const groupLabels = translationsOf(ctx.labelText, state.others) ?? {};
+  for (const [, tag] of state.others) {
+    const texts: VariableTexts = {};
+    if (other.translations?.[tag]) texts.label = other.translations[tag];
+    if (groupLabels[tag]) texts.groupLabel = groupLabels[tag];
+    if (Object.keys(texts).length) translations[tag] = texts;
+  }
+  state.variables.push({
+    name,
+    type: OTHER_COMPANION_TYPE,
+    label: other.label,
+    ...group,
+    listName: '',
+    vocab: '',
+    choices: [],
+    ...(Object.keys(translations).length ? { translations } : {}),
+  });
 }
 
 function pushQuestion(
@@ -186,9 +280,10 @@ function pushQuestion(
   const { stdType, listName, vocab } = resolveType(q);
   const orOther = q.orOther && OTHER_TYPES.has(stdType);
   const base = listName ? (state.choicesByList[listName] ?? []) : [];
+  const other = orOther ? otherTexts(q, state) : undefined;
   const choices =
-    orOther && !base.some((c) => c.name === OTHER_CODE)
-      ? [...base, { name: OTHER_CODE, label: otherLabelFor(state.otherLang) }]
+    other && !base.some((c) => c.name === OTHER_CODE)
+      ? [...base, otherChoice(q, other, state)]
       : base;
   const group = {
     group: ctx.path,
@@ -220,25 +315,7 @@ function pushQuestion(
     ...(translations ? { translations } : {}),
   });
 
-  const companionName = q.name + OTHER_SUFFIX;
-  if (!orOther || state.authoredNames.has(companionName)) return;
-  // Only an authored label has translations; a synthesized one has none.
-  const companionTranslations = variableTranslations(
-    { label: q.otherLabel, groupLabel: ctx.labelText },
-    state.others,
-  );
-  state.variables.push({
-    name: companionName,
-    type: OTHER_COMPANION_TYPE,
-    label:
-      (q.otherLabel && pick(q.otherLabel, state.lang)) ||
-      otherLabelFor(state.otherLang),
-    ...group,
-    listName: '',
-    vocab: '',
-    choices: [],
-    ...(companionTranslations ? { translations: companionTranslations } : {}),
-  });
+  if (other) pushCompanion(q.name + OTHER_SUFFIX, other, group, ctx, state);
 }
 
 function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
@@ -310,6 +387,8 @@ export function variablesFromInstrument(
     lang,
     otherLang: lang || 'en',
     others: otherLanguages(instrument, lang),
+    onWarning: options.onWarning,
+    otherWarned: new Set(),
     choicesByList,
   };
   project(

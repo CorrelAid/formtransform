@@ -138,7 +138,7 @@ describe('xlsform → multilingual DDI', () => {
     expect(xml).not.toContain('<preQTxt xml:lang');
   });
 
-  test('a synthesized "other" label is not given translations', () => {
+  test("or_other's unauthored texts are LimeSurvey's, in each language", () => {
     const xml = buildDdiXml(
       [
         {
@@ -159,9 +159,12 @@ describe('xlsform → multilingual DDI', () => {
       { ...OPTS, settings: { default_language: 'Deutsch (de)' } },
     );
     expect(xml).toContain('<labl xml:lang="en">Website</labl>');
-    expect(xml).toContain('<labl>Sonstiges</labl>');
-    expect(xml).not.toMatch(/<labl xml:lang="en">Other<\/labl>/);
-    expect(xml).not.toMatch(/<qstnLit xml:lang="en">Other<\/qstnLit>/);
+    // LimeSurvey's own `Other:` in each survey language: what it shows for
+    // the answer and its text box alike.
+    expect(xml).toContain('<labl>Sonstiges:</labl>');
+    expect(xml).toContain('<labl xml:lang="en">Other:</labl>');
+    expect(xml).toContain('<qstnLit>Sonstiges:</qstnLit>');
+    expect(xml).toContain('<qstnLit xml:lang="en">Other:</qstnLit>');
   });
 });
 

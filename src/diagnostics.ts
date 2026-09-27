@@ -45,6 +45,8 @@ export type DiagnosticCode =
   | 'exclusive-invalid'
   | 'exclusive-no-effect'
   | 'other-label-noncanonical'
+  | 'other-label-missing'
+  | 'other-shorthand'
   | 'parameter-invalid'
   | 'xlsform-outside-subset'
   // expressions

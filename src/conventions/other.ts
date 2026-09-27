@@ -4,6 +4,7 @@
  * LimeSurvey as `other=Y`; DDI as `<varGrp type="other">`.
  */
 import conventions from '../generated/conventions.js';
+import { toLimeSurveyLanguage } from './language.js';
 
 const RULE = conventions.conventions.other;
 
@@ -48,6 +49,23 @@ export function canonicalOtherLabel(lang: string): string | undefined {
 /** Canonical "other" label for a language tag, falling back to English. */
 export function otherLabelFor(lang: string): string {
   return canonicalOtherLabel(lang) ?? OTHER_LABELS['en'];
+}
+
+const LS_OTHER = RULE.limesurveyOtherText as {
+  fallback: string;
+  texts: Record<string, string>;
+};
+
+/**
+ * What LimeSurvey shows for its native "other" answer when the question sets
+ * no `other_replace_text`: its own `Other:` in the survey language
+ * (`Sonstiges:`), from LimeSurvey's translations; `null` for a language
+ * LimeSurvey doesn't have. The DDI records it for the `or_other` shorthand,
+ * whose texts the form doesn't author.
+ */
+export function limesurveyOtherText(tag: string): string | null {
+  const ls = toLimeSurveyLanguage(tag || 'en');
+  return ls ? (LS_OTHER.texts[ls.code] ?? LS_OTHER.fallback) : null;
 }
 
 /** The base question name of an `<base>_other` companion, or `null`. */
