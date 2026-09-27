@@ -386,6 +386,8 @@ export function addLogicNotes(el: XmlElement, v: Variable): void {
     });
   }
   if (v.required) {
-    el.textChild('notes', NOTES.required.text, { type: NOTES.required.type });
+    el.textChild('notes', v.requiredCell ?? NOTES.required.text, {
+      type: NOTES.required.type,
+    });
   }
 }

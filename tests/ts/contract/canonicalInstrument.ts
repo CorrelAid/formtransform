@@ -45,15 +45,11 @@ function text(t: Text | undefined, ctx: Ctx): Record<string, string> {
   return out;
 }
 
-/** Parameters without guidance_hint: DDI has it as ivuInstr. */
-function parameters(q: QuestionItem): string {
-  return q.parameters
-    .split(';')
-    .filter((p) => !/^\s*guidance_hint\s*=/.test(p))
-    .join(' ')
-    .split(/[\s,]+/)
-    .filter(Boolean)
-    .join(' ');
+/** The `required` cell a required question has: as authored, else `yes`. */
+function required(q: QuestionItem): string | false {
+  if (!q.required) return false;
+  const cell = q.row['required'];
+  return typeof cell === 'string' && cell.trim() ? cell.trim() : 'yes';
 }
 
 /** Whether the DDI has it: a variable, a note or a row without data. */
@@ -66,7 +62,6 @@ function kept(q: QuestionItem): boolean {
 function question(q: QuestionItem, ctx: Ctx): Canon {
   const type = ALIASES[q.type] ?? q.type;
   if (q.list) ctx.lists.add(q.list);
-  const hasConstraint = !!q.constraint.trim();
   return {
     name: q.name,
     type,
@@ -78,12 +73,11 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     guidance: text(q.guidanceHint, ctx),
     relevant: q.relevant.trim(),
     constraint: q.constraint.trim(),
-    // A message without a constraint is not in the DDI.
-    constraintMessage: hasConstraint ? text(q.constraintMessage, ctx) : {},
-    required: q.required,
+    constraintMessage: text(q.constraintMessage, ctx),
+    required: required(q),
     default: q.default,
     appearance: q.appearance,
-    parameters: parameters(q),
+    parameters: q.parameters.trim(),
   };
 }
 
@@ -93,11 +87,9 @@ function items(list: Item[], ctx: Ctx): Canon[] {
     if (item.kind === 'group') {
       // A group with nothing in it is not carried.
       if (!item.children.length) continue;
-      const label = text(item.label, ctx);
       out.push({
         group: item.name,
-        // A group without a label is labelled with its name.
-        label: Object.keys(label).length ? label : text({ '': item.name }, ctx),
+        label: text(item.label, ctx),
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
         appearance: item.appearance,

@@ -41,6 +41,8 @@ export interface DdiGroup {
   relevant: string;
   /** Its `hint`: a `cdl:hint` note (#153); `''` when none. */
   hint: string;
+  /** It has no label of its own: `label` is its name (`cdl:no_label`, #160). */
+  unlabelled?: boolean;
   /** `hint` in the form's other languages. */
   hintTranslations?: Translations;
 }
@@ -94,6 +96,8 @@ export interface Variable {
   constraintMessage?: string;
   /** XLSForm `required`: a `cdl:required` note. */
   required?: boolean;
+  /** The `required` cell when it isn't `yes` (`TRUE`), the note's text (#160). */
+  requiredCell?: string;
   /** XLSForm `default`: a `cdl:default` note (#153). */
   default?: string;
   /** The question's own lowercased `appearance`: a `cdl:appearance` note. */

@@ -25,15 +25,15 @@ Standard DDI first, `cdl:` notes where DDI has no element
 |---|---|
 | type | `qstn/@responseDomainType`; `varFormat/@category` (date, time); `var/@dcml="0"` (integer); `valrng` without a constraint (range); `concept/@vocab` (`select_*_from_file`); the `or_other` shorthand: `cdl:or_other` |
 | label / hint / guidance_hint | `qstnLit` / `postQTxt` / `ivuInstr`, every `xml:lang` |
-| a note row before a question | its `preQTxt` (a grid member's is the grid's text) or its group's untyped `notes`; the rows' names in `cdl:note_names` |
+| a note row before a question | its `preQTxt` (a grid member's is the grid's text) or its group's untyped `notes`; the rows' names in `cdl:note_names`, and each one's own text in `cdl:row_label` where the blank lines joining them can't separate them |
 | a note row with no question after it in its group | `stdyDscr/notes[@type='instruction']`, placed by `cdl:position` |
 | a note row's hint, relevant, appearance | `cdl:row_hint`, `cdl:row_relevant`, `cdl:row_appearance` on `stdyDscr` |
 | rows without data (`start`, `deviceid`, …, a matrix header) | `cdl:row` (the type cell) and `cdl:row_label` on `stdyDscr`, placed by `cdl:position` |
 | choices | `catgry` (`catValu`, `labl`); a select_multiple's binary `var`s; the list's name in `cdl:list` when it isn't the question's; a select_multiple pair's other label in `cdl:other_label` |
-| groups | `varGrp type="section"` / `"grid"`, nested by `@varGrp`; label `txt`, hint `cdl:hint`; a group of notes only placed by `cdl:position` |
+| groups | `varGrp type="section"` / `"grid"`, nested by `@varGrp`; label `txt` (none: `cdl:no_label`), hint `cdl:hint`; a group of notes only placed by `cdl:position` |
 | order | `var` order, `qstn/@seqNo` |
-| relevant, constraint, constraint_message, required | `cdl:relevant`, `cdl:constraint`, `cdl:constraint_message`, `cdl:required` |
-| default, appearance, parameters | `cdl:default`, `cdl:appearance`, `cdl:parameters` (a range's bounds also `valrng/range`) |
+| relevant, constraint, constraint_message, required | `cdl:relevant`, `cdl:constraint`, `cdl:constraint_message`, `cdl:required` (the cell as authored) |
+| default, appearance, parameters | `cdl:default`, `cdl:appearance`, `cdl:parameters` as authored (a range's bounds also `valrng/range`, a `guidance_hint` also `ivuInstr`) |
 | exclusive | `cdl:exclusive` on the select_multiple's `varGrp` |
 | settings | `titl` (+ `parTitl` per language), `IDNo`, `verStmt/version`, `codeBook/@xml:lang`, every other setting a `cdl:setting` |
 | language columns | `xml:lang`; the form's name for each (`label::Deutsch (de)`) in `cdl:language` |
@@ -62,16 +62,9 @@ out):
 1. **Rows no registry type covers** (`calculate`, …) and **groups with
    nothing in them**.
 2. **Columns the model doesn't lift**: on the survey sheet (media,
-   `calculation`, `choice_filter`, …), on the choices sheet every column but
-   `exclusive`. Settings that are neither a string nor a number.
-3. **A group without a label** comes back labelled with its name.
-4. **A `constraint_message` without a `constraint`** is not in the DDI.
-5. **Cell spellings**: `required` is `yes` or absent, a `guidance_hint` inside
-   `parameters` comes back as the `guidance_hint` column, whitespace in the
-   type cell and `parameters` is one space.
-6. **Consecutive note rows** before a question are split back at the blank
-   lines that joined them. A note whose text has a blank line itself, or a
-   language only some of them have, gives the whole text to the first.
+   `choice_filter`, …), on the choices sheet every column but `exclusive`.
+   Settings that are neither a string nor a number.
+3. **Whitespace in the type cell** comes back as one space.
 
 ## Tests
 

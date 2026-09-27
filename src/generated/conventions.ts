@@ -44,7 +44,7 @@ const conventions = {
             "var",
             "varGrp"
           ],
-          "text": "the parameters not in a standard element, space-separated key=value; a range's start and end as authored (valrng/range has them too)"
+          "text": "the parameters cell as authored (a range's start and end are also valrng/range, a guidance_hint inside it also ivuInstr)"
         },
         "hint": {
           "type": "cdl:hint",
@@ -161,6 +161,13 @@ const conventions = {
           ],
           "localized": true,
           "text": "a select_multiple's authored other choice's label: the pair has no binary var for it"
+        },
+        "no_label": {
+          "type": "cdl:no_label",
+          "on": [
+            "varGrp[@type='section' or @type='grid']"
+          ],
+          "text": "yes: the group has no label; its txt is its name, for readers that show one"
         }
       },
       "fields": {
@@ -534,7 +541,7 @@ const conventions = {
           "lsSyntax": "Y/N",
           "ddi": {
             "element": "var/notes[@type='cdl:required']",
-            "note": "Written only for a required question, with the text `yes`. It tells 'not asked' (universe) from 'refused' apart.",
+            "note": "Written only for a required question, with the required cell as authored (`yes` when it is `yes` or the source has none, e.g. `TRUE` as written). It tells 'not asked' (universe) from 'refused' apart.",
             "lossy": false
           }
         }

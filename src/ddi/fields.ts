@@ -13,21 +13,6 @@ import type { XmlElement } from './xml.js';
 
 const NOTES = conventions.conventions.ddiFields.notes;
 
-/**
- * The `parameters` DDI has no element for, as `key=value` tokens: without
- * `guidance_hint` (`ivuInstr`). A range's `start`/`end` stay as authored
- * (#160), though its `valrng` has them too: a bound equal to the default is
- * otherwise not told apart from none.
- */
-export function otherParameters(v: Variable): string {
-  const tokens: string[] = [];
-  for (const part of (v.parameters ?? '').split(';')) {
-    if (/^\s*guidance_hint\s*=/.test(part)) continue;
-    tokens.push(...part.split(/[\s,]+/).filter(Boolean));
-  }
-  return tokens.join(' ');
-}
-
 /** A `range`'s bounds, the registry's defaults where not authored. */
 export function rangeBounds(v: Variable): { min: string; max: string } {
   const values = {
@@ -45,9 +30,10 @@ export function addFieldNotes(el: XmlElement, v: Variable): void {
   if (v.appearance) {
     el.textChild('notes', v.appearance, { type: NOTES.appearance.type });
   }
-  const parameters = otherParameters(v);
-  if (parameters) {
-    el.textChild('notes', parameters, { type: NOTES.parameters.type });
+  // As authored (#160): a range's bounds are its valrng too, and a
+  // guidance_hint inside is its ivuInstr too, but only the cell says so.
+  if (v.parameters) {
+    el.textChild('notes', v.parameters, { type: NOTES.parameters.type });
   }
 }
 
@@ -75,6 +61,10 @@ export function addGroupFieldNotes(
   }
   if (group.appearance && !(grid && group.appearance === GRID_APPEARANCE)) {
     el.textChild('notes', group.appearance, { type: NOTES.appearance.type });
+  }
+  // Its txt is its name, for readers that show one (#160).
+  if (group.unlabelled) {
+    el.textChild('notes', 'yes', { type: NOTES.no_label.type });
   }
 }
 
@@ -138,13 +128,18 @@ export function addRowNotes(stdy: XmlElement, v: Variable): void {
     type: NOTES.row.type,
     subject: v.name,
   });
+  addRowLabel(stdy, v);
+  addRowFieldNotes(stdy, v);
+}
+
+/** A row's own label by its name (`cdl:row_label`), in every language. */
+export function addRowLabel(stdy: XmlElement, v: Variable): void {
   if (v.label) {
     localizedChild(stdy, 'notes', v.label, textsOf(v, 'label'), {
       type: NOTES.row_label.type,
       subject: v.name,
     });
   }
-  addRowFieldNotes(stdy, v);
 }
 
 /** A note row's or data-less row's hint, relevant and appearance, by its name. */

@@ -2,8 +2,9 @@
  * The DDI round trips on generated forms (#154, #160): random valid
  * XLSForms from the registry's types, with groups, grids, matrices,
  * languages, logic, fields, named and shared lists, `or_other` and explicit
- * other pairs, runs of notes, groups of notes only, metadata rows and
- * settings. Compared as `ddiRoundtrip.test.ts` and
+ * other pairs, runs of notes (with blank lines, in only some languages),
+ * groups of notes only or without a label, metadata rows, `required`
+ * spellings, messages without a constraint and settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
  */
 import { describe, test, expect } from 'vitest';
@@ -57,9 +58,11 @@ type Question =
       type: string;
       t: Texts;
       hint?: Texts;
-      required: boolean;
+      required?: string;
       ref: boolean;
       constraint: boolean;
+      /** A constraint_message without a constraint. */
+      message: boolean;
       appearance: boolean;
       params?: string;
     }
@@ -74,7 +77,16 @@ type Question =
       exclusive: boolean;
       ref: boolean;
     }
-  | { kind: 'note'; t: Texts; hint?: Texts; ref: boolean }
+  | {
+      kind: 'note';
+      t: Texts;
+      hint?: Texts;
+      ref: boolean;
+      /** Its text has a blank line. */
+      paragraphs: boolean;
+      /** Only the first language has it. */
+      partial: boolean;
+    }
   | { kind: 'metadata'; type: string };
 
 const question: fc.Arbitrary<Question> = fc.oneof(
@@ -85,9 +97,12 @@ const question: fc.Arbitrary<Question> = fc.oneof(
       type: fc.constantFrom(...SIMPLE),
       t: texts,
       hint: fc.option(texts, { nil: undefined }),
-      required: fc.boolean(),
+      required: fc.option(fc.constantFrom('yes', 'TRUE', 'true'), {
+        nil: undefined,
+      }),
       ref: fc.boolean(),
       constraint: fc.boolean(),
+      message: fc.boolean(),
       appearance: fc.boolean(),
       params: fc.option(fc.constantFrom(...RANGE_PARAMETERS), {
         nil: undefined,
@@ -122,6 +137,8 @@ const question: fc.Arbitrary<Question> = fc.oneof(
       t: texts,
       hint: fc.option(texts, { nil: undefined }),
       ref: fc.boolean(),
+      paragraphs: fc.boolean(),
+      partial: fc.boolean(),
     }),
   },
   fc.record({
@@ -135,6 +152,7 @@ type Block =
   | {
       kind: 'group';
       t: Texts;
+      unlabelled: boolean;
       relevant: boolean;
       inner: Question[];
       nested: Question[];
@@ -152,6 +170,7 @@ const block: fc.Arbitrary<Block> = fc.oneof(
     arbitrary: fc.record({
       kind: fc.constant('group' as const),
       t: texts,
+      unlabelled: fc.boolean(),
       relevant: fc.boolean(),
       inner: fc.array(question, { minLength: 1, maxLength: 3 }),
       nested: fc.array(question, { maxLength: 2 }),
@@ -255,8 +274,16 @@ function sheets(f: Form) {
       return;
     }
     const row: Row = { name };
-    put(row, 'label', q.t);
     if (q.kind === 'note') {
+      const t = q.paragraphs
+        ? {
+            one: `${q.t.one}\n\n${q.t.en}`,
+            de: `${q.t.de}\n\n${q.t.en}`,
+            en: q.t.en,
+          }
+        : q.t;
+      if (q.partial && f.multilingual) row[`label::${LANGS[0]}`] = t.de;
+      else put(row, 'label', t);
       row.type = 'note';
       if (q.hint) put(row, 'hint', q.hint);
       const c = q.ref ? condition() : undefined;
@@ -264,13 +291,16 @@ function sheets(f: Form) {
       survey.push(row);
       return;
     }
+    put(row, 'label', q.t);
     row.type = q.type;
     if (q.hint) put(row, 'hint', q.hint);
-    if (q.required) row.required = 'yes';
+    if (q.required) row.required = q.required;
     const c = q.ref ? condition() : undefined;
     if (c) row.relevant = c;
     if (q.constraint && q.type === 'integer') {
       row.constraint = '. >= 1 and . <= 10';
+      put(row, 'constraint_message', q.t);
+    } else if (q.message) {
       put(row, 'constraint_message', q.t);
     }
     if (q.appearance && q.type === 'text') row.appearance = 'multiline';
@@ -304,7 +334,7 @@ function sheets(f: Form) {
     if (b.kind === 'question') addQuestion(b.q);
     else if (b.kind === 'group') {
       const row: Row = { type: 'begin_group', name: `g${++n}` };
-      put(row, 'label', b.t);
+      if (!b.unlabelled) put(row, 'label', b.t);
       if (b.relevant && answered.length)
         row.relevant = `\${${answered[0]}} != ''`;
       survey.push(row);

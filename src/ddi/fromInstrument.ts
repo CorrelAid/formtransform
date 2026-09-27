@@ -124,6 +124,13 @@ function groupsOf(ctx: GroupContext): Pick<Variable, 'groups'> {
   return ctx.groups.length ? { groups: ctx.groups } : {};
 }
 
+/** The `required` cell as authored, when it isn't the plain `yes` (#160). */
+function requiredCell(q: QuestionItem): Pick<Variable, 'requiredCell'> {
+  const cell = q.row['required'];
+  const text = typeof cell === 'string' ? cell.trim() : '';
+  return text && text !== 'yes' ? { requiredCell: text } : {};
+}
+
 /** A question's own logic (#151) and form fields (#153), absent when empty. */
 function logicOf(
   q: QuestionItem,
@@ -134,6 +141,7 @@ function logicOf(
   | 'constraint'
   | 'constraintMessage'
   | 'required'
+  | 'requiredCell'
   | 'default'
   | 'appearance'
   | 'parameters'
@@ -143,8 +151,8 @@ function logicOf(
   return {
     ...(relevant ? { relevant } : {}),
     ...(q.constraint ? { constraint: q.constraint } : {}),
-    ...(q.constraint && message ? { constraintMessage: message } : {}),
-    ...(q.required ? { required: true } : {}),
+    ...(message ? { constraintMessage: message } : {}),
+    ...(q.required ? { required: true, ...requiredCell(q) } : {}),
     ...(q.default ? { default: q.default } : {}),
     ...(q.appearance ? { appearance: q.appearance } : {}),
     ...(q.parameters.trim() ? { parameters: q.parameters.trim() } : {}),
@@ -392,7 +400,7 @@ function pushQuestion(
       hint: q.hint,
       guidanceHint: q.guidanceHint,
       groupLabel: ctx.labelText,
-      ...(q.constraint ? { constraintMessage: q.constraintMessage } : {}),
+      constraintMessage: q.constraintMessage,
     },
     state.others,
   );
@@ -438,6 +446,9 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       relevant: item.relevant.trim(),
       hint: pick(item.hint, state.lang).trim(),
       ...(hintTranslations ? { hintTranslations } : {}),
+      ...(Object.values(item.label).some((t) => t.trim())
+        ? {}
+        : { unlabelled: true }),
     };
     project(
       item.children,

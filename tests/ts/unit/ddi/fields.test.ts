@@ -139,8 +139,10 @@ describe('cdl: notes', () => {
     const v = varXml(xml, 'q');
     expect(v).toContain('<notes type="cdl:default">no</notes>');
     expect(v).toContain('<notes type="cdl:appearance">minimal</notes>');
-    // guidance_hint is its ivuInstr, not a parameter.
-    expect(v).toContain('<notes type="cdl:parameters">randomize=true</notes>');
+    // The cell as authored (#160); its guidance_hint is the ivuInstr too.
+    expect(v).toContain(
+      '<notes type="cdl:parameters">randomize=true; guidance_hint=Only once</notes>',
+    );
     expect(v).toContain('<ivuInstr>Only once</ivuInstr>');
   });
 
