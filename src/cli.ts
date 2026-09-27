@@ -425,6 +425,8 @@ function cmdLstsv2ddi(argv: string[]): void {
       datasetFilename,
       prodDate: values['prod-date'] as string | undefined,
       submissions,
+      onWarning: (w) =>
+        process.stderr.write(`${PROG}: warning: ${w.message}\n`),
     });
     if (submissions) {
       csv = lstsvToDataCsv(tsv, submissions, {

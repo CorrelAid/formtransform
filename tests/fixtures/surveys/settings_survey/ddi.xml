@@ -51,8 +51,10 @@
       <qstn responseDomainType="text">
         <qstnLit>Please specify your color</qstnLit>
       </qstn>
+      <universe clusion="I">Only if “What is your _favorite_ color?” = Other</universe>
       <concept>Please specify your color</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${fav_color} = 'other'</notes>
     </var>
     <var ID="V_comment" name="comment" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">

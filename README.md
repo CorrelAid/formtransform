@@ -190,10 +190,13 @@ types: plain/nested groups flatten, choice codes over 5 chars truncate,
 `select_multiple` becomes N binary variables, and the reverse paths cannot
 recover a select's authored `list_name` or tell `integer` from `decimal`.
 
-**DDI is the terminus:** there is no `ddi2xlsform` or `ddi2lstsv`, by design. A
-codebook describes a *dataset*, not an *instrument* — it carries no relevance,
-constraint, required, default or appearance, so reversing it would emit a survey
-that looks right and behaves wrongly.
+**DDI has no way back yet:** there is no `ddi2xlsform` or `ddi2lstsv`. A CDL
+codebook carries skip logic, validation and `required`: each condition as a
+readable `<universe>` sentence (and a simple numeric range as `<valrng>`), plus
+the exact expression in a typed note such as `<notes type="cdl:relevant"
+subject="xlsform-xpath">` (`convention:logicMapping`). Defaults, appearances
+and the group structure are not in it yet, so a reversed form would still look
+right and behave wrongly. #155 tracks the rest.
 
 ## Errors and warnings
 

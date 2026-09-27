@@ -225,7 +225,7 @@
       }
     },
     "logicMapping": {
-      "description": "XLSForm expresses survey logic in an XPath subset; LimeSurvey uses ExpressionScript (EM). The transformation transpiles between them (implemented in src/pipelines/xlsform2lstsv/xpathTranspiler.ts). DDI Codebook has no machine-readable expression syntax — logic fields are dropped when emitting DDI and tools MUST report this as loss.",
+      "description": "XLSForm expresses survey logic in an XPath subset; LimeSurvey uses ExpressionScript (EM). The transformation transpiles between them (implemented in src/pipelines/xlsform2lstsv/xpathTranspiler.ts). DDI Codebook 2.5 has no expression syntax of its own, so a CDL codebook carries the logic in two parts (formtransform#151): readable prose in the standard element (`universe`, `valrng`) and the expression itself in a typed `<notes>`, the extension point the DDI XSD provides (\"The attributes for notes permit a controlled vocabulary to be developed ('type' and 'subject')\"). See ddiEncoding.",
       "fields": [
         {
           "concept": "relevance (conditional display)",
@@ -234,9 +234,9 @@
           "lsTsvColumn": "relevance",
           "lsSyntax": "ExpressionScript (EM)",
           "ddi": {
-            "closestElement": "var/universe",
-            "note": "DDI universe describes the subpopulation as prose, not as machine syntax. Currently NOT emitted — relevance is dropped in DDI output.",
-            "lossy": true
+            "element": "var/universe[@clusion='I'] + var/notes[@type='cdl:relevant']",
+            "note": "The universe is prose formtransform generates from the expression and the referenced questions' labels (see ddiEncoding.universe); the typed note carries the XPath verbatim. A select_multiple's go on its varGrp[@type='multipleResp'] (the semi-open pair's on its varGrp[@type='other']), with the universe prose also on each binary var. Until every group has a varGrp (formtransform#152), the enclosing groups' conditions are ANDed into each variable's own.",
+            "lossy": false
           }
         },
         {
@@ -246,9 +246,9 @@
           "lsTsvColumn": "em_validation_q",
           "lsSyntax": "ExpressionScript (EM)",
           "ddi": {
-            "closestElement": "var/valrng",
-            "note": "DDI valrng can express simple numeric ranges only. Currently NOT emitted — constraints are dropped in DDI output.",
-            "lossy": true
+            "element": "var/notes[@type='cdl:constraint'] (+ var/valrng/range for a simple numeric range)",
+            "note": "The typed note carries the XPath verbatim. On an integer or decimal, a constraint that is only bounds on `.` (`. >= 1 and . <= 10`, `. > 0`) is also written as the standard valrng/range (min/max, minExclusive/maxExclusive).",
+            "lossy": false
           }
         },
         {
@@ -258,9 +258,21 @@
           "lsTsvColumn": "em_validation_q_tip",
           "lsSyntax": "plain text",
           "ddi": {
-            "closestElement": null,
-            "note": "No DDI counterpart; dropped.",
-            "lossy": true
+            "element": "var/notes[@type='cdl:constraint_message']",
+            "note": "The form's own text, one note per language (base untagged, others with xml:lang), like every other form text.",
+            "lossy": false
+          }
+        },
+        {
+          "concept": "required answer",
+          "xlsformColumn": "required",
+          "xlsformSyntax": "yes/no",
+          "lsTsvColumn": "mandatory",
+          "lsSyntax": "Y/N",
+          "ddi": {
+            "element": "var/notes[@type='cdl:required']",
+            "note": "Written only for a required question, with the text `yes`. It tells 'not asked' (universe) from 'refused' apart.",
+            "lossy": false
           }
         }
       ],
@@ -306,7 +318,79 @@
         "today",
         "now"
       ],
-      "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions"
+      "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions",
+      "ddiEncoding": {
+        "noteSubject": "xlsform-xpath",
+        "noteSubjectMeaning": "The note's text is an XLSForm XPath expression. `${name}` refers to a var/@name or varGrp/@name of the same codebook; `.` to the variable's own answer.",
+        "notes": {
+          "relevant": {
+            "type": "cdl:relevant",
+            "subject": "xlsform-xpath",
+            "on": [
+              "var",
+              "varGrp"
+            ]
+          },
+          "constraint": {
+            "type": "cdl:constraint",
+            "subject": "xlsform-xpath",
+            "on": [
+              "var",
+              "varGrp"
+            ]
+          },
+          "constraint_message": {
+            "type": "cdl:constraint_message",
+            "on": [
+              "var",
+              "varGrp"
+            ],
+            "localized": true
+          },
+          "required": {
+            "type": "cdl:required",
+            "on": [
+              "var",
+              "varGrp"
+            ],
+            "text": "yes"
+          }
+        },
+        "order": "The typed notes come last in var/varGrp, after any untyped note; universe comes after qstn and valrng, before catgry. At most one untyped note per language stays allowed (a citation).",
+        "universe": {
+          "clusion": "I",
+          "untaggedLanguage": "en",
+          "use": "The prose covers `=`, `!=`, `<`, `<=`, `>`, `>=`, `selected()`, `and`, `or`, `not()`, and a comparison with '' (answered / not answered). A condition using anything else gets no universe; its typed note still carries it. It is written in the codebook's base language and each other language with a template here (an untagged codebook uses untaggedLanguage), and only where every referenced label exists in that language. The connecting words are formtransform's metadata, not the form's text; labels and choice labels are the form's own.",
+          "templates": {
+            "en": {
+              "prefix": "Only if ",
+              "and": "and",
+              "or": "or",
+              "not": "not ({})",
+              "selected": "{q} includes {v}",
+              "answered": "{q} is answered",
+              "unanswered": "{q} is not answered",
+              "quotes": [
+                "“",
+                "”"
+              ]
+            },
+            "de": {
+              "prefix": "Nur wenn ",
+              "and": "und",
+              "or": "oder",
+              "not": "nicht ({})",
+              "selected": "{q} enthält {v}",
+              "answered": "{q} ist beantwortet",
+              "unanswered": "{q} ist nicht beantwortet",
+              "quotes": [
+                "„",
+                "“"
+              ]
+            }
+          }
+        }
+      }
     },
     "other": {
       "companionSuffix": "_other",

@@ -151,15 +151,14 @@ The migration runs in phases, each keeping every snapshot byte-identical:
 
 ### Why there is no `ddi2xlsform` or `ddi2lstsv`
 
-Deliberate design decision. **DDI is the terminus of the pipeline graph** — it describes a *dataset*, not an *instrument*, so it does not carry the information a survey needs to run.
+**DDI is the terminus of the pipeline graph for now.** It describes a *dataset*, not an *instrument*, and a reverse path needs the whole instrument. #155 plans one.
 
-The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit. Everything that makes a form behave is absent:
+The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit:
 
-- **no `relevant`** — DDI Codebook 2.5 has no machine-readable expression syntax at all, so skip logic is dropped on the way in
-- **no `constraint`** — same reason
-- **no `required`, `default`, per-question `appearance`, `calculation`** (a question's `hint` and `guidance_hint` do survive, as `<preQTxt>` and `<ivuInstr>`)
+- **`relevant`, `constraint`, `constraint_message`, `required`** survive (#151). DDI Codebook 2.5 has no expression syntax, so each goes in twice: readable (`<universe>` prose, `<valrng>` for a simple numeric range) and exact, in a typed `<notes type="cdl:…">`. `convention:logicMapping` (`ddiEncoding`) defines the notes. Until every group has a `varGrp` (#152), a group's condition is ANDed into each variable's own.
+- **no `default`, per-question `appearance`, `calculation`, plain group structure** yet (#152, #153). A question's `hint` and `guidance_hint` do survive, as `<preQTxt>` and `<ivuInstr>`.
 
-Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T` type overrides. It is a form definition in a different dialect, so reversing it is a translation problem. Reversing DDI is not — it is a *reconstruction* problem, and the missing pieces cannot be inferred from a codebook.
+Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T` type overrides. It is a form definition in a different dialect, so reversing it is a translation problem. Reversing a codebook without those pieces is a *reconstruction* problem, and they cannot be inferred from it.
 
 ## Development Workflow
 

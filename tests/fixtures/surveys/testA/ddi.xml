@@ -113,6 +113,7 @@
       </catgry>
       <concept>Wie lange kommst du schon zu TestWerk?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_haeufigkeit" name="haeufigkeit" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -136,6 +137,7 @@
       </catgry>
       <concept>Wie oft kommst du ungefähr?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
@@ -171,6 +173,7 @@
       </catgry>
       <concept>In welcher Werkstatt bist du hauptsächlich?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_vorwissen" name="vorwissen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -190,6 +193,7 @@
       </catgry>
       <concept>Hattest du vorher schon handwerkliche Erfahrung?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_wohlfuehlen" name="wohlfuehlen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -217,6 +221,7 @@
       </catgry>
       <concept>Ich fühle mich bei TestWerk wohl und akzeptiert.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_freundschaften" name="freundschaften" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -244,6 +249,7 @@
       </catgry>
       <concept>Ich habe bei TestWerk Freund*innen gefunden.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_eigene_ideen" name="eigene_ideen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -271,6 +277,7 @@
       </catgry>
       <concept>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_problemloesung" name="problemloesung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -298,6 +305,7 @@
       </catgry>
       <concept>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_skills_gelernt" name="skills_gelernt" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -325,6 +333,7 @@
       </catgry>
       <concept>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_beruf_pre" name="beruf_pre" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -353,6 +362,7 @@
       </catgry>
       <concept>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_beruf_post" name="beruf_post" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -380,14 +390,17 @@
       </catgry>
       <concept>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_attribution_beruf" name="attribution_beruf" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
         <preQTxt>0% = gar nicht, 100% = komplett</preQTxt>
         <qstnLit>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</qstnLit>
       </qstn>
+      <universe clusion="I">Only if “Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.” ≠ “Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.”</universe>
       <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${beruf_post} != ${beruf_pre}</notes>
     </var>
     <var ID="V_projekte" name="projekte" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
@@ -461,6 +474,7 @@
       </catgry>
       <concept>Würdest du TestWerk Freund*innen empfehlen?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_alter" name="alter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -516,8 +530,10 @@
       <qstn responseDomainType="text">
         <qstnLit>Falls &quot;Anderes&quot;: Bitte angeben (optional)</qstnLit>
       </qstn>
+      <universe clusion="I">Only if “Geschlecht (optional)” = Anderes Geschlecht</universe>
       <concept>Falls &quot;Anderes&quot;: Bitte angeben (optional)</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${geschlecht} = 'andere'</notes>
     </var>
   </dataDscr>
 </codeBook>

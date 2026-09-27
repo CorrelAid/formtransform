@@ -247,7 +247,11 @@ ASSERT_MUTATIONS = [
         "missing a concept element",
     ),
     ("type:select_one", _insert_after_first("</qstn>", "<labl>x</labl>"), "uses labl"),
-    ("type:select_one", _insert_after_first("</qstn>", "<notes>a</notes><notes>b</notes>"), "multiple notes elements"),
+    (
+        "type:select_one",
+        _insert_after_first("</qstn>", "<notes>a</notes><notes>b</notes>"),
+        "more than one untyped notes element",
+    ),
     (
         "composite:grid",
         _sub1(r'(<varGrp\s[^>]*?)\s+name="[^"]+"', r"\1"),
@@ -378,6 +382,24 @@ def test_several_concepts_are_allowed(worker_jar, java_bin, tmp_path):
     rc, out = _validate(java_bin, worker_jar, empty.encode(), tmp_path)
     messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
     assert rc == 1 and any("missing a concept element" in m for m in messages), messages
+
+
+def test_typed_notes_and_one_untyped_note_per_language(worker_jar, java_bin, tmp_path):
+    """Typed notes (convention:logicMapping, #151) are not limited, and one
+    untyped note (a citation) is allowed per language."""
+    from .fixtures import load_registry
+
+    variant = next(e for e in load_registry() if e.get("@id") == "type:select_one")
+    xml = load_example_ddi(variant)
+    notes = (
+        '<notes type="cdl:relevant" subject="xlsform-xpath">1 = 1</notes>'
+        '<notes type="cdl:required">yes</notes>'
+        "<notes>Quelle: X</notes>"
+        '<notes xml:lang="en">Source: X</notes>'
+    )
+    ok = xml.replace("</var>", notes + "</var>", 1)
+    rc, out = _validate(java_bin, worker_jar, ok.encode(), tmp_path)
+    assert rc == 0, out[out.index("{") :][:800]
 
 
 def test_companion_of_a_name_that_ends_in_other(worker_jar, java_bin, tmp_path):

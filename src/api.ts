@@ -162,5 +162,8 @@ export function lstsvToDdi(
   tsv: string,
   options: LstsvToDdiOptions = {},
 ): string {
-  return lstsvToDdiXml(tsv, options);
+  return lstsvToDdiXml(tsv, {
+    ...options,
+    onWarning: onceEach(options.onWarning),
+  });
 }

@@ -29,6 +29,7 @@
       </qstn>
       <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_age" name="age" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
@@ -36,6 +37,7 @@
       </qstn>
       <concept>What is your age?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
     <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
@@ -51,6 +53,7 @@
       </catgry>
       <concept>Do you consent to participate?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:required">yes</notes>
     </var>
   </dataDscr>
 </codeBook>

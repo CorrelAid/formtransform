@@ -27,6 +27,7 @@ export interface VariableTexts {
   hint?: string;
   guidanceHint?: string;
   groupLabel?: string;
+  constraintMessage?: string;
 }
 
 /** One data-carrying (or note) row of a survey, normalized. */
@@ -53,6 +54,17 @@ export interface Variable {
   hint?: string;
   /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
   guidanceHint?: string;
+  /**
+   * XLSForm `relevant` (XPath), with the enclosing groups' conditions ANDed
+   * in: `<universe>` prose plus a `cdl:relevant` note (#151).
+   */
+  relevant?: string;
+  /** XLSForm `constraint` (XPath): a `cdl:constraint` note, maybe `<valrng>`. */
+  constraint?: string;
+  /** XLSForm `constraint_message`: a `cdl:constraint_message` note. */
+  constraintMessage?: string;
+  /** XLSForm `required`: a `cdl:required` note. */
+  required?: boolean;
   /** Its texts in the form's other languages, by language tag (#135). */
   translations?: Record<string, VariableTexts>;
 }
