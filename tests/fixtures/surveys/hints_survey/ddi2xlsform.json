@@ -22,7 +22,7 @@
       "type": "select_one janein",
       "name": "ehrenamt",
       "label": "Sind Sie ehrenamtlich tätig?",
-      "parameters": "guidance_hint=Auch gelegentliches Engagement zählt."
+      "guidance_hint": "Auch gelegentliches Engagement zählt."
     },
     {
       "type": "select_multiple medien",

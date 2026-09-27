@@ -10,6 +10,7 @@ import { isMetadataType } from '../../../src/conventions/metadata.js';
 import { OTHER_CODE } from '../../../src/conventions/other.js';
 import { isExclusive } from '../../../src/conventions/exclusive.js';
 import { allColumns } from '../../../src/conventions/columns.js';
+import { withoutSpacedGuidance } from '../../../src/utils/parameters.js';
 import { languageTagOf } from '../../../src/utils/languageUtils.js';
 import type {
   Instrument,
@@ -85,7 +86,8 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     required: required(q),
     default: q.default,
     appearance: appearance(q),
-    parameters: q.parameters.trim(),
+    // A guidance_hint pyxform rejects in parameters is moved to its column.
+    parameters: withoutSpacedGuidance(q.parameters.trim()).parameters,
     columns: q.columns ?? {},
   };
 }

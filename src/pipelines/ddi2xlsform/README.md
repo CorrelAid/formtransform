@@ -67,6 +67,9 @@ out):
    `begin group` / `end group` as `begin_group` / `end_group`, a boolean
    setting as its text (`true`), a setting's `{ lang: text }` cell as one
    `<key>::<lang>` column per language.
+3. **A repair**: a `guidance_hint=<text with spaces>` inside `parameters`
+   (qwacback's old export wrote it) comes back as the `guidance_hint` column,
+   since pyxform rejects it there. One without spaces stays where it was.
 
 ## Tests
 

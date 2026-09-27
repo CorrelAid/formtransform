@@ -290,3 +290,29 @@ describe('the last cells (#160)', () => {
     });
   });
 });
+
+describe('a guidance_hint in parameters (#160)', () => {
+  const back = (parameters: string) =>
+    ddiToXlsform(
+      buildDdiXml([{ type: 'text', name: 't', label: 'T', parameters }], [], {
+        prodDate: '2020-01-01',
+      }),
+    ).survey[0];
+
+  test('stays there when pyxform accepts it', () => {
+    expect(back('guidance_hint=Once')).toMatchObject({
+      parameters: 'guidance_hint=Once',
+    });
+    expect(back('guidance_hint=Once')).not.toHaveProperty('guidance_hint');
+  });
+
+  test('is its column when its text has spaces, which pyxform rejects', () => {
+    expect(back('randomize=true; guidance_hint=Only once')).toMatchObject({
+      parameters: 'randomize=true',
+      guidance_hint: 'Only once',
+    });
+    const alone = back('guidance_hint=Only once');
+    expect(alone).toMatchObject({ guidance_hint: 'Only once' });
+    expect(alone).not.toHaveProperty('parameters');
+  });
+});
