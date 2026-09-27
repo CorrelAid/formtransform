@@ -147,12 +147,12 @@ describe('loader', () => {
 });
 
 describe('xlsform → DDI', () => {
-  test("a regional label column uses its language's other label", () => {
+  test("a regional label column uses its language's LimeSurvey other text", () => {
     const xml = buildDdiXml(
       [{ type: 'select_one l or_other', name: 'q', 'label::de-AT': 'Q?' }],
       [{ list_name: 'l', name: 'a', 'label::de-AT': 'A' }],
       { prodDate: '2000-01-01' },
     );
-    expect(xml).toContain('<labl>Sonstiges</labl>');
+    expect(xml).toContain('<labl>Sonstiges:</labl>');
   });
 });

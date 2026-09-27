@@ -11,6 +11,7 @@ import { describe, expect, test } from 'vitest';
 
 import type { Diagnostic } from '../../../src/diagnostics.js';
 import { xlsformToLstsv } from '../../../src/api.js';
+import { buildDdiXml } from '../../../src/pipelines/xlsform2ddi/index.js';
 import { lstsvToDataCsv } from '../../../src/pipelines/lstsv2ddi/index.js';
 import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
 import { validateLstsvSubset } from '../../../src/lstsv/validate.js';
@@ -236,6 +237,35 @@ describe('validateSubset', () => {
       [{ list_name: 'l', name: 'a', label: 'A', exclusive: 'maybe' }],
     ).find((d) => d.code === 'exclusive-invalid');
     expect(found?.message).toContain('"maybe"');
+  });
+});
+
+describe('DDI', () => {
+  test('other-shorthand: or_other in a form bound for DDI', () => {
+    const found = XLSValidator.validateSubset(
+      [{ type: 'select_one l or_other', name: 'q', label: 'Q?' }],
+      [{ list_name: 'l', name: 'a', label: 'A' }],
+      { target: 'ddi' },
+    );
+    expect(found).toContainEqual(
+      expect.objectContaining({
+        code: 'other-shorthand',
+        severity: 'warning',
+        name: 'q',
+      }),
+    );
+  });
+
+  test('other-label-missing: or_other in a language LimeSurvey lacks', () => {
+    const warnings: Diagnostic[] = [];
+    const xml = buildDdiXml(
+      [{ type: 'select_one l or_other', name: 'q', 'label::eo': 'Q?' }],
+      [{ list_name: 'l', name: 'a', 'label::eo': 'A' }],
+      { onWarning: (w) => warnings.push(w) },
+    );
+    expect(warnings.map((w) => w.code)).toEqual(['other-label-missing']);
+    // The answer still needs a label: its code.
+    expect(xml).toContain('<labl>other</labl>');
   });
 });
 

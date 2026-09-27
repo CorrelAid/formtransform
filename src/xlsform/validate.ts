@@ -546,8 +546,10 @@ export class XLSValidator {
       if (found) violations.push(found);
     }
     violations.push(...this.exclusiveProblems(surveyData, choicesData));
-    if (target === 'ddi')
+    if (target === 'ddi') {
       violations.push(...this.falseOtherCompanions(surveyData));
+      violations.push(...this.otherShorthands(surveyData));
+    }
     violations.push(
       ...expressionReferenceDiagnostics(
         surveyData,
@@ -642,6 +644,30 @@ export class XLSValidator {
         warning(
           'name-reserved-suffix',
           `"${name}" ends in "${OTHER_SUFFIX}", which DDI reads as the free-text "other" of a question "${base}"; ${isText ? `there is no question "${base}"` : 'but it is not a text question'} — rename it`,
+          name,
+        ),
+      );
+    }
+    return found;
+  }
+
+  /**
+   * The `or_other` shorthand authors no text for its "other" answer: the
+   * survey tool supplies it (LimeSurvey its own `Sonstiges:`, ODK/Kobo an
+   * untranslated `Other` / `Specify other.`), and the DDI records
+   * LimeSurvey's. An explicit `other` choice plus `<name>_other` text
+   * question carries the author's own text on every platform.
+   */
+  private static otherShorthands(surveyData: SurveyRow[]): Diagnostic[] {
+    const found: Diagnostic[] = [];
+    for (const row of surveyData) {
+      const [, , ...rest] = (row.type || '').trim().split(/\s+/);
+      if (!rest.includes('or_other')) continue;
+      const name = typeof row.name === 'string' ? row.name.trim() : '';
+      found.push(
+        warning(
+          'other-shorthand',
+          `"${name}" uses or_other, whose "other" texts come from the survey tool, not the form (LimeSurvey "Sonstiges:", ODK/Kobo "Other" / "Specify other."); the DDI records LimeSurvey's. Write an "other" choice and a "${name}${OTHER_SUFFIX}" text question to use your own`,
           name,
         ),
       );

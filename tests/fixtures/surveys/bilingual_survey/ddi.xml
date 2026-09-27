@@ -140,16 +140,18 @@
       </catgry>
       <catgry>
         <catValu>other</catValu>
-        <labl>Sonstiges</labl>
+        <labl>Sonstiges:</labl>
+        <labl xml:lang="en">Other:</labl>
       </catgry>
       <concept>Wie haben Sie von uns erfahren?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_quelle_other" name="quelle_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
-        <qstnLit>Sonstiges</qstnLit>
+        <qstnLit>Sonstiges:</qstnLit>
+        <qstnLit xml:lang="en">Other:</qstnLit>
       </qstn>
-      <concept>Sonstiges</concept>
+      <concept>Sonstiges:</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
