@@ -61,6 +61,7 @@
       </catgry>
       <concept>Sind Sie ehrenamtlich tätig?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:parameters">guidance_hint=Auch gelegentliches Engagement zählt.</notes>
       <notes type="cdl:list">janein</notes>
     </var>
     <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">

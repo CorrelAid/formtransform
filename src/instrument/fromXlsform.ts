@@ -55,9 +55,15 @@ export function readText(row: Row, base: string): Text {
   return text;
 }
 
-/** Language tags a row's label uses, in column order. */
+/** The columns whose texts the model reads, in every language. */
+const TEXT_COLUMNS = ['label', 'hint', 'guidance_hint', 'constraint_message'];
+
+/**
+ * Language tags a row's texts use, label first, in column order: a language
+ * only a hint has is still one of the form's (#160).
+ */
 function labelLanguages(row: Row): string[] {
-  return Object.keys(readText(row, 'label'));
+  return TEXT_COLUMNS.flatMap((column) => Object.keys(readText(row, column)));
 }
 
 /** Parse `parameters`' `guidance_hint=<text>` (qwacback's encoding). */

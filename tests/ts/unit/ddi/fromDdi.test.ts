@@ -9,6 +9,7 @@ import type { Diagnostic } from '../../../../src/diagnostics.js';
 import { ConversionError } from '../../../../src/diagnostics.js';
 import { instrumentFromDdi } from '../../../../src/instrument/fromDdi.js';
 import { ddiToXlsform } from '../../../../src/pipelines/ddi2xlsform/index.js';
+import { buildDdiXml } from '../../../../src/pipelines/xlsform2ddi/index.js';
 import type { QuestionItem } from '../../../../src/instrument/types.js';
 import { parseXml, textContent } from '../../../../src/utils/xmlParse.js';
 
@@ -146,5 +147,37 @@ describe('choice lists', () => {
       used: ['yn', 'yn', 'c'],
       names: ['yn', 'c'],
     });
+  });
+});
+
+describe('cells as authored (#160)', () => {
+  const back = (survey: Record<string, unknown>[]) =>
+    ddiToXlsform(buildDdiXml(survey, [], { prodDate: '2020-01-01' })).survey;
+
+  test('a required cell other than yes', () => {
+    expect(
+      back([{ type: 'text', name: 't', label: 'T', required: 'TRUE' }])[0],
+    ).toMatchObject({ required: 'TRUE' });
+  });
+
+  test('a group without a label has none', () => {
+    const [group] = back([
+      { type: 'begin_group', name: 'g' },
+      { type: 'text', name: 't', label: 'T' },
+      { type: 'end_group' },
+    ]);
+    expect(group).toMatchObject({ type: 'begin_group', name: 'g', label: '' });
+  });
+
+  test('notes the blank lines can not tell apart keep their own texts', () => {
+    const survey = back([
+      { type: 'note', name: 'a', label: 'One\n\nTwo' },
+      { type: 'note', name: 'b', label: 'Three' },
+      { type: 'text', name: 't', label: 'T' },
+    ]);
+    expect(survey.slice(0, 2)).toEqual([
+      { type: 'note', name: 'a', label: 'One\n\nTwo' },
+      { type: 'note', name: 'b', label: 'Three' },
+    ]);
   });
 });

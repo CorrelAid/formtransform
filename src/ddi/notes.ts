@@ -29,6 +29,12 @@ export interface ClassifiedNotes {
   inlinePreqtxtTranslations: Record<string, Translations>;
   /** `variable.name` → the names of the notes in its `inlinePreqtxt`. */
   inlineNames: Record<string, string[]>;
+  /**
+   * Inline notes whose joined text can't be split back at its blank lines
+   * (one has a blank line, or lacks a language another has): their own
+   * texts go in `cdl:row_label` (#160).
+   */
+  unsplittable: Variable[];
   /** Notes with no data-carrying successor in the same group. */
   orphanNotes: Variable[];
   /** Rows without data: metadata rows, matrix headers. */
@@ -75,6 +81,19 @@ function positionOf(
   return { name, in: group, after: '' };
 }
 
+/** Whether notes joined with blank lines split back into the same notes. */
+function splittable(notes: Variable[]): boolean {
+  if (notes.length < 2) return true;
+  const texts = notes.map((n): Record<string, string> => ({
+    '': n.label,
+    ...textsOf(n, 'label'),
+  }));
+  const langs = new Set(texts.flatMap((t) => Object.keys(t)));
+  return texts.every((t) =>
+    [...langs].every((l) => !!t[l] && !t[l].includes('\n\n')),
+  );
+}
+
 /** Split notes into inline (`<preQTxt>`) and orphan (`<notes>`) buckets. */
 export function classifyNotes(variables: Variable[]): ClassifiedNotes {
   const dataVars: Variable[] = [];
@@ -109,7 +128,9 @@ export function classifyNotes(variables: Variable[]): ClassifiedNotes {
   const inlinePreqtxt: Record<string, string> = {};
   const inlinePreqtxtTranslations: Record<string, Translations> = {};
   const inlineNames: Record<string, string[]> = {};
+  const unsplittable: Variable[] = [];
   for (const [name, notes] of Object.entries(inline)) {
+    if (!splittable(notes)) unsplittable.push(...notes);
     inlinePreqtxt[name] = notes.map((n) => n.label).join('\n\n');
     inlinePreqtxtTranslations[name] = joinTranslations(
       notes.map((n) => textsOf(n, 'label')),
@@ -125,6 +146,7 @@ export function classifyNotes(variables: Variable[]): ClassifiedNotes {
     inlinePreqtxt,
     inlinePreqtxtTranslations,
     inlineNames,
+    unsplittable,
     orphanNotes: kept.filter((v) => v.type === 'note'),
     rows: kept.filter((v) => v.row !== undefined),
     positions,

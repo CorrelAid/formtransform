@@ -35,27 +35,33 @@
     <varGrp ID="VG_teilnahme" name="teilnahme" type="section" var="V_dauer V_haeufigkeit V_stunden_gesamt V_hauptwerkstatt V_vorwissen" varGrp="VG_bereiche">
       <txt>teilnahme</txt>
       <concept>teilnahme</concept>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_wirkung" name="wirkung" type="section" var="V_wohlfuehlen V_freundschaften V_eigene_ideen V_problemloesung V_skills_gelernt V_beruf_pre V_beruf_post V_attribution_beruf">
       <txt>wirkung</txt>
       <concept>wirkung</concept>
       <notes type="cdl:hint">Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):</notes>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_erfahrungen" name="erfahrungen" type="section" var="V_projekte V_am_meisten_gebracht V_verbesserungen">
       <txt>erfahrungen</txt>
       <concept>erfahrungen</concept>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_empfehlung" name="empfehlung" type="section" var="V_nps_score">
       <txt>empfehlung</txt>
       <concept>empfehlung</concept>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_demografie" name="demografie" type="section" var="V_alter V_geschlecht V_geschlecht_andere">
       <txt>demografie</txt>
       <concept>demografie</concept>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_intro" name="intro" type="section">
       <txt>intro</txt>
       <concept>intro</concept>
+      <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_bereiche" name="bereiche" type="multipleResp" var="V_bereiche_holz V_bereiche_metall V_bereiche_textil V_bereiche_digital">
       <txt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</txt>
@@ -87,7 +93,7 @@
       </catgry>
       <concept>Wie lange kommst du schon zu TestWerk?</concept>
       <varFormat type="character" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
     </var>
     <var ID="V_haeufigkeit" name="haeufigkeit" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="2">
@@ -111,7 +117,7 @@
       </catgry>
       <concept>Wie oft kommst du ungefähr?</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
     </var>
     <var ID="V_stunden_gesamt" name="stunden_gesamt" intrvl="contin" dcml="0" files="F1">
       <qstn responseDomainType="numeric" seqNo="3">
@@ -147,7 +153,7 @@
       </catgry>
       <concept>In welcher Werkstatt bist du hauptsächlich?</concept>
       <varFormat type="character" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
     </var>
     <var ID="V_bereiche_holz" name="bereiche_holz" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="5">
@@ -223,7 +229,7 @@
       </catgry>
       <concept>Hattest du vorher schon handwerkliche Erfahrung?</concept>
       <varFormat type="character" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
     </var>
     <var ID="V_wohlfuehlen" name="wohlfuehlen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="7">
@@ -251,7 +257,7 @@
       </catgry>
       <concept>Ich fühle mich bei TestWerk wohl und akzeptiert.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -281,7 +287,7 @@
       </catgry>
       <concept>Ich habe bei TestWerk Freund*innen gefunden.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -311,7 +317,7 @@
       </catgry>
       <concept>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -341,7 +347,7 @@
       </catgry>
       <concept>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -371,7 +377,7 @@
       </catgry>
       <concept>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -402,7 +408,7 @@
       </catgry>
       <concept>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
       <notes type="cdl:note_names">beruf_note</notes>
@@ -433,7 +439,7 @@
       </catgry>
       <concept>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">likert5</notes>
     </var>
@@ -524,7 +530,7 @@
       </catgry>
       <concept>Würdest du TestWerk Freund*innen empfehlen?</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:required">yes</notes>
+      <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">nps</notes>
     </var>

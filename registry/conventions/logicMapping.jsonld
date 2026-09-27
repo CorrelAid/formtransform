@@ -76,7 +76,7 @@
             "lsSyntax": "Y/N",
             "ddi": {
               "element": "var/notes[@type='cdl:required']",
-              "note": "Written only for a required question, with the text `yes`. It tells 'not asked' (universe) from 'refused' apart.",
+              "note": "Written only for a required question, with the required cell as authored (`yes` when it is `yes` or the source has none, e.g. `TRUE` as written). It tells 'not asked' (universe) from 'refused' apart.",
               "lossy": false
             }
           }

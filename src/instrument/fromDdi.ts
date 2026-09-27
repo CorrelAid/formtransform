@@ -64,6 +64,8 @@ interface ReadState {
   names: Set<string>;
   /** A CDL codebook: its lists are named (`cdl:list`), not deduplicated. */
   cdl: boolean;
+  /** `cdl:row_label` notes by subject. */
+  rowLabels: Map<string, XmlNode[]>;
   /** Section / grid items by `varGrp/@name`, as the tree builds them. */
   groupItems: Map<string, GroupItem>;
   onWarning?: WarningHandler;
@@ -229,7 +231,12 @@ function readNotes(q: QuestionItem, node: XmlNode, state: ReadState): void {
     notesOf(node, LOGIC.constraint_message.type),
     state,
   );
-  q.required = noteText(node, LOGIC.required.type, state) !== '';
+  const required = noteText(node, LOGIC.required.type, state);
+  q.required = required !== '';
+  // A cell other than `yes` (`TRUE`), as the form had it (#160).
+  if (required && required !== LOGIC.required.text) {
+    q.row = { ...q.row, required };
+  }
   q.default = noteText(node, FIELDS.default.type, state);
   q.appearance = noteText(node, FIELDS.appearance.type, state);
   q.parameters = noteText(node, FIELDS.parameters.type, state);
@@ -476,7 +483,12 @@ function leadIn(
   if (!Object.keys(label).length) return [];
   const names = ids(noteText(el, FIELDS.note_names.type, state));
   if (names.length < 2) return [noteItem(label, near, state, names[0])];
-  return splitNotes(label, names)
+  // Texts the blank lines can't separate are each in a cdl:row_label.
+  const own = names.map((n) => state.rowLabels.get(n));
+  const parts = own.every(Boolean)
+    ? own.map((nodes) => texts(nodes!, state))
+    : splitNotes(label, names);
+  return parts
     .map((text, i) => ({ text, name: names[i] }))
     .filter(({ text }) => Object.keys(text).length)
     .map(({ text, name }) => noteItem(text, near, state, name));
@@ -592,7 +604,9 @@ function groupItem(id: string, state: ReadState): GroupItem {
   const item: GroupItem = {
     kind: 'group',
     name: gridName(id, state),
-    label: childTexts(grp, 'txt', state),
+    label: notesOf(grp, FIELDS.no_label.type).length
+      ? {}
+      : childTexts(grp, 'txt', state),
     hint: texts(notesOf(grp, FIELDS.hint.type), state),
     relevant: noteText(grp, LOGIC.relevant.type, state),
     appearance:
@@ -709,7 +723,7 @@ function studyRows(
 ): Map<string, QuestionItem> {
   const rows = new Map<string, QuestionItem>();
   if (!stdy) return rows;
-  const labels = bySubject(stdy, FIELDS.row_label.type);
+  const labels = state.rowLabels;
   for (const [subject, notes] of bySubject(stdy, 'instruction')) {
     rows.set(subject, studyItem(subject, 'note', texts(notes, state)));
   }
@@ -937,6 +951,7 @@ export function instrumentFromDdi(
     listByKey: new Map(),
     names: new Set(),
     cdl: false,
+    rowLabels: new Map(),
     groupItems: new Map(),
     onWarning: options.onWarning,
   };
@@ -944,6 +959,7 @@ export function instrumentFromDdi(
   const names = languageNames(stdy);
   // The form's languages in its order (cdl:language), else as they come.
   if (names.size) state.languages = [...names.keys()];
+  if (stdy) state.rowLabels = bySubject(stdy, FIELDS.row_label.type);
   const elements = dataElements(roots);
   indexStructure(elements, state);
   state.cdl = isCdl(elements);

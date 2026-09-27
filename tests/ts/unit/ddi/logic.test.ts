@@ -279,11 +279,13 @@ describe('constraint', () => {
     expect(v).toContain('<notes type="cdl:constraint"');
   });
 
-  test('no constraint, no constraint_message note', () => {
+  test('a constraint_message without a constraint is kept too (#160)', () => {
     const xml = ddi([
       { type: 'text', name: 't', label: 'T', constraint_message: 'Oops' },
     ]);
-    expect(varXml(xml, 't')).not.toContain('cdl:constraint_message');
+    expect(varXml(xml, 't')).toContain(
+      '<notes type="cdl:constraint_message">Oops</notes>',
+    );
   });
 });
 

@@ -33,6 +33,7 @@ import {
   addListNote,
   addNoteNames,
   addRowFieldNotes,
+  addRowLabel,
   addRowNotes,
   addSettingNotes,
   references,
@@ -585,6 +586,8 @@ interface StudyNotes {
   rows: Variable[];
   /** Every note row, for its fields. */
   notes: Variable[];
+  /** Inline notes that need their own text (`cdl:row_label`). */
+  unsplittable: Variable[];
   /** Where the orphans and rows are. */
   positions: Position[];
   /** Language tag → the form's name for it. */
@@ -633,6 +636,7 @@ function addStudyDscr(
     kept.add(row.name);
   }
   for (const note of study.notes) addRowFieldNotes(stdy, note);
+  for (const note of study.unsplittable) addRowLabel(stdy, note);
   for (const p of study.positions) {
     if (!p.name || !(p.group || kept.has(p.name))) continue;
     stdy.textChild('notes', `in=${p.in} after=${p.after}`, {
@@ -994,6 +998,7 @@ export function buildDdiCodebook(
     orphans: classified.orphanNotes,
     rows: classified.rows,
     notes: variables.filter((v) => v.type === 'note' && v.row === undefined),
+    unsplittable: classified.unsplittable,
     positions: classified.positions,
     languageNames,
   });

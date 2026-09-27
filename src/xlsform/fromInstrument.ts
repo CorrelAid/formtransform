@@ -282,7 +282,7 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     if (value) row[column] = htmlLabel(value);
   }
   const plain: Array<[string, string]> = [
-    ['required', q.required ? 'yes' : ''],
+    ['required', q.required ? requiredCell(q) : ''],
     ['default', q.default],
     ['appearance', q.appearance],
     ['parameters', q.parameters],
@@ -291,6 +291,12 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
   ];
   for (const [column, value] of plain) if (value) row[column] = value;
   return row;
+}
+
+/** The `required` cell: as the source row had it (`TRUE`), else `yes`. */
+function requiredCell(q: QuestionItem): string {
+  const cell = q.row['required'];
+  return typeof cell === 'string' && cell.trim() ? cell.trim() : 'yes';
 }
 
 function perLanguageOtherLabel(languages: string[]): LabelValue {

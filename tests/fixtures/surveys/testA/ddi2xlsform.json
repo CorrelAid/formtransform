@@ -3,7 +3,7 @@
     {
       "type": "begin_group",
       "name": "intro",
-      "label": "intro"
+      "label": ""
     },
     {
       "type": "note",
@@ -16,19 +16,19 @@
     {
       "type": "begin_group",
       "name": "teilnahme",
-      "label": "teilnahme"
+      "label": ""
     },
     {
       "type": "select_one dauer",
       "name": "dauer",
       "label": "Wie lange kommst du schon zu TestWerk?",
-      "required": "yes"
+      "required": "true"
     },
     {
       "type": "select_one haeufigkeit",
       "name": "haeufigkeit",
       "label": "Wie oft kommst du ungefähr?",
-      "required": "yes"
+      "required": "true"
     },
     {
       "type": "integer",
@@ -40,7 +40,7 @@
       "type": "select_one hauptwerkstatt",
       "name": "hauptwerkstatt",
       "label": "In welcher Werkstatt bist du hauptsächlich?",
-      "required": "yes"
+      "required": "true"
     },
     {
       "type": "select_multiple bereiche",
@@ -51,7 +51,7 @@
       "type": "select_one vorwissen",
       "name": "vorwissen",
       "label": "Hattest du vorher schon handwerkliche Erfahrung?",
-      "required": "yes"
+      "required": "true"
     },
     {
       "type": "end_group"
@@ -59,42 +59,42 @@
     {
       "type": "begin_group",
       "name": "wirkung",
-      "label": "wirkung",
+      "label": "",
       "hint": "Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):"
     },
     {
       "type": "select_one likert5",
       "name": "wohlfuehlen",
       "label": "Ich fühle mich bei TestWerk wohl und akzeptiert.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
       "type": "select_one likert5",
       "name": "freundschaften",
       "label": "Ich habe bei TestWerk Freund*innen gefunden.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
       "type": "select_one likert5",
       "name": "eigene_ideen",
       "label": "Ich traue mir zu, eigene Ideen und Projekte umzusetzen.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
       "type": "select_one likert5",
       "name": "problemloesung",
       "label": "Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
       "type": "select_one likert5",
       "name": "skills_gelernt",
       "label": "Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
@@ -106,14 +106,14 @@
       "type": "select_one likert5",
       "name": "beruf_pre",
       "label": "Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
       "type": "select_one likert5",
       "name": "beruf_post",
       "label": "Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
@@ -130,7 +130,7 @@
     {
       "type": "begin_group",
       "name": "erfahrungen",
-      "label": "erfahrungen"
+      "label": ""
     },
     {
       "type": "text",
@@ -153,14 +153,14 @@
     {
       "type": "begin_group",
       "name": "empfehlung",
-      "label": "empfehlung"
+      "label": ""
     },
     {
       "type": "select_one nps",
       "name": "nps_score",
       "label": "Würdest du TestWerk Freund*innen empfehlen?",
       "hint": "0 = auf keinen Fall, 10 = auf jeden Fall",
-      "required": "yes",
+      "required": "true",
       "appearance": "likert"
     },
     {
@@ -169,7 +169,7 @@
     {
       "type": "begin_group",
       "name": "demografie",
-      "label": "demografie"
+      "label": ""
     },
     {
       "type": "select_one alter",
