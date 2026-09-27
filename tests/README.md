@@ -25,6 +25,7 @@ everything that needs a JVM, an external oracle, or a running engine.
 | XLSForm fixture inputs are valid XLSForm | external oracle ([pyxform](https://github.com/XLSForm/pyxform)) | pytest — `tests/validation/test_xlsform_pyxform.py` |
 | LimeSurvey accepts the blessed TSV snapshots | live LimeSurvey (docker) | pytest — `tests/live/limesurvey/test_registry_entities.py` |
 | What LimeSurvey *stores* when a respondent answers | live LimeSurvey (docker) + Playwright | pytest — `tests/live/limesurvey/test_response_roundtrip.py` |
+| Real response exports → DDI data CSV | stored exports: LimeSurvey (`tests/live/limesurvey/expected/`), Kobo (`tests/fixtures/surveys/<name>/kobo/`) | vitest — `tests/ts/contract/lstsvRealExports.test.ts`, `koboRealExports.test.ts` |
 
 qwacback converts XLSForm → DDI with this library since
 [qwacback#3](https://github.com/CorrelAid/qwacback/issues/3) (a `ddi-emitter`
