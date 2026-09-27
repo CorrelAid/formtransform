@@ -1,4 +1,4 @@
-import { ConversionError } from '../../diagnostics.js';
+import { ConversionError } from '../diagnostics.js';
 /**
  * Parser for the XPath 1.0 subset XLSForm expressions use.
  *

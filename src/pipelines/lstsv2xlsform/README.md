@@ -18,15 +18,16 @@ those, so this module reconstructs them directly.
 | --- | --- |
 | [`index.ts`](index.ts) | `lstsvToXlsform(tsv, opts)` — parse + reverse-subset validation + reconstruct |
 | [`toXlsform.ts`](toXlsform.ts) | `lstsvRowsToXlsform(rows)` — the reconstruction itself |
-| [`emParser.ts`](emParser.ts) | tokenizer + Pratt parser for the bounded EM dialect → AST |
-| [`reverseExpressions.ts`](reverseExpressions.ts) | AST → XPath serializer; `reverseRelevance` / `reverseConstraint` + the `SelectContext` builder |
+| [`emParser.ts`](../../instrument/emParser.ts) | tokenizer + Pratt parser for the bounded EM dialect → AST |
+| [`reverseExpressions.ts`](../../instrument/reverseExpressions.ts) | AST → XPath serializer; `reverseRelevance` / `reverseConstraint` + the `SelectContext` builder |
 | [`languageNames.ts`](languageNames.ts) | ISO code → English exonym, to rebuild `default_language` (`"German (de)"`) from the bare code the TSV carries |
 
-`lstsvRowsToXlsform` is two-pass: collect per-`(key, language)` label maps first
-(order-independent), pre-scan to build the global `selected()`-reconstruction
-context (any question's relevance may reference any `select_multiple` in the
-document, not just one in its own group), then walk base-language rows into
-groups → questions → survey/choices rows.
+`lstsvRowsToXlsform` parses the TSV into an Instrument
+(`../../instrument/fromLstsv.ts`) and emits XLSForm rows from it. The parser
+collects per-`(key, language)` labels first (order-independent), then builds
+the item tree, then reverses every relevance and constraint to XPath with one
+global `selected()` context (any question's relevance may reference any
+`select_multiple` in the document, not just one in its own group).
 
 CLI: `formtransform lstsv2xlsform <input.tsv>`.
 
@@ -168,6 +169,6 @@ sanitization to undo.
 | Suite | Covers |
 | --- | --- |
 | `src/test/pipelines/lstsv2xlsform/toXlsform.test.ts` | feature-level reconstruction (20 cases) |
-| `src/test/pipelines/lstsv2xlsform/reverseExpressions.test.ts` | relevance and constraint each table-round-tripped through the real forward transpiler as an oracle, plus direct checks on the rejection paths |
+| `tests/ts/unit/pipelines/lstsv2xlsform/reverseExpressions.test.ts` | relevance and constraint each table-round-tripped through the real forward transpiler as an oracle, plus direct checks on the rejection paths |
 | `src/test/contract/lstsv2xlsformRoundtrip.test.ts` | all 13 registry fixtures: committed `tsv.tsv` → XLSForm vs the original `xlsform.json`, with losses 1 and 2 above normalized away and everything else compared exactly |
 | `src/test/contract/fullRoundtrip.test.ts` | `constraint`, `required`, `default` and both `selected()` forms through the **real** `xlsform2lstsv` → `lstsv2xlsform` pipeline — no fixture uses them, and this is the only coverage that isn't hand-built row arrays |

@@ -4,14 +4,22 @@
  * an `F` array becomes a table-list group, `other=Y` becomes `or_other`, and
  * each row's translations merge into one {@link Text} per field.
  *
- * Until the expression AST lands (#69, phase 5) `relevant` / `constraint`
- * stay empty here: LimeSurvey's are Expression Manager syntax, which only the
- * item's `row` carries.
+ * With `expressions`, relevance and constraints are reversed from
+ * LimeSurvey's Expression Manager into XPath (`reverseExpressions.ts`),
+ * throwing `em-unsupported` on anything outside the forward dialect. Without,
+ * they stay `''` (the DDI carries none, so a DDI conversion never fails on
+ * them).
  */
 import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { fromFileTypeFor, vocabFromCssClass } from '../conventions/fromFile.js';
 import { resolveType } from './lstsvTypes.js';
+import {
+  buildSelectContext,
+  reverseConstraint,
+  reverseRelevance,
+} from './reverseExpressions.js';
+import { allItems, allQuestions } from './walk.js';
 import type {
   GroupItem,
   Instrument,
@@ -303,8 +311,45 @@ function messageNote(
   ];
 }
 
+/**
+ * Fill each item's `relevant` (and each question's `constraint`) with the
+ * XPath its source row's EM means. `selected()` needs every multiple choice's
+ * codes, so this runs once the whole tree is parsed.
+ */
+function reverseAllExpressions(
+  body: Item[],
+  lists: Record<string, InstrumentChoice[]>,
+): void {
+  const selectCtx = buildSelectContext(
+    allQuestions(body)
+      .filter((q) => q.type === 'select_multiple' && q.list)
+      .map((q) => {
+        const codes = (lists[q.list] ?? []).map((c) => c.name);
+        return {
+          name: q.name,
+          codes: q.orOther ? [...codes, OTHER_CODE] : codes,
+        };
+      }),
+  );
+  for (const item of allItems(body)) {
+    const row = item.row as Row;
+    item.relevant = reverseRelevance(cell(row, 'relevance'), selectCtx);
+    if (item.kind === 'question') {
+      item.constraint = reverseConstraint(cell(row, 'em_validation_q'));
+    }
+  }
+}
+
+export interface LstsvParseOptions {
+  /** Reverse relevance/constraints into XPath (default: leave them empty). */
+  expressions?: boolean;
+}
+
 /** Parse LimeSurvey structure-TSV rows into an Instrument. */
-export function instrumentFromLstsv(rows: Row[]): Instrument {
+export function instrumentFromLstsv(
+  rows: Row[],
+  options: LstsvParseOptions = {},
+): Instrument {
   const setting = (name: string) =>
     rows.find((r) => cell(r, 'class') === 'S' && cell(r, 'name') === name);
   const base = cell(setting('language') ?? {}, 'text');
@@ -328,6 +373,12 @@ export function instrumentFromLstsv(rows: Row[]): Instrument {
       !['S', 'SL'].includes(cell(r, 'class')) &&
       (!base || cell(r, 'language') === base),
   );
+  const body = [
+    ...messageNote('welcome', 'surveyls_welcometext', state),
+    ...parseBody(baseRows, state),
+    ...messageNote('end', 'surveyls_endtext', state),
+  ];
+  if (options.expressions) reverseAllExpressions(body, state.lists);
   return {
     languages: languages.length ? languages : [''],
     ...(base ? { defaultLanguage: base } : {}),
@@ -339,10 +390,6 @@ export function instrumentFromLstsv(rows: Row[]): Instrument {
         : {}),
     },
     lists: state.lists,
-    body: [
-      ...messageNote('welcome', 'surveyls_welcometext', state),
-      ...parseBody(baseRows, state),
-      ...messageNote('end', 'surveyls_endtext', state),
-    ],
+    body,
   };
 }

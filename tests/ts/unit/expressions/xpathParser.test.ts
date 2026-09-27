@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 import {
   XPathSyntaxError,
   parseXPath,
-} from '../../../../src/pipelines/xlsform2lstsv/xpathParser.js';
+} from '../../../../src/instrument/xpathParser.js';
 import {
   convertConstraint,
   xpathToLimeSurvey,
