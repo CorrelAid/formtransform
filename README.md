@@ -192,15 +192,17 @@ records how each maps onto it.
 `xlsform2lstsv` (deploy the survey), `xlsform2ddi` (document the dataset),
 `lstsv2ddi`, `lstsv2xlsform` and `ddi2xlsform` (the reverse paths). All are lossy for some
 types: nested groups flatten in LimeSurvey, choice codes over 5 chars truncate,
-`select_multiple` becomes N binary variables, and the reverse paths cannot
-recover a select's authored `list_name`.
+`select_multiple` becomes N binary variables, and the LimeSurvey reverse paths
+cannot recover a select's authored `list_name`. A CDL codebook holds the whole
+form: XLSForm → DDI → XLSForm gives it back, and its codebook again.
 
 **DDI goes back to XLSForm:** a CDL codebook carries the whole form. Skip
 logic, validation and `required` are each a readable `<universe>` sentence
 (a simple numeric range also `<valrng>`), plus the exact expression in a typed
 note such as `<notes type="cdl:relevant" subject="xlsform-xpath">`
 (`convention:logicMapping`). Groups, order, hints, defaults, appearances and
-parameters are in standard DDI where it has a place and typed notes where not
+parameters, list names, note rows and metadata rows, settings and language
+names are in standard DDI where it has a place and typed notes where not
 (`convention:ddiFields`). `ddiToXlsform` reads it back; any other DDI converts
 as far as its standard elements go, with a warning per missing field
 ([`src/pipelines/ddi2xlsform/README.md`](src/pipelines/ddi2xlsform/README.md)).

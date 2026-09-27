@@ -1,7 +1,51 @@
 {
   "survey": [
     {
-      "type": "select_multiple project_id",
+      "type": "start",
+      "name": "start",
+      "label": ""
+    },
+    {
+      "type": "end",
+      "name": "end",
+      "label": ""
+    },
+    {
+      "type": "begin_group",
+      "name": "group_gi4rv46",
+      "label": {
+        "de": "Hallo!"
+      }
+    },
+    {
+      "type": "note",
+      "name": "Hallo",
+      "label": {
+        "de": "Hallo!",
+        "en": "Hello!"
+      },
+      "hint": {
+        "de": "Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. \n\nFür die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.",
+        "en": "Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. \n\nThe survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible."
+      }
+    },
+    {
+      "type": "note",
+      "name": "Disclaimer",
+      "label": {
+        "de": "Disclaimer",
+        "en": "Disclaimer"
+      },
+      "hint": {
+        "de": "In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.\n\nBei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.",
+        "en": "In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.\n\nIn accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to info@correlaid.org. Your data will be deleted after revocation."
+      }
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "select_multiple mb5co98",
       "name": "project_id",
       "label": {
         "de": "Für welche Projekte möchtest Du dich bewerben?",
@@ -10,7 +54,7 @@
       "required": "yes"
     },
     {
-      "type": "select_multiple project_role_project-alpha",
+      "type": "select_multiple cl-role-project-alpha",
       "name": "project_role_project-alpha",
       "label": {
         "de": "In welcher Rolle siehst du dich im Projekt Projekt Alpha?",
@@ -20,7 +64,7 @@
       "relevant": "selected(${project_id}, 'project-alpha')"
     },
     {
-      "type": "select_multiple project_role_project-beta",
+      "type": "select_multiple cl-role-project-beta",
       "name": "project_role_project-beta",
       "label": {
         "de": "In welcher Rolle siehst du dich im Projekt Beta?",
@@ -30,7 +74,7 @@
       "relevant": "selected(${project_id}, 'project-beta')"
     },
     {
-      "type": "select_multiple project_role_project-gamma",
+      "type": "select_multiple cl-role-project-gamma",
       "name": "project_role_project-gamma",
       "label": {
         "de": "In welcher Rolle siehst du dich im Projekt Gamma?",
@@ -56,7 +100,20 @@
       }
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
+      "name": "rating_technologies_tools_header",
+      "label": {
+        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:",
+        "en": "Please rate your experience with the following technologies and tools:"
+      },
+      "hint": {
+        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+      },
+      "appearance": "label"
+    },
+    {
+      "type": "select_one iy6st81",
       "name": "sosci_survey",
       "label": {
         "de": "SoSci Survey",
@@ -67,7 +124,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "python",
       "label": {
         "de": "Python",
@@ -78,7 +135,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "rstats",
       "label": {
         "de": "R",
@@ -89,7 +146,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "powerbi",
       "label": {
         "de": "Power BI",
@@ -100,7 +157,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "excel",
       "label": {
         "de": "Microsoft Excel",
@@ -111,7 +168,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "sql",
       "label": {
         "de": "SQL",
@@ -122,7 +179,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "git",
       "label": {
         "de": "Git",
@@ -133,7 +190,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "jupyter",
       "label": {
         "de": "Jupyter Notebooks",
@@ -144,7 +201,7 @@
       "relevant": "selected(${project_role_project-gamma}, 'role-machine-learning')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one iy6st81",
       "name": "tensorflow",
       "label": {
         "de": "TensorFlow / PyTorch",
@@ -180,7 +237,20 @@
       "appearance": "field-list"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
+      "name": "rating_techniques_header",
+      "label": {
+        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Techniken.",
+        "en": "Please rate your experience with the following techniques:"
+      },
+      "hint": {
+        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+      },
+      "appearance": "label"
+    },
+    {
+      "type": "select_one xe9mo32",
       "name": "survey_design",
       "label": {
         "de": "Entwicklung von Fragebögen",
@@ -191,7 +261,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "indicator_development",
       "label": {
         "de": "Entwicklung von Indikatoren",
@@ -202,7 +272,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "data_collection",
       "label": {
         "de": "Datenerhebung",
@@ -213,7 +283,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "data_cleaning",
       "label": {
         "de": "Datenbereinigung",
@@ -224,7 +294,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "descriptive_statistics",
       "label": {
         "de": "Deskriptive Statistik",
@@ -235,7 +305,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "data_visualization",
       "label": {
         "de": "Datenvisualisierung",
@@ -246,7 +316,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "data_engineering",
       "label": {
         "de": "Data Engineering",
@@ -257,7 +327,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "automation",
       "label": {
         "de": "Automatisierung",
@@ -268,7 +338,7 @@
       "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "projectplanning",
       "label": {
         "de": "Projektplanung",
@@ -279,7 +349,7 @@
       "relevant": "selected(${project_role_project-gamma}, 'role-project-management')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one xe9mo32",
       "name": "mlmodeling",
       "label": {
         "de": "ML-Modellierung",
@@ -302,7 +372,20 @@
       "appearance": "field-list"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
+      "name": "rating_topics_header",
+      "label": {
+        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Themen:",
+        "en": "Please rate your experience with the following topics:"
+      },
+      "hint": {
+        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+      },
+      "appearance": "label"
+    },
+    {
+      "type": "select_one dm1uu76",
       "name": "wirkungsmessung",
       "label": {
         "de": "Wirkungsmessung",
@@ -313,7 +396,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
       "name": "research_design",
       "label": {
         "de": "Research Design",
@@ -324,7 +407,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
       "name": "survey_research",
       "label": {
         "de": "Umfrageforschung",
@@ -335,7 +418,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
       "name": "data_protection",
       "label": {
         "de": "Datenschutz",
@@ -346,7 +429,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
       "name": "resilience_mental_health",
       "label": {
         "de": "Resilienz und Mentale Gesundheit",
@@ -357,7 +440,7 @@
       "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
     },
     {
-      "type": "select_one sosci_survey",
+      "type": "select_one dm1uu76",
       "name": "education_research",
       "label": {
         "de": "Bildungsforschung o.ä.",
@@ -407,7 +490,7 @@
       "appearance": "multiline"
     },
     {
-      "type": "select_one past_applications",
+      "type": "select_one il2wc73",
       "name": "past_applications",
       "label": {
         "de": "Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?",
@@ -478,7 +561,7 @@
       "constraint": "regex(., '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$')"
     },
     {
-      "type": "select_one gender",
+      "type": "select_one iy7os66",
       "name": "gender",
       "label": {
         "de": "Was ist dein Geschlecht?",
@@ -508,7 +591,7 @@
       "type": "end_group"
     },
     {
-      "type": "select_one consent_privacy_policy",
+      "type": "select_one mj8ty33",
       "name": "consent_privacy_policy",
       "label": {
         "de": "Einwilligung in die Datenschutzerklärung",
@@ -519,27 +602,11 @@
         "en": "I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful."
       },
       "required": "yes"
-    },
-    {
-      "type": "note",
-      "name": "Hallo",
-      "label": {
-        "de": "Hallo!",
-        "en": "Hello!"
-      }
-    },
-    {
-      "type": "note",
-      "name": "Disclaimer",
-      "label": {
-        "de": "Disclaimer",
-        "en": "Disclaimer"
-      }
     }
   ],
   "choices": [
     {
-      "list_name": "project_id",
+      "list_name": "mb5co98",
       "name": "project-alpha",
       "label": {
         "de": "Projekt Alpha",
@@ -547,7 +614,7 @@
       }
     },
     {
-      "list_name": "project_id",
+      "list_name": "mb5co98",
       "name": "project-beta",
       "label": {
         "de": "Projekt Beta",
@@ -555,7 +622,7 @@
       }
     },
     {
-      "list_name": "project_id",
+      "list_name": "mb5co98",
       "name": "project-gamma",
       "label": {
         "de": "Projekt Gamma",
@@ -563,7 +630,7 @@
       }
     },
     {
-      "list_name": "project_role_project-alpha",
+      "list_name": "cl-role-project-alpha",
       "name": "role-survey-design",
       "label": {
         "de": "Umfragedesign und Datenerhebung",
@@ -571,7 +638,7 @@
       }
     },
     {
-      "list_name": "project_role_project-alpha",
+      "list_name": "cl-role-project-alpha",
       "name": "role-data-analysis",
       "label": {
         "de": "Datenanalyse",
@@ -579,7 +646,7 @@
       }
     },
     {
-      "list_name": "project_role_project-alpha",
+      "list_name": "cl-role-project-alpha",
       "name": "team_coordinator",
       "label": {
         "de": "Teamkoordinator:in",
@@ -587,7 +654,7 @@
       }
     },
     {
-      "list_name": "project_role_project-alpha",
+      "list_name": "cl-role-project-alpha",
       "name": "team_trainee",
       "label": {
         "de": "Team Trainee",
@@ -595,7 +662,7 @@
       }
     },
     {
-      "list_name": "project_role_project-beta",
+      "list_name": "cl-role-project-beta",
       "name": "role-visualization",
       "label": {
         "de": "Datenvisualisierung",
@@ -603,7 +670,7 @@
       }
     },
     {
-      "list_name": "project_role_project-beta",
+      "list_name": "cl-role-project-beta",
       "name": "role-data-engineering",
       "label": {
         "de": "Data Engineering",
@@ -611,7 +678,7 @@
       }
     },
     {
-      "list_name": "project_role_project-beta",
+      "list_name": "cl-role-project-beta",
       "name": "team_coordinator",
       "label": {
         "de": "Teamkoordinator:in",
@@ -619,7 +686,7 @@
       }
     },
     {
-      "list_name": "project_role_project-beta",
+      "list_name": "cl-role-project-beta",
       "name": "team_trainee",
       "label": {
         "de": "Team Trainee",
@@ -627,7 +694,7 @@
       }
     },
     {
-      "list_name": "project_role_project-gamma",
+      "list_name": "cl-role-project-gamma",
       "name": "role-project-management",
       "label": {
         "de": "Projektmanagement",
@@ -635,7 +702,7 @@
       }
     },
     {
-      "list_name": "project_role_project-gamma",
+      "list_name": "cl-role-project-gamma",
       "name": "role-machine-learning",
       "label": {
         "de": "Machine Learning",
@@ -643,7 +710,7 @@
       }
     },
     {
-      "list_name": "project_role_project-gamma",
+      "list_name": "cl-role-project-gamma",
       "name": "team_coordinator",
       "label": {
         "de": "Teamkoordinator:in",
@@ -651,7 +718,7 @@
       }
     },
     {
-      "list_name": "project_role_project-gamma",
+      "list_name": "cl-role-project-gamma",
       "name": "team_trainee",
       "label": {
         "de": "Team Trainee",
@@ -659,7 +726,7 @@
       }
     },
     {
-      "list_name": "sosci_survey",
+      "list_name": "iy6st81",
       "name": "beginner",
       "label": {
         "de": "Anfänger:in",
@@ -667,7 +734,7 @@
       }
     },
     {
-      "list_name": "sosci_survey",
+      "list_name": "iy6st81",
       "name": "user",
       "label": {
         "de": "Benutzer:in",
@@ -675,7 +742,7 @@
       }
     },
     {
-      "list_name": "sosci_survey",
+      "list_name": "iy6st81",
       "name": "advanced",
       "label": {
         "de": "Fortgeschrittene:r",
@@ -683,7 +750,7 @@
       }
     },
     {
-      "list_name": "sosci_survey",
+      "list_name": "iy6st81",
       "name": "expert",
       "label": {
         "de": "Expert:in",
@@ -691,7 +758,71 @@
       }
     },
     {
-      "list_name": "past_applications",
+      "list_name": "xe9mo32",
+      "name": "beginner",
+      "label": {
+        "de": "Anfänger:in",
+        "en": "Beginner"
+      }
+    },
+    {
+      "list_name": "xe9mo32",
+      "name": "user",
+      "label": {
+        "de": "Benutzer:in",
+        "en": "User"
+      }
+    },
+    {
+      "list_name": "xe9mo32",
+      "name": "advanced",
+      "label": {
+        "de": "Fortgeschrittene:r",
+        "en": "Advanced"
+      }
+    },
+    {
+      "list_name": "xe9mo32",
+      "name": "expert",
+      "label": {
+        "de": "Expert:in",
+        "en": "Expert"
+      }
+    },
+    {
+      "list_name": "dm1uu76",
+      "name": "beginner",
+      "label": {
+        "de": "Anfänger:in",
+        "en": "Beginner"
+      }
+    },
+    {
+      "list_name": "dm1uu76",
+      "name": "user",
+      "label": {
+        "de": "Benutzer:in",
+        "en": "User"
+      }
+    },
+    {
+      "list_name": "dm1uu76",
+      "name": "advanced",
+      "label": {
+        "de": "Fortgeschrittene:r",
+        "en": "Advanced"
+      }
+    },
+    {
+      "list_name": "dm1uu76",
+      "name": "expert",
+      "label": {
+        "de": "Expert:in",
+        "en": "Expert"
+      }
+    },
+    {
+      "list_name": "il2wc73",
       "name": "successful",
       "label": {
         "de": "Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.",
@@ -699,7 +830,7 @@
       }
     },
     {
-      "list_name": "past_applications",
+      "list_name": "il2wc73",
       "name": "not_successful",
       "label": {
         "de": "Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.",
@@ -707,7 +838,7 @@
       }
     },
     {
-      "list_name": "past_applications",
+      "list_name": "il2wc73",
       "name": "first_application",
       "label": {
         "de": "Nein, das ist meine erste Bewerbung.",
@@ -715,7 +846,7 @@
       }
     },
     {
-      "list_name": "gender",
+      "list_name": "iy7os66",
       "name": "female",
       "label": {
         "de": "Weiblich",
@@ -723,7 +854,7 @@
       }
     },
     {
-      "list_name": "gender",
+      "list_name": "iy7os66",
       "name": "male",
       "label": {
         "de": "Männlich",
@@ -731,7 +862,7 @@
       }
     },
     {
-      "list_name": "gender",
+      "list_name": "iy7os66",
       "name": "non_binary",
       "label": {
         "de": "Nicht-binär / non-binary",
@@ -739,7 +870,7 @@
       }
     },
     {
-      "list_name": "gender",
+      "list_name": "iy7os66",
       "name": "not_disclosed",
       "label": {
         "de": "Das möchte ich nicht angeben",
@@ -747,7 +878,7 @@
       }
     },
     {
-      "list_name": "gender",
+      "list_name": "iy7os66",
       "name": "self_identification",
       "label": {
         "de": "Mein Geschlecht ist (eigene Angabe):",
@@ -755,7 +886,7 @@
       }
     },
     {
-      "list_name": "consent_privacy_policy",
+      "list_name": "mj8ty33",
       "name": "yes",
       "label": {
         "de": "Ja",
@@ -765,7 +896,7 @@
   ],
   "settings": [
     {
-      "default_language": "German (de)",
+      "default_language": "Deutsch (de)",
       "form_title": "testB",
       "version": "vw6VTbhmVCMEtuN7LhcmjP",
       "style": "theme-grid no-text-transform"

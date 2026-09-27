@@ -68,10 +68,9 @@ describe('instrumentFromLstsv', () => {
       ),
     );
     expect(ins.languages).toEqual(['de', 'en']);
-    expect(ins.settings).toMatchObject({
-      default_language: 'de',
-      style: 'pages',
-    });
+    expect(ins.defaultLanguage).toBe('de');
+    // The bare tag is the model's defaultLanguage, not an authored setting.
+    expect(ins.settings).toEqual({ style: 'pages' });
     const [g] = ins.body as GroupItem[];
     expect(g.label).toEqual({ de: 'Seite', en: 'Page' });
     expect(g.children[0]).toMatchObject({

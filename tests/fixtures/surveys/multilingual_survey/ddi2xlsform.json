@@ -100,6 +100,7 @@
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "multilingual_survey",
       "form_id": "multilingual_survey"
     }

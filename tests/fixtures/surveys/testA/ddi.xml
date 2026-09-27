@@ -15,6 +15,11 @@
     </citation>
     <notes type="instruction" subject="intro_text">Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!</notes>
     <notes type="instruction" subject="danke">Vielen Dank! Deine Meinung hilft uns sehr weiter!</notes>
+    <notes type="cdl:position" subject="intro">in= after=</notes>
+    <notes type="cdl:position" subject="intro_text">in=intro after=</notes>
+    <notes type="cdl:position" subject="danke">in= after=demografie</notes>
+    <notes type="cdl:setting" subject="default_language">Deutsch</notes>
+    <notes type="cdl:setting" subject="id_string">testwerk_wirkung_2025</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -47,6 +52,10 @@
     <varGrp ID="VG_demografie" name="demografie" type="section" var="V_alter V_geschlecht V_geschlecht_andere">
       <txt>demografie</txt>
       <concept>demografie</concept>
+    </varGrp>
+    <varGrp ID="VG_intro" name="intro" type="section">
+      <txt>intro</txt>
+      <concept>intro</concept>
     </varGrp>
     <varGrp ID="VG_bereiche" name="bereiche" type="multipleResp" var="V_bereiche_holz V_bereiche_metall V_bereiche_textil V_bereiche_digital">
       <txt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</txt>
@@ -244,6 +253,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_freundschaften" name="freundschaften" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="8">
@@ -273,6 +283,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_eigene_ideen" name="eigene_ideen" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="9">
@@ -302,6 +313,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_problemloesung" name="problemloesung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="10">
@@ -331,6 +343,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_skills_gelernt" name="skills_gelernt" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="11">
@@ -360,6 +373,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_beruf_pre" name="beruf_pre" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="12">
@@ -390,6 +404,8 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
+      <notes type="cdl:note_names">beruf_note</notes>
     </var>
     <var ID="V_beruf_post" name="beruf_post" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="13">
@@ -419,6 +435,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">likert5</notes>
     </var>
     <var ID="V_attribution_beruf" name="attribution_beruf" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric" seqNo="14">
@@ -433,7 +450,7 @@
       <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${beruf_post} != ${beruf_pre}</notes>
-      <notes type="cdl:parameters">step=5</notes>
+      <notes type="cdl:parameters">start=0 end=100 step=5</notes>
     </var>
     <var ID="V_projekte" name="projekte" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="15">
@@ -509,6 +526,7 @@
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">nps</notes>
     </var>
     <var ID="V_alter" name="alter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="19">

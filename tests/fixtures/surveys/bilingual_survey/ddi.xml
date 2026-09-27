@@ -12,6 +12,10 @@
     </citation>
     <notes type="instruction" subject="intro">Willkommen zur Befragung.</notes>
     <notes type="instruction" subject="intro" xml:lang="en">Welcome to the survey.</notes>
+    <notes type="cdl:position" subject="intro">in= after=</notes>
+    <notes type="cdl:setting" subject="default_language">Deutsch (de)</notes>
+    <notes type="cdl:language" subject="de">de</notes>
+    <notes type="cdl:language" subject="en">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -43,6 +47,7 @@
       <txt>Wie haben Sie von uns erfahren?</txt>
       <txt xml:lang="en">How did you hear about us?</txt>
       <concept>Wie haben Sie von uns erfahren?</concept>
+      <notes type="cdl:or_other">shorthand</notes>
     </varGrp>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="1">
@@ -56,6 +61,7 @@
       </qstn>
       <concept>Was ist Ihr Beruf?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:note_names">person_note</notes>
     </var>
     <var ID="V_bildung" name="bildung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="2">
@@ -172,6 +178,7 @@
       </catgry>
       <concept>… dem Parlament?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala</notes>
     </var>
     <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="7">
@@ -197,6 +204,7 @@
       </catgry>
       <concept>… der Polizei?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala</notes>
     </var>
   </dataDscr>
 </codeBook>

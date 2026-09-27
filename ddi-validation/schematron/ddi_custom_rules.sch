@@ -216,15 +216,29 @@
 
     <pattern id="cdl_notes">
     <rule context="ddi:notes[starts-with(@type, 'cdl:')]">
-        <assert test="@type = 'cdl:appearance' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:parameters' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:constraint, cdl:constraint_message, cdl:default, cdl:exclusive, cdl:hint, cdl:parameters, cdl:relevant, cdl:required, cdl:setting).</assert>
+        <assert test="@type = 'cdl:appearance' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:constraint, cdl:constraint_message, cdl:default, cdl:exclusive, cdl:hint, cdl:language, cdl:list, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
         <assert test="not(@type = 'cdl:constraint') or @subject = 'xlsform-xpath'">A cdl:constraint note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
+        <assert test="not(@type = 'cdl:language') or normalize-space(@subject) != ''">A cdl:language note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:position') or normalize-space(@subject) != ''">A cdl:position note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:relevant') or @subject = 'xlsform-xpath'">A cdl:relevant note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
+        <assert test="not(@type = 'cdl:row') or normalize-space(@subject) != ''">A cdl:row note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_appearance') or normalize-space(@subject) != ''">A cdl:row_appearance note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_hint') or normalize-space(@subject) != ''">A cdl:row_hint note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_label') or normalize-space(@subject) != ''">A cdl:row_label note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_relevant') or normalize-space(@subject) != ''">A cdl:row_relevant note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:setting') or normalize-space(@subject) != ''">A cdl:setting note needs a subject: the name of what it holds.</assert>
     </rule>
     <rule context="notes[starts-with(@type, 'cdl:')]">
-        <assert test="@type = 'cdl:appearance' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:parameters' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:constraint, cdl:constraint_message, cdl:default, cdl:exclusive, cdl:hint, cdl:parameters, cdl:relevant, cdl:required, cdl:setting).</assert>
+        <assert test="@type = 'cdl:appearance' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:constraint, cdl:constraint_message, cdl:default, cdl:exclusive, cdl:hint, cdl:language, cdl:list, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
         <assert test="not(@type = 'cdl:constraint') or @subject = 'xlsform-xpath'">A cdl:constraint note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
+        <assert test="not(@type = 'cdl:language') or normalize-space(@subject) != ''">A cdl:language note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:position') or normalize-space(@subject) != ''">A cdl:position note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:relevant') or @subject = 'xlsform-xpath'">A cdl:relevant note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
+        <assert test="not(@type = 'cdl:row') or normalize-space(@subject) != ''">A cdl:row note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_appearance') or normalize-space(@subject) != ''">A cdl:row_appearance note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_hint') or normalize-space(@subject) != ''">A cdl:row_hint note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_label') or normalize-space(@subject) != ''">A cdl:row_label note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:row_relevant') or normalize-space(@subject) != ''">A cdl:row_relevant note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:setting') or normalize-space(@subject) != ''">A cdl:setting note needs a subject: the name of what it holds.</assert>
     </rule>
     </pattern>
@@ -234,13 +248,13 @@
         <assert test="every $t in distinct-values(ddi:notes[starts-with(@type, 'cdl:')]/@type) satisfies every $l in distinct-values(ddi:notes[@type = $t]/string(@xml:lang)) satisfies count(ddi:notes[@type = $t][string(@xml:lang) = $l]) &lt;= 1"><value-of select="@name"/> has more than one note of one cdl: type in one language.</assert>
     </rule>
     <rule context="ddi:stdyDscr">
-        <assert test="every $s in distinct-values(ddi:notes[@type = 'cdl:setting']/@subject) satisfies count(ddi:notes[@type = 'cdl:setting'][@subject = $s]) &lt;= 1">A setting has more than one cdl:setting note.</assert>
+        <assert test="every $t in distinct-values(ddi:notes[starts-with(@type, 'cdl:')]/@type) satisfies every $s in distinct-values(ddi:notes[@type = $t]/string(@subject)) satisfies every $l in distinct-values(ddi:notes[@type = $t][string(@subject) = $s]/string(@xml:lang)) satisfies count(ddi:notes[@type = $t][string(@subject) = $s][string(@xml:lang) = $l]) &lt;= 1">The study has more than one note of one cdl: type about one subject in one language.</assert>
     </rule>
     <rule context="var | varGrp">
         <assert test="every $t in distinct-values(notes[starts-with(@type, 'cdl:')]/@type) satisfies every $l in distinct-values(notes[@type = $t]/string(@xml:lang)) satisfies count(notes[@type = $t][string(@xml:lang) = $l]) &lt;= 1"><value-of select="@name"/> has more than one note of one cdl: type in one language.</assert>
     </rule>
     <rule context="stdyDscr">
-        <assert test="every $s in distinct-values(notes[@type = 'cdl:setting']/@subject) satisfies count(notes[@type = 'cdl:setting'][@subject = $s]) &lt;= 1">A setting has more than one cdl:setting note.</assert>
+        <assert test="every $t in distinct-values(notes[starts-with(@type, 'cdl:')]/@type) satisfies every $s in distinct-values(notes[@type = $t]/string(@subject)) satisfies every $l in distinct-values(notes[@type = $t][string(@subject) = $s]/string(@xml:lang)) satisfies count(notes[@type = $t][string(@subject) = $s][string(@xml:lang) = $l]) &lt;= 1">The study has more than one note of one cdl: type about one subject in one language.</assert>
     </rule>
     </pattern>
 

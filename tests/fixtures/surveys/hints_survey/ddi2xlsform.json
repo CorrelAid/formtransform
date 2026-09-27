@@ -2,7 +2,7 @@
   "survey": [
     {
       "type": "note",
-      "name": "personen_note",
+      "name": "intro",
       "label": "Die folgenden Fragen betreffen Ihren Haushalt."
     },
     {
@@ -19,7 +19,7 @@
       "guidance_hint": "Bei Unklarheit nach der Tätigkeit fragen."
     },
     {
-      "type": "select_one ehrenamt",
+      "type": "select_one janein",
       "name": "ehrenamt",
       "label": "Sind Sie ehrenamtlich tätig?",
       "guidance_hint": "Auch gelegentliches Engagement zählt."
@@ -33,12 +33,12 @@
   ],
   "choices": [
     {
-      "list_name": "ehrenamt",
+      "list_name": "janein",
       "name": "ja",
       "label": "Ja"
     },
     {
-      "list_name": "ehrenamt",
+      "list_name": "janein",
       "name": "nein",
       "label": "Nein"
     },
@@ -55,7 +55,7 @@
   ],
   "settings": [
     {
-      "default_language": "German (de)",
+      "default_language": "de",
       "form_title": "hints_survey",
       "form_id": "hints"
     }

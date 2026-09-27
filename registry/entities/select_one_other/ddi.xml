@@ -6,7 +6,7 @@
         <titl>select_one_other</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-07-22">2026-07-22</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
   </stdyDscr>
@@ -47,6 +47,7 @@
       </catgry>
       <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">quelle</notes>
     </var>
     <var ID="V_aufmerksam_other" name="aufmerksam_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="2">

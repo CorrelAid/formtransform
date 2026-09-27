@@ -9,6 +9,7 @@
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
     </citation>
+    <notes type="cdl:setting" subject="default_language">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -30,6 +31,7 @@
       <varFormat type="character" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">. != ''</notes>
       <notes type="cdl:constraint_message">Username cannot be empty</notes>
+      <notes type="cdl:note_names">welcome</notes>
     </var>
     <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
       <qstn responseDomainType="numeric" seqNo="2">
@@ -69,6 +71,7 @@
       </catgry>
       <concept>Do you consent?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">yes_no</notes>
     </var>
     <var ID="V_adult_info" name="adult_info" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="5">

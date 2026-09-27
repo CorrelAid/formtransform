@@ -7,28 +7,23 @@ import conventions from '../generated/conventions.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { parseParameters } from '../utils/parameters.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
-import { localizedChild } from './translations.js';
+import { localizedChild, textsOf } from './translations.js';
 import type { Choice, DdiGroup, Variable } from './types.js';
 import type { XmlElement } from './xml.js';
 
 const NOTES = conventions.conventions.ddiFields.notes;
 
-/** `range`'s own bounds, which its `valrng` carries. */
-const RANGE_BOUNDS = ['start', 'end'];
-
 /**
  * The `parameters` DDI has no element for, as `key=value` tokens: without
- * `guidance_hint` (`ivuInstr`) and a range's `start`/`end` (`valrng`).
+ * `guidance_hint` (`ivuInstr`). A range's `start`/`end` stay as authored
+ * (#160), though its `valrng` has them too: a bound equal to the default is
+ * otherwise not told apart from none.
  */
 export function otherParameters(v: Variable): string {
   const tokens: string[] = [];
   for (const part of (v.parameters ?? '').split(';')) {
     if (/^\s*guidance_hint\s*=/.test(part)) continue;
-    for (const token of part.split(/[\s,]+/).filter(Boolean)) {
-      const key = token.split('=')[0].trim().toLowerCase();
-      if (v.type === 'range' && RANGE_BOUNDS.includes(key)) continue;
-      tokens.push(token);
-    }
+    tokens.push(...part.split(/[\s,]+/).filter(Boolean));
   }
   return tokens.join(' ');
 }
@@ -83,21 +78,102 @@ export function addGroupFieldNotes(
   }
 }
 
-/** The settings DDI has no element for, as `cdl:setting` notes. */
+/** Settings in a standard element: `titl`, `IDNo`, `verStmt/version`. */
+const STANDARD_SETTINGS = new Set<string>(NOTES.setting.standard);
+
+/**
+ * Every setting DDI has no element for, as `cdl:setting` notes by key
+ * (#160). `default_language` too, as authored: `codeBook/@xml:lang` is also
+ * set without it (a LimeSurvey survey's language, a multilingual form's first).
+ */
 export function addSettingNotes(
   stdy: XmlElement,
   settings: Record<string, unknown>,
 ): void {
-  for (const key of NOTES.setting.keys) {
-    const value = settings[key];
+  const keys = Object.keys(settings).sort();
+  for (const [key, value] of keys.map((k) => [k, settings[k]] as const)) {
+    if (STANDARD_SETTINGS.has(key)) continue;
     if (typeof value !== 'string' && typeof value !== 'number') continue;
     const text = String(value).trim();
-    if (text) {
-      stdy.textChild('notes', text, {
-        type: NOTES.setting.type,
-        subject: key,
+    if (!text) continue;
+    stdy.textChild('notes', text, { type: NOTES.setting.type, subject: key });
+  }
+}
+
+/**
+ * The form's languages (`cdl:language`), in its order, by tag with its own
+ * name: all of a form in several, else one whose name isn't its bare tag.
+ */
+export function addLanguageNotes(
+  stdy: XmlElement,
+  names: Record<string, string>,
+): void {
+  const all = Object.keys(names).length > 1;
+  for (const [tag, name] of Object.entries(names)) {
+    if (name && (all || name !== tag)) {
+      stdy.textChild('notes', name, {
+        type: NOTES.language.type,
+        subject: tag,
       });
     }
+  }
+}
+
+/**
+ * The list's name (`cdl:list`), when it isn't `named` (the question's own
+ * name, a grid member's grid's): what a reader without the note assumes.
+ */
+export function addListNote(el: XmlElement, v: Variable, named: string): void {
+  if (v.listName && v.listName !== named) {
+    el.textChild('notes', v.listName, { type: NOTES.list.type });
+  }
+}
+
+/**
+ * A row without data on `stdyDscr` (#160): its type cell (`cdl:row`), label
+ * and fields, by its name.
+ */
+export function addRowNotes(stdy: XmlElement, v: Variable): void {
+  stdy.textChild('notes', v.row ?? v.type, {
+    type: NOTES.row.type,
+    subject: v.name,
+  });
+  if (v.label) {
+    localizedChild(stdy, 'notes', v.label, textsOf(v, 'label'), {
+      type: NOTES.row_label.type,
+      subject: v.name,
+    });
+  }
+  addRowFieldNotes(stdy, v);
+}
+
+/** A note row's or data-less row's hint, relevant and appearance, by its name. */
+export function addRowFieldNotes(stdy: XmlElement, v: Variable): void {
+  const subject = v.name;
+  if (v.hint) {
+    localizedChild(stdy, 'notes', v.hint, textsOf(v, 'hint'), {
+      type: NOTES.row_hint.type,
+      subject,
+    });
+  }
+  if (v.relevant) {
+    stdy.textChild('notes', v.relevant, {
+      type: NOTES.row_relevant.type,
+      subject,
+    });
+  }
+  if (v.appearance) {
+    stdy.textChild('notes', v.appearance, {
+      type: NOTES.row_appearance.type,
+      subject,
+    });
+  }
+}
+
+/** The names of the note rows a lead-in text joins (`cdl:note_names`). */
+export function addNoteNames(el: XmlElement, names: string[] | undefined) {
+  if (names?.length) {
+    el.textChild('notes', names.join(' '), { type: NOTES.note_names.type });
   }
 }
 

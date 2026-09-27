@@ -21,13 +21,19 @@ import {
 } from '../conventions/other.js';
 import { isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
-import { classifyNotes } from './notes.js';
+import { classifyNotes, type Position } from './notes.js';
+import conventions from '../generated/conventions.js';
 import { Choice, DdiGroup, Translations, Variable } from './types.js';
 import { localizedChild, textsOf } from './translations.js';
 import {
   addExclusiveNote,
   addFieldNotes,
   addGroupFieldNotes,
+  addLanguageNotes,
+  addListNote,
+  addNoteNames,
+  addRowFieldNotes,
+  addRowNotes,
   addSettingNotes,
   references,
 } from './fields.js';
@@ -42,6 +48,8 @@ import {
 } from './logic.js';
 import { registeredVocabCodes } from '../conventions/fromFile.js';
 import { languageTagOf } from '../utils/languageUtils.js';
+
+const NOTES = conventions.conventions.ddiFields.notes;
 
 const NS = 'ddi:codebook:2_5';
 const XSI = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -91,6 +99,10 @@ interface AddVarOpts {
   vocab?: string;
   preQTxt?: string;
   preQTxtTranslations?: Translations;
+  /** The note rows `preQTxt` joins, by name (`cdl:note_names`). */
+  noteNames?: string[];
+  /** The list name a reader assumes without `cdl:list` (a grid's name). */
+  listDefault?: string;
 }
 
 interface AddVarSpec {
@@ -189,7 +201,9 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   if (spec.logic) {
     addLogicNotes(varEl, spec.logic.v);
     addFieldNotes(varEl, spec.logic.v);
+    addListNote(varEl, spec.logic.v, spec.opts?.listDefault ?? name);
   }
+  addNoteNames(varEl, spec.opts?.noteNames);
 
   return varEl;
 }
@@ -280,6 +294,14 @@ function addGroupLogic(
   addLogicNotes(grpEl, v);
   addFieldNotes(grpEl, v);
   addExclusiveNote(grpEl, v.choices);
+  addListNote(grpEl, v, v.name);
+}
+
+/** A semi-open pair written with the `or_other` shorthand (#160). */
+function addOrOtherNote(grpEl: XmlElement, p: OtherPattern): void {
+  if (p.base.orOther && p.otherVar.synthesized) {
+    grpEl.textChild('notes', p.base.orOther, { type: NOTES.or_other.type });
+  }
 }
 
 /** Append a binary 0/1 `<var>` for one `select_multiple` option. */
@@ -386,6 +408,14 @@ function emitOtherPattern(
     // No var has the question's name: the parent group carries its logic,
     // and a note before it.
     addGroupLogic(parentEl, base, ctx, { note: notes, name: baseName });
+    addOrOtherNote(parentEl, p);
+    // Its binary isn't written: the authored other answer's label (#160).
+    const other = base.choices.find((c) => c.name === OTHER_CODE);
+    if (other && !p.otherVar.synthesized) {
+      localizedChild(parentEl, 'notes', other.label, other.translations, {
+        type: NOTES.other_label.type,
+      });
+    }
 
     const childEl = dataDscr.child('varGrp', {
       ID: childId,
@@ -404,6 +434,7 @@ function emitOtherPattern(
     });
     localizedChild(parentEl, 'txt', label, labelTranslations);
     parentEl.textChild('concept', label);
+    addOrOtherNote(parentEl, p);
   }
 }
 
@@ -432,6 +463,7 @@ function emitOtherPatternVars(
       opts: {
         preQTxt: notes.text[baseName] ?? '',
         preQTxtTranslations: notes.translations[baseName],
+        noteNames: notes.names[baseName],
       },
       hint: base.hint,
       guidanceHint: base.guidanceHint,
@@ -477,6 +509,17 @@ export interface BuildDdiOptions {
   datasetFilename?: string;
   /** Override the `prodDate` (ISO `YYYY-MM-DD`); defaults to today. */
   prodDate?: string;
+  /**
+   * The form's own name of each language, by tag (`{ de: 'Deutsch (de)' }`):
+   * a `cdl:language` note where it isn't the tag (#160).
+   */
+  languageNames?: Record<string, string>;
+  /**
+   * The base language's tag (`codeBook/@xml:lang`) when the form doesn't
+   * author one (`settings.default_language`, which wins): a LimeSurvey
+   * survey's language, a multilingual form's first.
+   */
+  language?: string;
 }
 
 /**
@@ -534,13 +577,30 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
   return { otherPatterns, gridGroups, multiRespGroups, units };
 }
 
-/** Emit `<stdyDscr>` (citation, then orphan notes and `cdl:setting` notes). */
+/** What `<stdyDscr>` holds besides the citation. */
+interface StudyNotes {
+  /** Notes with no question after them in their group. */
+  orphans: Variable[];
+  /** Rows without data: metadata rows, matrix headers. */
+  rows: Variable[];
+  /** Every note row, for its fields. */
+  notes: Variable[];
+  /** Where the orphans and rows are. */
+  positions: Position[];
+  /** Language tag → the form's name for it. */
+  languageNames: Record<string, string>;
+}
+
+/**
+ * Emit `<stdyDscr>`: the citation, then the orphan notes, the metadata rows
+ * and where they are (#160), and the `cdl:setting` / `cdl:language` notes.
+ */
 function addStudyDscr(
   root: XmlElement,
   settings: DdiSettings,
   title: StudyTitle,
   prodDate: string,
-  orphanNotes: Variable[],
+  study: StudyNotes,
 ): void {
   const stdy = root.child('stdyDscr');
   const citation = stdy.child('citation');
@@ -560,13 +620,28 @@ function addStudyDscr(
   const ver = settings.version;
   if (ver) citation.child('verStmt').textChild('version', String(ver));
 
-  for (const note of orphanNotes) {
+  const kept = new Set<string>();
+  for (const note of study.orphans) {
     if (!note.label) continue;
     const attrs: Record<string, string> = { type: 'instruction' };
     if (note.name) attrs.subject = note.name;
     localizedChild(stdy, 'notes', note.label, textsOf(note, 'label'), attrs);
+    kept.add(note.name);
+  }
+  for (const row of study.rows) {
+    addRowNotes(stdy, row);
+    kept.add(row.name);
+  }
+  for (const note of study.notes) addRowFieldNotes(stdy, note);
+  for (const p of study.positions) {
+    if (!p.name || !(p.group || kept.has(p.name))) continue;
+    stdy.textChild('notes', `in=${p.in} after=${p.after}`, {
+      type: NOTES.position.type,
+      subject: p.name,
+    });
   }
   addSettingNotes(stdy, settings);
+  addLanguageNotes(stdy, study.languageNames);
 }
 
 interface StudyTitle {
@@ -579,16 +654,16 @@ interface StudyTitle {
  * The study title: `assetName`, else `form_title` (a `{ lang: text }` one in
  * the base language, the others as parallel titles), else `Untitled`.
  */
-function studyTitle(assetName: string, settings: DdiSettings): StudyTitle {
+function studyTitle(
+  assetName: string,
+  settings: DdiSettings,
+  base: string | null,
+): StudyTitle {
   const raw = settings.form_title;
   if (assetName.trim()) return { title: assetName.trim(), parallel: {} };
   if (raw === null || typeof raw !== 'object') {
     return { title: String(raw ?? '').trim() || 'Untitled', parallel: {} };
   }
-  const base =
-    typeof settings.default_language === 'string'
-      ? languageTagOf(settings.default_language)
-      : null;
   const byTag = Object.entries(raw as Record<string, unknown>)
     .map(([key, v]): [string, string] => [
       languageTagOf(key) ?? key,
@@ -600,6 +675,18 @@ function studyTitle(assetName: string, settings: DdiSettings): StudyTitle {
     title: main?.[1] ?? 'Untitled',
     parallel: Object.fromEntries(byTag.filter((e) => e !== main)),
   };
+}
+
+/** The codebook's language: the authored `default_language`, else `fallback`. */
+function baseLanguage(
+  settings: DdiSettings,
+  fallback: string | undefined,
+): string | null {
+  const authored =
+    typeof settings.default_language === 'string'
+      ? languageTagOf(settings.default_language)
+      : null;
+  return authored ?? fallback ?? null;
 }
 
 /** Emit `<fileDscr>` with `caseQnty` set to the submissions count. */
@@ -621,6 +708,8 @@ function addFileDscr(
 interface InlineNotes {
   text: Record<string, string>;
   translations: Record<string, Translations>;
+  /** The notes' names, in order. */
+  names: Record<string, string[]>;
 }
 
 /** A group's lead-in note (the one preceding `name`) as `<notes>`. */
@@ -630,7 +719,9 @@ function addGroupNote(
   name: string,
 ): void {
   const note = notes.text[name];
-  if (note) localizedChild(grpEl, 'notes', note, notes.translations[name]);
+  if (!note) return;
+  localizedChild(grpEl, 'notes', note, notes.translations[name]);
+  addNoteNames(grpEl, notes.names[name]);
 }
 
 /** A group with what it directly contains, by `varGrp` ID reference. */
@@ -654,7 +745,10 @@ function unitVar(unit: EmitUnit): Variable {
  * its direct members (#152). A grid member belongs to its grid's `varGrp`;
  * a `select_multiple` and a semi-open pair are represented by theirs.
  */
-function groupTree(units: EmitUnit[]): Map<string, GroupNode> {
+function groupTree(
+  units: EmitUnit[],
+  emptyGroups: DdiGroup[][] = [],
+): Map<string, GroupNode> {
   const tree = new Map<string, GroupNode>();
   for (const unit of units) {
     const chain = unitVar(unit).groups ?? [];
@@ -675,6 +769,18 @@ function groupTree(units: EmitUnit[]): Map<string, GroupNode> {
     else if (unit.kind === 'other')
       inner.groups.push(makeGrpId(unit.p.base.name));
     else if (!unit.grid) inner.vars.push(makeVarId(unit.v.name));
+  }
+  // A group of notes only: its notes' cdl:position place it (#160).
+  for (const chain of emptyGroups) {
+    const group = chain[chain.length - 1];
+    tree.set(group.path, {
+      group,
+      universe: chain.map((g) => g.relevant),
+      vars: [],
+      groups: [],
+    });
+    const parent = chain[chain.length - 2];
+    if (parent) tree.get(parent.path)?.groups.push(makeGrpId(group.path));
   }
   return tree;
 }
@@ -724,11 +830,11 @@ function addVarGroups(
   dataDscr: XmlElement,
   dataVars: Variable[],
   notes: InlineNotes,
-  buckets: DataVarBuckets,
+  buckets: DataVarBuckets & { emptyGroups: DdiGroup[][] },
   ctx: LogicContext,
 ): void {
   const { gridGroups, multiRespGroups, otherPatterns } = buckets;
-  const tree = groupTree(buckets.units);
+  const tree = groupTree(buckets.units, buckets.emptyGroups);
 
   for (const node of tree.values()) {
     if (!gridGroups.has(node.group.path)) addSection(dataDscr, node, ctx);
@@ -803,7 +909,11 @@ function addVars(
         label: unit.v.label,
         varType: unit.v.type,
         choices: unit.v.choices,
-        opts: { preQTxt: group.label, preQTxtTranslations: group.translations },
+        opts: {
+          preQTxt: group.label,
+          preQTxtTranslations: group.translations,
+          listDefault: unit.grid.slice(unit.grid.lastIndexOf('/') + 1),
+        },
         hint: unit.v.hint,
         guidanceHint: unit.v.guidanceHint,
         ...specTranslations(unit.v),
@@ -832,6 +942,7 @@ function addStandaloneVar(
       vocab: v.vocab,
       preQTxt: notes.text[v.name] ?? '',
       preQTxtTranslations: notes.translations[v.name],
+      noteNames: notes.names[v.name],
     },
     hint: v.hint,
     guidanceHint: v.guidanceHint,
@@ -854,35 +965,51 @@ export function buildDdiCodebook(
     submissions = [],
     datasetFilename = 'data.csv',
     prodDate = new Date().toISOString().slice(0, 10),
+    languageNames = {},
   } = options;
 
   const classified = classifyNotes(variables);
-  const { dataVars, orphanNotes } = classified;
+  const { dataVars } = classified;
   const notes: InlineNotes = {
     text: classified.inlinePreqtxt,
     translations: classified.inlinePreqtxtTranslations,
+    names: classified.inlineNames,
   };
 
-  const title = studyTitle(assetName, settings);
+  const title = studyTitle(
+    assetName,
+    settings,
+    baseLanguage(settings, options.language),
+  );
 
   const root = new XmlElement('codeBook');
   root.setAttr('xmlns', NS);
   root.setAttr('xmlns:xsi', XSI);
   root.setAttr('xsi:schemaLocation', SCHEMA_LOC);
   root.setAttr('version', '2.5');
-  const lang =
-    typeof settings.default_language === 'string'
-      ? languageTagOf(settings.default_language)
-      : null;
+  const lang = baseLanguage(settings, options.language);
   if (lang) root.setAttr('xml:lang', lang);
 
-  addStudyDscr(root, settings, title, prodDate, orphanNotes);
+  addStudyDscr(root, settings, title, prodDate, {
+    orphans: classified.orphanNotes,
+    rows: classified.rows,
+    notes: variables.filter((v) => v.type === 'note' && v.row === undefined),
+    positions: classified.positions,
+    languageNames,
+  });
   addFileDscr(root, datasetFilename, submissions.length);
 
   const dataDscr = root.child('dataDscr');
   const buckets = splitDataVars(dataVars);
-  const ctx = logicContext(variables, lang, questionIds(buckets.units));
-  addVarGroups(dataDscr, dataVars, notes, buckets, ctx);
+  const described = variables.filter((v) => v.row === undefined);
+  const ctx = logicContext(described, lang, questionIds(buckets.units));
+  addVarGroups(
+    dataDscr,
+    dataVars,
+    notes,
+    { ...buckets, emptyGroups: classified.emptyGroups },
+    ctx,
+  );
   addVars(dataDscr, dataVars, notes, buckets, ctx);
 
   return root;

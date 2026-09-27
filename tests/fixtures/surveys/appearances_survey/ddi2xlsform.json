@@ -7,7 +7,7 @@
       "appearance": "field-list"
     },
     {
-      "type": "select_one wohnort",
+      "type": "select_one land",
       "name": "wohnort",
       "label": "Wo wohnen Sie?",
       "appearance": "minimal"
@@ -19,7 +19,7 @@
       "appearance": "multiline"
     },
     {
-      "type": "select_one zufrieden",
+      "type": "select_one zust",
       "name": "zufrieden",
       "label": "Wie zufrieden sind Sie?",
       "appearance": "likert"
@@ -34,13 +34,19 @@
       "appearance": "field-list"
     },
     {
-      "type": "select_one bus",
+      "type": "select_one oft",
+      "name": "kopf",
+      "label": "Nutzung",
+      "appearance": "label"
+    },
+    {
+      "type": "select_one oft",
       "name": "bus",
       "label": "Bus",
       "appearance": "list-nolabel"
     },
     {
-      "type": "select_one bus",
+      "type": "select_one oft",
       "name": "bahn",
       "label": "Bahn",
       "appearance": "list-nolabel"
@@ -55,12 +61,12 @@
       "appearance": "table-list"
     },
     {
-      "type": "select_one bus",
+      "type": "select_one oft",
       "name": "preis",
       "label": "… der Preis?"
     },
     {
-      "type": "select_one bus",
+      "type": "select_one oft",
       "name": "takt",
       "label": "… der Takt?"
     },
@@ -80,44 +86,44 @@
   ],
   "choices": [
     {
-      "list_name": "wohnort",
+      "list_name": "land",
       "name": "stadt",
       "label": "Stadt"
     },
     {
-      "list_name": "wohnort",
+      "list_name": "land",
       "name": "dorf",
       "label": "Land"
     },
     {
-      "list_name": "zufrieden",
+      "list_name": "zust",
       "name": "1",
       "label": "Gar nicht"
     },
     {
-      "list_name": "zufrieden",
+      "list_name": "zust",
       "name": "2",
       "label": "Teils"
     },
     {
-      "list_name": "zufrieden",
+      "list_name": "zust",
       "name": "3",
       "label": "Sehr"
     },
     {
-      "list_name": "bus",
+      "list_name": "oft",
       "name": "nie",
       "label": "Nie"
     },
     {
-      "list_name": "bus",
+      "list_name": "oft",
       "name": "oft",
       "label": "Oft"
     }
   ],
   "settings": [
     {
-      "default_language": "German (de)",
+      "default_language": "de",
       "form_title": "appearances_survey"
     }
   ]

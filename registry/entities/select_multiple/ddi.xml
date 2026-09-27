@@ -6,7 +6,7 @@
         <titl>select_multiple</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-07-22">2026-07-22</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
   </stdyDscr>
@@ -24,6 +24,7 @@
     <varGrp ID="VG_wochenende" name="wochenende" type="multipleResp" var="V_wochenende_sa V_wochenende_so">
       <txt>An welchen Tagen des Wochenendes sind Sie erreichbar?</txt>
       <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?</concept>
+      <notes type="cdl:list">wochenendtage</notes>
     </varGrp>
     <var ID="V_wochenende_sa" name="wochenende_sa" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="1">

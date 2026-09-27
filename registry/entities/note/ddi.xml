@@ -6,10 +6,11 @@
         <titl>note</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-07-22">2026-07-22</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
     <notes type="instruction" subject="hinweis">Im folgenden Abschnitt geht es um Ihre Lebenssituation.</notes>
+    <notes type="cdl:position" subject="hinweis">in= after=</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>

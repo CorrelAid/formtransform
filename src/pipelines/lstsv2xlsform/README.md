@@ -145,7 +145,8 @@ listed here must match exactly.
    tool produces contains a calculation question: there is nothing to reverse.
 9. **Group appearance is read from the survey format.** The TSV stores no
    per-group appearance, only `format=G` (one page per group, from
-   `style: pages`). With it, every non-grid group comes back `field-list`;
+   `style: pages`). With it, the parser makes every non-grid group
+   `field-list`;
    without it, none does. A `field-list` group in a survey without
    `style: pages` is lost, and so is a `style: pages` group that wasn't one.
 10. **`true()` / `false()` come back as `1` / `0`.** The forward writes EM

@@ -19,7 +19,11 @@ import {
 } from '../diagnostics.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
-import { OTHER_CODE, otherLabelFor } from '../conventions/other.js';
+import {
+  OTHER_CODE,
+  limesurveyOtherText,
+  otherLabelFor,
+} from '../conventions/other.js';
 import { fromFileTypeFor } from '../conventions/fromFile.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 import { parseParameters } from '../utils/parameters.js';
@@ -58,6 +62,10 @@ interface ReadState {
   /** Choice set (as a key) → its list's name. */
   listByKey: Map<string, string>;
   names: Set<string>;
+  /** A CDL codebook: its lists are named (`cdl:list`), not deduplicated. */
+  cdl: boolean;
+  /** Section / grid items by `varGrp/@name`, as the tree builds them. */
+  groupItems: Map<string, GroupItem>;
   onWarning?: WarningHandler;
 }
 
@@ -155,14 +163,19 @@ function chainOf(id: string, state: ReadState): string[] {
 // ── choices ──────────────────────────────────────────────────────────────
 
 /**
- * A choice set's list: an identical set already read shares its list (the
- * list's own name is not in the DDI), else a new one named `preferred`.
+ * A choice set's list. In a CDL codebook it is `preferred`, the `cdl:list`
+ * note's name or the question's (#160). In other DDI an identical set already
+ * read shares its list, else it is a new one named `preferred`.
  */
 function listFor(
   choices: InstrumentChoice[],
   preferred: string,
   state: ReadState,
 ): string {
+  if (state.cdl) {
+    state.lists[preferred] ??= choices;
+    return preferred;
+  }
   const key = JSON.stringify(
     choices.map((c) => [c.name, c.label, c.row[EXCLUSIVE_RULE.choicesColumn]]),
   );
@@ -279,11 +292,26 @@ function varType(v: XmlNode, state: ReadState): string {
   return textType(v);
 }
 
-/** One plain `var` as a question. */
+/** The list a question names (`cdl:list`), else `named`. */
+function listName(node: XmlNode, named: string, state: ReadState): string {
+  return noteText(node, FIELDS.list.type, state) || named;
+}
+
+/** The whole type cell: type, list or file, and the `or_other` shorthand. */
+function rawTypeOf(q: QuestionItem, shorthand = q.orOther): string {
+  const parts = [q.type, q.file || q.list, shorthand ? 'or_other' : ''];
+  return parts.filter(Boolean).join(' ');
+}
+
+/**
+ * One plain `var` as a question. With `orOther` it is the shorthand's
+ * select, whose `other` answer was added, not in its list.
+ */
 function plainQuestion(
   v: XmlNode,
   state: ReadState,
-  listName = v.attrs['name'] ?? '',
+  named = v.attrs['name'] ?? '',
+  orOther = false,
 ): QuestionItem {
   const q = emptyQuestion(v.attrs['name'] ?? v.attrs['ID'] ?? '');
   readQstn(q, v, state);
@@ -293,10 +321,14 @@ function plainQuestion(
   if (vocab) {
     q.file = `${vocab}.csv`;
   } else if (q.type === 'select_one' || q.type === 'select_multiple') {
-    q.list = listFor(categories(v, state), listName, state);
+    const choices = categories(v, state).filter(
+      (c) => !orOther || c.name !== OTHER_CODE,
+    );
+    q.list = listFor(choices, listName(v, named, state), state);
   }
+  q.orOther = orOther;
   if (q.type === 'range') q.parameters = rangeParameters(v, q.parameters);
-  q.rawType = [q.type, q.file || q.list].filter(Boolean).join(' ');
+  q.rawType = rawTypeOf(q);
   return q;
 }
 
@@ -327,6 +359,7 @@ function multiQuestion(
     q.hint = childTexts(qstn, 'postQTxt', state);
     q.guidanceHint = childTexts(qstn, 'ivuInstr', state);
   }
+  q.orOther = withOther && isShorthand(grp);
   const excl = exclusive(grp, state);
   const choices: InstrumentChoice[] = binaries.map((b) => {
     const code = (b.attrs['name'] ?? '').slice(name.length + 1);
@@ -338,31 +371,115 @@ function multiQuestion(
         : {},
     };
   });
-  if (withOther) {
-    // Its binary isn't written; the label is the convention's.
+  if (withOther && !q.orOther) {
+    // Its binary isn't written: the label is cdl:other_label's, else the convention's.
+    const own = texts(notesOf(grp, FIELDS.other_label.type), state);
     const label: Text = {};
     for (const lang of state.languages)
-      label[lang] = otherLabelFor(lang || 'en');
+      label[lang] = own[lang] ?? otherLabelFor(lang || 'en');
     choices.push({ name: OTHER_CODE, label, row: {} });
   }
-  q.list = listFor(choices, name, state);
-  q.rawType = `select_multiple ${q.list}`;
+  q.list = listFor(choices, listName(grp, name, state), state);
+  q.rawType = rawTypeOf(q);
+  return q;
+}
+
+/** A semi-open pair whose other answer and companion were added (`cdl:or_other`). */
+function isShorthand(pair: XmlNode): boolean {
+  return notesOf(pair, FIELDS.or_other.type).length > 0;
+}
+
+/** The type cell's `or_other`: not for an `added` pair (LimeSurvey's other=Y). */
+function inTypeCell(pair: XmlNode): boolean {
+  return notesOf(pair, FIELDS.or_other.type).some(
+    (n) => textContent(n).trim() !== 'added',
+  );
+}
+
+/**
+ * The shorthand's "other" text where it isn't LimeSurvey's own (its
+ * `other_replace_text`): the companion's label.
+ */
+function otherLabelOf(companion: XmlNode | undefined, state: ReadState): Text {
+  if (!companion) return {};
+  const label = childTexts(childNamed(companion, 'qstn'), 'qstnLit', state);
+  const own: Text = {};
+  for (const [lang, text] of Object.entries(label)) {
+    if (text !== limesurveyOtherText(lang || 'en') && text !== OTHER_CODE) {
+      own[lang] = text;
+    }
+  }
+  return own;
+}
+
+/**
+ * The shorthand select's own "other" text, when it has one, and its type
+ * cell: `or_other` unless the pair was only said to be there (`added`).
+ */
+function withOtherLabel(
+  q: QuestionItem,
+  pair: XmlNode,
+  companion: XmlNode | undefined,
+  state: ReadState,
+): QuestionItem {
+  const own = otherLabelOf(companion, state);
+  if (Object.keys(own).length) q.otherLabel = own;
+  q.rawType = rawTypeOf(q, inTypeCell(pair));
   return q;
 }
 
 // ── notes ────────────────────────────────────────────────────────────────
 
-/** A note row, whose name the DDI doesn't keep. */
-function noteItem(label: Text, near: string, state: ReadState): QuestionItem {
-  let name = `${near}_note`;
-  for (let i = 2; state.names.has(name); i++) name = `${near}_note_${i}`;
+/** A note row: `name`, or without one (not a CDL codebook) `<near>_note`. */
+function noteItem(
+  label: Text,
+  near: string,
+  state: ReadState,
+  name = '',
+): QuestionItem {
+  if (!name) {
+    name = `${near}_note`;
+    for (let i = 2; state.names.has(name); i++) name = `${near}_note_${i}`;
+  }
   state.names.add(name);
   return { ...emptyQuestion(name), type: 'note', rawType: 'note', label };
 }
 
-/** A lead-in note kept as `preQTxt` (standalone) or an untyped group note. */
-function leadIn(label: Text, near: string, state: ReadState): QuestionItem[] {
-  return Object.keys(label).length ? [noteItem(label, near, state)] : [];
+/**
+ * Each language's lead-in text split back into the notes `names` lists: at
+ * the blank lines that joined them, else (a count that doesn't match) all of
+ * it the first note's.
+ */
+function splitNotes(label: Text, names: string[]): Text[] {
+  const out: Text[] = names.map(() => ({}));
+  for (const [lang, text] of Object.entries(label)) {
+    const parts = text.split('\n\n');
+    if (parts.length === names.length) {
+      parts.forEach((part, i) => (out[i][lang] = part));
+    } else {
+      out[0][lang] = text;
+    }
+  }
+  return out;
+}
+
+/**
+ * A lead-in kept as `preQTxt` (standalone) or an untyped group note on `el`:
+ * the note rows `cdl:note_names` lists, else one note.
+ */
+function leadIn(
+  label: Text,
+  el: XmlNode,
+  near: string,
+  state: ReadState,
+): QuestionItem[] {
+  if (!Object.keys(label).length) return [];
+  const names = ids(noteText(el, FIELDS.note_names.type, state));
+  if (names.length < 2) return [noteItem(label, near, state, names[0])];
+  return splitNotes(label, names)
+    .map((text, i) => ({ text, name: names[i] }))
+    .filter(({ text }) => Object.keys(text).length)
+    .map(({ text, name }) => noteItem(text, near, state, name));
 }
 
 const untypedNotes = (node: XmlNode, state: ReadState) =>
@@ -388,11 +505,15 @@ function varsOf(grp: XmlNode, state: ReadState): XmlNode[] {
 }
 
 /** A `var`'s lead-in note (its `preQTxt`) and the question itself. */
-function withLeadIn(v: XmlNode, state: ReadState): QuestionItem[] {
+function withLeadIn(
+  v: XmlNode,
+  state: ReadState,
+  orOther = false,
+): QuestionItem[] {
   const note = childTexts(childNamed(v, 'qstn'), 'preQTxt', state);
   return [
-    ...leadIn(note, v.attrs['name'] ?? '', state),
-    plainQuestion(v, state),
+    ...leadIn(note, v, v.attrs['name'] ?? '', state),
+    plainQuestion(v, state, undefined, orOther),
   ];
 }
 
@@ -415,9 +536,11 @@ function placeMulti(multiId: string, multi: XmlNode, state: ReadState): Placed {
   const pair = pairId ? state.groups.get(pairId) : undefined;
   const q = multiQuestion(pair ?? multi, varsOf(multi, state), !!pair, state);
   const lead = untypedNotes(pair ?? multi, state);
-  const items = [...leadIn(lead, q.name, state), q];
-  if (pair)
-    items.push(...varsOf(pair, state).map((m) => plainQuestion(m, state)));
+  const items = [...leadIn(lead, pair ?? multi, q.name, state), q];
+  const companions = pair ? varsOf(pair, state) : [];
+  // The shorthand's companion was added: the select's or_other says it.
+  if (q.orOther) withOtherLabel(q, pair!, companions[0], state);
+  else items.push(...companions.map((m) => plainQuestion(m, state)));
   return { items, anchor: pairId ?? multiId };
 }
 
@@ -441,6 +564,12 @@ function placeVar(
   seen.add(key);
   if (multiId) return placeMulti(multiId, state.groups.get(multiId)!, state);
   // A semi-open select_one: its `other` group holds the select and its text.
+  const [select, ...companions] = varsOf(owner, state);
+  if (select && isShorthand(owner)) {
+    const items = withLeadIn(select, state, true);
+    withOtherLabel(items[items.length - 1], owner, companions[0], state);
+    return { items, anchor: ownerId };
+  }
   return {
     items: varsOf(owner, state).flatMap((m) => withLeadIn(m, state)),
     anchor: ownerId,
@@ -458,9 +587,9 @@ function groupItem(id: string, state: ReadState): GroupItem {
   const grp = state.groups.get(id)!;
   const grid = grp.attrs['type'] === 'grid';
   const lead = grid
-    ? leadIn(untypedNotes(grp, state), gridName(id, state), state)
+    ? leadIn(untypedNotes(grp, state), grp, gridName(id, state), state)
     : [];
-  return {
+  const item: GroupItem = {
     kind: 'group',
     name: gridName(id, state),
     label: childTexts(grp, 'txt', state),
@@ -473,6 +602,8 @@ function groupItem(id: string, state: ReadState): GroupItem {
     children: lead,
     closed: true,
   };
+  state.groupItems.set(grp.attrs['name'] ?? id, item);
+  return item;
 }
 
 /** Seat each placed question in its groups, opening them as they come. */
@@ -525,7 +656,6 @@ function readSettings(
     ['form_title', citationText(stdy, ['titlStmt', 'titl'])],
     ['form_id', citationText(stdy, ['titlStmt', 'IDNo'])],
     ['version', citationText(stdy, ['verStmt', 'version'])],
-    ['default_language', state.base],
   ];
   const out: Record<string, unknown> = Object.fromEntries(
     fields.filter(([, value]) => value && value !== 'Untitled'),
@@ -543,31 +673,199 @@ function readSettings(
     const key = note.attrs['subject'];
     if (key) out[key] = textContent(note).trim();
   }
+  // Kobo's older name for form_id, kept as authored.
+  if (out['id_string'] === out['form_id']) delete out['form_id'];
   return out;
 }
 
-/** The study's notes (`type="instruction"`): notes with no question after them. */
-function orphanNotes(
-  root: XmlNode | undefined,
-  state: ReadState,
-): QuestionItem[] {
-  const stdy = root && childNamed(root, 'stdyDscr');
-  if (!stdy) return [];
-  const bySubject = new Map<string, XmlNode[]>();
-  for (const note of childrenNamed(stdy, 'notes')) {
-    if (note.attrs['type'] !== 'instruction') continue;
+/** A note or data-less row the study describes, from its type cell. */
+function studyItem(name: string, typeCell: string, label: Text): QuestionItem {
+  const [type = 'note', second = '', third = ''] = typeCell.split(/\s+/);
+  const q = { ...emptyQuestion(name), type, rawType: typeCell, label };
+  if (type.endsWith('_from_file')) q.file = second;
+  else if (second) q.list = second;
+  q.orOther = second === 'or_other' || third === 'or_other';
+  return q;
+}
+
+/** The study's notes of one `cdl:` type, by subject. */
+function bySubject(stdy: XmlNode, type: string): Map<string, XmlNode[]> {
+  const out = new Map<string, XmlNode[]>();
+  for (const note of notesOf(stdy, type)) {
     const subject = note.attrs['subject'] ?? '';
-    bySubject.set(subject, [...(bySubject.get(subject) ?? []), note]);
+    out.set(subject, [...(out.get(subject) ?? []), note]);
   }
-  return [...bySubject].map(([subject, notes]) => {
-    state.names.add(subject);
-    return {
-      ...emptyQuestion(subject),
-      type: 'note',
-      rawType: 'note',
-      label: texts(notes, state),
-    };
-  });
+  return out;
+}
+
+/**
+ * The study's rows with no question after them: its notes
+ * (`type="instruction"`, intros and outros) and rows without data
+ * (`cdl:row`, with `cdl:row_label`), by name.
+ */
+function studyRows(
+  stdy: XmlNode | undefined,
+  state: ReadState,
+): Map<string, QuestionItem> {
+  const rows = new Map<string, QuestionItem>();
+  if (!stdy) return rows;
+  const labels = bySubject(stdy, FIELDS.row_label.type);
+  for (const [subject, notes] of bySubject(stdy, 'instruction')) {
+    rows.set(subject, studyItem(subject, 'note', texts(notes, state)));
+  }
+  for (const [subject, [note]] of bySubject(stdy, FIELDS.row.type)) {
+    if (!subject) continue;
+    const label = texts(labels.get(subject) ?? [], state);
+    rows.set(subject, studyItem(subject, textContent(note).trim(), label));
+  }
+  for (const name of rows.keys()) state.names.add(name);
+  return rows;
+}
+
+/** A section with no data question under it (its path `name`), not yet placed. */
+function emptyGroup(name: string, state: ReadState): GroupItem | undefined {
+  if (state.groupItems.has(name)) return undefined;
+  for (const [id, grp] of state.groups) {
+    if (grp.attrs['name'] === name && grp.attrs['type'] === 'section') {
+      return groupItem(id, state);
+    }
+  }
+  return undefined;
+}
+
+/** A `cdl:position` note's `in=… after=…`. */
+function positionOf(note: XmlNode): { in: string; after: string } {
+  const values = Object.fromEntries(
+    textContent(note)
+      .trim()
+      .split(/\s+/)
+      .map((token) => {
+        const at = token.indexOf('=');
+        return at < 0 ? [token, ''] : [token.slice(0, at), token.slice(at + 1)];
+      }),
+  );
+  return { in: values['in'] ?? '', after: values['after'] ?? '' };
+}
+
+/**
+ * Seat the study's rows where their `cdl:position` says (#160): in their
+ * group after the item named, first when none is. A row without a position,
+ * or whose group isn't in the codebook, ends the survey.
+ */
+function placeStudyRows(
+  body: Item[],
+  stdy: XmlNode | undefined,
+  state: ReadState,
+): void {
+  const rows = studyRows(stdy, state);
+  const positions = stdy ? notesOf(stdy, FIELDS.position.type) : [];
+  for (const note of positions) {
+    const subject = note.attrs['subject'] ?? '';
+    const item = rows.get(subject) ?? emptyGroup(subject, state);
+    if (!item) continue;
+    rows.delete(subject);
+    const at = positionOf(note);
+    const group = at.in ? state.groupItems.get(at.in) : undefined;
+    const into = group ? group.children : body;
+    if (at.in && !group) {
+      into.push(item);
+      continue;
+    }
+    const after = at.after ? into.findIndex((i) => i.name === at.after) : -1;
+    if (at.after && after < 0) into.push(item);
+    else into.splice(after + 1, 0, item);
+  }
+  body.push(...rows.values());
+}
+
+/** The base-language text of the first note of `name`, `''` if none. */
+function subjectText(notes: Map<string, XmlNode[]>, name: string): string {
+  const note = notes.get(name)?.[0];
+  return note ? textContent(note).trim() : '';
+}
+
+/**
+ * The hint, relevant and appearance of note rows and data-less rows
+ * (`cdl:row_hint`, `cdl:row_relevant`, `cdl:row_appearance`), by name: only
+ * those rows have them.
+ */
+function readRowFields(
+  items: Item[],
+  stdy: XmlNode | undefined,
+  state: ReadState,
+): void {
+  if (!stdy) return;
+  const hints = bySubject(stdy, FIELDS.row_hint.type);
+  const relevants = bySubject(stdy, FIELDS.row_relevant.type);
+  const appearances = bySubject(stdy, FIELDS.row_appearance.type);
+  const visit = (list: Item[]) => {
+    for (const item of list) {
+      if (item.kind === 'group') {
+        visit(item.children);
+        continue;
+      }
+      const hint = hints.get(item.name);
+      if (hint) item.hint = texts(hint, state);
+      item.relevant ||= subjectText(relevants, item.name);
+      item.appearance ||= subjectText(appearances, item.name);
+    }
+  };
+  visit(items);
+}
+
+/** `cdl:language`: each language tag's name in the form (its column suffix). */
+function languageNames(stdy: XmlNode | undefined): Map<string, string> {
+  const names = new Map<string, string>();
+  for (const note of stdy ? notesOf(stdy, FIELDS.language.type) : []) {
+    const tag = note.attrs['subject'];
+    const name = textContent(note).trim();
+    if (tag && name) names.set(tag, name);
+  }
+  return names;
+}
+
+/** A text's languages by the form's names for them. */
+function renamed(text: Text, names: Map<string, string>): Text {
+  return Object.fromEntries(
+    Object.entries(text).map(([lang, value]) => [
+      names.get(lang) ?? lang,
+      value,
+    ]),
+  );
+}
+
+/** Every text of an item (and its children) by the form's language names. */
+function renameItem(item: Item, names: Map<string, string>): void {
+  item.label = renamed(item.label, names);
+  item.hint = renamed(item.hint, names);
+  if (item.kind === 'group') {
+    item.children.forEach((c) => renameItem(c, names));
+    return;
+  }
+  item.guidanceHint = renamed(item.guidanceHint, names);
+  item.constraintMessage = renamed(item.constraintMessage, names);
+  if (item.otherLabel) item.otherLabel = renamed(item.otherLabel, names);
+}
+
+/**
+ * The instrument's texts keyed by the form's language names (`cdl:language`)
+ * instead of the bare tags, as its columns were (`label::Deutsch (de)`).
+ */
+function renameLanguages(
+  instrument: Instrument,
+  names: Map<string, string>,
+): Instrument {
+  if (!names.size) return instrument;
+  instrument.body.forEach((item) => renameItem(item, names));
+  for (const choices of Object.values(instrument.lists)) {
+    for (const c of choices) c.label = renamed(c.label, names);
+  }
+  const title = instrument.settings['form_title'];
+  if (title && typeof title === 'object') {
+    instrument.settings['form_title'] = renamed(title as Text, names);
+  }
+  instrument.languages = instrument.languages.map((l) => names.get(l) ?? l);
+  return instrument;
 }
 
 // ── provenance ───────────────────────────────────────────────────────────
@@ -638,17 +936,24 @@ export function instrumentFromDdi(
     lists: {},
     listByKey: new Map(),
     names: new Set(),
+    cdl: false,
+    groupItems: new Map(),
     onWarning: options.onWarning,
   };
+  const stdy = root && childNamed(root, 'stdyDscr');
+  const names = languageNames(stdy);
+  // The form's languages in its order (cdl:language), else as they come.
+  if (names.size) state.languages = [...names.keys()];
   const elements = dataElements(roots);
   indexStructure(elements, state);
+  state.cdl = isCdl(elements);
   if (!root && state.vars.size === 0) {
     throw new ConversionError(
       'ddi-invalid',
       'The input holds no <codeBook> and no <var>.',
     );
   }
-  if (!isCdl(elements)) warnNotCdl(options.onWarning);
+  if (!state.cdl) warnNotCdl(options.onWarning);
   for (const [, v] of state.vars) state.names.add(v.attrs['name'] ?? '');
 
   const seen = new Set<string>();
@@ -658,12 +963,17 @@ export function instrumentFromDdi(
     if (p) placed.push(p);
   }
   const settings = readSettings(root, state);
-  const body = [...buildTree(placed, state), ...orphanNotes(root, state)];
-  return {
-    languages: languagesOf(state),
-    ...(base ? { defaultLanguage: base } : {}),
-    settings,
-    lists: state.lists,
-    body,
-  };
+  const body = buildTree(placed, state);
+  placeStudyRows(body, stdy, state);
+  readRowFields(body, stdy, state);
+  return renameLanguages(
+    {
+      languages: languagesOf(state),
+      ...(base ? { defaultLanguage: base } : {}),
+      settings,
+      lists: state.lists,
+      body,
+    },
+    names,
+  );
 }

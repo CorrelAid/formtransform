@@ -53,7 +53,7 @@ describe('standard DDI', () => {
     expect(varXml(xml, 'x')).not.toContain('dcml');
   });
 
-  test("a range's start and end are its valrng, the rest a note", () => {
+  test("a range's start and end are its valrng, and as authored a note", () => {
     const xml = ddi([
       {
         type: 'range',
@@ -65,7 +65,10 @@ describe('standard DDI', () => {
     ]);
     const r = varXml(xml, 'r');
     expect(r).toContain('<range min="0" max="100"/>');
-    expect(r).toContain('<notes type="cdl:parameters">step=5</notes>');
+    // A bound equal to the default is told apart from none (#160).
+    expect(r).toContain(
+      '<notes type="cdl:parameters">start=0 end=100 step=5</notes>',
+    );
     // The registry's defaults, as pyxform's.
     expect(varXml(xml, 'plain')).toContain('<range min="1" max="10"/>');
     expect(varXml(xml, 'plain')).not.toContain('cdl:parameters');

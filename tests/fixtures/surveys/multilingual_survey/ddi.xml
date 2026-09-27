@@ -10,6 +10,9 @@
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
     </citation>
+    <notes type="cdl:setting" subject="default_language">en</notes>
+    <notes type="cdl:language" subject="en">en</notes>
+    <notes type="cdl:language" subject="es">es</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>

@@ -122,15 +122,29 @@ describe('DDI formtransform did not write', () => {
 });
 
 describe('choice lists', () => {
-  test('identical category sets share one list', () => {
-    const cat = `<catgry><catValu>y</catValu><labl>Yes</labl></catgry>`;
-    const v = (n: string, s: number) =>
-      `<var ID="V_${n}" name="${n}"><qstn responseDomainType="category" seqNo="${s}"><qstnLit>${n}</qstnLit></qstn>${cat}</var>`;
-    const { instrument } = read(v('a', 1) + v('b', 2));
-    expect(instrument.body.map((q) => (q as QuestionItem).list)).toEqual([
-      'a',
-      'a',
-    ]);
-    expect(Object.keys(instrument.lists)).toEqual(['a']);
+  const cat = `<catgry><catValu>y</catValu><labl>Yes</labl></catgry>`;
+  const v = (n: string, extra = '') =>
+    `<var ID="V_${n}" name="${n}"><qstn responseDomainType="category"><qstnLit>${n}</qstnLit></qstn>${cat}${extra}</var>`;
+  const lists = (xml: string) => {
+    const { instrument } = read(xml);
+    return {
+      used: instrument.body.map((q) => (q as QuestionItem).list),
+      names: Object.keys(instrument.lists),
+    };
+  };
+
+  test('in DDI not from CDL, identical category sets share one list', () => {
+    expect(lists(v('a') + v('b'))).toEqual({
+      used: ['a', 'a'],
+      names: ['a'],
+    });
+  });
+
+  test("in a CDL codebook, a list is cdl:list's, else the question's (#160)", () => {
+    const named = '<notes type="cdl:list">yn</notes>';
+    expect(lists(v('a', named) + v('b', named) + v('c'))).toEqual({
+      used: ['yn', 'yn', 'c'],
+      names: ['yn', 'c'],
+    });
   });
 });

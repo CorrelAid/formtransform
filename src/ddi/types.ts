@@ -102,4 +102,18 @@ export interface Variable {
   parameters?: string;
   /** Its texts in the form's other languages, by language tag (#135). */
   translations?: Record<string, VariableTexts>;
+  /**
+   * A select whose "other" answer and companion were added, not authored: a
+   * `cdl:or_other` note (#160). `shorthand` from the XLSForm type cell's
+   * `or_other`, `added` from a source that only says it has one
+   * (LimeSurvey's `other=Y`).
+   */
+  orOther?: 'shorthand' | 'added';
+  /** The `or_other` companion the projection added, not an authored row. */
+  synthesized?: boolean;
+  /**
+   * A row with no data column (a metadata row, a matrix header): its type
+   * cell, a `cdl:row` note (#160).
+   */
+  row?: string;
 }

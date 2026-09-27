@@ -33,13 +33,13 @@
       "relevant": "${age} >= 18"
     },
     {
-      "type": "select_multiple favorite_colors",
+      "type": "select_multiple colors",
       "name": "favorite_colors",
       "label": "What are your favorite colors?",
       "hint": "Select all that apply"
     },
     {
-      "type": "select_one satisfaction_level",
+      "type": "select_one satisfaction",
       "name": "satisfaction_level",
       "label": "How satisfied are you?"
     },
@@ -76,38 +76,39 @@
       "label": "Other"
     },
     {
-      "list_name": "favorite_colors",
+      "list_name": "colors",
       "name": "red",
       "label": "Red"
     },
     {
-      "list_name": "favorite_colors",
+      "list_name": "colors",
       "name": "blue",
       "label": "Blue"
     },
     {
-      "list_name": "favorite_colors",
+      "list_name": "colors",
       "name": "green",
       "label": "Green"
     },
     {
-      "list_name": "favorite_colors",
+      "list_name": "colors",
       "name": "yellow",
       "label": "Yellow"
     },
     {
-      "list_name": "satisfaction_level",
+      "list_name": "satisfaction",
       "name": "happ",
       "label": "Happy"
     },
     {
-      "list_name": "satisfaction_level",
+      "list_name": "satisfaction",
       "name": "unhp",
       "label": "Unhappy"
     }
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "complex_survey",
       "form_id": "complex_survey"
     }

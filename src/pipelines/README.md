@@ -78,6 +78,10 @@ What a CDL codebook carries beyond the canonical `Variable`
   `qstn/backward`), else a typed note. `convention:ddiFields`
   ([`registry/conventions/ddiFields.jsonld`](../../registry/conventions/ddiFields.jsonld))
   maps every model field, or names it a loss.
+- **what a form needs to be rebuilt** (#160): list names (`cdl:list`), the
+  `or_other` shorthand (`cdl:or_other`), note rows' names, fields and places,
+  rows without data (`cdl:row`), every setting and the form's language names,
+  so a codebook's XLSForm converts to the same codebook.
 
 DDI formtransform didn't write (a hand-written seed study, another tool's
 codebook) has none of the `cdl:` notes. `ddi2xlsform` still converts it, as a

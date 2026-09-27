@@ -58,6 +58,7 @@
   "choices": [],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "complex_xpath_survey",
       "form_id": "complex_xpath_survey"
     }

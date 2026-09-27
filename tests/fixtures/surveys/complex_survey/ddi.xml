@@ -10,6 +10,7 @@
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
     </citation>
+    <notes type="cdl:setting" subject="default_language">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -36,6 +37,7 @@
       <txt>What are your favorite colors?</txt>
       <concept>What are your favorite colors?</concept>
       <universe clusion="I">Only if “Age” ≥ 18</universe>
+      <notes type="cdl:list">colors</notes>
     </varGrp>
     <var ID="V_full_name" name="full_name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="1">
@@ -155,6 +157,7 @@
       </catgry>
       <concept>How satisfied are you?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">satisfaction</notes>
     </var>
     <var ID="V_other_comments" name="other_comments" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="6">

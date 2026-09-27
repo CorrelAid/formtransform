@@ -16,7 +16,50 @@
     <notes type="instruction" subject="Hallo" xml:lang="en">Hello!</notes>
     <notes type="instruction" subject="Disclaimer">Disclaimer</notes>
     <notes type="instruction" subject="Disclaimer" xml:lang="en">Disclaimer</notes>
+    <notes type="cdl:row" subject="start">start</notes>
+    <notes type="cdl:row" subject="end">end</notes>
+    <notes type="cdl:row" subject="rating_technologies_tools_header">select_one iy6st81</notes>
+    <notes type="cdl:row_label" subject="rating_technologies_tools_header">Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:</notes>
+    <notes type="cdl:row_label" subject="rating_technologies_tools_header" xml:lang="en">Please rate your experience with the following technologies and tools:</notes>
+    <notes type="cdl:row_hint" subject="rating_technologies_tools_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_hint" subject="rating_technologies_tools_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_appearance" subject="rating_technologies_tools_header">label</notes>
+    <notes type="cdl:row" subject="rating_techniques_header">select_one xe9mo32</notes>
+    <notes type="cdl:row_label" subject="rating_techniques_header">Bitte bewerte Deine Erfahrung mit den folgenden Techniken.</notes>
+    <notes type="cdl:row_label" subject="rating_techniques_header" xml:lang="en">Please rate your experience with the following techniques:</notes>
+    <notes type="cdl:row_hint" subject="rating_techniques_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_hint" subject="rating_techniques_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_appearance" subject="rating_techniques_header">label</notes>
+    <notes type="cdl:row" subject="rating_topics_header">select_one dm1uu76</notes>
+    <notes type="cdl:row_label" subject="rating_topics_header">Bitte bewerte Deine Erfahrung mit den folgenden Themen:</notes>
+    <notes type="cdl:row_label" subject="rating_topics_header" xml:lang="en">Please rate your experience with the following topics:</notes>
+    <notes type="cdl:row_hint" subject="rating_topics_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_hint" subject="rating_topics_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
+    <notes type="cdl:row_appearance" subject="rating_topics_header">label</notes>
+    <notes type="cdl:row_hint" subject="Hallo">Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. 
+
+Für die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.</notes>
+    <notes type="cdl:row_hint" subject="Hallo" xml:lang="en">Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. 
+
+The survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible.</notes>
+    <notes type="cdl:row_hint" subject="Disclaimer">In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.
+
+Bei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.</notes>
+    <notes type="cdl:row_hint" subject="Disclaimer" xml:lang="en">In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.
+
+In accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to info@correlaid.org. Your data will be deleted after revocation.</notes>
+    <notes type="cdl:position" subject="start">in= after=</notes>
+    <notes type="cdl:position" subject="end">in= after=start</notes>
+    <notes type="cdl:position" subject="group_gi4rv46">in= after=end</notes>
+    <notes type="cdl:position" subject="Hallo">in=group_gi4rv46 after=</notes>
+    <notes type="cdl:position" subject="Disclaimer">in=group_gi4rv46 after=Hallo</notes>
+    <notes type="cdl:position" subject="rating_technologies_tools_header">in=group_lt58n55/rating_technologies_tools after=</notes>
+    <notes type="cdl:position" subject="rating_techniques_header">in=group_lt58n55/rating_techniques after=</notes>
+    <notes type="cdl:position" subject="rating_topics_header">in=group_lt58n55/rating_topics after=</notes>
+    <notes type="cdl:setting" subject="default_language">Deutsch (de)</notes>
     <notes type="cdl:setting" subject="style">theme-grid no-text-transform</notes>
+    <notes type="cdl:language" subject="de">de</notes>
+    <notes type="cdl:language" subject="en">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -61,11 +104,16 @@
       <txt xml:lang="en">About you</txt>
       <concept>Über dich</concept>
     </varGrp>
+    <varGrp ID="VG_group_gi4rv46" name="group_gi4rv46" type="section">
+      <txt>Hallo!</txt>
+      <concept>Hallo!</concept>
+    </varGrp>
     <varGrp ID="VG_project_id" name="project_id" type="multipleResp" var="V_project_id_project-alpha V_project_id_project-beta V_project_id_project-gamma">
       <txt>Für welche Projekte möchtest Du dich bewerben?</txt>
       <txt xml:lang="en">Which project(s) do you want to apply for?</txt>
       <concept>Für welche Projekte möchtest Du dich bewerben?</concept>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">mb5co98</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-alpha" name="project_role_project-alpha" type="multipleResp" var="V_project_role_project-alpha_role-survey-design V_project_role_project-alpha_role-data-analysis V_project_role_project-alpha_team_coordinator V_project_role_project-alpha_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</txt>
@@ -75,6 +123,7 @@
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-alpha')</notes>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">cl-role-project-alpha</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-beta" name="project_role_project-beta" type="multipleResp" var="V_project_role_project-beta_role-visualization V_project_role_project-beta_role-data-engineering V_project_role_project-beta_team_coordinator V_project_role_project-beta_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Beta?</txt>
@@ -84,6 +133,7 @@
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-beta')</notes>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">cl-role-project-beta</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-gamma" name="project_role_project-gamma" type="multipleResp" var="V_project_role_project-gamma_role-project-management V_project_role_project-gamma_role-machine-learning V_project_role_project-gamma_team_coordinator V_project_role_project-gamma_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Gamma?</txt>
@@ -93,6 +143,7 @@
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-gamma')</notes>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">cl-role-project-gamma</notes>
     </varGrp>
     <var ID="V_project_id_project-alpha" name="project_id_project-alpha" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="1">
@@ -403,6 +454,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_python" name="python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="6">
@@ -437,6 +489,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_rstats" name="rstats" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="7">
@@ -471,6 +524,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_powerbi" name="powerbi" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="8">
@@ -505,6 +559,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_excel" name="excel" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="9">
@@ -539,6 +594,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_sql" name="sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="10">
@@ -573,6 +629,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_git" name="git" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="11">
@@ -607,6 +664,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_jupyter" name="jupyter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="12">
@@ -641,6 +699,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_tensorflow" name="tensorflow" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="13">
@@ -675,6 +734,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">iy6st81</notes>
     </var>
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="14">
@@ -720,6 +780,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_indicator_development" name="indicator_development" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="16">
@@ -754,6 +815,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_data_collection" name="data_collection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="17">
@@ -788,6 +850,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_data_cleaning" name="data_cleaning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="18">
@@ -822,6 +885,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_descriptive_statistics" name="descriptive_statistics" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="19">
@@ -856,6 +920,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_data_visualization" name="data_visualization" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="20">
@@ -890,6 +955,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_data_engineering" name="data_engineering" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="21">
@@ -924,6 +990,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_automation" name="automation" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="22">
@@ -958,6 +1025,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_projectplanning" name="projectplanning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="23">
@@ -992,6 +1060,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-project-management')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_mlmodeling" name="mlmodeling" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="24">
@@ -1026,6 +1095,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">xe9mo32</notes>
     </var>
     <var ID="V_wirkungsmessung" name="wirkungsmessung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="25">
@@ -1060,6 +1130,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_research_design" name="research_design" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="26">
@@ -1094,6 +1165,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_survey_research" name="survey_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="27">
@@ -1128,6 +1200,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_data_protection" name="data_protection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="28">
@@ -1162,6 +1235,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_resilience_mental_health" name="resilience_mental_health" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="29">
@@ -1196,6 +1270,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_education_research" name="education_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="30">
@@ -1230,6 +1305,7 @@
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">dm1uu76</notes>
     </var>
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="31">
@@ -1280,6 +1356,7 @@
       <concept>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">il2wc73</notes>
     </var>
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="34">
@@ -1359,6 +1436,7 @@
       <concept>Was ist dein Geschlecht?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">iy7os66</notes>
     </var>
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="39">
@@ -1390,6 +1468,7 @@
       <concept>Einwilligung in die Datenschutzerklärung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">mj8ty33</notes>
     </var>
   </dataDscr>
 </codeBook>
