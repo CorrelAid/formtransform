@@ -115,7 +115,7 @@ describe('xlsform2ddi --data', () => {
     expect(fileUri(xml)).toBe('data.csv');
     expect(fileName(xml)).toBe('data.csv');
     expect(csvHeader(csv)).toEqual(xmlVarNames(xml));
-    expect(csv).toContain('1,0,1,Ada,36,feml,"likes, commas",2026-01-02');
+    expect(csv).toContain('Ada,36,feml,1,0,1,"likes, commas",2026-01-02');
   });
 
   test('Kobo JSON with group paths; --dataset-filename drives the default path', () => {
@@ -135,7 +135,7 @@ describe('xlsform2ddi --data', () => {
     expect(caseQnty(xml)).toBe('3');
     expect(fileUri(xml)).toBe('abc.csv');
     expect(csvHeader(csv)).toEqual(xmlVarNames(xml));
-    expect(csv.split('\r\n')[1]).toMatch(/^0,1,0,Ada,/);
+    expect(csv.split('\r\n')[1]).toMatch(/^Ada,,,0,1,0,/);
   });
 
   test('--data-out names the file and the recorded URI', () => {

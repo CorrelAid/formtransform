@@ -12,7 +12,7 @@
  */
 
 import { splitDataVars } from './codebook.js';
-import type { DataVarBuckets, OtherPattern } from './codebook.js';
+import type { OtherPattern } from './codebook.js';
 import { classifyNotes } from './notes.js';
 import { OTHER_CODE } from '../conventions/other.js';
 import type { Variable } from './types.js';
@@ -61,29 +61,23 @@ function otherPatternColumns(p: OtherPattern): Column[] {
 }
 
 /**
- * Ordered column plan for a variable list.
- *
- * The walk order is the one `addVars` in `ddi/codebook.ts` uses: grid-group
- * members, then `select_multiple` binaries, then `_other` patterns, then
- * standalone variables. `note` variables carry no data and are skipped.
+ * Ordered column plan for a variable list: the `<var>` order `addVars` in
+ * `ddi/codebook.ts` uses, i.e. survey order (#152), a `select_multiple` as
+ * its binaries, a semi-open pair as its select then its text. `note`
+ * variables carry no data and are skipped.
  */
 function columnPlan(variables: Variable[]): Column[] {
   const { dataVars } = classifyNotes(variables);
-  const buckets: DataVarBuckets = splitDataVars(dataVars);
-  const { gridGroups, multiRespGroups, otherPatterns, standaloneVars } =
-    buckets;
-
   const cols: Column[] = [];
-  for (const members of gridGroups.values()) {
-    cols.push(...members.map((v) => single(v)));
+  for (const unit of splitDataVars(dataVars).units) {
+    if (unit.kind === 'multi') {
+      cols.push(...unit.v.choices.map((c) => binary(unit.v, c.name)));
+    } else if (unit.kind === 'other') {
+      cols.push(...otherPatternColumns(unit.p));
+    } else {
+      cols.push(single(unit.v));
+    }
   }
-  for (const smVar of multiRespGroups.values()) {
-    cols.push(...smVar.choices.map((c) => binary(smVar, c.name)));
-  }
-  for (const p of otherPatterns.values()) {
-    cols.push(...otherPatternColumns(p));
-  }
-  cols.push(...standaloneVars.map((v) => single(v)));
   return cols;
 }
 

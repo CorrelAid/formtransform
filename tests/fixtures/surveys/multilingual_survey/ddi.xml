@@ -22,6 +22,11 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_demographics" name="demographics" type="section" var="V_name V_age V_gender">
+      <txt>Demographics</txt>
+      <txt xml:lang="es">Datos demográficos</txt>
+      <concept>Demographics</concept>
+    </varGrp>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Enter your full name</preQTxt>

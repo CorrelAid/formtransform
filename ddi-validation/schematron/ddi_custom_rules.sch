@@ -35,7 +35,7 @@
     <!-- Variable group essentials -->
     <rule context="ddi:varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
-        <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", or "other" are supported.</assert>
+        <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
         <assert test="ddi:concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
         <assert test="not(ddi:labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
     </rule>
@@ -60,7 +60,7 @@
     <!-- Variable group essentials -->
     <rule context="varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
-        <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", or "other" are supported.</assert>
+        <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
         <assert test="concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
         <assert test="not(labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
     </rule>

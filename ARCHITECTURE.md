@@ -155,8 +155,9 @@ The migration runs in phases, each keeping every snapshot byte-identical:
 
 The canonical `Variable` (`src/ddi/types.ts`) is what survives an emit:
 
-- **`relevant`, `constraint`, `constraint_message`, `required`** survive (#151). DDI Codebook 2.5 has no expression syntax, so each goes in twice: readable (`<universe>` prose, `<valrng>` for a simple numeric range) and exact, in a typed `<notes type="cdl:…">`. `convention:logicMapping` (`ddiEncoding`) defines the notes. Until every group has a `varGrp` (#152), a group's condition is ANDed into each variable's own.
-- **no `default`, per-question `appearance`, `calculation`, plain group structure** yet (#152, #153). A question's `hint` and `guidance_hint` do survive, as `<preQTxt>` and `<ivuInstr>`.
+- **`relevant`, `constraint`, `constraint_message`, `required`** survive (#151). DDI Codebook 2.5 has no expression syntax, so each goes in twice: readable (`<universe>` prose, `<valrng>` for a simple numeric range) and exact, in a typed `<notes type="cdl:…">`. `convention:logicMapping` (`ddiEncoding`) defines the notes. A group's own condition is on its `varGrp`; a variable's `<universe>` states its groups' conditions too.
+- **Groups and order** survive (#152): every group is a `<varGrp>` (a plain one `type="section"`), nested through `@varGrp`, and the `<var>`s and data columns follow the survey.
+- **no `default`, per-question `appearance`, `calculation`, group hint** yet (#153). A question's `hint` and `guidance_hint` do survive, as `<preQTxt>` and `<ivuInstr>`.
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T` type overrides. It is a form definition in a different dialect, so reversing it is a translation problem. Reversing a codebook without those pieces is a *reconstruction* problem, and they cannot be inferred from it.
 

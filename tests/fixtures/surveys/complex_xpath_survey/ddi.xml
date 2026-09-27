@@ -22,6 +22,10 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_consent_section" name="consent_section" type="section" var="V_consent V_age V_country V_adult_consent V_eligible_participant V_valid_response V_age_category V_complex_validation">
+      <txt>Consent and Demographics</txt>
+      <concept>Consent and Demographics</concept>
+    </varGrp>
     <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Do you consent to participate?</qstnLit>

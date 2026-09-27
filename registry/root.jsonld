@@ -226,7 +226,7 @@
         "supportsNesting": false
       },
       "ddi": {
-        "preservation": "conditional",
+        "preservation": "full",
         "conditions": [
           {
             "if": "appearance='table-list' OR name contains 'grid' OR label contains 'matrix'",
@@ -234,9 +234,10 @@
           },
           {
             "if": "else",
-            "then": "DROPPED - variables flattened to top level"
+            "then": "varGrp[@type='section']"
           }
-        ]
+        ],
+        "note": "Every group is a varGrp (formtransform#152): a grid as type='grid', any other as the XSD's own type='section' (type='other' is the semi-open pair's, convention:other). @ID is VG_<group path>, @name the group path; a group lists its direct variables in @var and its direct child groups (sections, grids, a select_multiple's multipleResp, an other pair's varGrp) in @varGrp. The label is txt (per xml:lang) and concept; the group's own relevant is its universe and cdl:relevant note (convention:logicMapping). A group with no variable under it has no varGrp."
       },
       "variants": [
         "variant:grid"

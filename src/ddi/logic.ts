@@ -224,19 +224,51 @@ export function universeProse(
   return out;
 }
 
-/** `<universe clusion="I">` per language, when there's a condition. */
+/**
+ * All of `conditions` as one XPath: each parenthesized, ANDed; `''` when
+ * none.
+ */
+function allOf(conditions: string[]): string {
+  const parts = conditions.map((c) => c.trim()).filter(Boolean);
+  return parts.length === 1
+    ? parts[0]
+    : parts.map((c) => `(${c})`).join(' and ');
+}
+
+/**
+ * Who is asked: the enclosing groups' conditions and its own. The universe
+ * states all of them; each note only its element's own.
+ */
+export function universeOf(v: Variable): string[] {
+  return [...(v.groups ?? []).map((g) => g.relevant), v.relevant ?? ''];
+}
+
+/**
+ * `<universe clusion="I">` per language for `conditions` (outermost first),
+ * when there are any and the prose covers them all.
+ */
 export function addUniverse(
   el: XmlElement,
-  v: Variable,
+  conditions: string[],
   ctx: LogicContext,
 ): void {
-  if (!v.relevant) return;
-  for (const [lang, text] of universeProse(v.relevant, ctx)) {
+  const relevant = allOf(conditions);
+  if (!relevant) return;
+  for (const [lang, text] of universeProse(relevant, ctx)) {
     el.textChild('universe', text, {
       clusion: ENCODING.universe.clusion,
       ...(lang ? { 'xml:lang': lang } : {}),
     });
   }
+}
+
+/** A `cdl:relevant` note for a group's own condition. */
+export function addRelevantNote(el: XmlElement, relevant: string): void {
+  if (!relevant) return;
+  el.textChild('notes', relevant, {
+    type: NOTES.relevant.type,
+    subject: ENCODING.noteSubject,
+  });
 }
 
 /** Bounds on `.` alone, as `<range>` attributes. */
@@ -320,9 +352,7 @@ export function addValrng(el: XmlElement, v: Variable): void {
  */
 export function addLogicNotes(el: XmlElement, v: Variable): void {
   const subject = ENCODING.noteSubject;
-  if (v.relevant) {
-    el.textChild('notes', v.relevant, { type: NOTES.relevant.type, subject });
-  }
+  addRelevantNote(el, v.relevant ?? '');
   if (v.constraint) {
     el.textChild('notes', v.constraint, {
       type: NOTES.constraint.type,

@@ -24,9 +24,9 @@ emitter is: it takes `Variable[]` and raw response rows, so either DDI pipeline
 can feed it.
 
 Its one hard contract is **column order equals `<var name="">` order**. The
-column plan walks the same buckets `dataDscr` does — grid-group members,
-`select_multiple` binaries, `_other` patterns, standalone variables — so every
-header matches a `<var>` in the XML, position for position, and schema↔data
+column plan walks the same survey-ordered questions `dataDscr` does (#152) —
+a `select_multiple` as its binaries, an `_other` pair as its select then its
+text — so every header matches a `<var>` in the XML, position for position, and schema↔data
 alignment stays a zip rather than a lookup. A `select_multiple` expands to one
 `0`/`1` column per choice; `note` variables get no column at all.
 
@@ -67,10 +67,13 @@ since #151 its logic:
   typed note (`<notes type="cdl:relevant" subject="xlsform-xpath">`).
   `convention:logicMapping`
   ([`registry/conventions/logicMapping.jsonld`](../../registry/conventions/logicMapping.jsonld),
-  `ddiEncoding`) defines them. A group's condition is ANDed into each
-  variable's own until groups get a `varGrp` (#152).
-- **still absent:** `default`, per-question `appearance`, `calculation`, plain
-  group structure, question order (#152, #153).
+  `ddiEncoding`) defines them. A group's own condition is on its `varGrp`;
+  a variable's `<universe>` states its groups' conditions too.
+- **groups and order** (#152): every group is a `<varGrp>` (a plain one
+  `type="section"`), nested through `@varGrp`, and the `<var>`s follow the
+  survey.
+- **still absent:** `default`, per-question `appearance`, `calculation`, the
+  group hint, and a note row apart from the hint after it (#153).
 
 Compare `lstsv2xlsform`, which *is* implemented: a LimeSurvey structure TSV
 carries `relevance`, `em_validation_q`, `mandatory`, `default` and the `!`/`T`
@@ -80,7 +83,7 @@ is a translation problem. Reversing a codebook without those pieces is a
 
 The failure mode matters more than the missing feature. A `ddi2xlsform` before
 the rest of #155 would emit a survey that looks correct and behaves wrongly: no
-defaults, no appearances, flattened groups. Silently producing a broken instrument is worse
+defaults, no appearances. Silently producing a broken instrument is worse
 than declining to produce one — the same reasoning behind
 `validateLstsvSubset` rejecting out-of-subset input rather than guessing at it.
 

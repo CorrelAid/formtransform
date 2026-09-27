@@ -21,42 +21,18 @@
     </fileTxt>
   </fileDscr>
   <dataDscr>
+    <varGrp ID="VG_seite1" name="seite1" type="section" var="V_wohnort V_anmerkung V_zufrieden">
+      <txt>Über Sie</txt>
+      <concept>Über Sie</concept>
+    </varGrp>
+    <varGrp ID="VG_matrix" name="matrix" type="section" var="V_bus V_bahn">
+      <txt>Wie oft nutzen Sie …</txt>
+      <concept>Wie oft nutzen Sie …</concept>
+    </varGrp>
     <varGrp ID="VG_raster" name="raster" type="grid" var="V_preis V_takt">
       <txt>Wie wichtig ist Ihnen …</txt>
       <concept>Wie wichtig ist Ihnen …</concept>
     </varGrp>
-    <var ID="V_preis" name="preis" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
-        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
-        <qstnLit>… der Preis?</qstnLit>
-      </qstn>
-      <catgry>
-        <catValu>nie</catValu>
-        <labl>Nie</labl>
-      </catgry>
-      <catgry>
-        <catValu>oft</catValu>
-        <labl>Oft</labl>
-      </catgry>
-      <concept>… der Preis?</concept>
-      <varFormat type="character" schema="other"/>
-    </var>
-    <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
-      <qstn responseDomainType="category">
-        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
-        <qstnLit>… der Takt?</qstnLit>
-      </qstn>
-      <catgry>
-        <catValu>nie</catValu>
-        <labl>Nie</labl>
-      </catgry>
-      <catgry>
-        <catValu>oft</catValu>
-        <labl>Oft</labl>
-      </catgry>
-      <concept>… der Takt?</concept>
-      <varFormat type="character" schema="other"/>
-    </var>
     <var ID="V_wohnort" name="wohnort" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Wo wohnen Sie?</qstnLit>
@@ -126,6 +102,38 @@
         <labl>Oft</labl>
       </catgry>
       <concept>Bahn</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_preis" name="preis" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
+        <qstnLit>… der Preis?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>… der Preis?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie wichtig ist Ihnen …</preQTxt>
+        <qstnLit>… der Takt?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>nie</catValu>
+        <labl>Nie</labl>
+      </catgry>
+      <catgry>
+        <catValu>oft</catValu>
+        <labl>Oft</labl>
+      </catgry>
+      <concept>… der Takt?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_herkunft" name="herkunft" intrvl="discrete" files="F1">

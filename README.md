@@ -186,7 +186,7 @@ records how each maps onto it.
 **Supported directions:** four, one per module under `src/pipelines/` —
 `xlsform2lstsv` (deploy the survey), `xlsform2ddi` (document the dataset),
 `lstsv2ddi` and `lstsv2xlsform` (the reverse paths). All are lossy for some
-types: plain/nested groups flatten, choice codes over 5 chars truncate,
+types: nested groups flatten in LimeSurvey, choice codes over 5 chars truncate,
 `select_multiple` becomes N binary variables, and the reverse paths cannot
 recover a select's authored `list_name` or tell `integer` from `decimal`.
 
