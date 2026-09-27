@@ -13,7 +13,9 @@
       </verStmt>
     </citation>
     <notes type="instruction" subject="Hallo">Hallo!</notes>
+    <notes type="instruction" subject="Hallo" xml:lang="en">Hello!</notes>
     <notes type="instruction" subject="Disclaimer">Disclaimer</notes>
+    <notes type="instruction" subject="Disclaimer" xml:lang="en">Disclaimer</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -28,24 +30,30 @@
   <dataDscr>
     <varGrp ID="VG_project_id" name="project_id" type="multipleResp" var="V_project_id_project-alpha V_project_id_project-beta V_project_id_project-gamma">
       <txt>Für welche Projekte möchtest Du dich bewerben?</txt>
+      <txt xml:lang="en">Which project(s) do you want to apply for?</txt>
       <concept>Für welche Projekte möchtest Du dich bewerben?</concept>
     </varGrp>
     <varGrp ID="VG_project_role_project-alpha" name="project_role_project-alpha" type="multipleResp" var="V_project_role_project-alpha_role-survey-design V_project_role_project-alpha_role-data-analysis V_project_role_project-alpha_team_coordinator V_project_role_project-alpha_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</txt>
+      <txt xml:lang="en">Which role do you think you could fill in Project Alpha?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</concept>
     </varGrp>
     <varGrp ID="VG_project_role_project-beta" name="project_role_project-beta" type="multipleResp" var="V_project_role_project-beta_role-visualization V_project_role_project-beta_role-data-engineering V_project_role_project-beta_team_coordinator V_project_role_project-beta_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Beta?</txt>
+      <txt xml:lang="en">Which role do you see yourself in for Project Beta?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Beta?</concept>
     </varGrp>
     <varGrp ID="VG_project_role_project-gamma" name="project_role_project-gamma" type="multipleResp" var="V_project_role_project-gamma_role-project-management V_project_role_project-gamma_role-machine-learning V_project_role_project-gamma_team_coordinator V_project_role_project-gamma_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Gamma?</txt>
+      <txt xml:lang="en">Which role do you see yourself in for Project Gamma?</txt>
       <concept>In welcher Rolle siehst du dich im Projekt Gamma?</concept>
     </varGrp>
     <var ID="V_project_id_project-alpha" name="project_id_project-alpha" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>Für welche Projekte möchtest Du dich bewerben?</preQTxt>
+        <preQTxt xml:lang="en">Which project(s) do you want to apply for?</preQTxt>
         <qstnLit>Projekt Alpha</qstnLit>
+        <qstnLit xml:lang="en">Project Alpha</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -59,7 +67,9 @@
     <var ID="V_project_id_project-beta" name="project_id_project-beta" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>Für welche Projekte möchtest Du dich bewerben?</preQTxt>
+        <preQTxt xml:lang="en">Which project(s) do you want to apply for?</preQTxt>
         <qstnLit>Projekt Beta</qstnLit>
+        <qstnLit xml:lang="en">Project Beta</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -73,7 +83,9 @@
     <var ID="V_project_id_project-gamma" name="project_id_project-gamma" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>Für welche Projekte möchtest Du dich bewerben?</preQTxt>
+        <preQTxt xml:lang="en">Which project(s) do you want to apply for?</preQTxt>
         <qstnLit>Projekt Gamma</qstnLit>
+        <qstnLit xml:lang="en">Project Gamma</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -87,7 +99,9 @@
     <var ID="V_project_role_project-alpha_role-survey-design" name="project_role_project-alpha_role-survey-design" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you think you could fill in Project Alpha?</preQTxt>
         <qstnLit>Umfragedesign und Datenerhebung</qstnLit>
+        <qstnLit xml:lang="en">Survey design and data collection</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -101,7 +115,9 @@
     <var ID="V_project_role_project-alpha_role-data-analysis" name="project_role_project-alpha_role-data-analysis" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you think you could fill in Project Alpha?</preQTxt>
         <qstnLit>Datenanalyse</qstnLit>
+        <qstnLit xml:lang="en">Data analysis</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -115,7 +131,9 @@
     <var ID="V_project_role_project-alpha_team_coordinator" name="project_role_project-alpha_team_coordinator" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you think you could fill in Project Alpha?</preQTxt>
         <qstnLit>Teamkoordinator:in</qstnLit>
+        <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -129,7 +147,9 @@
     <var ID="V_project_role_project-alpha_team_trainee" name="project_role_project-alpha_team_trainee" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you think you could fill in Project Alpha?</preQTxt>
         <qstnLit>Team Trainee</qstnLit>
+        <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -143,7 +163,9 @@
     <var ID="V_project_role_project-beta_role-visualization" name="project_role_project-beta_role-visualization" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Beta?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Beta?</preQTxt>
         <qstnLit>Datenvisualisierung</qstnLit>
+        <qstnLit xml:lang="en">Data visualization</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -157,7 +179,9 @@
     <var ID="V_project_role_project-beta_role-data-engineering" name="project_role_project-beta_role-data-engineering" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Beta?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Beta?</preQTxt>
         <qstnLit>Data Engineering</qstnLit>
+        <qstnLit xml:lang="en">Data engineering</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -171,7 +195,9 @@
     <var ID="V_project_role_project-beta_team_coordinator" name="project_role_project-beta_team_coordinator" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Beta?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Beta?</preQTxt>
         <qstnLit>Teamkoordinator:in</qstnLit>
+        <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -185,7 +211,9 @@
     <var ID="V_project_role_project-beta_team_trainee" name="project_role_project-beta_team_trainee" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Beta?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Beta?</preQTxt>
         <qstnLit>Team Trainee</qstnLit>
+        <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -199,7 +227,9 @@
     <var ID="V_project_role_project-gamma_role-project-management" name="project_role_project-gamma_role-project-management" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Gamma?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Gamma?</preQTxt>
         <qstnLit>Projektmanagement</qstnLit>
+        <qstnLit xml:lang="en">Project management</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -213,7 +243,9 @@
     <var ID="V_project_role_project-gamma_role-machine-learning" name="project_role_project-gamma_role-machine-learning" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Gamma?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Gamma?</preQTxt>
         <qstnLit>Machine Learning</qstnLit>
+        <qstnLit xml:lang="en">Machine learning</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -227,7 +259,9 @@
     <var ID="V_project_role_project-gamma_team_coordinator" name="project_role_project-gamma_team_coordinator" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Gamma?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Gamma?</preQTxt>
         <qstnLit>Teamkoordinator:in</qstnLit>
+        <qstnLit xml:lang="en">Team Coordinator</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -241,7 +275,9 @@
     <var ID="V_project_role_project-gamma_team_trainee" name="project_role_project-gamma_team_trainee" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple">
         <preQTxt>In welcher Rolle siehst du dich im Projekt Gamma?</preQTxt>
+        <preQTxt xml:lang="en">Which role do you see yourself in for Project Gamma?</preQTxt>
         <qstnLit>Team Trainee</qstnLit>
+        <qstnLit xml:lang="en">Team Trainee</qstnLit>
       </qstn>
       <catgry>
         <catValu>0</catValu>
@@ -255,22 +291,27 @@
     <var ID="V_sosci_survey" name="sosci_survey" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>SoSci Survey</qstnLit>
+        <qstnLit xml:lang="en">SoSci Survey</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>SoSci Survey</concept>
       <varFormat type="character" schema="other"/>
@@ -278,22 +319,27 @@
     <var ID="V_python" name="python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Python</qstnLit>
+        <qstnLit xml:lang="en">Python</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Python</concept>
       <varFormat type="character" schema="other"/>
@@ -301,22 +347,27 @@
     <var ID="V_rstats" name="rstats" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>R</qstnLit>
+        <qstnLit xml:lang="en">R</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>R</concept>
       <varFormat type="character" schema="other"/>
@@ -324,22 +375,27 @@
     <var ID="V_powerbi" name="powerbi" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Power BI</qstnLit>
+        <qstnLit xml:lang="en">Power BI</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Power BI</concept>
       <varFormat type="character" schema="other"/>
@@ -347,22 +403,27 @@
     <var ID="V_excel" name="excel" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Microsoft Excel</qstnLit>
+        <qstnLit xml:lang="en">Microsoft Excel</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Microsoft Excel</concept>
       <varFormat type="character" schema="other"/>
@@ -370,22 +431,27 @@
     <var ID="V_sql" name="sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>SQL</qstnLit>
+        <qstnLit xml:lang="en">SQL</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>SQL</concept>
       <varFormat type="character" schema="other"/>
@@ -393,22 +459,27 @@
     <var ID="V_git" name="git" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Git</qstnLit>
+        <qstnLit xml:lang="en">Git</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Git</concept>
       <varFormat type="character" schema="other"/>
@@ -416,22 +487,27 @@
     <var ID="V_jupyter" name="jupyter" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Jupyter Notebooks</qstnLit>
+        <qstnLit xml:lang="en">Jupyter Notebooks</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Jupyter Notebooks</concept>
       <varFormat type="character" schema="other"/>
@@ -439,22 +515,27 @@
     <var ID="V_tensorflow" name="tensorflow" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>TensorFlow / PyTorch</qstnLit>
+        <qstnLit xml:lang="en">TensorFlow / PyTorch</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>TensorFlow / PyTorch</concept>
       <varFormat type="character" schema="other"/>
@@ -462,7 +543,9 @@
     <var ID="V_tools_other" name="tools_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.</preQTxt>
+        <preQTxt xml:lang="en">Please specifiy other tools you know that you consider relevant</preQTxt>
         <qstnLit>Andere relevante Tools</qstnLit>
+        <qstnLit xml:lang="en">Other relevant tools</qstnLit>
       </qstn>
       <concept>Andere relevante Tools</concept>
       <varFormat type="character" schema="other"/>
@@ -470,22 +553,27 @@
     <var ID="V_survey_design" name="survey_design" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Entwicklung von Fragebögen</qstnLit>
+        <qstnLit xml:lang="en">Survey design</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Entwicklung von Fragebögen</concept>
       <varFormat type="character" schema="other"/>
@@ -493,22 +581,27 @@
     <var ID="V_indicator_development" name="indicator_development" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Entwicklung von Indikatoren</qstnLit>
+        <qstnLit xml:lang="en">Development of indicators</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Entwicklung von Indikatoren</concept>
       <varFormat type="character" schema="other"/>
@@ -516,22 +609,27 @@
     <var ID="V_data_collection" name="data_collection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenerhebung</qstnLit>
+        <qstnLit xml:lang="en">Data collection</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Datenerhebung</concept>
       <varFormat type="character" schema="other"/>
@@ -539,22 +637,27 @@
     <var ID="V_data_cleaning" name="data_cleaning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenbereinigung</qstnLit>
+        <qstnLit xml:lang="en">Data cleaning</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Datenbereinigung</concept>
       <varFormat type="character" schema="other"/>
@@ -562,22 +665,27 @@
     <var ID="V_descriptive_statistics" name="descriptive_statistics" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Deskriptive Statistik</qstnLit>
+        <qstnLit xml:lang="en">Descriptive statistics</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Deskriptive Statistik</concept>
       <varFormat type="character" schema="other"/>
@@ -585,22 +693,27 @@
     <var ID="V_data_visualization" name="data_visualization" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenvisualisierung</qstnLit>
+        <qstnLit xml:lang="en">Data visualization</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Datenvisualisierung</concept>
       <varFormat type="character" schema="other"/>
@@ -608,22 +721,27 @@
     <var ID="V_data_engineering" name="data_engineering" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Data Engineering</qstnLit>
+        <qstnLit xml:lang="en">Data engineering</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Data Engineering</concept>
       <varFormat type="character" schema="other"/>
@@ -631,22 +749,27 @@
     <var ID="V_automation" name="automation" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Automatisierung</qstnLit>
+        <qstnLit xml:lang="en">Automation</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Automatisierung</concept>
       <varFormat type="character" schema="other"/>
@@ -654,22 +777,27 @@
     <var ID="V_projectplanning" name="projectplanning" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Projektplanung</qstnLit>
+        <qstnLit xml:lang="en">Project planning</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Projektplanung</concept>
       <varFormat type="character" schema="other"/>
@@ -677,22 +805,27 @@
     <var ID="V_mlmodeling" name="mlmodeling" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>ML-Modellierung</qstnLit>
+        <qstnLit xml:lang="en">ML modeling</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>ML-Modellierung</concept>
       <varFormat type="character" schema="other"/>
@@ -700,22 +833,27 @@
     <var ID="V_wirkungsmessung" name="wirkungsmessung" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Wirkungsmessung</qstnLit>
+        <qstnLit xml:lang="en">Impact Measurement</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Wirkungsmessung</concept>
       <varFormat type="character" schema="other"/>
@@ -723,22 +861,27 @@
     <var ID="V_research_design" name="research_design" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Research Design</qstnLit>
+        <qstnLit xml:lang="en">Research Design</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Research Design</concept>
       <varFormat type="character" schema="other"/>
@@ -746,22 +889,27 @@
     <var ID="V_survey_research" name="survey_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Umfrageforschung</qstnLit>
+        <qstnLit xml:lang="en">Survey Research</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Umfrageforschung</concept>
       <varFormat type="character" schema="other"/>
@@ -769,22 +917,27 @@
     <var ID="V_data_protection" name="data_protection" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Datenschutz</qstnLit>
+        <qstnLit xml:lang="en">Data protection</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Datenschutz</concept>
       <varFormat type="character" schema="other"/>
@@ -792,22 +945,27 @@
     <var ID="V_resilience_mental_health" name="resilience_mental_health" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Resilienz und Mentale Gesundheit</qstnLit>
+        <qstnLit xml:lang="en">Resilience and mental health</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Resilienz und Mentale Gesundheit</concept>
       <varFormat type="character" schema="other"/>
@@ -815,22 +973,27 @@
     <var ID="V_education_research" name="education_research" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Bildungsforschung o.ä.</qstnLit>
+        <qstnLit xml:lang="en">Education research (or similar)</qstnLit>
       </qstn>
       <catgry>
         <catValu>beginner</catValu>
         <labl>Anfänger:in</labl>
+        <labl xml:lang="en">Beginner</labl>
       </catgry>
       <catgry>
         <catValu>user</catValu>
         <labl>Benutzer:in</labl>
+        <labl xml:lang="en">User</labl>
       </catgry>
       <catgry>
         <catValu>advanced</catValu>
         <labl>Fortgeschrittene:r</labl>
+        <labl xml:lang="en">Advanced</labl>
       </catgry>
       <catgry>
         <catValu>expert</catValu>
         <labl>Expert:in</labl>
+        <labl xml:lang="en">Expert</labl>
       </catgry>
       <concept>Bildungsforschung o.ä.</concept>
       <varFormat type="character" schema="other"/>
@@ -838,7 +1001,9 @@
     <var ID="V_motivation_skills" name="motivation_skills" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</preQTxt>
+        <preQTxt xml:lang="en">Please write maximum 5 sentences per project that you are applying to.</preQTxt>
         <qstnLit>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</qstnLit>
+        <qstnLit xml:lang="en">Please describe here what skills and experiences you would bring to the project.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</concept>
       <varFormat type="character" schema="other"/>
@@ -846,7 +1011,9 @@
     <var ID="V_motivation_why" name="motivation_why" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</preQTxt>
+        <preQTxt xml:lang="en">Please write maximum 5 sentences per project that you are applying to.</preQTxt>
         <qstnLit>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</qstnLit>
+        <qstnLit xml:lang="en">Please describe here why you want to get involved in this project.</qstnLit>
       </qstn>
       <concept>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</concept>
       <varFormat type="character" schema="other"/>
@@ -854,19 +1021,24 @@
     <var ID="V_past_applications" name="past_applications" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <preQTxt>Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.</preQTxt>
+        <preQTxt xml:lang="en">In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project.</preQTxt>
         <qstnLit>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</qstnLit>
+        <qstnLit xml:lang="en">Have you applied to a CorrelAid project in the past?</qstnLit>
       </qstn>
       <catgry>
         <catValu>successful</catValu>
         <labl>Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.</labl>
+        <labl xml:lang="en">Yes, and I have been successful / part of a project team at least once.</labl>
       </catgry>
       <catgry>
         <catValu>not_successful</catValu>
         <labl>Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.</labl>
+        <labl xml:lang="en">Yes, but I have not been successful / all my applications have been rejected so far.</labl>
       </catgry>
       <catgry>
         <catValu>first_application</catValu>
         <labl>Nein, das ist meine erste Bewerbung.</labl>
+        <labl xml:lang="en">No, this is my first application.</labl>
       </catgry>
       <concept>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</concept>
       <varFormat type="character" schema="other"/>
@@ -874,7 +1046,9 @@
     <var ID="V_past_applications_details" name="past_applications_details" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Grobe Angaben helfen uns auch schon weiter.</preQTxt>
+        <preQTxt xml:lang="en">Any information is helpful to us.</preQTxt>
         <qstnLit>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</qstnLit>
+        <qstnLit xml:lang="en">If you can remember, please specify which project(s) you have applied for.</qstnLit>
       </qstn>
       <concept>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</concept>
       <varFormat type="character" schema="other"/>
@@ -882,6 +1056,7 @@
     <var ID="V_first_name" name="first_name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Wie lautet dein Vorname?</qstnLit>
+        <qstnLit xml:lang="en">What is your first name?</qstnLit>
       </qstn>
       <concept>Wie lautet dein Vorname?</concept>
       <varFormat type="character" schema="other"/>
@@ -889,6 +1064,7 @@
     <var ID="V_last_name" name="last_name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Wie lautet dein Nachname?</qstnLit>
+        <qstnLit xml:lang="en">What is your last name?</qstnLit>
       </qstn>
       <concept>Wie lautet dein Nachname?</concept>
       <varFormat type="character" schema="other"/>
@@ -896,6 +1072,7 @@
     <var ID="V_email_address" name="email_address" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <qstnLit>Unter welcher E-Mail Adresse können wir dich erreichen?</qstnLit>
+        <qstnLit xml:lang="en">Which email address can we use to contact you?</qstnLit>
       </qstn>
       <concept>Unter welcher E-Mail Adresse können wir dich erreichen?</concept>
       <varFormat type="character" schema="other"/>
@@ -903,27 +1080,34 @@
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <preQTxt>Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.</preQTxt>
+        <preQTxt xml:lang="en">Note: We ask this question because we want to foster gender diversity within CorrelAid.</preQTxt>
         <qstnLit>Was ist dein Geschlecht?</qstnLit>
+        <qstnLit xml:lang="en">What is your gender?</qstnLit>
       </qstn>
       <catgry>
         <catValu>female</catValu>
         <labl>Weiblich</labl>
+        <labl xml:lang="en">Female</labl>
       </catgry>
       <catgry>
         <catValu>male</catValu>
         <labl>Männlich</labl>
+        <labl xml:lang="en">Male</labl>
       </catgry>
       <catgry>
         <catValu>non_binary</catValu>
         <labl>Nicht-binär / non-binary</labl>
+        <labl xml:lang="en">Non-binary</labl>
       </catgry>
       <catgry>
         <catValu>not_disclosed</catValu>
         <labl>Das möchte ich nicht angeben</labl>
+        <labl xml:lang="en">I do not want to disclose my gender</labl>
       </catgry>
       <catgry>
         <catValu>self_identification</catValu>
         <labl>Mein Geschlecht ist (eigene Angabe):</labl>
+        <labl xml:lang="en">My gender is (manually specify):</labl>
       </catgry>
       <concept>Was ist dein Geschlecht?</concept>
       <varFormat type="character" schema="other"/>
@@ -931,7 +1115,9 @@
     <var ID="V_gender_self_identification" name="gender_self_identification" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Bitte gebe hier dein Geschlecht an.</preQTxt>
+        <preQTxt xml:lang="en">Please specify your gender here.</preQTxt>
         <qstnLit>Mein Geschlecht ist:</qstnLit>
+        <qstnLit xml:lang="en">My gender is:</qstnLit>
       </qstn>
       <concept>Mein Geschlecht ist:</concept>
       <varFormat type="character" schema="other"/>
@@ -939,11 +1125,14 @@
     <var ID="V_consent_privacy_policy" name="consent_privacy_policy" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <preQTxt>Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.</preQTxt>
+        <preQTxt xml:lang="en">I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful.</preQTxt>
         <qstnLit>Einwilligung in die Datenschutzerklärung</qstnLit>
+        <qstnLit xml:lang="en">Consent to privacy policy</qstnLit>
       </qstn>
       <catgry>
         <catValu>yes</catValu>
         <labl>Ja</labl>
+        <labl xml:lang="en">Yes</labl>
       </catgry>
       <concept>Einwilligung in die Datenschutzerklärung</concept>
       <varFormat type="character" schema="other"/>

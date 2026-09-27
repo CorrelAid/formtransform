@@ -25,7 +25,9 @@
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text">
         <preQTxt>Enter your full name</preQTxt>
+        <preQTxt xml:lang="es">Ingresa tu nombre completo</preQTxt>
         <qstnLit>What is your name?</qstnLit>
+        <qstnLit xml:lang="es">¿Cuál es tu nombre?</qstnLit>
       </qstn>
       <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
@@ -33,6 +35,7 @@
     <var ID="V_age" name="age" intrvl="contin" files="F1">
       <qstn responseDomainType="numeric">
         <qstnLit>What is your age?</qstnLit>
+        <qstnLit xml:lang="es">¿Cuál es tu edad?</qstnLit>
       </qstn>
       <concept>What is your age?</concept>
       <varFormat type="numeric" schema="other"/>
@@ -40,18 +43,22 @@
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>Gender</qstnLit>
+        <qstnLit xml:lang="es">Género</qstnLit>
       </qstn>
       <catgry>
         <catValu>male</catValu>
         <labl>Male</labl>
+        <labl xml:lang="es">Masculino</labl>
       </catgry>
       <catgry>
         <catValu>female</catValu>
         <labl>Female</labl>
+        <labl xml:lang="es">Femenino</labl>
       </catgry>
       <catgry>
         <catValu>other</catValu>
         <labl>Other</labl>
+        <labl xml:lang="es">Otro</labl>
       </catgry>
       <concept>Gender</concept>
       <varFormat type="character" schema="other"/>
@@ -59,18 +66,22 @@
     <var ID="V_satisfaction" name="satisfaction" intrvl="discrete" files="F1">
       <qstn responseDomainType="category">
         <qstnLit>How satisfied are you?</qstnLit>
+        <qstnLit xml:lang="es">¿Qué tan satisfecho estás?</qstnLit>
       </qstn>
       <catgry>
         <catValu>happy</catValu>
         <labl>Very satisfied</labl>
+        <labl xml:lang="es">Muy satisfecho</labl>
       </catgry>
       <catgry>
         <catValu>neutral</catValu>
         <labl>Neutral</labl>
+        <labl xml:lang="es">Neutral</labl>
       </catgry>
       <catgry>
         <catValu>unhappy</catValu>
         <labl>Not satisfied</labl>
+        <labl xml:lang="es">No satisfecho</labl>
       </catgry>
       <concept>How satisfied are you?</concept>
       <varFormat type="character" schema="other"/>

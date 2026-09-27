@@ -214,10 +214,14 @@
           "qstnLit",
           "labl",
           "preQTxt",
-          "postQTxt"
+          "ivuInstr",
+          "notes"
         ],
-        "emission": "one child element per language with xml:lang attr",
-        "implemented": "partly: the base language (settings.default_language) is declared as codeBook/@xml:lang and its text is emitted; the other languages' elements are not emitted yet (formtransform#135)"
+        "baseLanguage": "settings.default_language, else the form's first language; declared as codeBook/@xml:lang whenever the form has more than one language (or default_language is set). Its elements are untagged and come first.",
+        "emission": "after each base-language element, one sibling per other language the form has, with xml:lang (<qstnLit>Beruf?</qstnLit><qstnLit xml:lang=\"en\">Occupation?</qstnLit>). A language that lacks a text gets no element for it.",
+        "authoredOnly": "Only the form's own texts: what respondents in that language saw. Nothing is translated or filled in from another language, and a synthesized text (the or_other label) is base-language only. <concept> carries the base language; other-language concepts are metadata a consumer may add (qwacback's search tags).",
+        "untaggedLanguage": "a non-base language column without a tag (label::English) has no xml:lang, so its texts are left out with a language-invalid warning",
+        "implemented": "yes (formtransform#135)"
       }
     },
     "logicMapping": {

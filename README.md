@@ -243,7 +243,10 @@ validates against this subset, rejecting:
   `default_language`. LimeSurvey has a fixed code list: a regional tag it
   lacks becomes its language with a warning (`fr-BE` → `fr`), and a language it
   lacks entirely (`eo`), or two tags on one code, is an error. DDI keeps tags as
-  written
+  written and carries every language the form has: the base language
+  (`default_language`, else the first) untagged and first, each other one as
+  an `xml:lang` sibling. Only the form's own texts go in, never a translation;
+  a language that lacks a text gets no element
 - **Reserved words** — `relevance`, `validation`, `text`, etc. (LimeSurvey internals)
 - **Dangling references** — every `${name}` in `relevant` or `constraint` must
   name a row of the survey sheet. A compared literal that the question can

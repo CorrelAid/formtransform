@@ -1,7 +1,7 @@
 /**
- * {@link Instrument} → the DDI's {@link Variable} list: projected onto one
- * language and flattened in survey order, with each variable's enclosing
- * group path/label/appearance. Both DDI pipelines go through here (#69).
+ * {@link Instrument} → the DDI's {@link Variable} list: the base language's
+ * texts, with the form's other languages as `translations` (#135), flattened
+ * in survey order with each variable's enclosing group path/label/appearance. Both DDI pipelines go through here (#69).
  */
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
 import { APPEARANCES } from '../generated/Appearances.js';
@@ -24,7 +24,9 @@ import type {
   QuestionItem,
   Text,
 } from '../instrument/types.js';
-import type { Choice, Variable } from './types.js';
+import { warning, type WarningHandler } from '../diagnostics.js';
+import { languageTagOf } from '../utils/languageUtils.js';
+import type { Choice, Translations, Variable, VariableTexts } from './types.js';
 
 // Semi-open "other" convention: the `or_other` type shorthand (and a
 // LimeSurvey `other=Y`) is expanded into an `other` category plus a
@@ -89,7 +91,7 @@ function resolveType(q: QuestionItem): ResolvedType {
 
 /**
  * One language of a {@link Text}: `lang`'s value, else the untagged one, else
- * the first. The DDI carries one language (#135 tracks the rest).
+ * the first. This is the base language; the others go to `translations`.
  */
 function pick(text: Text, lang: string | undefined): string {
   if (lang !== undefined && lang in text) return text[lang];
@@ -101,7 +103,57 @@ function pick(text: Text, lang: string | undefined): string {
 interface GroupContext {
   path: string;
   label: string;
+  /** The group's label in every language, for its translations. */
+  labelText: Text;
   appearance: string;
+}
+
+/**
+ * The form's other languages the DDI can tag: every language but the base
+ * one and the untagged, as `[key in Text, BCP 47 tag]`. A language without a
+ * recognizable tag (`label::English`) has no `xml:lang` and is left out.
+ */
+function otherLanguages(
+  instrument: Instrument,
+  base: string | undefined,
+): Array<[string, string]> {
+  const out: Array<[string, string]> = [];
+  const baseTag = base ? languageTagOf(base) : null;
+  for (const key of instrument.languages) {
+    const tag = key ? languageTagOf(key) : null;
+    if (!tag || tag === baseTag || out.some(([, t]) => t === tag)) continue;
+    out.push([key, tag]);
+  }
+  return out;
+}
+
+/** A text in each other language that has it (blank counts as absent). */
+function translationsOf(
+  text: Text | undefined,
+  others: Array<[string, string]>,
+): Translations | undefined {
+  const out: Translations = {};
+  for (const [key, tag] of others) {
+    const value = text?.[key];
+    if (value?.trim()) out[tag] = value.trim();
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** A variable's texts in each other language that has any of them. */
+function variableTranslations(
+  fields: Partial<Record<keyof VariableTexts, Text>>,
+  others: Array<[string, string]>,
+): Record<string, VariableTexts> | undefined {
+  const out: Record<string, VariableTexts> = {};
+  for (const [field, text] of Object.entries(fields)) {
+    for (const [tag, value] of Object.entries(
+      translationsOf(text, others) ?? {},
+    )) {
+      (out[tag] ??= {})[field as keyof VariableTexts] = value;
+    }
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 /** What the projection needs besides the item itself. */
@@ -113,6 +165,8 @@ interface ProjectState {
   lang: string | undefined;
   /** The language of synthesized "other" labels. */
   otherLang: string;
+  /** The form's other languages (see {@link otherLanguages}). */
+  others: Array<[string, string]>;
   choicesByList: Record<string, Choice[]>;
 }
 
@@ -141,6 +195,15 @@ function pushQuestion(
     groupLabel: ctx.label,
     groupAppearance: ctx.appearance,
   };
+  const translations = variableTranslations(
+    {
+      label: q.label,
+      hint: q.hint,
+      guidanceHint: q.guidanceHint,
+      groupLabel: ctx.labelText,
+    },
+    state.others,
+  );
 
   state.variables.push({
     name: q.name,
@@ -154,10 +217,16 @@ function pushQuestion(
       hint: pick(q.hint, state.lang).trim(),
       guidanceHint: pick(q.guidanceHint, state.lang).trim(),
     }),
+    ...(translations ? { translations } : {}),
   });
 
   const companionName = q.name + OTHER_SUFFIX;
   if (!orOther || state.authoredNames.has(companionName)) return;
+  // Only an authored label has translations; a synthesized one has none.
+  const companionTranslations = variableTranslations(
+    { label: q.otherLabel, groupLabel: ctx.labelText },
+    state.others,
+  );
   state.variables.push({
     name: companionName,
     type: OTHER_COMPANION_TYPE,
@@ -168,6 +237,7 @@ function pushQuestion(
     listName: '',
     vocab: '',
     choices: [],
+    ...(companionTranslations ? { translations: companionTranslations } : {}),
   });
 }
 
@@ -182,6 +252,7 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       {
         path: ctx.path ? `${ctx.path}/${item.name}` : item.name,
         label: pick(item.label, state.lang),
+        labelText: item.label,
         appearance: item.appearance,
       },
       state,
@@ -211,28 +282,45 @@ function projectionLanguage(
 }
 
 /**
- * The DDI's variables: an {@link Instrument} projected onto one language and
- * flattened in survey order (group path/label/appearance on each).
+ * The DDI's variables: an {@link Instrument}'s texts in the base language,
+ * the other languages as `translations`, flattened in survey order (group
+ * path/label/appearance on each). A non-base language without a tag can't be
+ * marked with `xml:lang`, so it is left out with a `language-invalid` warning.
  */
 export function variablesFromInstrument(
   instrument: Instrument,
   choicesByList: Record<string, Choice[]>,
-  options: { language?: string } = {},
+  options: { language?: string; onWarning?: WarningHandler } = {},
 ): Variable[] {
   const preferred = options.language ?? instrument.defaultLanguage;
   const lang = projectionLanguage(instrument, preferred);
+  for (const key of instrument.languages) {
+    if (key && key !== lang && !languageTagOf(key)) {
+      options.onWarning?.(
+        warning(
+          'language-invalid',
+          `Language "${key}" has no language tag, so its texts are left out of the DDI; name it like "${key} (en)" or use the bare tag`,
+        ),
+      );
+    }
+  }
   const state: ProjectState = {
     variables: [],
     authoredNames: authoredNames(instrument.body),
     lang,
     otherLang: lang || 'en',
+    others: otherLanguages(instrument, lang),
     choicesByList,
   };
-  project(instrument.body, { path: '', label: '', appearance: '' }, state);
+  project(
+    instrument.body,
+    { path: '', label: '', labelText: {}, appearance: '' },
+    state,
+  );
   return state.variables;
 }
 
-/** An Instrument's choice lists in one language, as the DDI takes them. */
+/** An Instrument's choice lists in the base language, with translations. */
 export function choicesFromInstrument(
   instrument: Instrument,
   language?: string,
@@ -241,10 +329,18 @@ export function choicesFromInstrument(
     instrument,
     language ?? instrument.defaultLanguage,
   );
+  const others = otherLanguages(instrument, lang);
   return Object.fromEntries(
     Object.entries(instrument.lists).map(([list, choices]) => [
       list,
-      choices.map((c) => ({ name: c.name, label: pick(c.label, lang) })),
+      choices.map((c) => {
+        const translations = translationsOf(c.label, others);
+        return {
+          name: c.name,
+          label: pick(c.label, lang),
+          ...(translations ? { translations } : {}),
+        };
+      }),
     ]),
   );
 }

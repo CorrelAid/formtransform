@@ -87,7 +87,8 @@
 
     <!-- Consistency rules for grid and multiple-response groups -->
     <rule context="ddi:varGrp[@type='grid' or @type='multipleResp']">
-        <assert test="every $id in tokenize(@var, '\s+') satisfies (not(//ddi:var[@ID=$id]/ddi:qstn/ddi:preQTxt) or normalize-space(//ddi:var[@ID=$id]/ddi:qstn/ddi:preQTxt) = normalize-space(ddi:txt))">
+        <!-- Per language (#135): each member preQTxt equals the txt with the same xml:lang (none = base). -->
+        <assert test="every $id in tokenize(@var, '\s+') satisfies (every $p in //ddi:var[@ID=$id]/ddi:qstn/ddi:preQTxt satisfies normalize-space($p) = normalize-space(string-join(ddi:txt[string(@xml:lang) = string($p/@xml:lang)], ' ')))">
             Consistency Error: Variable Group <value-of select="@ID"/> (<value-of select="@type"/>) text does not match the preQTxt of its member variables.
         </assert>
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'multiple'))">
@@ -124,7 +125,8 @@
 
     <!-- Consistency rules for grid and multiple-response groups -->
     <rule context="varGrp[@type='grid' or @type='multipleResp']">
-        <assert test="every $id in tokenize(@var, '\s+') satisfies (not(//var[@ID=$id]/qstn/preQTxt) or normalize-space(//var[@ID=$id]/qstn/preQTxt) = normalize-space(txt))">
+        <!-- Per language (#135): each member preQTxt equals the txt with the same xml:lang (none = base). -->
+        <assert test="every $id in tokenize(@var, '\s+') satisfies (every $p in //var[@ID=$id]/qstn/preQTxt satisfies normalize-space($p) = normalize-space(string-join(txt[string(@xml:lang) = string($p/@xml:lang)], ' ')))">
             Consistency Error: Variable Group <value-of select="@ID"/> (<value-of select="@type"/>) text does not match the preQTxt of its member variables.
         </assert>
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'multiple'))">

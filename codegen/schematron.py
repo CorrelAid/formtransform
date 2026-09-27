@@ -116,7 +116,8 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
 
     <!-- Consistency rules for grid and multiple-response groups -->
     <rule context="%P%varGrp[@type='grid' or @type='multipleResp']">
-        <assert test="every $id in tokenize(@var, '\\s+') satisfies (not(//%P%var[@ID=$id]/%P%qstn/%P%preQTxt) or normalize-space(//%P%var[@ID=$id]/%P%qstn/%P%preQTxt) = normalize-space(%P%txt))">
+        <!-- Per language (#135): each member preQTxt equals the txt with the same xml:lang (none = base). -->
+        <assert test="every $id in tokenize(@var, '\\s+') satisfies (every $p in //%P%var[@ID=$id]/%P%qstn/%P%preQTxt satisfies normalize-space($p) = normalize-space(string-join(%P%txt[string(@xml:lang) = string($p/@xml:lang)], ' ')))">
             Consistency Error: Variable Group <value-of select="@ID"/> (<value-of select="@type"/>) text does not match the preQTxt of its member variables.
         </assert>
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\\s+') satisfies (//%P%var[@ID=$id]/%P%qstn/@responseDomainType = '{mult}'))">

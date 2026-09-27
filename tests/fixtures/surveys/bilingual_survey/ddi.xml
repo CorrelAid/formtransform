@@ -1,0 +1,193 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" xml:lang="de">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>bilingual_survey</titl>
+        <IDNo>bilingual_survey</IDNo>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="intro">Willkommen zur Befragung.</notes>
+    <notes type="instruction" subject="intro" xml:lang="en">Welcome to the survey.</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
+      <txt>Wie sehr vertrauen Sie …</txt>
+      <txt xml:lang="en">How much do you trust …</txt>
+      <concept>Wie sehr vertrauen Sie …</concept>
+    </varGrp>
+    <varGrp ID="VG_sprachen" name="sprachen" type="multipleResp" var="V_sprachen_de V_sprachen_en">
+      <txt>Welche Sprachen sprechen Sie?</txt>
+      <txt xml:lang="en">Which languages do you speak?</txt>
+      <concept>Welche Sprachen sprechen Sie?</concept>
+    </varGrp>
+    <varGrp ID="VG_quelle" name="quelle" type="other" var="V_quelle V_quelle_other">
+      <txt>Wie haben Sie von uns erfahren?</txt>
+      <txt xml:lang="en">How did you hear about us?</txt>
+      <concept>Wie haben Sie von uns erfahren?</concept>
+    </varGrp>
+    <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
+        <qstnLit>… dem Parlament?</qstnLit>
+        <qstnLit xml:lang="en">… parliament?</qstnLit>
+        <ivuInstr>Skala vorlesen</ivuInstr>
+        <ivuInstr xml:lang="en">Read the scale</ivuInstr>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>gar nicht</labl>
+        <labl xml:lang="en">not at all</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>etwas</labl>
+        <labl xml:lang="en">somewhat</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>sehr</labl>
+        <labl xml:lang="en">very much</labl>
+      </catgry>
+      <concept>… dem Parlament?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <preQTxt>Wie sehr vertrauen Sie …</preQTxt>
+        <preQTxt xml:lang="en">How much do you trust …</preQTxt>
+        <qstnLit>… der Polizei?</qstnLit>
+        <qstnLit xml:lang="en">… the police?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>gar nicht</labl>
+        <labl xml:lang="en">not at all</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>etwas</labl>
+        <labl xml:lang="en">somewhat</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>sehr</labl>
+        <labl xml:lang="en">very much</labl>
+      </catgry>
+      <concept>… der Polizei?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_sprachen_de" name="sprachen_de" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Sprachen sprechen Sie?</preQTxt>
+        <preQTxt xml:lang="en">Which languages do you speak?</preQTxt>
+        <qstnLit>Deutsch</qstnLit>
+        <qstnLit xml:lang="en">German</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Sprachen sprechen Sie?: Deutsch</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_sprachen_en" name="sprachen_en" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple">
+        <preQTxt>Welche Sprachen sprechen Sie?</preQTxt>
+        <preQTxt xml:lang="en">Which languages do you speak?</preQTxt>
+        <qstnLit>Englisch</qstnLit>
+        <qstnLit xml:lang="en">English</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <concept>Welche Sprachen sprechen Sie?: Englisch</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_quelle" name="quelle" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Wie haben Sie von uns erfahren?</qstnLit>
+        <qstnLit xml:lang="en">How did you hear about us?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>web</catValu>
+        <labl>Webseite</labl>
+        <labl xml:lang="en">Website</labl>
+      </catgry>
+      <catgry>
+        <catValu>friends</catValu>
+        <labl>Bekannte</labl>
+        <labl xml:lang="en">Friends</labl>
+      </catgry>
+      <catgry>
+        <catValu>other</catValu>
+        <labl>Sonstiges</labl>
+      </catgry>
+      <concept>Wie haben Sie von uns erfahren?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_quelle_other" name="quelle_other" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <qstnLit>Sonstiges</qstnLit>
+      </qstn>
+      <concept>Sonstiges</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text">
+        <preQTxt>Alle Angaben sind freiwillig.
+
+Aktuelle Tätigkeit</preQTxt>
+        <preQTxt xml:lang="en">All answers are optional.
+
+Current job</preQTxt>
+        <qstnLit>Was ist Ihr Beruf?</qstnLit>
+        <qstnLit xml:lang="en">What is your occupation?</qstnLit>
+        <ivuInstr>Nicht vorlesen</ivuInstr>
+      </qstn>
+      <concept>Was ist Ihr Beruf?</concept>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_bildung" name="bildung" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category">
+        <qstnLit>Höchster Abschluss?</qstnLit>
+        <qstnLit xml:lang="en">Highest degree?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Kein Abschluss</labl>
+        <labl xml:lang="en">No degree</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Hauptschulabschluss</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Abitur</labl>
+        <labl xml:lang="en">A levels</labl>
+      </catgry>
+      <concept>Höchster Abschluss?</concept>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -6,8 +6,10 @@
  * same emitter serves the LimeSurvey-TSV inbound path (`pipelines/lstsv2ddi/`).
  */
 
+import type { WarningHandler } from '../../diagnostics.js';
 import { languageTagOf } from '../../utils/languageUtils.js';
 import { buildDdiCodebook } from '../../ddi/codebook.js';
+import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
 import type { BuildDdiOptions } from '../../ddi/codebook.js';
 
 import {
@@ -32,20 +34,48 @@ function ddiLanguage(
     : undefined;
 }
 
+/**
+ * Without `default_language`, a form in several languages has the first as
+ * its base: declare it, so the untagged DDI texts say their language (#135).
+ */
+function multilingualBase(
+  surveyRows: Record<string, unknown>[],
+): string | undefined {
+  const tags = instrumentFromXlsform(surveyRows)
+    .languages.map((l) => (l ? languageTagOf(l) : null))
+    .filter((t): t is string => !!t);
+  return new Set(tags).size > 1 ? tags[0] : undefined;
+}
+
 export function buildDdiXml(
   surveyRows: Record<string, unknown>[],
   choices:
     | Record<string, unknown>[]
     | Record<string, Array<{ name?: unknown; label?: unknown }>>,
-  options: BuildDdiOptions = {},
+  {
+    onWarning,
+    ...options
+  }: BuildDdiOptions & { onWarning?: WarningHandler } = {},
 ): string {
   // settings.default_language picks the label column the DDI text comes from.
   const language = ddiLanguage(options.settings);
   const choicesByList = Array.isArray(choices)
     ? choicesByListFromRows(choices, language)
     : normalizeChoices(choices);
-  const variables = extractVariables(surveyRows, choicesByList, { language });
-  return buildDdiCodebook(variables, options).toDocument();
+  const variables = extractVariables(surveyRows, choicesByList, {
+    language,
+    onWarning,
+  });
+  const base = language ?? multilingualBase(surveyRows);
+  return buildDdiCodebook(
+    variables,
+    base && !language
+      ? {
+          ...options,
+          settings: { ...options.settings, default_language: base },
+        }
+      : options,
+  ).toDocument();
 }
 
 export {
