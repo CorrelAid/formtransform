@@ -6,7 +6,7 @@
         <titl>select_multiple_other</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-07-22">2026-07-22</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
   </stdyDscr>
@@ -24,6 +24,8 @@
     <varGrp ID="VG_geraetebesitz" name="geraetebesitz" type="other" var="V_geraetebesitz_other" varGrp="VG_geraetebesitz_choices">
       <txt>Welche dieser Geräte besitzen Sie?</txt>
       <concept>Welche dieser Geräte besitzen Sie?</concept>
+      <notes type="cdl:list">geraete</notes>
+      <notes type="cdl:other_label">Sonstiges</notes>
     </varGrp>
     <varGrp ID="VG_geraetebesitz_choices" name="geraetebesitz_choices" type="multipleResp" var="V_geraetebesitz_smart V_geraetebesitz_lapt V_geraetebesitz_tabl">
       <txt>Welche dieser Geräte besitzen Sie?</txt>

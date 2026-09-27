@@ -12,6 +12,9 @@
     </citation>
     <notes type="instruction" subject="welcome">**Welcome** to the survey!</notes>
     <notes type="instruction" subject="end">**Thank you** for participating!</notes>
+    <notes type="cdl:position" subject="welcome">in= after=</notes>
+    <notes type="cdl:position" subject="end">in= after=main</notes>
+    <notes type="cdl:setting" subject="default_language">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -50,6 +53,7 @@
       </catgry>
       <concept>What is your _favorite_ color?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">colors</notes>
     </var>
     <var ID="V_fav_color_other" name="fav_color_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="2">

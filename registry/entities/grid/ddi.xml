@@ -6,7 +6,7 @@
         <titl>grid</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-07-22">2026-07-22</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
   </stdyDscr>
@@ -52,6 +52,7 @@
       </catgry>
       <concept>Das Parlament</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala5</notes>
     </var>
     <var ID="V_vertrauenpolizei" name="vertrauenpolizei" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="2">
@@ -80,6 +81,7 @@
       </catgry>
       <concept>Die Polizei</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala5</notes>
     </var>
   </dataDscr>
 </codeBook>

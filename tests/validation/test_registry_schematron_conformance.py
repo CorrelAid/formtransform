@@ -336,6 +336,17 @@ ASSERT_MUTATIONS = [
         _dup_first("notes"),
         "more than one note of one cdl: type in one language",
     ),
+    # The study's notes about a row (#160): a subject, one per type, subject and language.
+    (
+        "type:note",
+        _sub1(r'(type="cdl:position") subject="hinweis"', r"\1"),
+        "A cdl:position note needs a subject",
+    ),
+    (
+        "type:note",
+        _sub1(r'(<notes type="cdl:position"[^>]*>[^<]*</notes>)', r"\1\1"),
+        "more than one note of one cdl: type about one subject",
+    ),
 ]
 
 

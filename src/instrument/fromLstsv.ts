@@ -11,6 +11,11 @@
  */
 import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
+import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
+import type { APPEARANCES } from '../generated/Appearances.js';
+
+/** The registry appearance for a group shown as one page. */
+const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
 import { fromFileTypeFor, vocabFromCssClass } from '../conventions/fromFile.js';
 import { resolveType } from './lstsvTypes.js';
 import {
@@ -181,6 +186,14 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
   };
 }
 
+/** Whether a Q row's `exclude_all_others` lists `code`. */
+function excludes(row: Record<string, unknown>, code: string): boolean {
+  const value = row[EXCLUSIVE_RULE.limesurveyAttribute];
+  return (typeof value === 'string' ? value : '')
+    .split(EXCLUSIVE_RULE.limesurveySeparator)
+    .some((c) => c.trim() === code);
+}
+
 /**
  * An A/SQ row: an option of `owner`'s list. A multiple choice's defaults sit
  * on its SQ rows as `Y`.
@@ -197,10 +210,18 @@ function addChoice(
       .filter(Boolean)
       .join(' ');
   }
+  const code = cell(row, 'name');
   (state.lists[owner] ??= []).push({
-    name: cell(row, 'name'),
-    label: text(state, `label:${cls}:${owner}:${cell(row, 'name')}`),
-    row,
+    name: code,
+    label: text(state, `label:${cls}:${owner}:${code}`),
+    // The question's exclude_all_others, on the choice as an XLSForm has it.
+    row:
+      question && excludes(question.row, code)
+        ? {
+            ...row,
+            [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0],
+          }
+        : row,
   });
 }
 
@@ -400,6 +421,18 @@ export interface LstsvParseOptions {
   onWarning?: WarningHandler;
 }
 
+/**
+ * `format=G` shows each group as one page, which is what an XLSForm
+ * `field-list` group means: every group that isn't a grid is one.
+ */
+function markPages(items: Item[]): void {
+  for (const item of items) {
+    if (item.kind !== 'group') continue;
+    if (!item.appearance) item.appearance = PAGE_APPEARANCE;
+    markPages(item.children);
+  }
+}
+
 /** Parse LimeSurvey structure-TSV rows into an Instrument. */
 export function instrumentFromLstsv(
   rows: Row[],
@@ -437,15 +470,14 @@ export function instrumentFromLstsv(
   if (options.expressions) {
     reverseAllExpressions(body, state.lists, options.onWarning);
   }
+  const pages = cell(setting('format') ?? {}, 'text') === 'G';
+  if (pages) markPages(body);
   return {
     languages: languages.length ? languages : [''],
     ...(base ? { defaultLanguage: base } : {}),
     settings: {
       ...(title ? { form_title: cell(title, 'text') } : {}),
-      ...(base ? { default_language: base } : {}),
-      ...(cell(setting('format') ?? {}, 'text') === 'G'
-        ? { style: 'pages' }
-        : {}),
+      ...(pages ? { style: 'pages' } : {}),
     },
     lists: state.lists,
     body,

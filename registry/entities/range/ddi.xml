@@ -6,7 +6,7 @@
         <titl>range</titl>
       </titlStmt>
       <prodStmt>
-        <prodDate date="2026-09-24">2026-09-24</prodDate>
+        <prodDate date="2026-09-27">2026-09-27</prodDate>
       </prodStmt>
     </citation>
   </stdyDscr>
@@ -30,7 +30,7 @@
       </valrng>
       <concept>Wie zufrieden sind Sie insgesamt? (0 = gar nicht, 10 = voll)</concept>
       <varFormat type="numeric" schema="other"/>
-      <notes type="cdl:parameters">step=1</notes>
+      <notes type="cdl:parameters">start=0 end=10 step=1</notes>
     </var>
   </dataDscr>
 </codeBook>

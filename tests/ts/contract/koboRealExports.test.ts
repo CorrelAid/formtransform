@@ -137,7 +137,8 @@ describe.each(surveys)('Kobo real exports → DDI data: %s', (name) => {
         if (isKoboMeta(key) || key === '__version__') continue;
         const q = key.split('/').pop() as string;
         const v = variables.find((x) => x.name === q);
-        if (!v) {
+        if (!v || v.row !== undefined) {
+          // A metadata row is described (cdl:row), it has no column.
           expect(METADATA_TYPES, `${i}:${key}`).toContain(typeOf(q));
         } else if (v.type === 'select_multiple') {
           const picked = String(value).split(' ');

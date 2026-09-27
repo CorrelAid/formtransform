@@ -1,20 +1,25 @@
 {
   "survey": [
     {
+      "type": "note",
+      "name": "intro",
+      "label": "Einige Fragen zu Ihrem Vertrauen."
+    },
+    {
       "type": "begin_group",
       "name": "vertrauen",
       "label": "Wie sehr vertrauen Sie …",
       "appearance": "table-list"
     },
     {
-      "type": "select_one vertrauen",
+      "type": "select_one skala",
       "name": "parlament",
       "label": "… dem Parlament?",
       "hint": "Bundestag",
       "guidance_hint": "Skala vorlesen"
     },
     {
-      "type": "select_one vertrauen",
+      "type": "select_one skala",
       "name": "polizei",
       "label": "… der Polizei?"
     },
@@ -23,7 +28,7 @@
     },
     {
       "type": "note",
-      "name": "medien_note",
+      "name": "medienhinweis",
       "label": "Nun zu Ihrer Mediennutzung."
     },
     {
@@ -34,7 +39,7 @@
     },
     {
       "type": "note",
-      "name": "alter_note",
+      "name": "alterhinweis",
       "label": "Zuletzt eine Angabe zur Person."
     },
     {
@@ -42,26 +47,21 @@
       "name": "alter",
       "label": "Wie alt sind Sie?",
       "hint": "In Jahren"
-    },
-    {
-      "type": "note",
-      "name": "intro",
-      "label": "Einige Fragen zu Ihrem Vertrauen."
     }
   ],
   "choices": [
     {
-      "list_name": "vertrauen",
+      "list_name": "skala",
       "name": "1",
       "label": "Gar nicht"
     },
     {
-      "list_name": "vertrauen",
+      "list_name": "skala",
       "name": "2",
       "label": "Etwas"
     },
     {
-      "list_name": "vertrauen",
+      "list_name": "skala",
       "name": "3",
       "label": "Voll"
     },
@@ -78,7 +78,7 @@
   ],
   "settings": [
     {
-      "default_language": "German (de)",
+      "default_language": "de",
       "form_title": "grid_survey"
     }
   ]

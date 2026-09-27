@@ -27,11 +27,10 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
 /**
  * {@link lstsvToVariables} with relevance and constraints reversed into XPath
  * for the DDI's logic (#151): one outside the dialect gets a warning and is
- * left out, rather than failing the conversion. Plus, for a survey in several languages, its base
- * language (the `language` S row, as a BCP 47 tag): the DDI declares it as
- * `codeBook/@xml:lang` so the untagged texts say their language. A
- * single-language survey's DDI stays undeclared, as an XLSForm's without
- * `default_language` does.
+ * left out, rather than failing the conversion. Plus the survey's base
+ * language (the `language` S row, as a BCP 47 tag), which the DDI declares
+ * as `codeBook/@xml:lang` so the untagged texts say their language, and its
+ * settings (title, style).
  */
 export function lstsvProjection(
   rows: Row[],
@@ -39,6 +38,9 @@ export function lstsvProjection(
 ): {
   variables: Variable[];
   language?: string;
+  settings: Record<string, unknown>;
+  /** The survey's languages, base first. */
+  languages: string[];
 } {
   const instrument = instrumentFromLstsv(rows, {
     expressions: true,
@@ -50,7 +52,8 @@ export function lstsvProjection(
       choicesFromInstrument(instrument),
       { onWarning },
     ),
-    language:
-      instrument.languages.length > 1 ? instrument.defaultLanguage : undefined,
+    language: instrument.defaultLanguage,
+    settings: instrument.settings,
+    languages: instrument.languages.filter(Boolean),
   };
 }

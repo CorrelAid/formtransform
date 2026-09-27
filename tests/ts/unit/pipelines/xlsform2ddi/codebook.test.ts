@@ -265,7 +265,10 @@ describe('notes', () => {
       { type: 'integer', name: 'q', label: 'Q' },
     ]);
     expect(xml).toContain('<preQTxt>Context</preQTxt>');
-    expect(xml).not.toContain('<notes');
+    // Only its name, to give the row back (#160).
+    expect(xml.match(/<notes[^>]*>[^<]*<\/notes>/g)).toEqual([
+      '<notes type="cdl:note_names">n</notes>',
+    ]);
   });
 });
 

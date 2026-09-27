@@ -3,7 +3,7 @@
  * texts, with the form's other languages as `translations` (#135), flattened
  * in survey order with each variable's enclosing group path/label/appearance. Both DDI pipelines go through here (#69).
  */
-import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
+import { METADATA_ROW_TYPES, isMetadataType } from '../conventions/metadata.js';
 import { APPEARANCES } from '../generated/Appearances.js';
 import {
   OTHER_APPLIES_TO,
@@ -319,7 +319,51 @@ function pushCompanion(
     ...groupsOf(ctx),
     relevant,
     ...(Object.keys(translations).length ? { translations } : {}),
+    synthesized: true,
   });
+}
+
+/**
+ * A row without data (a metadata row like `start`, a matrix header): the
+ * codebook keeps its name, type cell, texts and place in `cdl:row` notes
+ * (#160).
+ */
+function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
+  const translations = variableTranslations(
+    { label: q.label, hint: q.hint },
+    state.others,
+  );
+  state.variables.push({
+    name: q.name,
+    type: q.type,
+    row: q.rawType.trim().replace(/\s+/g, ' '),
+    label: pick(q.label, state.lang),
+    ...optionalText({
+      hint: pick(q.hint, state.lang).trim(),
+      guidanceHint: '',
+    }),
+    ...(q.relevant.trim() ? { relevant: q.relevant.trim() } : {}),
+    ...(q.appearance ? { appearance: q.appearance } : {}),
+    ...(translations ? { translations } : {}),
+    group: ctx.path,
+    groupLabel: ctx.label,
+    groupAppearance: ctx.appearance,
+    listName: '',
+    vocab: '',
+    choices: [],
+    ...groupsOf(ctx),
+  });
+}
+
+/** A row with no data column: a metadata row, a matrix header. */
+function isRow(q: QuestionItem): boolean {
+  if (!q.name) return false;
+  return isMetadataType(q.type) || NO_DATA_APPEARANCES.has(q.appearance);
+}
+
+/** An added other pair: from the type cell's `or_other`, or said to be there. */
+function otherOrigin(q: QuestionItem): 'shorthand' | 'added' {
+  return /\sor_other\s*$/.test(q.rawType) ? 'shorthand' : 'added';
 }
 
 function pushQuestion(
@@ -327,6 +371,7 @@ function pushQuestion(
   ctx: GroupContext,
   state: ProjectState,
 ): void {
+  if (isRow(q)) return pushRow(q, ctx, state);
   if (!emitsVariable(q)) return;
   const { stdType, listName, vocab } = resolveType(q);
   const orOther = q.orOther && OTHER_TYPES.has(stdType);
@@ -352,6 +397,7 @@ function pushQuestion(
     state.others,
   );
 
+  const added = !!other && !state.authoredNames.has(q.name + OTHER_SUFFIX);
   state.variables.push({
     name: q.name,
     type: stdType,
@@ -367,6 +413,7 @@ function pushQuestion(
     ...groupsOf(ctx),
     ...logicOf(q, state.lang),
     ...(translations ? { translations } : {}),
+    ...(added ? { orOther: otherOrigin(q) } : {}),
   });
 
   if (other) pushCompanion(q, stdType, other, ctx, state);

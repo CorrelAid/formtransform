@@ -151,7 +151,7 @@ The migration runs in phases, each keeping every snapshot byte-identical:
 
 ### The way back from DDI (`ddi2xlsform`)
 
-A DDI codebook describes a *dataset*, not an *instrument*. A codebook formtransform wrote carries the whole instrument too (#155), so `ddi2xlsform` (#154) turns it back into its form: `src/instrument/fromDdi.ts` reads the standard elements and the `cdl:` notes into the Instrument, and the XLSForm emitter both reverse paths share (`src/xlsform/fromInstrument.ts`) writes the sheets. Any other DDI converts as far as its standard elements go, with a warning for each missing field. The round trip is tested on the model, never on bytes; `src/pipelines/ddi2xlsform/README.md` lists the losses. A `ddi2lstsv` would be `ddi2xlsform` → `xlsform2lstsv` and earns no module of its own.
+A DDI codebook describes a *dataset*, not an *instrument*. A codebook formtransform wrote carries the whole instrument too (#155), so `ddi2xlsform` (#154) turns it back into its form: `src/instrument/fromDdi.ts` reads the standard elements and the `cdl:` notes into the Instrument, and the XLSForm emitter both reverse paths share (`src/xlsform/fromInstrument.ts`) writes the sheets. Any other DDI converts as far as its standard elements go, with a warning for each missing field. The round trips are tested on the model, and where the target is text, on bytes: DDI → XLSForm → DDI and XLSForm → DDI → XLSForm → LimeSurvey give the same file (#160). `src/pipelines/ddi2xlsform/README.md` lists what stays lost. A `ddi2lstsv` would be `ddi2xlsform` → `xlsform2lstsv` and earns no module of its own.
 
 What a CDL codebook carries:
 

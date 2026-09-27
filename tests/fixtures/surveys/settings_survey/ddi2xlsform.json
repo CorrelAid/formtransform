@@ -1,12 +1,17 @@
 {
   "survey": [
     {
+      "type": "note",
+      "name": "welcome",
+      "label": "**Welcome** to the survey!"
+    },
+    {
       "type": "begin_group",
       "name": "main",
       "label": "Main Questions"
     },
     {
-      "type": "select_one fav_color",
+      "type": "select_one colors",
       "name": "fav_color",
       "label": "What is your _favorite_ color?"
     },
@@ -26,34 +31,30 @@
     },
     {
       "type": "note",
-      "name": "welcome",
-      "label": "**Welcome** to the survey!"
-    },
-    {
-      "type": "note",
       "name": "end",
       "label": "**Thank you** for participating!"
     }
   ],
   "choices": [
     {
-      "list_name": "fav_color",
+      "list_name": "colors",
       "name": "red",
       "label": "Red"
     },
     {
-      "list_name": "fav_color",
+      "list_name": "colors",
       "name": "blue",
       "label": "Blue"
     },
     {
-      "list_name": "fav_color",
+      "list_name": "colors",
       "name": "other",
       "label": "Other"
     }
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "settings_survey",
       "form_id": "settings_survey"
     }

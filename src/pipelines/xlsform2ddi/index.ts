@@ -34,17 +34,25 @@ function ddiLanguage(
     : undefined;
 }
 
+/** The form's languages: tag → the form's own name (its column suffix). */
+function languageNames(
+  surveyRows: Record<string, unknown>[],
+): Record<string, string> {
+  const names: Record<string, string> = {};
+  for (const key of instrumentFromXlsform(surveyRows).languages) {
+    const tag = key ? languageTagOf(key) : null;
+    if (tag) names[tag] ??= key;
+  }
+  return names;
+}
+
 /**
  * Without `default_language`, a form in several languages has the first as
  * its base: declare it, so the untagged DDI texts say their language (#135).
  */
-function multilingualBase(
-  surveyRows: Record<string, unknown>[],
-): string | undefined {
-  const tags = instrumentFromXlsform(surveyRows)
-    .languages.map((l) => (l ? languageTagOf(l) : null))
-    .filter((t): t is string => !!t);
-  return new Set(tags).size > 1 ? tags[0] : undefined;
+function multilingualBase(names: Record<string, string>): string | undefined {
+  const tags = Object.keys(names);
+  return tags.length > 1 ? tags[0] : undefined;
 }
 
 export function buildDdiXml(
@@ -66,16 +74,12 @@ export function buildDdiXml(
     language,
     onWarning,
   });
-  const base = language ?? multilingualBase(surveyRows);
-  return buildDdiCodebook(
-    variables,
-    base && !language
-      ? {
-          ...options,
-          settings: { ...options.settings, default_language: base },
-        }
-      : options,
-  ).toDocument();
+  const names = languageNames(surveyRows);
+  return buildDdiCodebook(variables, {
+    languageNames: names,
+    language: multilingualBase(names),
+    ...options,
+  }).toDocument();
 }
 
 export {

@@ -2,7 +2,7 @@
   "survey": [
     {
       "type": "note",
-      "name": "username_note",
+      "name": "welcome",
       "label": "Validation and Relevance Test Survey"
     },
     {
@@ -27,7 +27,7 @@
       "constraint": ". > 0 and . < 1000"
     },
     {
-      "type": "select_one consent",
+      "type": "select_one yes_no",
       "name": "consent",
       "label": "Do you consent?"
     },
@@ -79,18 +79,19 @@
   ],
   "choices": [
     {
-      "list_name": "consent",
+      "list_name": "yes_no",
       "name": "yes",
       "label": "Yes"
     },
     {
-      "list_name": "consent",
+      "list_name": "yes_no",
       "name": "no",
       "label": "No"
     }
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "validation_relevance_survey"
     }
   ]

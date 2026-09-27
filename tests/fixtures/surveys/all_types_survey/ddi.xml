@@ -12,6 +12,27 @@
     </citation>
     <notes type="instruction" subject="q_note">Im nächsten Abschnitt bitten wir Sie um Ihr ausführliches Feedback. Bitte nehmen Sie sich Zeit.</notes>
     <notes type="instruction" subject="orphan_after">Vielen Dank für Ihre Teilnahme an dieser Umfrage!</notes>
+    <notes type="cdl:row" subject="start">start</notes>
+    <notes type="cdl:row" subject="end">end</notes>
+    <notes type="cdl:row" subject="today">today</notes>
+    <notes type="cdl:row" subject="deviceid">deviceid</notes>
+    <notes type="cdl:row" subject="username">username</notes>
+    <notes type="cdl:row" subject="hidden1">hidden</notes>
+    <notes type="cdl:row" subject="audit">audit</notes>
+    <notes type="cdl:row" subject="matrix_header">select_one proficiency</notes>
+    <notes type="cdl:row_label" subject="matrix_header">Wie schätzen Sie Ihre Kenntnisse ein?</notes>
+    <notes type="cdl:row_appearance" subject="matrix_header">label</notes>
+    <notes type="cdl:position" subject="start">in= after=</notes>
+    <notes type="cdl:position" subject="end">in= after=start</notes>
+    <notes type="cdl:position" subject="today">in= after=end</notes>
+    <notes type="cdl:position" subject="deviceid">in= after=today</notes>
+    <notes type="cdl:position" subject="username">in= after=deviceid</notes>
+    <notes type="cdl:position" subject="hidden1">in= after=username</notes>
+    <notes type="cdl:position" subject="audit">in= after=hidden1</notes>
+    <notes type="cdl:position" subject="q_note">in=basic_types after=q_select_multi</notes>
+    <notes type="cdl:position" subject="matrix_header">in=matrix_wrapper/matrix_inner after=</notes>
+    <notes type="cdl:position" subject="orphan_after">in= after=features</notes>
+    <notes type="cdl:setting" subject="default_language">de</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -52,14 +73,18 @@
     <varGrp ID="VG_q_select_multi" name="q_select_multi" type="multipleResp" var="V_q_select_multi_red V_q_select_multi_blue V_q_select_multi_green">
       <txt>An welchen Tracks haben Sie teilgenommen?</txt>
       <concept>An welchen Tracks haben Sie teilgenommen?</concept>
+      <notes type="cdl:list">topics</notes>
     </varGrp>
     <varGrp ID="VG_q_sel1_other" name="q_sel1_other" type="other" var="V_q_sel1_other V_q_sel1_other_other">
       <txt>Welcher Track hat Ihnen am besten gefallen?</txt>
       <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
+      <notes type="cdl:or_other">shorthand</notes>
     </varGrp>
     <varGrp ID="VG_q_selm_other" name="q_selm_other" type="other" var="V_q_selm_other_other" varGrp="VG_q_selm_other_choices">
       <txt>Welche Tracks würden Sie erneut besuchen?</txt>
       <concept>Welche Tracks würden Sie erneut besuchen?</concept>
+      <notes type="cdl:list">topics</notes>
+      <notes type="cdl:or_other">shorthand</notes>
     </varGrp>
     <varGrp ID="VG_q_selm_other_choices" name="q_selm_other_choices" type="multipleResp" var="V_q_selm_other_red V_q_selm_other_blue V_q_selm_other_green">
       <txt>Welche Tracks würden Sie erneut besuchen?</txt>
@@ -135,6 +160,7 @@
       </catgry>
       <concept>Würden Sie diesen Workshop weiterempfehlen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">yesno</notes>
     </var>
     <var ID="V_q_select_multi_red" name="q_select_multi_red" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="10">
@@ -213,6 +239,7 @@
       <concept>Wie zufrieden waren Sie mit der Organisation insgesamt?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">satisfaction</notes>
     </var>
     <var ID="V_q_minimal" name="q_minimal" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="14">
@@ -229,6 +256,7 @@
       <concept>Bevorzugst du Dropdown?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">minimal</notes>
+      <notes type="cdl:list">yesno</notes>
     </var>
     <var ID="V_skill_python" name="skill_python" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="15">
@@ -253,6 +281,7 @@
       <concept>Python</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">proficiency</notes>
     </var>
     <var ID="V_skill_js" name="skill_js" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="16">
@@ -277,6 +306,7 @@
       <concept>JavaScript</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">proficiency</notes>
     </var>
     <var ID="V_skill_sql" name="skill_sql" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="17">
@@ -301,6 +331,7 @@
       <concept>SQL</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">proficiency</notes>
     </var>
     <var ID="V_q_sel1_other" name="q_sel1_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="18">
@@ -324,6 +355,7 @@
       </catgry>
       <concept>Welcher Track hat Ihnen am besten gefallen?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">topics</notes>
     </var>
     <var ID="V_q_sel1_other_other" name="q_sel1_other_other" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="19">

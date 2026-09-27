@@ -11,6 +11,9 @@
       </prodStmt>
     </citation>
     <notes type="instruction" subject="thank_you">Thank you for your participation!</notes>
+    <notes type="cdl:row_relevant" subject="thank_you">${consent} = 'yes'</notes>
+    <notes type="cdl:position" subject="thank_you">in= after=consent</notes>
+    <notes type="cdl:setting" subject="default_language">en</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -54,6 +57,7 @@
       <concept>Do you consent to participate?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
+      <notes type="cdl:list">yes_no</notes>
     </var>
   </dataDscr>
 </codeBook>

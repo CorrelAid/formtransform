@@ -9,6 +9,11 @@
         <prodDate date="2020-01-01">2020-01-01</prodDate>
       </prodStmt>
     </citation>
+    <notes type="cdl:row" subject="kopf">select_one oft</notes>
+    <notes type="cdl:row_label" subject="kopf">Nutzung</notes>
+    <notes type="cdl:row_appearance" subject="kopf">label</notes>
+    <notes type="cdl:position" subject="kopf">in=matrix after=</notes>
+    <notes type="cdl:setting" subject="default_language">de</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -50,6 +55,7 @@
       <concept>Wo wohnen Sie?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">minimal</notes>
+      <notes type="cdl:list">land</notes>
     </var>
     <var ID="V_anmerkung" name="anmerkung" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="2">
@@ -78,6 +84,7 @@
       <concept>Wie zufrieden sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:appearance">likert</notes>
+      <notes type="cdl:list">zust</notes>
     </var>
     <var ID="V_bus" name="bus" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="4">
@@ -94,6 +101,7 @@
       <concept>Bus</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">oft</notes>
     </var>
     <var ID="V_bahn" name="bahn" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="5">
@@ -110,6 +118,7 @@
       <concept>Bahn</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
+      <notes type="cdl:list">oft</notes>
     </var>
     <var ID="V_preis" name="preis" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="6">
@@ -126,6 +135,7 @@
       </catgry>
       <concept>… der Preis?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">oft</notes>
     </var>
     <var ID="V_takt" name="takt" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="7">
@@ -142,6 +152,7 @@
       </catgry>
       <concept>… der Takt?</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">oft</notes>
     </var>
     <var ID="V_herkunft" name="herkunft" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="8">

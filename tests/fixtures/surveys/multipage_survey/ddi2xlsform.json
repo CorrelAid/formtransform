@@ -26,38 +26,39 @@
       "appearance": "field-list"
     },
     {
-      "type": "select_one favcolor",
+      "type": "select_one colors",
       "name": "favcolor",
       "label": "Favourite colour"
-    },
-    {
-      "type": "end_group"
     },
     {
       "type": "note",
       "name": "thankyou",
       "label": "Thank you!"
+    },
+    {
+      "type": "end_group"
     }
   ],
   "choices": [
     {
-      "list_name": "favcolor",
+      "list_name": "colors",
       "name": "red",
       "label": "Red"
     },
     {
-      "list_name": "favcolor",
+      "list_name": "colors",
       "name": "blue",
       "label": "Blue"
     },
     {
-      "list_name": "favcolor",
+      "list_name": "colors",
       "name": "green",
       "label": "Green"
     }
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "multipage_survey",
       "form_id": "multipage",
       "style": "pages"

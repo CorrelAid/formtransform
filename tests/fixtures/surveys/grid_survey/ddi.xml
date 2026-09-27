@@ -10,6 +10,8 @@
       </prodStmt>
     </citation>
     <notes type="instruction" subject="intro">Einige Fragen zu Ihrem Vertrauen.</notes>
+    <notes type="cdl:position" subject="intro">in= after=</notes>
+    <notes type="cdl:setting" subject="default_language">de</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
@@ -30,6 +32,7 @@
       <txt>Welche Medien nutzen Sie?</txt>
       <concept>Welche Medien nutzen Sie?</concept>
       <notes>Nun zu Ihrer Mediennutzung.</notes>
+      <notes type="cdl:note_names">medienhinweis</notes>
     </varGrp>
     <var ID="V_parlament" name="parlament" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -52,6 +55,7 @@
       </catgry>
       <concept>… dem Parlament?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala</notes>
     </var>
     <var ID="V_polizei" name="polizei" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="2">
@@ -72,6 +76,7 @@
       </catgry>
       <concept>… der Polizei?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:list">skala</notes>
     </var>
     <var ID="V_medien_tv" name="medien_tv" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="3">
@@ -111,6 +116,7 @@
       </qstn>
       <concept>Wie alt sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:note_names">alterhinweis</notes>
     </var>
   </dataDscr>
 </codeBook>

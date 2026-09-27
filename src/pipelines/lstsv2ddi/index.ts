@@ -75,15 +75,18 @@ export function lstsvToDdiXml(
     (r) => r.class?.trim() === 'SL' && r.name?.trim() === 'surveyls_title',
   )?.text;
 
-  const { variables, language } = lstsvProjection(rows, onWarning);
-  const opts: BuildDdiOptions = { ...ddiOptions };
-  if (!opts.assetName && title?.trim()) {
-    opts.settings = { form_title: title.trim(), ...opts.settings };
-  }
-  // The untagged texts are the base language; say which (#135).
-  if (language) {
-    opts.settings = { default_language: language, ...opts.settings };
-  }
+  const { variables, language, settings, languages } = lstsvProjection(
+    rows,
+    onWarning,
+  );
+  // The untagged texts are the survey's language; say which (#135, #160).
+  const opts: BuildDdiOptions = {
+    language,
+    languageNames: Object.fromEntries(languages.map((l) => [l, l])),
+    ...ddiOptions,
+  };
+  opts.settings = { ...settings, ...opts.settings };
+  if (opts.assetName || !title?.trim()) delete opts.settings.form_title;
 
   return buildDdiCodebook(variables, opts).toDocument();
 }

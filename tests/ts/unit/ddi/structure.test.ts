@@ -65,8 +65,15 @@ describe('groups', () => {
     );
   });
 
-  test('a group without a variable under it has no varGrp', () => {
-    expect(xml).not.toContain('VG_empty');
+  test('a group of notes only is a varGrp, placed by cdl:position (#160)', () => {
+    expect(varGrp(xml, 'VG_empty')).toContain('type="section"');
+    expect(varGrp(xml, 'VG_empty')).not.toMatch(/ var=/);
+    expect(xml).toContain(
+      '<notes type="cdl:position" subject="empty">in= after=outer</notes>',
+    );
+    expect(xml).toContain(
+      '<notes type="cdl:position" subject="hello">in=empty after=</notes>',
+    );
   });
 
   test('top-level questions are in no group', () => {

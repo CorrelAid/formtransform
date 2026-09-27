@@ -2,6 +2,19 @@
   "survey": [
     {
       "type": "begin_group",
+      "name": "intro",
+      "label": "intro"
+    },
+    {
+      "type": "note",
+      "name": "intro_text",
+      "label": "Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
       "name": "teilnahme",
       "label": "teilnahme"
     },
@@ -50,35 +63,35 @@
       "hint": "Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "wohlfuehlen",
       "label": "Ich fühle mich bei TestWerk wohl und akzeptiert.",
       "required": "yes",
       "appearance": "likert"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "freundschaften",
       "label": "Ich habe bei TestWerk Freund*innen gefunden.",
       "required": "yes",
       "appearance": "likert"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "eigene_ideen",
       "label": "Ich traue mir zu, eigene Ideen und Projekte umzusetzen.",
       "required": "yes",
       "appearance": "likert"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "problemloesung",
       "label": "Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.",
       "required": "yes",
       "appearance": "likert"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "skills_gelernt",
       "label": "Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.",
       "required": "yes",
@@ -86,18 +99,18 @@
     },
     {
       "type": "note",
-      "name": "beruf_pre_note",
+      "name": "beruf_note",
       "label": "Jetzt denk mal an deine berufliche Zukunft:"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "beruf_pre",
       "label": "Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.",
       "required": "yes",
       "appearance": "likert"
     },
     {
-      "type": "select_one wohlfuehlen",
+      "type": "select_one likert5",
       "name": "beruf_post",
       "label": "Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.",
       "required": "yes",
@@ -143,7 +156,7 @@
       "label": "empfehlung"
     },
     {
-      "type": "select_one nps_score",
+      "type": "select_one nps",
       "name": "nps_score",
       "label": "Würdest du TestWerk Freund*innen empfehlen?",
       "hint": "0 = auf keinen Fall, 10 = auf jeden Fall",
@@ -176,11 +189,6 @@
     },
     {
       "type": "end_group"
-    },
-    {
-      "type": "note",
-      "name": "intro_text",
-      "label": "Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!"
     },
     {
       "type": "note",
@@ -295,82 +303,82 @@
       "label": "Ja, viel"
     },
     {
-      "list_name": "wohlfuehlen",
+      "list_name": "likert5",
       "name": "1",
       "label": "Stimme gar nicht zu"
     },
     {
-      "list_name": "wohlfuehlen",
+      "list_name": "likert5",
       "name": "2",
       "label": "Stimme eher nicht zu"
     },
     {
-      "list_name": "wohlfuehlen",
+      "list_name": "likert5",
       "name": "3",
       "label": "Weder noch"
     },
     {
-      "list_name": "wohlfuehlen",
+      "list_name": "likert5",
       "name": "4",
       "label": "Stimme eher zu"
     },
     {
-      "list_name": "wohlfuehlen",
+      "list_name": "likert5",
       "name": "5",
       "label": "Stimme voll zu"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "0",
       "label": "0"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "1",
       "label": "1"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "2",
       "label": "2"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "3",
       "label": "3"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "4",
       "label": "4"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "5",
       "label": "5"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "6",
       "label": "6"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "7",
       "label": "7"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "8",
       "label": "8"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "9",
       "label": "9"
     },
     {
-      "list_name": "nps_score",
+      "list_name": "nps",
       "name": "10",
       "label": "10"
     },
@@ -422,9 +430,10 @@
   ],
   "settings": [
     {
+      "default_language": "Deutsch",
       "form_title": "testA",
-      "form_id": "testwerk_wirkung_2025",
-      "version": "2.2"
+      "version": "2.2",
+      "id_string": "testwerk_wirkung_2025"
     }
   ]
 }

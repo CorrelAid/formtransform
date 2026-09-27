@@ -44,7 +44,7 @@ const conventions = {
             "var",
             "varGrp"
           ],
-          "text": "the parameters not in a standard element, space-separated key=value"
+          "text": "the parameters not in a standard element, space-separated key=value; a range's start and end as authored (valrng/range has them too)"
         },
         "hint": {
           "type": "cdl:hint",
@@ -66,21 +66,113 @@ const conventions = {
             "stdyDscr"
           ],
           "subject": "the settings key",
-          "keys": [
-            "style"
+          "text": "the value of every string or number setting DDI has no element for (id_string too: IDNo is form_id's), default_language as authored (codeBook/@xml:lang is also set without one: a LimeSurvey survey's language, a multilingual form's first)",
+          "standard": [
+            "form_title",
+            "form_id",
+            "version"
           ]
+        },
+        "list": {
+          "type": "cdl:list",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "text": "the choice list's name, when it isn't the question's own name (a grid member's: its grid's)"
+        },
+        "or_other": {
+          "type": "cdl:or_other",
+          "on": [
+            "varGrp[@type='other']"
+          ],
+          "text": "the pair's other choice and companion question were added, not authored: 'shorthand' from the XLSForm type cell's or_other, 'added' from a source that only says the question has one (LimeSurvey's other=Y), whose XLSForm writes the explicit pair"
+        },
+        "note_names": {
+          "type": "cdl:note_names",
+          "on": [
+            "var",
+            "varGrp"
+          ],
+          "text": "the names of the note rows whose texts the preQTxt (or a group's untyped notes) joins with a blank line, space-separated, in order"
+        },
+        "row": {
+          "type": "cdl:row",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the row's name",
+          "text": "the type cell of a row with no data column: a metadata row (convention:unregisteredRows metadataRowTypes: start, deviceid, …) or a matrix header (an appearance with carriesData false)"
+        },
+        "row_label": {
+          "type": "cdl:row_label",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the row's name",
+          "localized": true,
+          "text": "a cdl:row's label"
+        },
+        "row_hint": {
+          "type": "cdl:row_hint",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the name of a note row or cdl:row",
+          "localized": true,
+          "text": "its hint"
+        },
+        "row_relevant": {
+          "type": "cdl:row_relevant",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the name of a note row or cdl:row",
+          "text": "its relevant (XLSForm XPath)"
+        },
+        "row_appearance": {
+          "type": "cdl:row_appearance",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the name of a note row or cdl:row",
+          "text": "its appearance"
+        },
+        "position": {
+          "type": "cdl:position",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "the name of an intro/outro note or a cdl:row, or the path of a group with no data question",
+          "text": "where it is: in=<the varGrp/@name of its group, empty at the top> after=<the item before it in that group, empty when first>"
+        },
+        "language": {
+          "type": "cdl:language",
+          "on": [
+            "stdyDscr"
+          ],
+          "subject": "a language's BCP 47 tag",
+          "text": "the form's own name for it (its column suffix, 'Deutsch (de)'): every language of a form in several, in the form's order; of a form in one, when its name isn't the bare tag"
+        },
+        "other_label": {
+          "type": "cdl:other_label",
+          "on": [
+            "varGrp[@type='other']"
+          ],
+          "localized": true,
+          "text": "a select_multiple's authored other choice's label: the pair has no binary var for it"
         }
       },
       "fields": {
         "ItemBase.name": {
-          "ddi": "var/@name; a group's path in varGrp/@name"
+          "ddi": "var/@name; a group's path in varGrp/@name; a note's in cdl:note_names or notes/@subject"
         },
         "ItemBase.label": {
           "ddi": "qstn/qstnLit; a group's varGrp/txt"
         },
         "ItemBase.hint": {
           "ddi": "qstn/postQTxt; a group's in a cdl:hint note (varGrp has no hint element)",
-          "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element."
+          "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element. A note row's hint is a cdl:row_hint."
         },
         "ItemBase.relevant": {
           "ddi": "universe + cdl:relevant note (convention:logicMapping)"
@@ -108,17 +200,17 @@ const conventions = {
           "ddi": "qstn/@responseDomainType, var/@intrvl, varFormat/@type, varFormat/@category (date, time), var/@dcml='0' (integer)"
         },
         "QuestionItem.rawType": {
-          "loss": "Rebuilt from type, list and the other pattern; the or_other shorthand comes back as the explicit pair, which behaves the same."
+          "ddi": "type, list and the other pattern; the or_other shorthand: cdl:or_other"
         },
         "QuestionItem.list": {
-          "loss": "The list name: questions with identical category sets come back sharing one list."
+          "cdlNote": "cdl:list",
+          "note": "Only when the list isn't named after the question (a grid member: after its grid); without it the list has that name. DDI that isn't CDL gets identical category sets as one list."
         },
         "QuestionItem.file": {
           "ddi": "concept/@vocab (the file is <vocab>.csv)"
         },
         "QuestionItem.orOther": {
-          "ddi": "varGrp[@type='other'] (convention:other)",
-          "note": "Comes back as the explicit pair, see rawType."
+          "ddi": "varGrp[@type='other'] (convention:other), with cdl:or_other when it was the shorthand"
         },
         "QuestionItem.guidanceHint": {
           "ddi": "qstn/ivuInstr"
@@ -153,20 +245,20 @@ const conventions = {
           "note": "The choice sheet's other columns are not carried."
         },
         "Instrument.languages": {
-          "ddi": "xml:lang siblings of every text (convention:languageTagging)"
+          "ddi": "xml:lang siblings of every text (convention:languageTagging); a language's own name in a cdl:language note"
         },
         "Instrument.defaultLanguage": {
           "ddi": "codeBook/@xml:lang"
         },
         "Instrument.settings": {
-          "ddi": "form_title: titl; form_id: IDNo; version: verStmt/version; default_language: codeBook/@xml:lang; style: stdyDscr/notes[@type='cdl:setting'][@subject='style']",
-          "note": "Other settings are not carried."
+          "ddi": "form_title: titl (+ parTitl); form_id: IDNo; version: verStmt/version; every other setting, default_language as authored too: stdyDscr/notes[@type='cdl:setting'][@subject=<key>]",
+          "note": "Settings that are neither a string nor a number are not carried."
         },
         "Instrument.lists": {
           "ddi": "catgry of each var that uses a list"
         },
         "Instrument.body": {
-          "ddi": "dataDscr: varGrp and var, in survey order"
+          "ddi": "dataDscr: varGrp and var, in survey order; note rows in preQTxt (names: cdl:note_names) or as stdyDscr notes type='instruction'; rows without data as cdl:row; their fields in cdl:row_*; where the stdyDscr ones are: cdl:position"
         }
       }
     },

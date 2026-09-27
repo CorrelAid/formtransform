@@ -197,13 +197,13 @@ describe('lstsv → multilingual DDI', () => {
     expect(xml).toContain('<qstnLit xml:lang="en">Occupation?</qstnLit>');
   });
 
-  test('a single-language survey declares no language', () => {
+  test('a single-language survey declares its language (#160)', () => {
     const tsv = [
       header,
       line('S', '', 'language', '1', 'de', '', '', ''),
       line('G', '1', 'Gruppe', '1', '', '', 'de', ''),
       line('Q', 'S', 'job', '1', 'Beruf?', '', 'de', 'N'),
     ].join('\n');
-    expect(rootLang(lstsvToDdiXml(tsv, OPTS))).toBeUndefined();
+    expect(rootLang(lstsvToDdiXml(tsv, OPTS))).toBe('de');
   });
 });

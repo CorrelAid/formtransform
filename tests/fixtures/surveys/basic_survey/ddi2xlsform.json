@@ -13,7 +13,7 @@
       "required": "yes"
     },
     {
-      "type": "select_one consent",
+      "type": "select_one yes_no",
       "name": "consent",
       "label": "Do you consent to participate?",
       "required": "yes"
@@ -21,23 +21,25 @@
     {
       "type": "note",
       "name": "thank_you",
-      "label": "Thank you for your participation!"
+      "label": "Thank you for your participation!",
+      "relevant": "${consent} = 'yes'"
     }
   ],
   "choices": [
     {
-      "list_name": "consent",
+      "list_name": "yes_no",
       "name": "yes",
       "label": "Yes"
     },
     {
-      "list_name": "consent",
+      "list_name": "yes_no",
       "name": "no",
       "label": "No"
     }
   ],
   "settings": [
     {
+      "default_language": "en",
       "form_title": "basic_survey",
       "form_id": "basic_survey"
     }

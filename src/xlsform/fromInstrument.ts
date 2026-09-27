@@ -1,8 +1,8 @@
 /**
  * {@link Instrument} → XLSForm sheets (#69, phase 4): the emitter both
  * reverse paths share, `lstsv2xlsform` and `ddi2xlsform` (#154). It writes
- * what the model holds; what a source can't carry (LimeSurvey's list names,
- * a DDI's note names) the parsers fill in and their READMEs list.
+ * what the model holds; what a source can't carry (LimeSurvey's list names)
+ * the parsers fill in and their READMEs list.
  *
  * `relevant` / `constraint` are XPath already (the LimeSurvey parser reverses
  * EM, the DDI parser reads its `cdl:` notes). `calculation` is out of scope:
@@ -11,7 +11,6 @@
 
 import { defaultConfig } from '../config/types.js';
 import type { SurveyRow, ChoiceRow, SettingsRow } from './types.js';
-import { APPEARANCES } from '../generated/Appearances.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../conventions/exclusive.js';
 import {
   OTHER_CODE,
@@ -22,9 +21,6 @@ import {
 } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 
-/** The registry appearance for a group shown as one page. */
-const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
-
 import { formatDefaultLanguage } from './languageNames.js';
 import type {
   GroupItem,
@@ -34,6 +30,7 @@ import type {
   Text,
 } from '../instrument/types.js';
 import { htmlToMarkdown } from '../utils/markdownRenderer.js';
+import { languageTagOf } from '../utils/languageUtils.js';
 
 type Row = Record<string, string>;
 
@@ -90,8 +87,26 @@ interface EmitCtx {
   choices: ChoiceRow[];
   /** Lists already written: a list shared by several questions is one list. */
   written: Set<string>;
-  /** `format=G` (style: pages): each LimeSurvey group is one page. */
-  pages: boolean;
+}
+
+/**
+ * `default_language`: as the form had it (`Deutsch (de)`, `de`), else the
+ * base language's English name when it isn't the default (`German (de)`).
+ */
+function defaultLanguageCell(
+  instrument: Instrument,
+  baseLanguage: string,
+): string {
+  const authored = instrument.settings['default_language'];
+  if (
+    typeof authored === 'string' &&
+    (languageTagOf(authored) === baseLanguage || !instrument.defaultLanguage)
+  ) {
+    return authored;
+  }
+  return baseLanguage === defaultConfig.defaults.language
+    ? ''
+    : formatDefaultLanguage(baseLanguage);
 }
 
 /** Render the settings sheet — non-default values only. */
@@ -100,9 +115,8 @@ function buildSettingsRow(
   baseLanguage: string,
 ): SettingsRow[] {
   const row: SettingsRow = {};
-  if (baseLanguage !== defaultConfig.defaults.language) {
-    row.default_language = formatDefaultLanguage(baseLanguage);
-  }
+  const language = defaultLanguageCell(instrument, baseLanguage);
+  if (language) row.default_language = language;
   const title = instrument.settings['form_title'];
   if (
     typeof title === 'string' &&
@@ -114,8 +128,8 @@ function buildSettingsRow(
     // A title per language, as the form's own `form_title` was.
     row.form_title = title as Record<string, string>;
   }
-  for (const key of ['form_id', 'version', 'style']) {
-    const value = instrument.settings[key];
+  for (const [key, value] of Object.entries(instrument.settings)) {
+    if (key === 'form_title' || key === 'default_language') continue;
     if ((typeof value === 'string' && value) || typeof value === 'number') {
       row[key] = String(value);
     }
@@ -138,7 +152,6 @@ export function xlsformFromInstrument(instrument: Instrument): XlsformOutput {
     survey: [],
     choices: [],
     written: new Set(),
-    pages: instrument.settings['style'] === 'pages',
   };
   const groups = instrument.body.filter((i) => i.kind === 'group');
   const content = instrument.body.filter((i) => !isMessageNote(i));
@@ -205,9 +218,7 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   };
   const hint = ctx.label(group.hint);
   if (hint) row.hint = htmlLabel(hint);
-  // A page per group is what XLSForm's field-list group means.
-  const appearance = group.appearance || (ctx.pages ? PAGE_APPEARANCE : '');
-  if (appearance) row.appearance = appearance;
+  if (group.appearance) row.appearance = group.appearance;
   if (group.relevant) row.relevant = group.relevant;
   ctx.survey.push(row);
   emitItems(group.children, ctx);
@@ -224,9 +235,11 @@ function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
     return;
   }
   const source = q.row as Row;
+  // Without the shorthand in its type (LimeSurvey's other=Y), the explicit pair.
+  const expand = q.orOther && !/\sor_other\s*$/.test(q.rawType);
   if (q.list && !ctx.written.has(q.list)) {
     emitChoiceList(q.list, ctx, exclusiveCodes(source));
-    if (q.orOther) {
+    if (expand) {
       ctx.choices.push({
         list_name: q.list,
         name: OTHER_CODE,
@@ -237,7 +250,7 @@ function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
   ctx.survey.push(questionRow(q, ctx));
 
   const companion = `${q.name}${OTHER_SUFFIX}`;
-  if (q.orOther && !siblings.some((s) => s.name === companion)) {
+  if (expand && !siblings.some((s) => s.name === companion)) {
     const label =
       ctx.label(q.otherLabel) || perLanguageOtherLabel(ctx.languages);
     ctx.survey.push({

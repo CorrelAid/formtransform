@@ -11,6 +11,8 @@
       </prodStmt>
     </citation>
     <notes type="instruction" subject="thankyou">Thank you!</notes>
+    <notes type="cdl:position" subject="thankyou">in=page2 after=favcolor</notes>
+    <notes type="cdl:setting" subject="default_language">en</notes>
     <notes type="cdl:setting" subject="style">pages</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
@@ -66,6 +68,7 @@
       </catgry>
       <concept>Favourite colour</concept>
       <varFormat type="character" schema="other"/>
+      <notes type="cdl:list">colors</notes>
     </var>
   </dataDscr>
 </codeBook>
