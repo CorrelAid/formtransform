@@ -1,0 +1,45 @@
+{
+  "survey": [
+    {
+      "type": "text",
+      "name": "respondent_name",
+      "label": "What is your name?",
+      "required": "yes"
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": "What is your age?",
+      "required": "yes"
+    },
+    {
+      "type": "select_one consent",
+      "name": "consent",
+      "label": "Do you consent to participate?",
+      "required": "yes"
+    },
+    {
+      "type": "note",
+      "name": "thank_you",
+      "label": "Thank you for your participation!"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "consent",
+      "name": "yes",
+      "label": "Yes"
+    },
+    {
+      "list_name": "consent",
+      "name": "no",
+      "label": "No"
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "basic_survey",
+      "form_id": "basic_survey"
+    }
+  ]
+}

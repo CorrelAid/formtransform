@@ -90,7 +90,7 @@ describe('lstsv2xlsform groups', () => {
     const survey = lstsvToXlsform(tsv).survey;
     expect(survey.map((r) => r.name ?? r.type)).toEqual([
       'first',
-      'later',
+      'Later',
       'second',
       'end_group',
     ]);

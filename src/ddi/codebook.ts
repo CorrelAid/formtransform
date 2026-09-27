@@ -359,6 +359,7 @@ function emitOtherPattern(
   dataDscr: XmlElement,
   p: OtherPattern,
   ctx: LogicContext,
+  notes: InlineNotes,
 ): void {
   const { base, otherVar } = p;
   const label = base.label;
@@ -382,8 +383,9 @@ function emitOtherPattern(
     });
     localizedChild(parentEl, 'txt', label, labelTranslations);
     parentEl.textChild('concept', label);
-    // No var has the question's name: the parent group carries its logic.
-    addGroupLogic(parentEl, base, ctx);
+    // No var has the question's name: the parent group carries its logic,
+    // and a note before it.
+    addGroupLogic(parentEl, base, ctx, { note: notes, name: baseName });
 
     const childEl = dataDscr.child('varGrp', {
       ID: childId,
@@ -410,6 +412,7 @@ function emitOtherPatternVars(
   dataDscr: XmlElement,
   p: OtherPattern,
   ctx: LogicContext,
+  notes: InlineNotes,
 ): void {
   const { base, otherVar } = p;
   const baseName = base.name;
@@ -426,6 +429,10 @@ function emitOtherPatternVars(
       label: base.label,
       varType: base.type,
       choices: base.choices,
+      opts: {
+        preQTxt: notes.text[baseName] ?? '',
+        preQTxtTranslations: notes.translations[baseName],
+      },
       hint: base.hint,
       guidanceHint: base.guidanceHint,
       ...specTranslations(base),
@@ -449,7 +456,8 @@ function emitOtherPatternVars(
 
 /** Optional settings that shape study-level metadata. */
 export interface DdiSettings {
-  form_title?: string;
+  /** A plain title, or one per language (`{ en: …, es: … }`). */
+  form_title?: string | Record<string, string>;
   /** Study ID (`IDNo`); `id_string` is Kobo's older name for it. */
   form_id?: string | number;
   id_string?: string | number;
@@ -530,7 +538,7 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
 function addStudyDscr(
   root: XmlElement,
   settings: DdiSettings,
-  title: string,
+  title: StudyTitle,
   prodDate: string,
   orphanNotes: Variable[],
 ): void {
@@ -538,7 +546,11 @@ function addStudyDscr(
   const citation = stdy.child('citation');
 
   const titlStmt = citation.child('titlStmt');
-  titlStmt.textChild('titl', title);
+  titlStmt.textChild('titl', title.title);
+  // A title in another language is DDI's parallel title.
+  for (const [lang, text] of Object.entries(title.parallel)) {
+    titlStmt.textChild('parTitl', text, { 'xml:lang': lang });
+  }
   const studyId = settings.form_id ?? settings.id_string;
   if (studyId) titlStmt.textChild('IDNo', String(studyId));
 
@@ -555,6 +567,39 @@ function addStudyDscr(
     localizedChild(stdy, 'notes', note.label, textsOf(note, 'label'), attrs);
   }
   addSettingNotes(stdy, settings);
+}
+
+interface StudyTitle {
+  title: string;
+  /** `form_title` in the form's other languages, by tag. */
+  parallel: Translations;
+}
+
+/**
+ * The study title: `assetName`, else `form_title` (a `{ lang: text }` one in
+ * the base language, the others as parallel titles), else `Untitled`.
+ */
+function studyTitle(assetName: string, settings: DdiSettings): StudyTitle {
+  const raw = settings.form_title;
+  if (assetName.trim()) return { title: assetName.trim(), parallel: {} };
+  if (raw === null || typeof raw !== 'object') {
+    return { title: String(raw ?? '').trim() || 'Untitled', parallel: {} };
+  }
+  const base =
+    typeof settings.default_language === 'string'
+      ? languageTagOf(settings.default_language)
+      : null;
+  const byTag = Object.entries(raw as Record<string, unknown>)
+    .map(([key, v]): [string, string] => [
+      languageTagOf(key) ?? key,
+      typeof v === 'string' ? v.trim() : '',
+    ])
+    .filter(([, v]) => v);
+  const main = byTag.find(([tag]) => tag === base) ?? byTag[0];
+  return {
+    title: main?.[1] ?? 'Untitled',
+    parallel: Object.fromEntries(byTag.filter((e) => e !== main)),
+  };
 }
 
 /** Emit `<fileDscr>` with `caseQnty` set to the submissions count. */
@@ -723,7 +768,7 @@ function addVarGroups(
   }
 
   for (const p of otherPatterns.values()) {
-    emitOtherPattern(dataDscr, p, ctx);
+    emitOtherPattern(dataDscr, p, ctx, notes);
   }
 }
 
@@ -747,7 +792,7 @@ function addVars(
         );
       }
     } else if (unit.kind === 'other') {
-      emitOtherPatternVars(dataDscr, unit.p, ctx);
+      emitOtherPatternVars(dataDscr, unit.p, ctx, notes);
     } else if (unit.grid) {
       const group = getGroupLabel(dataVars, unit.grid);
       // preQTxt must equal the group's txt (Schematron); the member's own
@@ -818,8 +863,7 @@ export function buildDdiCodebook(
     translations: classified.inlinePreqtxtTranslations,
   };
 
-  const title =
-    assetName.trim() || String(settings.form_title ?? '').trim() || 'Untitled';
+  const title = studyTitle(assetName, settings);
 
   const root = new XmlElement('codeBook');
   root.setAttr('xmlns', NS);

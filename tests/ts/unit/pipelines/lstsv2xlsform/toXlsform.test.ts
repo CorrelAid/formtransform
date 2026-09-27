@@ -251,7 +251,13 @@ describe('lstsvRowsToXlsform — groups', () => {
       row({ class: 'Q', 'type/scale': 'S', name: 'q1', text: 'Q1' }),
     ]);
     expect(survey).toEqual([
-      { type: 'begin_group', name: 'mysection', label: 'My Section' },
+      {
+        type: 'begin_group',
+        name: 'mysection',
+        label: 'My Section',
+        // The group's description is its hint.
+        hint: 'My Section',
+      },
       { type: 'text', name: 'q1', label: 'Q1' },
       { type: 'end_group' },
     ]);

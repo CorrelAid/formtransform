@@ -1,0 +1,326 @@
+{
+  "survey": [
+    {
+      "type": "text",
+      "name": "orphan_before",
+      "label": "Wie lautet Ihre Teilnehmer-ID?"
+    },
+    {
+      "type": "begin_group",
+      "name": "basic_types",
+      "label": "Persönliche Angaben"
+    },
+    {
+      "type": "text",
+      "name": "q_text",
+      "label": "Wie heißen Sie (Vor- und Nachname)?"
+    },
+    {
+      "type": "text",
+      "name": "q_string",
+      "label": "Wie lautet Ihre E-Mail-Adresse?"
+    },
+    {
+      "type": "integer",
+      "name": "q_integer",
+      "label": "An wie vielen Workshops haben Sie bisher teilgenommen?"
+    },
+    {
+      "type": "integer",
+      "name": "q_int",
+      "label": "An wie vielen Sessions haben Sie heute teilgenommen?"
+    },
+    {
+      "type": "decimal",
+      "name": "q_decimal",
+      "label": "Wie bewerten Sie den Workshop auf einer Skala von 1,0 bis 10,0?"
+    },
+    {
+      "type": "date",
+      "name": "q_date",
+      "label": "Wann sind Sie geboren?"
+    },
+    {
+      "type": "time",
+      "name": "q_time",
+      "label": "Um wie viel Uhr sind Sie angekommen?"
+    },
+    {
+      "type": "select_one q_select_one",
+      "name": "q_select_one",
+      "label": "Würden Sie diesen Workshop weiterempfehlen?"
+    },
+    {
+      "type": "select_multiple q_select_multi",
+      "name": "q_select_multi",
+      "label": "An welchen Tracks haben Sie teilgenommen?"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "appearances",
+      "label": "Ausführliches Feedback"
+    },
+    {
+      "type": "text",
+      "name": "q_multiline_text",
+      "label": "Beschreiben Sie bitte Ihre Erfahrungen beim Workshop",
+      "appearance": "multiline"
+    },
+    {
+      "type": "text",
+      "name": "q_multiline_string",
+      "label": "Welche Verbesserungsvorschläge haben Sie für künftige Veranstaltungen?",
+      "appearance": "multiline"
+    },
+    {
+      "type": "select_one q_likert",
+      "name": "q_likert",
+      "label": "Wie zufrieden waren Sie mit der Organisation insgesamt?",
+      "appearance": "likert"
+    },
+    {
+      "type": "select_one q_select_one",
+      "name": "q_minimal",
+      "label": "Bevorzugst du Dropdown?",
+      "appearance": "minimal"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "matrix_wrapper",
+      "label": "Selbsteinschätzung technischer Fähigkeiten"
+    },
+    {
+      "type": "begin_group",
+      "name": "matrix_inner",
+      "label": "Programmierkenntnisse",
+      "appearance": "field-list"
+    },
+    {
+      "type": "select_one skill_python",
+      "name": "skill_python",
+      "label": "Python",
+      "appearance": "list-nolabel"
+    },
+    {
+      "type": "select_one skill_python",
+      "name": "skill_js",
+      "label": "JavaScript",
+      "appearance": "list-nolabel"
+    },
+    {
+      "type": "select_one skill_python",
+      "name": "skill_sql",
+      "label": "SQL",
+      "appearance": "list-nolabel"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "or_other_types",
+      "label": "Weitere Fragen"
+    },
+    {
+      "type": "select_one q_sel1_other",
+      "name": "q_sel1_other",
+      "label": "Welcher Track hat Ihnen am besten gefallen?"
+    },
+    {
+      "type": "text",
+      "name": "q_sel1_other_other",
+      "label": "Sonstiges:",
+      "relevant": "${q_sel1_other} = 'other'"
+    },
+    {
+      "type": "select_multiple q_selm_other",
+      "name": "q_selm_other",
+      "label": "Welche Tracks würden Sie erneut besuchen?"
+    },
+    {
+      "type": "text",
+      "name": "q_selm_other_other",
+      "label": "Sonstiges:",
+      "relevant": "selected(${q_selm_other}, 'other')"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "features",
+      "label": "Anmeldedaten"
+    },
+    {
+      "type": "text",
+      "name": "q_mandatory",
+      "label": "Wie lautet Ihre E-Mail-Adresse?",
+      "required": "yes"
+    },
+    {
+      "type": "text",
+      "name": "q_hint",
+      "label": "Wie lautet Ihre Telefonnummer?",
+      "hint": "Format: +49 123 456789"
+    },
+    {
+      "type": "integer",
+      "name": "q_constraint",
+      "label": "Wie alt sind Sie?",
+      "constraint_message": "Bitte geben Sie ein gültiges Alter zwischen 18 und 120 ein",
+      "constraint": ". >= 18 and . <= 120"
+    },
+    {
+      "type": "text",
+      "name": "q_default",
+      "label": "In welchem Land leben Sie?",
+      "default": "Deutschland"
+    },
+    {
+      "type": "text",
+      "name": "q_relevant",
+      "label": "Wie sollen wir Sie kontaktieren?",
+      "relevant": "${q_mandatory} != ''"
+    },
+    {
+      "type": "text",
+      "name": "q_all_features",
+      "label": "Haben Sie noch Anmerkungen?",
+      "hint": "Freiwillig, aber willkommen",
+      "required": "yes",
+      "default": "Keine Anmerkungen",
+      "relevant": "${q_mandatory} != ''"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "note",
+      "name": "q_note",
+      "label": "Im nächsten Abschnitt bitten wir Sie um Ihr ausführliches Feedback. Bitte nehmen Sie sich Zeit."
+    },
+    {
+      "type": "note",
+      "name": "orphan_after",
+      "label": "Vielen Dank für Ihre Teilnahme an dieser Umfrage!"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "q_select_one",
+      "name": "yes",
+      "label": "Ja"
+    },
+    {
+      "list_name": "q_select_one",
+      "name": "no",
+      "label": "Nein"
+    },
+    {
+      "list_name": "q_select_multi",
+      "name": "red",
+      "label": "Frontend-Entwicklung"
+    },
+    {
+      "list_name": "q_select_multi",
+      "name": "blue",
+      "label": "Backend-Entwicklung"
+    },
+    {
+      "list_name": "q_select_multi",
+      "name": "green",
+      "label": "Data Science"
+    },
+    {
+      "list_name": "q_likert",
+      "name": "low",
+      "label": "Schlecht"
+    },
+    {
+      "list_name": "q_likert",
+      "name": "mid",
+      "label": "Mittelmäßig"
+    },
+    {
+      "list_name": "q_likert",
+      "name": "high",
+      "label": "Ausgezeichnet"
+    },
+    {
+      "list_name": "skill_python",
+      "name": "none",
+      "label": "Keine"
+    },
+    {
+      "list_name": "skill_python",
+      "name": "basic",
+      "label": "Grundkenntnisse"
+    },
+    {
+      "list_name": "skill_python",
+      "name": "adv",
+      "label": "Fortgeschritten"
+    },
+    {
+      "list_name": "skill_python",
+      "name": "exp",
+      "label": "Experte"
+    },
+    {
+      "list_name": "q_sel1_other",
+      "name": "red",
+      "label": "Frontend-Entwicklung"
+    },
+    {
+      "list_name": "q_sel1_other",
+      "name": "blue",
+      "label": "Backend-Entwicklung"
+    },
+    {
+      "list_name": "q_sel1_other",
+      "name": "green",
+      "label": "Data Science"
+    },
+    {
+      "list_name": "q_sel1_other",
+      "name": "other",
+      "label": "Sonstiges:"
+    },
+    {
+      "list_name": "q_selm_other",
+      "name": "red",
+      "label": "Frontend-Entwicklung"
+    },
+    {
+      "list_name": "q_selm_other",
+      "name": "blue",
+      "label": "Backend-Entwicklung"
+    },
+    {
+      "list_name": "q_selm_other",
+      "name": "green",
+      "label": "Data Science"
+    },
+    {
+      "list_name": "q_selm_other",
+      "name": "other",
+      "label": "Sonstiges"
+    }
+  ],
+  "settings": [
+    {
+      "default_language": "German (de)",
+      "form_title": "all_types_survey",
+      "form_id": "all_types"
+    }
+  ]
+}

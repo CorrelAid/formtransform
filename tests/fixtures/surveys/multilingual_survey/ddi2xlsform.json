@@ -1,0 +1,107 @@
+{
+  "survey": [
+    {
+      "type": "begin_group",
+      "name": "demographics",
+      "label": {
+        "en": "Demographics",
+        "es": "Datos demográficos"
+      }
+    },
+    {
+      "type": "text",
+      "name": "name",
+      "label": {
+        "en": "What is your name?",
+        "es": "¿Cuál es tu nombre?"
+      },
+      "hint": {
+        "en": "Enter your full name",
+        "es": "Ingresa tu nombre completo"
+      }
+    },
+    {
+      "type": "integer",
+      "name": "age",
+      "label": {
+        "en": "What is your age?",
+        "es": "¿Cuál es tu edad?"
+      }
+    },
+    {
+      "type": "select_one gender",
+      "name": "gender",
+      "label": {
+        "en": "Gender",
+        "es": "Género"
+      }
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "select_one satisfaction",
+      "name": "satisfaction",
+      "label": {
+        "en": "How satisfied are you?",
+        "es": "¿Qué tan satisfecho estás?"
+      }
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "gender",
+      "name": "male",
+      "label": {
+        "en": "Male",
+        "es": "Masculino"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "female",
+      "label": {
+        "en": "Female",
+        "es": "Femenino"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "other",
+      "label": {
+        "en": "Other",
+        "es": "Otro"
+      }
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "happy",
+      "label": {
+        "en": "Very satisfied",
+        "es": "Muy satisfecho"
+      }
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "neutral",
+      "label": {
+        "en": "Neutral",
+        "es": "Neutral"
+      }
+    },
+    {
+      "list_name": "satisfaction",
+      "name": "unhappy",
+      "label": {
+        "en": "Not satisfied",
+        "es": "No satisfecho"
+      }
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "multilingual_survey",
+      "form_id": "multilingual_survey"
+    }
+  ]
+}

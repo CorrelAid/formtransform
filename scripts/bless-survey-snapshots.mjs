@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Re-bless the frozen whole-survey snapshots
- * (tests/fixtures/surveys/<name>/{tsv.tsv,ddi.xml}) using the locally built
+ * (tests/fixtures/surveys/<name>/{tsv.tsv,ddi.xml,ddi2xlsform.json}) using the locally built
  * library (dist/index.js).
  *
  * The per-entity snapshots under registry/entities/ pin *one question type* at a
@@ -30,9 +30,8 @@ if (!fs.existsSync(entry)) {
   console.error('dist/index.js missing — run `npm run build` first.');
   process.exit(1);
 }
-const { XLSFormToTSVConverter, XLSLoader, buildDdiXml } = await import(
-  pathToFileURL(entry).href
-);
+const { XLSFormToTSVConverter, XLSLoader, buildDdiXml, ddiToXlsform } =
+  await import(pathToFileURL(entry).href);
 
 // Fixed so a re-bless on another day is not a diff (the snapshot test scrubs it
 // too, but keeping the file stable makes `git diff` mean something).
@@ -96,7 +95,14 @@ for (const name of dirs) {
     });
     fs.writeFileSync(path.join(dir, 'ddi.xml'), ddi);
 
-    console.log(`blessed ${name} → tsv.tsv + ddi.xml`);
+    // And back (#154): the form ddi2xlsform gives, which pyxform validates.
+    const back = ddiToXlsform(ddi, { onWarning: () => {} });
+    fs.writeFileSync(
+      path.join(dir, 'ddi2xlsform.json'),
+      JSON.stringify(back, null, 2) + '\n',
+    );
+
+    console.log(`blessed ${name} → tsv.tsv + ddi.xml + ddi2xlsform.json`);
     written++;
   } catch (e) {
     // testA carries unimplemented types on purpose; a fixture that cannot be

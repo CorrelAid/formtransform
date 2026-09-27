@@ -320,6 +320,22 @@ ASSERT_MUTATIONS = [
         _sub1(r"<catValu>other</catValu>", "<catValu>anders</catValu>"),
         'must have a catgry with catValu="other"',
     ),
+    # The cdl: note vocabulary (#154): known types, their subject, one per type and language.
+    (
+        "variant:select_one_other",
+        _sub1(r'type="cdl:relevant"', 'type="cdl:bogus"'),
+        "is not in the CDL vocabulary",
+    ),
+    (
+        "variant:select_one_other",
+        _sub1(r'(type="cdl:relevant") subject="xlsform-xpath"', r"\1"),
+        'A cdl:relevant note needs subject="xlsform-xpath"',
+    ),
+    (
+        "variant:select_one_other",
+        _dup_first("notes"),
+        "more than one note of one cdl: type in one language",
+    ),
 ]
 
 

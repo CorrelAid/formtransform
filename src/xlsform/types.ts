@@ -34,7 +34,8 @@ export interface ChoiceRow {
  * Represents a row in the settings section of an XLSForm
  */
 export interface SettingsRow {
-  form_title?: string;
+  /** A plain title, or one per language (`{ en: …, es: … }`). */
+  form_title?: string | Record<string, string>;
   form_id?: string;
   default_language?: string;
   style?: string;

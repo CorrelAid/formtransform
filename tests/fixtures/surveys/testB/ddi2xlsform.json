@@ -1,0 +1,774 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple project_id",
+      "name": "project_id",
+      "label": {
+        "de": "Für welche Projekte möchtest Du dich bewerben?",
+        "en": "Which project(s) do you want to apply for?"
+      },
+      "required": "yes"
+    },
+    {
+      "type": "select_multiple project_role_project-alpha",
+      "name": "project_role_project-alpha",
+      "label": {
+        "de": "In welcher Rolle siehst du dich im Projekt Projekt Alpha?",
+        "en": "Which role do you think you could fill in Project Alpha?"
+      },
+      "required": "yes",
+      "relevant": "selected(${project_id}, 'project-alpha')"
+    },
+    {
+      "type": "select_multiple project_role_project-beta",
+      "name": "project_role_project-beta",
+      "label": {
+        "de": "In welcher Rolle siehst du dich im Projekt Beta?",
+        "en": "Which role do you see yourself in for Project Beta?"
+      },
+      "required": "yes",
+      "relevant": "selected(${project_id}, 'project-beta')"
+    },
+    {
+      "type": "select_multiple project_role_project-gamma",
+      "name": "project_role_project-gamma",
+      "label": {
+        "de": "In welcher Rolle siehst du dich im Projekt Gamma?",
+        "en": "Which role do you see yourself in for Project Gamma?"
+      },
+      "required": "yes",
+      "relevant": "selected(${project_id}, 'project-gamma')"
+    },
+    {
+      "type": "begin_group",
+      "name": "group_lt58n55",
+      "label": {
+        "de": "Deine Fähigkeiten und Erfahrungen",
+        "en": "Your skills and experiences"
+      }
+    },
+    {
+      "type": "begin_group",
+      "name": "rating_technologies_tools",
+      "label": {
+        "de": "Tools",
+        "en": "Tools"
+      }
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "sosci_survey",
+      "label": {
+        "de": "SoSci Survey",
+        "en": "SoSci Survey"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "python",
+      "label": {
+        "de": "Python",
+        "en": "Python"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "rstats",
+      "label": {
+        "de": "R",
+        "en": "R"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "powerbi",
+      "label": {
+        "de": "Power BI",
+        "en": "Power BI"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "excel",
+      "label": {
+        "de": "Microsoft Excel",
+        "en": "Microsoft Excel"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "sql",
+      "label": {
+        "de": "SQL",
+        "en": "SQL"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "git",
+      "label": {
+        "de": "Git",
+        "en": "Git"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "jupyter",
+      "label": {
+        "de": "Jupyter Notebooks",
+        "en": "Jupyter Notebooks"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-gamma}, 'role-machine-learning')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "tensorflow",
+      "label": {
+        "de": "TensorFlow / PyTorch",
+        "en": "TensorFlow / PyTorch"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-gamma}, 'role-machine-learning')"
+    },
+    {
+      "type": "text",
+      "name": "tools_other",
+      "label": {
+        "de": "Andere relevante Tools",
+        "en": "Other relevant tools"
+      },
+      "hint": {
+        "de": "Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.",
+        "en": "Please specifiy other tools you know that you consider relevant"
+      },
+      "appearance": "multiline"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "rating_techniques",
+      "label": {
+        "de": "Techniken",
+        "en": "Techniques"
+      },
+      "appearance": "field-list"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "survey_design",
+      "label": {
+        "de": "Entwicklung von Fragebögen",
+        "en": "Survey design"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "indicator_development",
+      "label": {
+        "de": "Entwicklung von Indikatoren",
+        "en": "Development of indicators"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "data_collection",
+      "label": {
+        "de": "Datenerhebung",
+        "en": "Data collection"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "data_cleaning",
+      "label": {
+        "de": "Datenbereinigung",
+        "en": "Data cleaning"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "descriptive_statistics",
+      "label": {
+        "de": "Deskriptive Statistik",
+        "en": "Descriptive statistics"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-data-analysis')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "data_visualization",
+      "label": {
+        "de": "Datenvisualisierung",
+        "en": "Data visualization"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-visualization')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "data_engineering",
+      "label": {
+        "de": "Data Engineering",
+        "en": "Data engineering"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "automation",
+      "label": {
+        "de": "Automatisierung",
+        "en": "Automation"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-beta}, 'role-data-engineering')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "projectplanning",
+      "label": {
+        "de": "Projektplanung",
+        "en": "Project planning"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-gamma}, 'role-project-management')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "mlmodeling",
+      "label": {
+        "de": "ML-Modellierung",
+        "en": "ML modeling"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-gamma}, 'role-machine-learning')"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "rating_topics",
+      "label": {
+        "de": "Themen",
+        "en": "Topics"
+      },
+      "appearance": "field-list"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "wirkungsmessung",
+      "label": {
+        "de": "Wirkungsmessung",
+        "en": "Impact Measurement"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "research_design",
+      "label": {
+        "de": "Research Design",
+        "en": "Research Design"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "survey_research",
+      "label": {
+        "de": "Umfrageforschung",
+        "en": "Survey Research"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "data_protection",
+      "label": {
+        "de": "Datenschutz",
+        "en": "Data protection"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "resilience_mental_health",
+      "label": {
+        "de": "Resilienz und Mentale Gesundheit",
+        "en": "Resilience and mental health"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "select_one sosci_survey",
+      "name": "education_research",
+      "label": {
+        "de": "Bildungsforschung o.ä.",
+        "en": "Education research (or similar)"
+      },
+      "required": "yes",
+      "appearance": "list-nolabel",
+      "relevant": "selected(${project_role_project-alpha}, 'role-survey-design')"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "group_pr7pr34",
+      "label": {
+        "de": "Du und das Projekt",
+        "en": "You and the project"
+      }
+    },
+    {
+      "type": "text",
+      "name": "motivation_skills",
+      "label": {
+        "de": "Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.",
+        "en": "Please describe here what skills and experiences you would bring to the project."
+      },
+      "hint": {
+        "de": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
+        "en": "Please write maximum 5 sentences per project that you are applying to."
+      },
+      "required": "yes",
+      "appearance": "multiline"
+    },
+    {
+      "type": "text",
+      "name": "motivation_why",
+      "label": {
+        "de": "Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.",
+        "en": "Please describe here why you want to get involved in this project."
+      },
+      "hint": {
+        "de": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
+        "en": "Please write maximum 5 sentences per project that you are applying to."
+      },
+      "required": "yes",
+      "appearance": "multiline"
+    },
+    {
+      "type": "select_one past_applications",
+      "name": "past_applications",
+      "label": {
+        "de": "Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?",
+        "en": "Have you applied to a CorrelAid project in the past?"
+      },
+      "hint": {
+        "de": "Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.",
+        "en": "In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project."
+      },
+      "required": "yes"
+    },
+    {
+      "type": "text",
+      "name": "past_applications_details",
+      "label": {
+        "de": "Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.",
+        "en": "If you can remember, please specify which project(s) you have applied for."
+      },
+      "hint": {
+        "de": "Grobe Angaben helfen uns auch schon weiter.",
+        "en": "Any information is helpful to us."
+      },
+      "relevant": "${past_applications} = 'not_successful'"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "begin_group",
+      "name": "demographics",
+      "label": {
+        "de": "Über dich",
+        "en": "About you"
+      }
+    },
+    {
+      "type": "text",
+      "name": "first_name",
+      "label": {
+        "de": "Wie lautet dein Vorname?",
+        "en": "What is your first name?"
+      },
+      "required": "yes"
+    },
+    {
+      "type": "text",
+      "name": "last_name",
+      "label": {
+        "de": "Wie lautet dein Nachname?",
+        "en": "What is your last name?"
+      },
+      "required": "yes"
+    },
+    {
+      "type": "text",
+      "name": "email_address",
+      "label": {
+        "de": "Unter welcher E-Mail Adresse können wir dich erreichen?",
+        "en": "Which email address can we use to contact you?"
+      },
+      "constraint_message": {
+        "de": "Please specify a valid email address."
+      },
+      "required": "yes",
+      "constraint": "regex(., '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$')"
+    },
+    {
+      "type": "select_one gender",
+      "name": "gender",
+      "label": {
+        "de": "Was ist dein Geschlecht?",
+        "en": "What is your gender?"
+      },
+      "hint": {
+        "de": "Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.",
+        "en": "Note: We ask this question because we want to foster gender diversity within CorrelAid."
+      },
+      "required": "yes"
+    },
+    {
+      "type": "text",
+      "name": "gender_self_identification",
+      "label": {
+        "de": "Mein Geschlecht ist:",
+        "en": "My gender is:"
+      },
+      "hint": {
+        "de": "Bitte gebe hier dein Geschlecht an.",
+        "en": "Please specify your gender here."
+      },
+      "required": "yes",
+      "relevant": "${gender} = 'self_identification'"
+    },
+    {
+      "type": "end_group"
+    },
+    {
+      "type": "select_one consent_privacy_policy",
+      "name": "consent_privacy_policy",
+      "label": {
+        "de": "Einwilligung in die Datenschutzerklärung",
+        "en": "Consent to privacy policy"
+      },
+      "hint": {
+        "de": "Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.",
+        "en": "I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful."
+      },
+      "required": "yes"
+    },
+    {
+      "type": "note",
+      "name": "Hallo",
+      "label": {
+        "de": "Hallo!",
+        "en": "Hello!"
+      }
+    },
+    {
+      "type": "note",
+      "name": "Disclaimer",
+      "label": {
+        "de": "Disclaimer",
+        "en": "Disclaimer"
+      }
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "project_id",
+      "name": "project-alpha",
+      "label": {
+        "de": "Projekt Alpha",
+        "en": "Project Alpha"
+      }
+    },
+    {
+      "list_name": "project_id",
+      "name": "project-beta",
+      "label": {
+        "de": "Projekt Beta",
+        "en": "Project Beta"
+      }
+    },
+    {
+      "list_name": "project_id",
+      "name": "project-gamma",
+      "label": {
+        "de": "Projekt Gamma",
+        "en": "Project Gamma"
+      }
+    },
+    {
+      "list_name": "project_role_project-alpha",
+      "name": "role-survey-design",
+      "label": {
+        "de": "Umfragedesign und Datenerhebung",
+        "en": "Survey design and data collection"
+      }
+    },
+    {
+      "list_name": "project_role_project-alpha",
+      "name": "role-data-analysis",
+      "label": {
+        "de": "Datenanalyse",
+        "en": "Data analysis"
+      }
+    },
+    {
+      "list_name": "project_role_project-alpha",
+      "name": "team_coordinator",
+      "label": {
+        "de": "Teamkoordinator:in",
+        "en": "Team Coordinator"
+      }
+    },
+    {
+      "list_name": "project_role_project-alpha",
+      "name": "team_trainee",
+      "label": {
+        "de": "Team Trainee",
+        "en": "Team Trainee"
+      }
+    },
+    {
+      "list_name": "project_role_project-beta",
+      "name": "role-visualization",
+      "label": {
+        "de": "Datenvisualisierung",
+        "en": "Data visualization"
+      }
+    },
+    {
+      "list_name": "project_role_project-beta",
+      "name": "role-data-engineering",
+      "label": {
+        "de": "Data Engineering",
+        "en": "Data engineering"
+      }
+    },
+    {
+      "list_name": "project_role_project-beta",
+      "name": "team_coordinator",
+      "label": {
+        "de": "Teamkoordinator:in",
+        "en": "Team Coordinator"
+      }
+    },
+    {
+      "list_name": "project_role_project-beta",
+      "name": "team_trainee",
+      "label": {
+        "de": "Team Trainee",
+        "en": "Team Trainee"
+      }
+    },
+    {
+      "list_name": "project_role_project-gamma",
+      "name": "role-project-management",
+      "label": {
+        "de": "Projektmanagement",
+        "en": "Project management"
+      }
+    },
+    {
+      "list_name": "project_role_project-gamma",
+      "name": "role-machine-learning",
+      "label": {
+        "de": "Machine Learning",
+        "en": "Machine learning"
+      }
+    },
+    {
+      "list_name": "project_role_project-gamma",
+      "name": "team_coordinator",
+      "label": {
+        "de": "Teamkoordinator:in",
+        "en": "Team Coordinator"
+      }
+    },
+    {
+      "list_name": "project_role_project-gamma",
+      "name": "team_trainee",
+      "label": {
+        "de": "Team Trainee",
+        "en": "Team Trainee"
+      }
+    },
+    {
+      "list_name": "sosci_survey",
+      "name": "beginner",
+      "label": {
+        "de": "Anfänger:in",
+        "en": "Beginner"
+      }
+    },
+    {
+      "list_name": "sosci_survey",
+      "name": "user",
+      "label": {
+        "de": "Benutzer:in",
+        "en": "User"
+      }
+    },
+    {
+      "list_name": "sosci_survey",
+      "name": "advanced",
+      "label": {
+        "de": "Fortgeschrittene:r",
+        "en": "Advanced"
+      }
+    },
+    {
+      "list_name": "sosci_survey",
+      "name": "expert",
+      "label": {
+        "de": "Expert:in",
+        "en": "Expert"
+      }
+    },
+    {
+      "list_name": "past_applications",
+      "name": "successful",
+      "label": {
+        "de": "Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.",
+        "en": "Yes, and I have been successful / part of a project team at least once."
+      }
+    },
+    {
+      "list_name": "past_applications",
+      "name": "not_successful",
+      "label": {
+        "de": "Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.",
+        "en": "Yes, but I have not been successful / all my applications have been rejected so far."
+      }
+    },
+    {
+      "list_name": "past_applications",
+      "name": "first_application",
+      "label": {
+        "de": "Nein, das ist meine erste Bewerbung.",
+        "en": "No, this is my first application."
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "female",
+      "label": {
+        "de": "Weiblich",
+        "en": "Female"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "male",
+      "label": {
+        "de": "Männlich",
+        "en": "Male"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "non_binary",
+      "label": {
+        "de": "Nicht-binär / non-binary",
+        "en": "Non-binary"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "not_disclosed",
+      "label": {
+        "de": "Das möchte ich nicht angeben",
+        "en": "I do not want to disclose my gender"
+      }
+    },
+    {
+      "list_name": "gender",
+      "name": "self_identification",
+      "label": {
+        "de": "Mein Geschlecht ist (eigene Angabe):",
+        "en": "My gender is (manually specify):"
+      }
+    },
+    {
+      "list_name": "consent_privacy_policy",
+      "name": "yes",
+      "label": {
+        "de": "Ja",
+        "en": "Yes"
+      }
+    }
+  ],
+  "settings": [
+    {
+      "default_language": "German (de)",
+      "form_title": "testB",
+      "version": "vw6VTbhmVCMEtuN7LhcmjP",
+      "style": "theme-grid no-text-transform"
+    }
+  ]
+}

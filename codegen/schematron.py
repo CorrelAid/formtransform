@@ -33,7 +33,20 @@ def _schematron_facts(registry: dict[str, Any]) -> dict[str, Any]:
     companion_type = other.get("companionType", "text")
     comp_ddi = registry.get(f"type:{companion_type}", {}).get("ddi", {})
 
+    # The `cdl:` note vocabulary (convention:logicMapping ddiEncoding, convention:ddiFields):
+    # each type, and the @subject a type requires (a fixed value, or `True` for "any").
+    logic = registry.get("convention:logicMapping", {}).get("rule", {}).get("ddiEncoding", {})
+    fields = registry.get("convention:ddiFields", {}).get("rule", {})
+    note_specs = [*logic.get("notes", {}).values(), *fields.get("notes", {}).values()]
+    note_types = sorted({n["type"] for n in note_specs})
+    subject = logic.get("noteSubject")
+    note_subjects = {
+        n["type"]: (n["subject"] if n.get("subject") == subject else True) for n in note_specs if n.get("subject")
+    }
+
     return {
+        "note_types": note_types,
+        "note_subjects": note_subjects,
         "cat_rdts": cat_rdts,
         "vg_types": vg_types,
         "category_rdt": rdt_of("select_one"),
@@ -175,11 +188,43 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
     </rule>
 """
 
+    note_test = " or ".join(f"@type = '{t}'" for t in f["note_types"])
+    note_msg = ", ".join(f["note_types"])
+    subject_rules = "\n".join(
+        (
+            f"        <assert test=\"not(@type = '{t}') or @subject = '{subj}'\">"
+            f'A {t} note needs subject="{subj}": its text is an expression in that syntax.</assert>'
+        )
+        if subj is not True
+        else (
+            f"        <assert test=\"not(@type = '{t}') or normalize-space(@subject) != ''\">"
+            f"A {t} note needs a subject: the name of what it holds.</assert>"
+        )
+        for t, subj in sorted(f["note_subjects"].items())
+    )
+    cdl_notes = f"""\
+    <rule context="%P%notes[starts-with(@type, 'cdl:')]">
+        <assert test="{note_test}">Note type "<value-of select="@type"/>" is not in the CDL vocabulary ({note_msg}).</assert>
+{subject_rules}
+    </rule>
+"""
+    # At most one note of each cdl: type per element and language (per subject on stdyDscr).
+    cdl_note_uniqueness = """\
+    <rule context="%P%var | %P%varGrp">
+        <assert test="every $t in distinct-values(%P%notes[starts-with(@type, 'cdl:')]/@type) satisfies every $l in distinct-values(%P%notes[@type = $t]/string(@xml:lang)) satisfies count(%P%notes[@type = $t][string(@xml:lang) = $l]) &lt;= 1"><value-of select="@name"/> has more than one note of one cdl: type in one language.</assert>
+    </rule>
+    <rule context="%P%stdyDscr">
+        <assert test="every $s in distinct-values(%P%notes[@type = 'cdl:setting']/@subject) satisfies count(%P%notes[@type = 'cdl:setting'][@subject = $s]) &lt;= 1">A setting has more than one cdl:setting note.</assert>
+    </rule>
+"""
+
     patterns = [
         ("uniqueness", uniqueness),
         ("essentials", essentials),
         ("logic", logic),
         ("other_variables", other_variables),
+        ("cdl_notes", cdl_notes),
+        ("cdl_note_uniqueness", cdl_note_uniqueness),
     ]
 
     out: list[str] = [

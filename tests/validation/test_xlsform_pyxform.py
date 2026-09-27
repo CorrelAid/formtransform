@@ -68,9 +68,14 @@ def _survey_xlsx(survey_dir: Path, tmp_path: Path) -> Path:
     xlsx = survey_dir / "xlsform.xlsx"
     if xlsx.exists():
         return xlsx
+    return _json_xlsx(survey_dir / "xlsform.json", tmp_path / f"{survey_dir.name}.xlsx")
+
+
+def _json_xlsx(json_path: Path, out: Path) -> Path:
+    """A `{survey, choices, settings}` JSON rendered to an xlsx (openpyxl)."""
     from openpyxl import Workbook
 
-    data = json.loads((survey_dir / "xlsform.json").read_text())
+    data = json.loads(json_path.read_text())
     wb = Workbook()
     wb.remove(wb.active)
     for sheet in ("survey", "choices", "settings"):
@@ -100,7 +105,6 @@ def _survey_xlsx(survey_dir: Path, tmp_path: Path) -> Path:
         ws.append(cols)
         for r in flat:
             ws.append([r.get(c, "") for c in cols])
-    out = tmp_path / f"{survey_dir.name}.xlsx"
     wb.save(out)
     return out
 
@@ -124,5 +128,21 @@ def test_survey_fixture_is_valid_xlsform(survey_dir: Path, tmp_path: Path) -> No
     xlsx = _survey_xlsx(survey_dir, tmp_path)
     if xlsx.parent != tmp_path:
         xlsx = Path(shutil.copy(xlsx, tmp_path / xlsx.name))
+    result = convert(str(xlsx))
+    assert result.xform and result.xform.strip()
+
+
+# -- ddi2xlsform output (#154) ------------------------------------------------
+
+_BACK = [d for d in _SURVEYS if (d / "ddi2xlsform.json").exists()]
+
+
+@pytest.mark.parametrize("survey_dir", _BACK, ids=[d.name for d in _BACK])
+def test_ddi2xlsform_output_is_valid_xlsform(survey_dir: Path, tmp_path: Path) -> None:
+    """The form ddi2xlsform gives back from each blessed codebook is valid
+    XLSForm: qwacback exports it to Kobo."""
+    for csv in (REPO_ROOT / "registry" / "vocab").glob("*.csv"):
+        shutil.copy(csv, tmp_path / csv.name)
+    xlsx = _json_xlsx(survey_dir / "ddi2xlsform.json", tmp_path / f"{survey_dir.name}.xlsx")
     result = convert(str(xlsx))
     assert result.xform and result.xform.strip()

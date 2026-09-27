@@ -85,6 +85,8 @@ interface ParseState {
   lists: Record<string, InstrumentChoice[]>;
   /** Selects with `other=Y`, by name: their `<name>other` text is the companion. */
   otherSelects: Set<string>;
+  /** Group names given so far, to keep them unique. */
+  groupNames: Set<string>;
 }
 
 const text = (state: ParseState, key: string): Text => ({
@@ -202,6 +204,31 @@ function addChoice(
   });
 }
 
+/** A name XLSForm (and a DDI `xs:ID`) accepts. */
+const XLSFORM_NAME = /^[A-Za-z_][A-Za-z0-9._-]*$/;
+
+/**
+ * A plain group's name: LimeSurvey's group name is its title, so one that is
+ * no XLSForm name (`Über Sie`) is slugified (`bersie`), made unique.
+ */
+function groupName(title: string, state: ParseState): string {
+  let name = title;
+  if (!XLSFORM_NAME.test(name)) {
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 4)
+      .join('');
+    name = slug && !/^[0-9]/.test(slug) ? slug : `group${slug}`;
+  }
+  const base = name;
+  for (let i = 2; state.groupNames.has(name); i++) name = `${base}_${i}`;
+  state.groupNames.add(name);
+  return name;
+}
+
 /** Walk the base-language rows into groups, questions and choice lists. */
 function parseBody(baseRows: Row[], state: ParseState): Item[] {
   const body: Item[] = [];
@@ -217,7 +244,7 @@ function parseBody(baseRows: Row[], state: ParseState): Item[] {
       group = {
         kind: 'group',
         ...emptyItem(row),
-        name: cell(row, 'name'),
+        name: groupName(cell(row, 'name'), state),
         label: text(state, `label:G:${cell(row, 'type/scale')}`),
         hint: text(state, `hint:G:${cell(row, 'type/scale')}`),
         children: [],
@@ -395,6 +422,7 @@ export function instrumentFromLstsv(
     tr: collectTranslations(rows),
     lists: {},
     otherSelects: new Set(),
+    groupNames: new Set(),
   };
   const baseRows = rows.filter(
     (r) =>

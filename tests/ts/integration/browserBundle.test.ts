@@ -57,6 +57,7 @@ describe('browser bundle', () => {
       | 'xlsformToDdi'
       | 'lstsvToDdi'
       | 'lstsvToXlsform'
+      | 'ddiToXlsform'
       | 'parseResponses'
     >;
     const sheets = (f: Fixture) => ({
@@ -87,6 +88,11 @@ describe('browser bundle', () => {
     // Every current entry point runs inside the bundle (#92).
     const xml = lib.xlsformToDdi(sheets(skipLogic), { prodDate: '2000-01-01' });
     expect(xml).toMatch(/<var ID="[^"]+" name="a"/);
+    // And back: the XML reader has no Node or DOM dependency (#154).
+    expect(lib.ddiToXlsform(xml).survey[1]).toMatchObject({
+      name: 'b',
+      relevant: "${a} = 'y'",
+    });
     expect(lib.lstsvToDdi(tsv, { prodDate: '2000-01-01' })).toContain(
       'name="b"',
     );
