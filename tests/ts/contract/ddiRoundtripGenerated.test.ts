@@ -259,11 +259,16 @@ function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
     }
     if (i % 2 === 0) media(row, String(row['name']));
     // What a row measures, on some rows of every kind (#173).
+    // In a multilingual form: the base language's, both, an untagged
+    // column (the base's), or only the second language's.
     if (i % 3 === 1) {
-      if (multilingual) {
-        row[`concept::${LANGS[0]}`] = `Konzept ${i}`;
-        if (i % 2 === 0) row[`concept::${LANGS[1]}`] = `Concept ${i}`;
-      } else row['concept'] = `Concept ${i}`;
+      const variant = Math.floor(i / 3) % 4;
+      if (!multilingual) row['concept'] = `Concept ${i}`;
+      else if (variant === 2) row['concept'] = `Konzept ${i}`;
+      else {
+        if (variant !== 3) row[`concept::${LANGS[0]}`] = `Konzept ${i}`;
+        if (variant !== 0) row[`concept::${LANGS[1]}`] = `Concept ${i}`;
+      }
     }
     if (type === 'text' && i % 3 === 0) row['read_only'] = 'yes';
     if (type.startsWith('select_one') && i % 3 === 1) {

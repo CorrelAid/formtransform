@@ -160,8 +160,8 @@ function specTranslations(
 
 /**
  * `<concept>`s: the form's concept in each language that has one (#173),
- * none without. An external code list's `@vocab` is on the first, which is
- * empty when the form states no concept.
+ * none without. An external code list's `@vocab` is on the first, untagged
+ * one only, which is empty when the form states no base-language concept.
  */
 function addConcept(
   el: XmlElement,
@@ -169,12 +169,9 @@ function addConcept(
   translations: Translations | undefined,
   vocab = '',
 ): void {
-  const attrs: Record<string, string> = vocab ? { vocab } : {};
-  if (concept) {
-    localizedChild(el, 'concept', concept, translations, attrs);
-    return;
-  }
-  if (vocab) el.child('concept', attrs);
+  // `@vocab` is on the untagged first one only, with a concept or without.
+  if (concept) el.textChild('concept', concept, vocab ? { vocab } : {});
+  else if (vocab) el.child('concept', { vocab });
   for (const [lang, text] of Object.entries(translations ?? {})) {
     el.textChild('concept', text, { 'xml:lang': lang });
   }
