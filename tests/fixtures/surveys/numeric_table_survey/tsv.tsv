@@ -12,15 +12,17 @@ Q	X	intro	1	First, some details about your company.		en
 G	2	Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?	1	Anzahl		de										
 G	2	How many people did your company employ in Germany in total?	1	Number		en										
 Q	N	gesamt	1	Beschäftigte am 31.12.2025 insgesamt		de		self >= 0	Y					1	1	Bitte eine Zahl ab 0 eintragen.
-Q	N	maennlich	1	davon: Männlich		de								1	1	
-Q	N	weiblich	1	davon: Weiblich		de								1	1	
-Q	N	divers	1	davon: Divers		de								1	1	
-Q	N	ohneangabe	1	davon: Ohne Angabe		de								1	1	
+Q	X	davon	1	davon: Geschlecht (nach Geburtenregister)		de										
+Q	N	maennlich	1	Männlich		de								1	1	
+Q	N	weiblich	1	Weiblich		de								1	1	
+Q	N	divers	1	Divers		de								1	1	
+Q	N	ohneangabe	1	Ohne Angabe		de								1	1	
 Q	N	gesamt	1	Employees on 31.12.2025 in total		en		self >= 0	Y					1	1	Please enter a number from 0.
-Q	N	maennlich	1	of whom: male		en								1	1	
-Q	N	weiblich	1	of whom: female		en								1	1	
-Q	N	divers	1	of whom: diverse		en								1	1	
-Q	N	ohneangabe	1	of whom: not stated		en								1	1	
+Q	X	davon	1	of whom: sex (as registered at birth)		en										
+Q	N	maennlich	1	Male		en								1	1	
+Q	N	weiblich	1	Female		en								1	1	
+Q	N	divers	1	Diverse		en								1	1	
+Q	N	ohneangabe	1	Not stated		en								1	1	
 G	3	Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?	gesamt > 0			de										
 G	3	What did training cost your company in 2025?	gesamt > 0			en										
 Q	X	kostenhinweis	1	Angaben in Euro.		de										

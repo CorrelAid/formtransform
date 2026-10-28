@@ -87,6 +87,15 @@
           ],
           "text": "the names of the note rows whose texts the preQTxt (or a group's untyped notes) joins with a blank line, space-separated, in order"
         },
+        "grid_note": {
+          "type": "cdl:grid_note",
+          "on": [
+            "varGrp[@type='grid']"
+          ],
+          "subject": "the name of the grid row it is before",
+          "localized": true,
+          "text": "the note rows between two of the grid's rows, joined with a blank line (a note before the first row is the grid's untyped notes); their names are that row's cdl:note_names (formtransform#174)"
+        },
         "row": {
           "type": "cdl:row",
           "on": [
@@ -1004,6 +1013,9 @@
         },
         {
           "@id": "type:decimal"
+        },
+        {
+          "@id": "type:range"
         }
       ],
       "trigger": {
@@ -1020,7 +1032,7 @@
           },
           {
             "role": "item",
-            "match": "type=select_one <listname> — all items MUST share the same listname; or, for a table of numbers, every item type=integer or decimal. Items of other types, or a mix of both kinds, make the group a section instead.",
+            "match": "type=select_one <listname> — all items MUST share the same listname; or, for a table of numbers, every item type=integer, decimal or range. Items of other types, or a mix of both kinds, make the group a section instead.",
             "cardinality": "1..*"
           },
           {
@@ -1043,7 +1055,7 @@
           "headerRow": "F-type question (matrix header) with answerClass=A; answer codes from shared list",
           "itemRows": "SQ-class rows, one per item",
           "note": "LS represents the matrix as a single question with sub-questions; categories not re-emitted per row",
-          "numericRows": "A table of numbers is no LimeSurvey array: an ordinary group (G row with the group's label) with one N question per row. LimeSurvey reads it back as a field-list group, not a table-list one."
+          "numericRows": "A table of numbers is no LimeSurvey array: an ordinary group (G row with the group's label) with one question per row. LimeSurvey reads it back as a field-list group, not a table-list one."
         }
       },
       "schematronPatterns": [
@@ -1053,7 +1065,7 @@
       "notes": [
         "If `appearance=table-list` is absent, the group is flattened — children become top-level vars in DDI, group is lost.",
         "Items SHOULD share the same `listname` so the matrix is rectangular.",
-        "A table of number fields under one printed question (e.g. employees: total, then by sex) is a table-list group of integer/decimal rows, not a note followed by rows: the note would be the preQTxt of the first row only (formtransform#174)."
+        "A table of number fields under one printed question (e.g. employees: total, then by sex) is a table-list group of integer/decimal/range rows, not a note followed by rows: the note would be the preQTxt of the first row only (formtransform#174). A note row between two rows (\"davon: …\") stays one note: a cdl:grid_note on the grid."
       ]
     }
   ]

@@ -159,7 +159,14 @@ type Block =
       inner: Question[];
       nested: Question[];
     }
-  | { kind: 'grid'; t: Texts; choices: Texts[]; rows: Texts[] }
+  | {
+      kind: 'grid';
+      t: Texts;
+      choices: Texts[];
+      rows: Texts[];
+      /** A note row before the last row, not only the first (#174). */
+      note?: Texts;
+    }
   | {
       kind: 'table';
       t: Texts;
@@ -167,6 +174,8 @@ type Block =
       rows: Array<{ t: Texts; decimal: boolean }>;
       /** A text row too: rows no grid has, so a section (#174). */
       text: boolean;
+      /** A note row before the last row ("davon: …"), not only the first. */
+      note?: Texts;
     }
   | { kind: 'matrix'; t: Texts; choices: Texts[]; rows: Texts[] };
 
@@ -191,6 +200,7 @@ const block: fc.Arbitrary<Block> = fc.oneof(
     t: texts,
     choices: fc.array(texts, { minLength: 1, maxLength: 3 }),
     rows: fc.array(texts, { minLength: 1, maxLength: 3 }),
+    note: fc.option(texts, { nil: undefined }),
   }),
   fc.record({
     kind: fc.constant('table' as const),
@@ -200,6 +210,7 @@ const block: fc.Arbitrary<Block> = fc.oneof(
       maxLength: 3,
     }),
     text: fc.boolean(),
+    note: fc.option(texts, { nil: undefined }),
   }),
   fc.record({
     kind: fc.constant('matrix' as const),
@@ -386,12 +397,18 @@ function sheets(f: Form) {
       put(header, 'label', b.t);
       survey.push(header);
     }
-    for (const r of b.rows) {
+    b.rows.forEach((r, i) => {
+      // A note between a grid's rows (#174); a matrix's ends it.
+      if (b.kind === 'grid' && b.note && i === b.rows.length - 1 && i > 0) {
+        const note: Row = { type: 'note', name: `q${++n}` };
+        put(note, 'label', b.note);
+        survey.push(note);
+      }
       const member: Row = { type: `select_one ${name}`, name: `q${++n}` };
       put(member, 'label', r);
       if (b.kind === 'matrix') member.appearance = 'list-nolabel';
       survey.push(member);
-    }
+    });
   };
   for (const b of f.blocks) {
     if (b.kind === 'question') addQuestion(b.q);
@@ -418,14 +435,19 @@ function sheets(f: Form) {
       };
       put(row, 'label', b.t);
       survey.push(row);
-      for (const r of b.rows) {
+      b.rows.forEach((r, i) => {
+        if (b.note && i === b.rows.length - 1 && i > 0) {
+          const note: Row = { type: 'note', name: `q${++n}` };
+          put(note, 'label', b.note);
+          survey.push(note);
+        }
         const member: Row = {
           type: r.decimal ? 'decimal' : 'integer',
           name: `q${++n}`,
         };
         put(member, 'label', r.t);
         survey.push(member);
-      }
+      });
       if (b.text) {
         const other: Row = { type: 'text', name: `q${++n}` };
         put(other, 'label', b.t);

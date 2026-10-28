@@ -159,7 +159,7 @@ listed here must match exactly.
     flat, so the forward ANDs every enclosing group's condition into each G
     row; the reverse gives each (flat) group that combined condition.
 13. **A table of numbers comes back as a plain group.** A `table-list` group
-    of `integer` / `decimal` rows (#174) has no LimeSurvey array, so the
+    of `integer` / `decimal` / `range` rows (#174) has no LimeSurvey array, so the
     forward writes an ordinary group of `N` questions under the group's label.
     It comes back as a group without `table-list` (`field-list` under item 9).
 

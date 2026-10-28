@@ -74,7 +74,7 @@ export const QUESTION_TYPES = {
     isVariant: false,
     isComposite: true,
     typeString: undefined,
-    bases: ["begin_group", "select_one", "integer", "decimal"],
+    bases: ["begin_group", "select_one", "integer", "decimal", "range"],
   },
   begin_group: {
     id: "type:begin_group",

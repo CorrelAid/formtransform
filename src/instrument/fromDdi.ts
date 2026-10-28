@@ -605,8 +605,19 @@ function placePlain(id: string, v: XmlNode, state: ReadState): Placed {
   if (state.groups.get(parentId)?.attrs['type'] !== 'grid') {
     return { items: withLeadIn(v, state), anchor: id };
   }
+  // Notes between its rows: the grid's cdl:grid_note about this one (#174).
+  const grid = state.groups.get(parentId)!;
+  const between = texts(
+    notesOf(grid, FIELDS.grid_note.type).filter(
+      (n) => n.attrs['subject'] === v.attrs['name'],
+    ),
+    state,
+  );
   return {
-    items: [plainQuestion(v, state, gridName(parentId, state))],
+    items: [
+      ...leadIn(between, v, v.attrs['name'] ?? '', state),
+      plainQuestion(v, state, gridName(parentId, state)),
+    ],
     anchor: id,
   };
 }

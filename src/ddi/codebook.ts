@@ -777,6 +777,25 @@ function addGroupNote(
   addNoteNames(grpEl, notes.names[name]);
 }
 
+/**
+ * The notes between a grid's rows (#174): a `cdl:grid_note` per language,
+ * its subject the row it is before. That row's `cdl:note_names` names them.
+ */
+function addGridNotes(
+  grpEl: XmlElement,
+  notes: InlineNotes,
+  members: Variable[],
+): void {
+  for (const m of members.slice(1)) {
+    const text = notes.text[m.name];
+    if (!text) continue;
+    localizedChild(grpEl, 'notes', text, notes.translations[m.name], {
+      type: NOTES.grid_note.type,
+      subject: m.name,
+    });
+  }
+}
+
 /** A group with what it directly contains, by `varGrp` ID reference. */
 interface GroupNode {
   group: DdiGroup;
@@ -910,6 +929,7 @@ function addVarGroups(
     }
     // A lead-in note belongs to the group: a member's preQTxt must equal txt.
     addGroupNote(grpEl, notes, members[0]?.name ?? '');
+    addGridNotes(grpEl, notes, members);
     if (node) {
       addRelevantNote(grpEl, node.group.relevant);
       addGroupFieldNotes(grpEl, node.group, true);
@@ -968,6 +988,12 @@ function addVars(
           preQTxt: group.label,
           preQTxtTranslations: group.translations,
           listDefault: unit.grid.slice(unit.grid.lastIndexOf('/') + 1),
+          // The first row's notes are the grid's lead-in; a later row's are
+          // its cdl:grid_note.
+          noteNames:
+            buckets.gridGroups.get(unit.grid)?.[0] === unit.v
+              ? undefined
+              : notes.names[unit.v.name],
         },
         hint: unit.v.hint,
         guidanceHint: unit.v.guidanceHint,

@@ -35,6 +35,8 @@
     <varGrp ID="VG_beschaeftigte" name="beschaeftigte" type="grid" var="V_gesamt V_maennlich V_weiblich V_divers V_ohneangabe">
       <txt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</txt>
       <txt xml:lang="en">How many people did your company employ in Germany in total?</txt>
+      <notes type="cdl:grid_note" subject="maennlich">davon: Geschlecht (nach Geburtenregister)</notes>
+      <notes type="cdl:grid_note" subject="maennlich" xml:lang="en">of whom: sex (as registered at birth)</notes>
       <notes type="cdl:hint">Anzahl</notes>
       <notes type="cdl:hint" xml:lang="en">Number</notes>
     </varGrp>
@@ -68,17 +70,18 @@
       <qstn responseDomainType="numeric" seqNo="2">
         <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
         <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
-        <qstnLit>davon: Männlich</qstnLit>
-        <qstnLit xml:lang="en">of whom: male</qstnLit>
+        <qstnLit>Männlich</qstnLit>
+        <qstnLit xml:lang="en">Male</qstnLit>
       </qstn>
       <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:note_names">davon</notes>
     </var>
     <var ID="V_weiblich" name="weiblich" intrvl="contin" dcml="0" files="F1">
       <qstn responseDomainType="numeric" seqNo="3">
         <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
         <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
-        <qstnLit>davon: Weiblich</qstnLit>
-        <qstnLit xml:lang="en">of whom: female</qstnLit>
+        <qstnLit>Weiblich</qstnLit>
+        <qstnLit xml:lang="en">Female</qstnLit>
       </qstn>
       <varFormat type="numeric" schema="other"/>
     </var>
@@ -86,8 +89,8 @@
       <qstn responseDomainType="numeric" seqNo="4">
         <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
         <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
-        <qstnLit>davon: Divers</qstnLit>
-        <qstnLit xml:lang="en">of whom: diverse</qstnLit>
+        <qstnLit>Divers</qstnLit>
+        <qstnLit xml:lang="en">Diverse</qstnLit>
       </qstn>
       <varFormat type="numeric" schema="other"/>
     </var>
@@ -95,8 +98,8 @@
       <qstn responseDomainType="numeric" seqNo="5">
         <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
         <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
-        <qstnLit>davon: Ohne Angabe</qstnLit>
-        <qstnLit xml:lang="en">of whom: not stated</qstnLit>
+        <qstnLit>Ohne Angabe</qstnLit>
+        <qstnLit xml:lang="en">Not stated</qstnLit>
       </qstn>
       <varFormat type="numeric" schema="other"/>
     </var>

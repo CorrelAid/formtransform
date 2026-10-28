@@ -26,28 +26,34 @@
       "constraint_message::English (en)": "Please enter a number from 0."
     },
     {
+      "type": "note",
+      "name": "davon",
+      "label::Deutsch (de)": "davon: Geschlecht (nach Geburtenregister)",
+      "label::English (en)": "of whom: sex (as registered at birth)"
+    },
+    {
       "type": "integer",
       "name": "maennlich",
-      "label::Deutsch (de)": "davon: Männlich",
-      "label::English (en)": "of whom: male"
+      "label::Deutsch (de)": "Männlich",
+      "label::English (en)": "Male"
     },
     {
       "type": "integer",
       "name": "weiblich",
-      "label::Deutsch (de)": "davon: Weiblich",
-      "label::English (en)": "of whom: female"
+      "label::Deutsch (de)": "Weiblich",
+      "label::English (en)": "Female"
     },
     {
       "type": "integer",
       "name": "divers",
-      "label::Deutsch (de)": "davon: Divers",
-      "label::English (en)": "of whom: diverse"
+      "label::Deutsch (de)": "Divers",
+      "label::English (en)": "Diverse"
     },
     {
       "type": "integer",
       "name": "ohneangabe",
-      "label::Deutsch (de)": "davon: Ohne Angabe",
-      "label::English (en)": "of whom: not stated"
+      "label::Deutsch (de)": "Ohne Angabe",
+      "label::English (en)": "Not stated"
     },
     { "type": "end_group" },
     {

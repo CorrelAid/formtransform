@@ -237,7 +237,7 @@
         "preservation": "full",
         "conditions": [
           {
-            "if": "appearance='table-list' and its rows are a grid's (composite:grid: select_one rows, or integer/decimal rows)",
+            "if": "appearance='table-list' and its rows are a grid's (composite:grid: select_one rows, or integer/decimal/range rows)",
             "then": "varGrp[@type='grid']"
           },
           {

@@ -84,6 +84,7 @@ describe('QUESTION_TYPES', () => {
       'select_one',
       'integer',
       'decimal',
+      'range',
     ]);
     expect(grid.base).toBeUndefined();
     expect(grid.typeString).toBeUndefined();

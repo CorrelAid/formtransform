@@ -84,6 +84,49 @@ describe('xlsform2ddi', () => {
   });
 });
 
+describe('notes in a grid', () => {
+  // CVTS7 1.1: "davon: …" printed once between the total and its breakdown.
+  const survey = table(
+    row('integer', 'gesamt'),
+    { ...row('note', 'davon'), 'label::Deutsch (de)': 'davon: Geschlecht' },
+    row('integer', 'm'),
+    row('integer', 'w'),
+  );
+  const xml = build(survey);
+
+  test('a note between rows is a cdl:grid_note about the row after it', () => {
+    expect(xml).toContain(
+      '<notes type="cdl:grid_note" subject="m">davon: Geschlecht</notes>',
+    );
+    expect(varEl(xml, 'm')).toContain(
+      '<notes type="cdl:note_names">davon</notes>',
+    );
+    // Not copied into a row, and not the rows' preQTxt.
+    expect(varEl(xml, 'm')).not.toContain('davon: Geschlecht');
+    expect(varEl(xml, 'w')).not.toContain('cdl:note_names');
+  });
+
+  test('comes back as one note row in its place', () => {
+    const back = ddiToXlsform(xml).survey;
+    expect(back.map((r) => r.name)).toEqual([
+      'besch',
+      'gesamt',
+      'davon',
+      'm',
+      'w',
+      undefined,
+    ]);
+    expect(back[2]).toMatchObject({ type: 'note' });
+  });
+});
+
+describe('range rows', () => {
+  test('are a table of numbers too', () => {
+    const xml = build(table(row('range', 'a'), row('integer', 'b')));
+    expect(xml).toContain('name="besch" type="grid"');
+  });
+});
+
 describe('ddi2xlsform', () => {
   test('gives back one table-list group with one label', () => {
     const survey = table(row('integer', 'gesamt'), row('decimal', 'anteil'));

@@ -36,35 +36,43 @@
       "constraint": ". >= 0"
     },
     {
+      "type": "note",
+      "name": "davon",
+      "label": {
+        "de": "davon: Geschlecht (nach Geburtenregister)",
+        "en": "of whom: sex (as registered at birth)"
+      }
+    },
+    {
       "type": "integer",
       "name": "maennlich",
       "label": {
-        "de": "davon: Männlich",
-        "en": "of whom: male"
+        "de": "Männlich",
+        "en": "Male"
       }
     },
     {
       "type": "integer",
       "name": "weiblich",
       "label": {
-        "de": "davon: Weiblich",
-        "en": "of whom: female"
+        "de": "Weiblich",
+        "en": "Female"
       }
     },
     {
       "type": "integer",
       "name": "divers",
       "label": {
-        "de": "davon: Divers",
-        "en": "of whom: diverse"
+        "de": "Divers",
+        "en": "Diverse"
       }
     },
     {
       "type": "integer",
       "name": "ohneangabe",
       "label": {
-        "de": "davon: Ohne Angabe",
-        "en": "of whom: not stated"
+        "de": "Ohne Angabe",
+        "en": "Not stated"
       }
     },
     {
