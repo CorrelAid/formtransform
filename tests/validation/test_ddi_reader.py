@@ -21,6 +21,18 @@ def test_variable_labels_cover_every_var():
     assert all(labels.values())
 
 
+def test_variable_labels_are_the_question_text_not_the_concept(tmp_path):
+    xml = (
+        '<codeBook xmlns="ddi:codebook:2_5"><dataDscr>'
+        '<var ID="V_age" name="age"><qstn><qstnLit>How old are you?</qstnLit></qstn>'
+        "<concept>Age in years</concept></var>"
+        "</dataDscr></codeBook>"
+    )
+    path = tmp_path / "codebook.xml"
+    path.write_text(xml, encoding="utf-8")
+    assert ddi_reader.variable_labels(path) == {"age": "How old are you?"}
+
+
 def test_value_labels_skip_unlabelled_binaries():
     maps = ddi_reader.value_labels(CODEBOOK)
     assert maps["gender"]["male"] == "Male"

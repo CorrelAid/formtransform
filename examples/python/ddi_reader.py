@@ -14,10 +14,15 @@ NS = {"ddi": "ddi:codebook:2_5"}
 
 
 def variable_labels(codebook_path):
-    """{variable name: label} for every <var> in a DDI-Codebook 2.5 file."""
+    """{variable name: label} for every <var> in a DDI-Codebook 2.5 file.
+
+    The label is the question text (qstnLit), not <concept>: a concept says
+    what a question measures, and a CDL codebook has one only where the form
+    states it (formtransform#173).
+    """
     labels = {}
     for var in ET.parse(codebook_path).getroot().iterfind(".//ddi:var", NS):
-        for path in ("ddi:concept", "ddi:qstn/ddi:qstnLit", "ddi:labl"):
+        for path in ("ddi:qstn/ddi:qstnLit", "ddi:labl"):
             node = var.find(path, NS)
             if node is not None and node.text:
                 labels[var.get("name")] = node.text.strip()

@@ -12,6 +12,8 @@ type Row = Record<string, unknown>;
 const CHOICES = [
   { list_name: 'm', name: 'a', label: 'A' },
   { list_name: 'm', name: 'other', label: 'Other' },
+  // No "other" answer: the or_other shorthand adds one.
+  { list_name: 'n', name: 'a', label: 'A' },
 ];
 
 function build(survey: Row[], settings: Row = {}): string {
@@ -30,7 +32,7 @@ describe('without a concept column', () => {
       { type: 'begin_group', name: 'g', label: 'Group' },
       { type: 'integer', name: 'age', label: 'Age' },
       { type: 'select_multiple m', name: 'mm', label: 'Media' },
-      { type: 'select_one m or_other', name: 'so', label: 'One' },
+      { type: 'select_one n or_other', name: 'so', label: 'One' },
       { type: 'end_group' },
       {
         type: 'begin_group',
@@ -214,5 +216,138 @@ describe('DDI from elsewhere', () => {
       { onWarning: () => {} },
     );
     expect(back.survey.find((r) => r.name === 'age')?.concept).toBe('Age');
+  });
+});
+
+/** The codebook a form gives, and the form and codebook it gives back. */
+function roundTrip(survey: Row[], settings: Row = {}) {
+  const xml = build(survey, settings);
+  const back = ddiToXlsform(xml);
+  const again = buildDdiXml(back.survey, back.choices, {
+    prodDate: '2020-01-01',
+    settings: back.settings[0] ?? {},
+  });
+  return { xml, back: back.survey, again };
+}
+
+describe('semi-open select_multiple', () => {
+  test('its concept is on the other varGrp, none on the _choices one', () => {
+    const { xml, back, again } = roundTrip([
+      {
+        type: 'select_multiple m',
+        name: 'mo',
+        label: 'Media',
+        concept: 'Media use',
+      },
+      { type: 'text', name: 'mo_other', label: 'Other media' },
+    ]);
+    expect(element(xml, 'varGrp', 'VG_mo')).toContain(
+      '<concept>Media use</concept>',
+    );
+    expect(element(xml, 'varGrp', 'VG_mo_choices')).not.toContain('<concept');
+    expect(back.find((r) => r.name === 'mo')?.concept).toBe('Media use');
+    expect(again).toBe(xml);
+  });
+
+  test('with the or_other shorthand, the same', () => {
+    const { xml, back, again } = roundTrip([
+      {
+        type: 'select_multiple n or_other',
+        name: 'mo',
+        label: 'Media',
+        concept: 'Media use',
+      },
+    ]);
+    expect(element(xml, 'varGrp', 'VG_mo')).toContain(
+      '<concept>Media use</concept>',
+    );
+    expect(element(xml, 'varGrp', 'VG_mo_choices')).not.toContain('<concept');
+    // The added companion has no row, so no concept.
+    expect(element(xml, 'var', 'V_mo_other')).not.toContain('<concept');
+    expect(back.find((r) => r.name === 'mo')?.concept).toBe('Media use');
+    expect(again).toBe(xml);
+  });
+});
+
+describe('or_other shorthand on a select_one', () => {
+  test("the concept is the select's, the added companion has none", () => {
+    const { xml, back, again } = roundTrip([
+      {
+        type: 'select_one n or_other',
+        name: 'so',
+        label: 'One',
+        concept: 'Choice',
+      },
+    ]);
+    expect(element(xml, 'var', 'V_so')).toContain('<concept>Choice</concept>');
+    expect(element(xml, 'var', 'V_so_other')).not.toContain('<concept');
+    expect(back.find((r) => r.name === 'so')?.concept).toBe('Choice');
+    expect(again).toBe(xml);
+  });
+});
+
+describe('select_*_from_file with concept translations', () => {
+  const settings = { default_language: 'Deutsch (de)' };
+  const base = {
+    type: 'select_one_from_file iso_3166_1.csv',
+    name: 'land',
+    'label::Deutsch (de)': 'Land',
+    'label::English (en)': 'Country',
+  };
+
+  test('@vocab is on the untagged first concept only', () => {
+    const { xml, again } = roundTrip(
+      [
+        {
+          ...base,
+          'concept::Deutsch (de)': 'Herkunft',
+          'concept::English (en)': 'Origin',
+        },
+      ],
+      settings,
+    );
+    expect(element(xml, 'var', 'V_land')).toContain(
+      '<concept vocab="iso_3166_1">Herkunft</concept>\n' +
+        '      <concept xml:lang="en">Origin</concept>',
+    );
+    expect(again).toBe(xml);
+  });
+
+  test('without a base-language concept, on an empty first one', () => {
+    const { xml, back, again } = roundTrip(
+      [{ ...base, 'concept::English (en)': 'Origin' }],
+      settings,
+    );
+    expect(element(xml, 'var', 'V_land')).toContain(
+      '<concept vocab="iso_3166_1"/>\n' +
+        '      <concept xml:lang="en">Origin</concept>',
+    );
+    expect(back[0]?.type).toBe('select_one_from_file iso_3166_1.csv');
+    expect(back[0]?.concept).toEqual({ en: 'Origin' });
+    expect(again).toBe(xml);
+  });
+});
+
+describe('a matrix header', () => {
+  test('has no var: its concept is a cdl:row_column', () => {
+    const { xml, back } = roundTrip([
+      {
+        type: 'select_one m',
+        name: 'hdr',
+        label: 'Scale',
+        appearance: 'label',
+        concept: 'Header',
+      },
+      {
+        type: 'select_one m',
+        name: 'r1',
+        label: 'Row 1',
+        appearance: 'list-nolabel',
+      },
+    ]);
+    expect(xml).toContain(
+      '<notes type="cdl:row_column" subject="hdr concept">Header</notes>',
+    );
+    expect(back.find((r) => r.name === 'hdr')?.concept).toBe('Header');
   });
 });
