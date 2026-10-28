@@ -77,8 +77,14 @@ describe('QUESTION_TYPES', () => {
   it('models a composite as spanning several types, with no single type cell', () => {
     const grid = QUESTION_TYPES.grid;
     expect(grid?.isComposite).toBe(true);
-    // begin_group + select_one — a composite has no `base`, it has `bases`.
-    expect(grid.bases).toEqual(['begin_group', 'select_one']);
+    // begin_group + its rows' types (choices, or numbers: #174) — a
+    // composite has no `base`, it has `bases`.
+    expect(grid.bases).toEqual([
+      'begin_group',
+      'select_one',
+      'integer',
+      'decimal',
+    ]);
     expect(grid.base).toBeUndefined();
     expect(grid.typeString).toBeUndefined();
     for (const base of grid.bases!) {

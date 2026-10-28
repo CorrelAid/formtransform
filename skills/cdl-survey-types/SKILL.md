@@ -38,7 +38,7 @@ Generated from the [`formtransform`](https://github.com/) — the single source 
 
 | Composite | Use when |
 |---|---|
-| `grid` | When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements). |
+| `grid` | When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements), or when one question asks for several numbers in a small table (e.g. employees in total and by sex). |
 
 ## References
 

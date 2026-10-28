@@ -1,0 +1,108 @@
+{
+  "survey": [
+    {
+      "type": "note",
+      "name": "intro",
+      "label::Deutsch (de)": "Zunächst einige Angaben zu Ihrem Unternehmen.",
+      "label::English (en)": "First, some details about your company."
+    },
+    {
+      "type": "begin_group",
+      "name": "beschaeftigte",
+      "label::Deutsch (de)": "Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?",
+      "label::English (en)": "How many people did your company employ in Germany in total?",
+      "hint::Deutsch (de)": "Anzahl",
+      "hint::English (en)": "Number",
+      "appearance": "table-list"
+    },
+    {
+      "type": "integer",
+      "name": "gesamt",
+      "label::Deutsch (de)": "Beschäftigte am 31.12.2025 insgesamt",
+      "label::English (en)": "Employees on 31.12.2025 in total",
+      "required": "yes",
+      "constraint": ". >= 0",
+      "constraint_message::Deutsch (de)": "Bitte eine Zahl ab 0 eintragen.",
+      "constraint_message::English (en)": "Please enter a number from 0."
+    },
+    {
+      "type": "integer",
+      "name": "maennlich",
+      "label::Deutsch (de)": "davon: Männlich",
+      "label::English (en)": "of whom: male"
+    },
+    {
+      "type": "integer",
+      "name": "weiblich",
+      "label::Deutsch (de)": "davon: Weiblich",
+      "label::English (en)": "of whom: female"
+    },
+    {
+      "type": "integer",
+      "name": "divers",
+      "label::Deutsch (de)": "davon: Divers",
+      "label::English (en)": "of whom: diverse"
+    },
+    {
+      "type": "integer",
+      "name": "ohneangabe",
+      "label::Deutsch (de)": "davon: Ohne Angabe",
+      "label::English (en)": "of whom: not stated"
+    },
+    { "type": "end_group" },
+    {
+      "type": "begin_group",
+      "name": "kosten",
+      "label::Deutsch (de)": "Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?",
+      "label::English (en)": "What did training cost your company in 2025?",
+      "appearance": "table-list",
+      "relevant": "${gesamt} > 0"
+    },
+    {
+      "type": "note",
+      "name": "kostenhinweis",
+      "label::Deutsch (de)": "Angaben in Euro.",
+      "label::English (en)": "In euros."
+    },
+    {
+      "type": "decimal",
+      "name": "gebuehren",
+      "label::Deutsch (de)": "Gebühren für Kurse",
+      "label::English (en)": "Course fees"
+    },
+    {
+      "type": "integer",
+      "name": "reisekosten",
+      "label::Deutsch (de)": "Reisekosten",
+      "label::English (en)": "Travel costs"
+    },
+    { "type": "end_group" },
+    {
+      "type": "begin_group",
+      "name": "kurse",
+      "label::Deutsch (de)": "Zu den Kursen",
+      "label::English (en)": "About the courses",
+      "appearance": "table-list"
+    },
+    {
+      "type": "integer",
+      "name": "anzahlkurse",
+      "label::Deutsch (de)": "Anzahl der Kurse",
+      "label::English (en)": "Number of courses"
+    },
+    {
+      "type": "text",
+      "name": "anbieter",
+      "label::Deutsch (de)": "Wichtigster Anbieter",
+      "label::English (en)": "Main provider"
+    },
+    { "type": "end_group" }
+  ],
+  "choices": [],
+  "settings": [
+    {
+      "form_title": "Tabellen mit Zahlen",
+      "default_language": "Deutsch (de)"
+    }
+  ]
+}

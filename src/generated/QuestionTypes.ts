@@ -70,11 +70,11 @@ export const QUESTION_TYPES = {
     label: "Grid / Matrix Group",
     labels: {"en": "Grid / Matrix Group", "de": "Matrix-Gruppe"},
     kind: "question",
-    useWhen: "When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements).",
+    useWhen: "When multiple survey items share the same response scale and introductory text, forming a battery (e.g. a Likert scale measuring agreement across several statements), or when one question asks for several numbers in a small table (e.g. employees in total and by sex).",
     isVariant: false,
     isComposite: true,
     typeString: undefined,
-    bases: ["begin_group", "select_one"],
+    bases: ["begin_group", "select_one", "integer", "decimal"],
   },
   begin_group: {
     id: "type:begin_group",

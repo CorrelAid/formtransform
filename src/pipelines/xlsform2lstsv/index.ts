@@ -345,8 +345,13 @@ class Conversion {
     const originalName = (row.name || '').trim();
     this.groupEmitter.handleBeginGroup(
       row,
-      this.groupProcessor.getMessageOnlyGroups().has(originalName),
-      this.groupProcessor.getParentOnlyGroups().has(originalName),
+      {
+        messageOnly: this.groupProcessor
+          .getMessageOnlyGroups()
+          .has(originalName),
+        parentOnly: this.groupProcessor.getParentOnlyGroups().has(originalName),
+        array: this.groupProcessor.getArrayGroups().has(originalName),
+      },
       {
         sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
         convertRelevance: (relevant) =>

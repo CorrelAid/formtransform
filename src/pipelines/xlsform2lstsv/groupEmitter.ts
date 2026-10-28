@@ -3,7 +3,6 @@ import { ConfigManager } from '../../config/ConfigManager.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';
 import { GroupStackItem } from './constants.js';
-import { isGridAppearance } from '../../conventions/grid.js';
 import { Counters } from './counters.js';
 
 /**
@@ -13,6 +12,13 @@ import { Counters } from './counters.js';
  * counters interface and reports back the post-increment values.
  */
 export type GroupCounters = Counters;
+
+/** What the pre-scan found about a group (`GroupProcessor`). */
+export interface GroupKind {
+  messageOnly: boolean;
+  parentOnly: boolean;
+  array: boolean;
+}
 
 /** Helpers passed to handleBeginGroup for name resolution + relevance. */
 export interface GroupHelpers {
@@ -183,8 +189,9 @@ export class GroupEmitter {
   /**
    * Handle a `begin_group` row. Three cases:
    *
-   *   - `table-list` appearance: emit as a LimeSurvey array (F) — the G row
-   *     plus an `addTableListHeader` to mark the array.
+   *   - `array` (a `table-list` group with choice rows): emit as a
+   *     LimeSurvey array (F) — the G row plus an `addTableListHeader` to mark
+   *     the array. A table of numbers is an ordinary group (#174).
    *   - `messageOnly` (group contains only a welcome/end note): push to
    *     stack with `emittedAsGroup: false` and skip emission.
    *   - `parentOnly` (group has no direct questions): push, queue a pending
@@ -193,8 +200,7 @@ export class GroupEmitter {
    */
   handleBeginGroup(
     groupRow: SurveyRow,
-    isMessageOnly: boolean,
-    isParentOnly: boolean,
+    kind: GroupKind,
     helpers: GroupHelpers,
     onTableList: (sanitizedName: string) => void,
   ): void {
@@ -211,10 +217,7 @@ export class GroupEmitter {
       ? sanitizeName(originalName)
       : `G${this.counters.getGroupSeq()}`;
 
-    const groupAppearance =
-      typeof row['appearance'] === 'string' ? row['appearance'].trim() : '';
-
-    if (isGridAppearance(groupAppearance)) {
+    if (kind.array) {
       this.groupStack.push({
         originalName,
         sanitizedName,
@@ -228,7 +231,7 @@ export class GroupEmitter {
       return;
     }
 
-    if (isMessageOnly) {
+    if (kind.messageOnly) {
       this.groupStack.push({
         originalName,
         sanitizedName,
@@ -238,7 +241,7 @@ export class GroupEmitter {
       return;
     }
 
-    if (isParentOnly) {
+    if (kind.parentOnly) {
       this.groupStack.push({
         originalName,
         sanitizedName,

@@ -90,8 +90,9 @@
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'multiple'))">
             Semantic Error: Variables in a multipleResp group (<value-of select="@ID"/>) should have responseDomainType="multiple".
         </assert>
-        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'category'))">
-            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should have responseDomainType="category".
+        <!-- A grid's rows share one response domain: a choice grid's or a table of numbers' (composite:grid, #174). -->
+        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'category')) or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'numeric'))">
+            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should all have responseDomainType="category" or all "numeric".
         </assert>
     </rule>
 
@@ -128,8 +129,9 @@
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'multiple'))">
             Semantic Error: Variables in a multipleResp group (<value-of select="@ID"/>) should have responseDomainType="multiple".
         </assert>
-        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'category'))">
-            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should have responseDomainType="category".
+        <!-- A grid's rows share one response domain: a choice grid's or a table of numbers' (composite:grid, #174). -->
+        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'category')) or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'numeric'))">
+            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should all have responseDomainType="category" or all "numeric".
         </assert>
     </rule>
 

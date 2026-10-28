@@ -1,0 +1,37 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	num_value_int_only	em_validation_q_tip
+S		language	1	de		de										
+S		additional_languages	1	en		de										
+S		format	1	A		de										
+S		shownoanswer	1	N		de										
+SL		surveyls_title	1	Tabellen mit Zahlen		de										
+SL		surveyls_title	1	Tabellen mit Zahlen		en										
+G	1	G0	1	G0		de										
+G	1	G0	1	G0		en										
+Q	X	intro	1	Zunächst einige Angaben zu Ihrem Unternehmen.		de										
+Q	X	intro	1	First, some details about your company.		en										
+G	2	Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?	1	Anzahl		de										
+G	2	How many people did your company employ in Germany in total?	1	Number		en										
+Q	N	gesamt	1	Beschäftigte am 31.12.2025 insgesamt		de		self >= 0	Y					1	1	Bitte eine Zahl ab 0 eintragen.
+Q	N	maennlich	1	davon: Männlich		de								1	1	
+Q	N	weiblich	1	davon: Weiblich		de								1	1	
+Q	N	divers	1	davon: Divers		de								1	1	
+Q	N	ohneangabe	1	davon: Ohne Angabe		de								1	1	
+Q	N	gesamt	1	Employees on 31.12.2025 in total		en		self >= 0	Y					1	1	Please enter a number from 0.
+Q	N	maennlich	1	of whom: male		en								1	1	
+Q	N	weiblich	1	of whom: female		en								1	1	
+Q	N	divers	1	of whom: diverse		en								1	1	
+Q	N	ohneangabe	1	of whom: not stated		en								1	1	
+G	3	Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?	gesamt > 0			de										
+G	3	What did training cost your company in 2025?	gesamt > 0			en										
+Q	X	kostenhinweis	1	Angaben in Euro.		de										
+Q	N	gebuehren	1	Gebühren für Kurse		de								1		
+Q	N	reisekosten	1	Reisekosten		de								1	1	
+Q	X	kostenhinweis	1	In euros.		en										
+Q	N	gebuehren	1	Course fees		en								1		
+Q	N	reisekosten	1	Travel costs		en								1	1	
+G	4	Zu den Kursen	1			de										
+G	4	About the courses	1			en										
+Q	N	anzahlkurse	1	Anzahl der Kurse		de								1	1	
+Q	S	anbieter	1	Wichtigster Anbieter		de								1		
+Q	N	anzahlkurse	1	Number of courses		en								1	1	
+Q	S	anbieter	1	Main provider		en								1		

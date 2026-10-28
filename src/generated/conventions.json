@@ -998,6 +998,12 @@
         },
         {
           "@id": "type:select_one"
+        },
+        {
+          "@id": "type:integer"
+        },
+        {
+          "@id": "type:decimal"
         }
       ],
       "trigger": {
@@ -1014,7 +1020,7 @@
           },
           {
             "role": "item",
-            "match": "type=select_one <listname> — all items MUST share the same listname",
+            "match": "type=select_one <listname> — all items MUST share the same listname; or, for a table of numbers, every item type=integer or decimal. Items of other types, or a mix of both kinds, make the group a section instead.",
             "cardinality": "1..*"
           },
           {
@@ -1031,12 +1037,13 @@
             "name": "<group name>",
             "var": "space-separated member IDs"
           },
-          "memberVars": "one <var> per item row. Each var carries the full <catgry> set repeated (responseDomainType='category')."
+          "memberVars": "one <var> per item row, all of one response domain (the skos:broader QuestionTypes': 'category' or 'numeric'). A choice grid's vars each carry the full <catgry> set repeated (responseDomainType='category'); a table of numbers' vars are numeric (responseDomainType='numeric'). Each member's qstn/preQTxt is the group's txt, in every language: the question printed once above the rows (formtransform#174)."
         },
         "lsTsv": {
           "headerRow": "F-type question (matrix header) with answerClass=A; answer codes from shared list",
           "itemRows": "SQ-class rows, one per item",
-          "note": "LS represents the matrix as a single question with sub-questions; categories not re-emitted per row"
+          "note": "LS represents the matrix as a single question with sub-questions; categories not re-emitted per row",
+          "numericRows": "A table of numbers is no LimeSurvey array: an ordinary group (G row with the group's label) with one N question per row. LimeSurvey reads it back as a field-list group, not a table-list one."
         }
       },
       "schematronPatterns": [
@@ -1045,7 +1052,8 @@
       ],
       "notes": [
         "If `appearance=table-list` is absent, the group is flattened — children become top-level vars in DDI, group is lost.",
-        "Items SHOULD share the same `listname` so the matrix is rectangular."
+        "Items SHOULD share the same `listname` so the matrix is rectangular.",
+        "A table of number fields under one printed question (e.g. employees: total, then by sex) is a table-list group of integer/decimal rows, not a note followed by rows: the note would be the preQTxt of the first row only (formtransform#174)."
       ]
     }
   ]

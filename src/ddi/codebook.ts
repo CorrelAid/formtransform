@@ -5,7 +5,8 @@
  * - `<concept>` only from the form's `concept` column (#173), never `<labl>`
  * - `responseDomainType` on every `<qstn>`
  * - `select_multiple` expands into `<varGrp type="multipleResp">` + binary vars
- * - grid groups (`appearance="table-list"`) as `<varGrp type="grid">`
+ * - grid groups (`appearance="table-list"`, rows of one choice list or
+ *   numbers, #174) as `<varGrp type="grid">`
  * - the semi-open `_other` pattern as `<varGrp type="other">`
  * - every other group as `<varGrp type="section">`, nested by `@varGrp` (#152)
  * - `<var>`s in survey order (#152)
@@ -19,7 +20,7 @@ import {
   OTHER_CODE,
   otherCompanionBase,
 } from '../conventions/other.js';
-import { isGridAppearance } from '../conventions/grid.js';
+import { gridDomain, isGridAppearance } from '../conventions/grid.js';
 import { XmlElement } from './xml.js';
 import { classifyNotes, type Position } from './notes.js';
 import conventions from '../generated/conventions.js';
@@ -71,14 +72,25 @@ function makeGrpId(name: string): string {
   return `VG_${sanitizeId(name)}`;
 }
 
-/** A group is a grid when its innermost appearance contains `table-list`. */
-function isGridGroup(variables: Variable[], groupName: string): boolean {
+/**
+ * The groups that are grids: a `table-list` appearance, and rows (its
+ * direct variables but a `select_multiple` or semi-open pair) that share a
+ * grid's response, one choice list or numbers (#174). Any other `table-list`
+ * group is a section, its appearance a `cdl:appearance` note.
+ */
+function gridGroupsOf(
+  variables: Variable[],
+  inPairs: Set<string>,
+): Set<string> {
+  const rows = new Map<string, string[]>();
   for (const v of variables) {
-    if (v.group === groupName && v.groupAppearance) {
-      return isGridAppearance(v.groupAppearance);
-    }
+    if (!v.group || !isGridAppearance(v.groupAppearance)) continue;
+    if (v.type === 'select_multiple' || inPairs.has(v.name)) continue;
+    rows.set(v.group, [...(rows.get(v.group) ?? []), v.type]);
   }
-  return false;
+  return new Set(
+    [...rows].filter(([, types]) => gridDomain(types)).map(([g]) => g),
+  );
 }
 
 /**
@@ -585,6 +597,10 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
     [...otherPatterns.values()].map((p) => p.otherVar.name),
   );
 
+  const grids = gridGroupsOf(
+    dataVars,
+    new Set([...baseNamesInOther, ...otherVarNames]),
+  );
   const gridGroups = new Map<string, Variable[]>();
   const multiRespGroups = new Map<string, Variable>();
   const units: EmitUnit[] = [];
@@ -598,7 +614,7 @@ export function splitDataVars(dataVars: Variable[]): DataVarBuckets {
     } else if (v.type === 'select_multiple') {
       multiRespGroups.set(v.name, v);
       units.push({ kind: 'multi', v });
-    } else if (v.group && isGridGroup(dataVars, v.group)) {
+    } else if (grids.has(v.group)) {
       const members = gridGroups.get(v.group) ?? [];
       members.push(v);
       gridGroups.set(v.group, members);
