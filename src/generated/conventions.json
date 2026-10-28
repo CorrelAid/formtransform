@@ -7,7 +7,7 @@
         "preQTxt": "a note row before the question, or a grid's or select_multiple's shared question text",
         "qstnLit": "the label",
         "postQTxt": "the hint shown to respondents with the question",
-        "ivuInstr": "guidance_hint (for interviewers and the codebook, not shown)",
+        "ivuInstr": "guidance_hint (for interviewers and the codebook, not shown; a group's is a cdl:guidance_hint note)",
         "order": "preQTxt, qstnLit, postQTxt, backward, ivuInstr (XSD order)"
       },
       "backward": "qstn/backward/@qstn lists the IDs of the questions its own relevant refers to (a var, or the varGrp of a select_multiple or other pair).",
@@ -43,6 +43,14 @@
             "varGrp[@type='section' or @type='grid']"
           ],
           "localized": true
+        },
+        "guidance_hint": {
+          "type": "cdl:guidance_hint",
+          "on": [
+            "varGrp[@type='section' or @type='grid']"
+          ],
+          "localized": true,
+          "text": "a group's guidance_hint (varGrp has no ivuInstr; a question's is its qstn/ivuInstr)"
         },
         "exclusive": {
           "type": "cdl:exclusive",
@@ -229,6 +237,10 @@
         "ItemBase.row": {
           "loss": "The source row itself; its columns the model doesn't lift are `columns`."
         },
+        "GroupItem.guidanceHint": {
+          "cdlNote": "cdl:guidance_hint",
+          "note": "One per language. A group's other question-only columns (required, constraint, constraint_message, default, parameters) are not lifted for a group: they are its columns (liftedColumns questionOnly)."
+        },
         "GroupItem.kind": {
           "ddi": "a group is a varGrp"
         },
@@ -317,7 +329,7 @@
         }
       },
       "liftedColumns": {
-        "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's.",
+        "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's. The questionOnly survey columns are lifted only on a question's row: a group has no such field, so on a begin_group row they are columns too (formtransform#179).",
         "survey": [
           "type",
           "name",
@@ -332,6 +344,13 @@
           "default",
           "parameters",
           "concept"
+        ],
+        "questionOnly": [
+          "required",
+          "constraint",
+          "constraint_message",
+          "default",
+          "parameters"
         ],
         "choices": [
           "list_name",

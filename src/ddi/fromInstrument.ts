@@ -496,6 +496,11 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
     const label = pick(item.label, state.lang);
     const translations = translationsOf(item.label, state.others);
     const hintTranslations = translationsOf(item.hint, state.others);
+    const guidanceHint = pick(item.guidanceHint ?? {}, state.lang).trim();
+    const guidanceHintTranslations = translationsOf(
+      item.guidanceHint,
+      state.others,
+    );
     const concept = ownConcept(item.concept, state.lang);
     const conceptTranslations = translationsOf(item.concept, state.others);
     const group: DdiGroup = {
@@ -507,6 +512,8 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       relevant: item.relevant.trim(),
       hint: pick(item.hint, state.lang).trim(),
       ...(hintTranslations ? { hintTranslations } : {}),
+      ...(guidanceHint ? { guidanceHint } : {}),
+      ...(guidanceHintTranslations ? { guidanceHintTranslations } : {}),
       ...(concept ? { concept } : {}),
       ...(conceptTranslations ? { conceptTranslations } : {}),
       ...(Object.values(item.label).some((t) => t.trim())

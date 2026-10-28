@@ -4,8 +4,9 @@
  * numbers (#174) and table-list groups that are no grid, matrices,
  * languages, logic, fields, named and shared lists, `or_other` and explicit
  * other pairs, runs of notes (with blank lines, in only some languages),
- * groups of notes only or without a label, metadata rows, `required`
- * spellings, messages without a constraint, `concept` columns (#173) and
+ * groups of notes only or without a label, a group's hint and
+ * guidance_hint (#179) and question-only cells on a group, metadata rows,
+ * `required` spellings, messages without a constraint, `concept` columns (#173) and
  * settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
  */
@@ -21,6 +22,9 @@ import { instrumentFromDdi } from '../../../src/instrument/fromDdi.js';
 import { instrumentFromLstsv } from '../../../src/instrument/fromLstsv.js';
 import { instrumentFromXlsform } from '../../../src/instrument/fromXlsform.js';
 import { parseLstsv } from '../../../src/lstsv/parser.js';
+import { allColumns } from '../../../src/conventions/columns.js';
+import conventions from '../../../src/generated/conventions.js';
+import { languageTagOf } from '../../../src/utils/languageUtils.js';
 import type {
   ChoiceRow,
   SettingsRow,
@@ -156,6 +160,10 @@ type Block =
       t: Texts;
       unlabelled: boolean;
       relevant: boolean;
+      hint?: Texts;
+      guidance?: Texts;
+      /** `required` and `parameters` on the begin_group row: its columns (#179). */
+      questionCells: boolean;
       inner: Question[];
       nested: Question[];
     }
@@ -191,6 +199,9 @@ const block: fc.Arbitrary<Block> = fc.oneof(
       t: texts,
       unlabelled: fc.boolean(),
       relevant: fc.boolean(),
+      hint: fc.option(texts, { nil: undefined }),
+      guidance: fc.option(texts, { nil: undefined }),
+      questionCells: fc.boolean(),
       inner: fc.array(question, { maxLength: 3 }),
       nested: fc.array(question, { maxLength: 2 }),
     }),
@@ -422,11 +433,18 @@ function sheets(f: Form) {
       if (!b.unlabelled) put(row, 'label', b.t);
       if (b.relevant && answered.length)
         row.relevant = `\${${answered[0]}} != ''`;
+      if (b.hint) put(row, 'hint', b.hint);
+      if (b.guidance) put(row, 'guidance_hint', b.guidance);
+      if (b.questionCells) {
+        row.required = 'yes';
+        row.parameters = 'randomize=true';
+      }
       survey.push(row);
       b.inner.forEach(addQuestion);
       if (b.nested.length) {
         const inner: Row = { type: 'begin_group', name: `g${++n}` };
         put(inner, 'label', b.t);
+        if (b.guidance) put(inner, 'guidance_hint', b.guidance);
         survey.push(inner);
         b.nested.forEach(addQuestion);
         survey.push({ type: 'end_group' });
@@ -506,6 +524,30 @@ const model = (s: {
     ),
   );
 
+/** A group's columns only a question's row lifts, and its guidance_hint. */
+const GROUP_CELLS = new Set([
+  'guidance_hint',
+  ...conventions.conventions.ddiFields.liftedColumns.questionOnly,
+]);
+
+/**
+ * Those cells of each `begin_group` row, read off the sheet (a language
+ * by its tag): a cell the parser neither lifts nor keeps as a column is
+ * missing from both models alike (#179).
+ */
+const groupCells = (s: { survey: unknown[] }) =>
+  (s.survey as Row[])
+    .filter((row) => row['type'] === 'begin_group')
+    .map((row) => {
+      const out: Record<string, string> = {};
+      for (const [column, cell] of Object.entries(allColumns(row))) {
+        const [base, lang] = column.split('::');
+        if (!GROUP_CELLS.has(base)) continue;
+        out[lang ? `${base}::${languageTagOf(lang) ?? lang}` : base] = cell;
+      }
+      return out;
+    });
+
 /** The form's LimeSurvey TSV, or `null` for one LimeSurvey can't hold. */
 async function toTsv(s: {
   survey: unknown[];
@@ -538,7 +580,9 @@ describe('generated forms', () => {
     fc.assert(
       fc.property(form, (f) => {
         const s = sheets(f);
-        expect(model(ddiToXlsform(codebook(s)))).toEqual(model(s));
+        const back = ddiToXlsform(codebook(s));
+        expect(model(back)).toEqual(model(s));
+        expect(groupCells(back)).toEqual(groupCells(s));
       }),
       { numRuns: RUNS },
     );

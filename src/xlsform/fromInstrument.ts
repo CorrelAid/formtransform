@@ -219,6 +219,8 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   };
   const hint = ctx.label(group.hint);
   if (hint) row.hint = htmlLabel(hint);
+  const guidance = ctx.label(group.guidanceHint);
+  if (guidance) row.guidance_hint = htmlLabel(guidance);
   const concept = ctx.label(group.concept);
   if (concept) row.concept = concept;
   if (group.appearance) row.appearance = appearanceCell(group);

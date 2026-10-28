@@ -53,6 +53,10 @@ export interface DdiGroup {
   appearanceCell?: string;
   /** `hint` in the form's other languages. */
   hintTranslations?: Translations;
+  /** Its `guidance_hint`: a `cdl:guidance_hint` note (#179); absent when none. */
+  guidanceHint?: string;
+  /** `guidanceHint` in the form's other languages. */
+  guidanceHintTranslations?: Translations;
   /** Its `concept` column: the `<concept>` (#173); absent when none. */
   concept?: string;
   /** `concept` in the form's other languages. */

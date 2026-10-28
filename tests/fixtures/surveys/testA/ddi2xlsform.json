@@ -3,7 +3,8 @@
     {
       "type": "begin_group",
       "name": "intro",
-      "label": ""
+      "label": "",
+      "required": "false"
     },
     {
       "type": "note",
@@ -16,7 +17,8 @@
     {
       "type": "begin_group",
       "name": "teilnahme",
-      "label": ""
+      "label": "",
+      "required": "false"
     },
     {
       "type": "select_one dauer",
@@ -60,7 +62,8 @@
       "type": "begin_group",
       "name": "wirkung",
       "label": "",
-      "hint": "Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):"
+      "hint": "Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):",
+      "required": "false"
     },
     {
       "type": "select_one likert5",
@@ -130,7 +133,8 @@
     {
       "type": "begin_group",
       "name": "erfahrungen",
-      "label": ""
+      "label": "",
+      "required": "false"
     },
     {
       "type": "text",
@@ -153,7 +157,8 @@
     {
       "type": "begin_group",
       "name": "empfehlung",
-      "label": ""
+      "label": "",
+      "required": "false"
     },
     {
       "type": "select_one nps",
@@ -169,7 +174,8 @@
     {
       "type": "begin_group",
       "name": "demografie",
-      "label": ""
+      "label": "",
+      "required": "false"
     },
     {
       "type": "select_one alter",

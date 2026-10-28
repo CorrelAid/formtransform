@@ -7,10 +7,14 @@ import conventions from '../generated/conventions.js';
 
 const LIFTED = conventions.conventions.ddiFields.liftedColumns;
 
-type Sheet = 'survey' | 'choices';
+/** `group`: a `begin_group` row, which lifts no question-only column (#179). */
+type Sheet = 'survey' | 'group' | 'choices';
+
+const QUESTION_ONLY = new Set<string>(LIFTED.questionOnly);
 
 const liftedBy: Record<Sheet, Set<string>> = {
   survey: new Set(LIFTED.survey),
+  group: new Set(LIFTED.survey.filter((c) => !QUESTION_ONLY.has(c))),
   choices: new Set(LIFTED.choices),
 };
 

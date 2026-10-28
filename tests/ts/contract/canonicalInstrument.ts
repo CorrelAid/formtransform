@@ -114,6 +114,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         group: item.name,
         label: text(item.label, ctx),
         hint: text(item.hint, ctx),
+        guidance: text(item.guidanceHint, ctx),
         concept: text(item.concept, ctx),
         relevant: item.relevant.trim(),
         appearance: appearance(item),

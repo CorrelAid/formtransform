@@ -10,6 +10,7 @@ import { describe, test, expect } from 'vitest';
 
 import conventions from '../../../../src/generated/conventions.js';
 import { buildDdiXml } from '../../../../src/pipelines/xlsform2ddi/index.js';
+import { ddiToXlsform } from '../../../../src/pipelines/ddi2xlsform/index.js';
 
 const OPTS = { prodDate: '2020-01-01' };
 
@@ -194,6 +195,50 @@ describe('cdl: notes', () => {
     expect(g).toContain('<notes type="cdl:appearance">field-list</notes>');
     // A grid's table-list is its type.
     expect(varGrp(xml, 'VG_grid')).not.toContain('cdl:appearance');
+  });
+
+  test("a group's guidance_hint per language, and its question-only cells (#179)", () => {
+    const group = {
+      type: 'begin_group',
+      name: 'g',
+      'label::Deutsch (de)': 'G',
+      'guidance_hint::Deutsch (de)': 'Vorlesen',
+      'guidance_hint::English (en)': 'Read out',
+      required: 'yes',
+      constraint_message: 'Nope',
+    };
+    const xml = buildDdiXml(
+      [
+        group,
+        { type: 'text', name: 't', 'label::Deutsch (de)': 'T' },
+        { type: 'end_group' },
+      ],
+      CHOICES,
+      { ...OPTS, settings: { default_language: 'Deutsch (de)' } },
+    );
+    const g = varGrp(xml, 'VG_g');
+    expect(g).toContain('<notes type="cdl:guidance_hint">Vorlesen</notes>');
+    expect(g).toContain(
+      '<notes type="cdl:guidance_hint" xml:lang="en">Read out</notes>',
+    );
+    // A group lifts no required or constraint_message: they are its columns.
+    expect(g).toContain(
+      '<notes type="cdl:column" subject="required">yes</notes>',
+    );
+    expect(g).toContain(
+      '<notes type="cdl:column" subject="constraint_message">Nope</notes>',
+    );
+    expect(varXml(xml, 't')).not.toContain('ivuInstr');
+
+    // And back, every language (keyed by tag: these rows name none).
+    const back = ddiToXlsform(xml).survey[0];
+    expect(back).toMatchObject({
+      type: 'begin_group',
+      name: 'g',
+      guidance_hint: { de: 'Vorlesen', en: 'Read out' },
+      required: 'yes',
+      constraint_message: 'Nope',
+    });
   });
 
   test('style is a cdl:setting', () => {

@@ -674,6 +674,12 @@ function gridName(id: string, state: ReadState): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
+/** A group's `cdl:guidance_hint` (#179), absent when it has none. */
+function withGuidance(grp: XmlNode, state: ReadState): { guidanceHint?: Text } {
+  const guidanceHint = texts(notesOf(grp, FIELDS.guidance_hint.type), state);
+  return Object.keys(guidanceHint).length ? { guidanceHint } : {};
+}
+
 /** A section / grid `varGrp` as an (empty) group item. */
 function groupItem(id: string, state: ReadState): GroupItem {
   const grp = state.groups.get(id)!;
@@ -688,6 +694,7 @@ function groupItem(id: string, state: ReadState): GroupItem {
       ? {}
       : childTexts(grp, 'txt', state),
     hint: texts(notesOf(grp, FIELDS.hint.type), state),
+    ...withGuidance(grp, state),
     ...withConcept(grp, state),
     relevant: noteText(grp, LOGIC.relevant.type, state),
     appearance: grid ? GRID_APPEARANCE : '',
@@ -940,11 +947,13 @@ function renameItem(item: Item, names: Map<string, string>): void {
   item.label = renamed(item.label, names);
   item.hint = renamed(item.hint, names);
   if (item.concept) item.concept = renamed(item.concept, names);
+  if (item.guidanceHint) {
+    item.guidanceHint = renamed(item.guidanceHint, names);
+  }
   if (item.kind === 'group') {
     item.children.forEach((c) => renameItem(c, names));
     return;
   }
-  item.guidanceHint = renamed(item.guidanceHint, names);
   item.constraintMessage = renamed(item.constraintMessage, names);
   if (item.otherLabel) item.otherLabel = renamed(item.otherLabel, names);
 }

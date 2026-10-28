@@ -89,17 +89,22 @@ function isTrue(value: unknown): boolean {
   return s === 'yes' || s === 'true' || s === '1';
 }
 
-function baseFields(row: Row) {
+/** Non-empty: some language has text. */
+function hasText(text: Text): boolean {
+  return Object.values(text).some((t) => t.trim());
+}
+
+function baseFields(row: Row, sheet: 'survey' | 'group' = 'survey') {
   const concept = readText(row, 'concept');
   return {
     name: cellString(row['name']).trim(),
     label: readText(row, 'label'),
     hint: readText(row, 'hint'),
-    ...(Object.values(concept).some((t) => t.trim()) ? { concept } : {}),
+    ...(hasText(concept) ? { concept } : {}),
     relevant: cellString(row['relevant']).trim(),
     appearance: cellString(row['appearance']).trim().toLowerCase(),
     row,
-    ...withColumns(otherColumns(row, 'survey')),
+    ...withColumns(otherColumns(row, sheet)),
   };
 }
 
@@ -114,7 +119,7 @@ function question(row: Row, rawType: string): QuestionItem {
   const parameters = cellString(row['parameters']);
   const guidance = readText(row, 'guidance_hint');
   const fromParams = guidanceFromParameters(parameters);
-  if (Object.values(guidance).every((t) => !t.trim()) && fromParams) {
+  if (!hasText(guidance) && fromParams) {
     guidance[''] = fromParams;
   }
   return {
@@ -144,9 +149,11 @@ function parseBody(survey: Row[]): Item[] {
     const rawType = cellString(row['type']).trim();
     if (!rawType) continue;
     if (/^begin[_ ]group$/.test(rawType)) {
+      const guidance = readText(row, 'guidance_hint');
       const group: GroupItem = {
         kind: 'group',
-        ...baseFields(row),
+        ...baseFields(row, 'group'),
+        ...(hasText(guidance) ? { guidanceHint: guidance } : {}),
         children: [],
         closed: false,
       };
