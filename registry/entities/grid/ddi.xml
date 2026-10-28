@@ -23,7 +23,6 @@
   <dataDscr>
     <varGrp ID="VG_institutionen" name="institutionen" type="grid" var="V_vertrauenparlament V_vertrauenpolizei">
       <txt>Vertrauen in Institutionen</txt>
-      <concept>Vertrauen in Institutionen</concept>
     </varGrp>
     <var ID="V_vertrauenparlament" name="vertrauenparlament" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -50,7 +49,6 @@
         <catValu>5</catValu>
         <labl>Vollständig</labl>
       </catgry>
-      <concept>Das Parlament</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala5</notes>
     </var>
@@ -79,7 +77,6 @@
         <catValu>5</catValu>
         <labl>Vollständig</labl>
       </catgry>
-      <concept>Die Polizei</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala5</notes>
     </var>

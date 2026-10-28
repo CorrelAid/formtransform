@@ -31,22 +31,18 @@
     <varGrp ID="VG_person" name="person" type="section" var="V_beruf V_bildung" varGrp="VG_sprachen VG_quelle">
       <txt>Zur Person</txt>
       <txt xml:lang="en">About you</txt>
-      <concept>Zur Person</concept>
     </varGrp>
     <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
       <txt>Wie sehr vertrauen Sie …</txt>
       <txt xml:lang="en">How much do you trust …</txt>
-      <concept>Wie sehr vertrauen Sie …</concept>
     </varGrp>
     <varGrp ID="VG_sprachen" name="sprachen" type="multipleResp" var="V_sprachen_de V_sprachen_en">
       <txt>Welche Sprachen sprechen Sie?</txt>
       <txt xml:lang="en">Which languages do you speak?</txt>
-      <concept>Welche Sprachen sprechen Sie?</concept>
     </varGrp>
     <varGrp ID="VG_quelle" name="quelle" type="other" var="V_quelle V_quelle_other">
       <txt>Wie haben Sie von uns erfahren?</txt>
       <txt xml:lang="en">How did you hear about us?</txt>
-      <concept>Wie haben Sie von uns erfahren?</concept>
       <notes type="cdl:or_other">shorthand</notes>
     </varGrp>
     <var ID="V_beruf" name="beruf" intrvl="discrete" files="F1">
@@ -59,7 +55,6 @@
         <postQTxt xml:lang="en">Current job</postQTxt>
         <ivuInstr>Nicht vorlesen</ivuInstr>
       </qstn>
-      <concept>Was ist Ihr Beruf?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:note_names">person_note</notes>
     </var>
@@ -82,7 +77,6 @@
         <labl>Abitur</labl>
         <labl xml:lang="en">A levels</labl>
       </catgry>
-      <concept>Höchster Abschluss?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sprachen_de" name="sprachen_de" intrvl="discrete" files="F1">
@@ -98,7 +92,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Sprachen sprechen Sie?: Deutsch</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sprachen_en" name="sprachen_en" intrvl="discrete" files="F1">
@@ -114,7 +107,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Sprachen sprechen Sie?: Englisch</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_quelle" name="quelle" intrvl="discrete" files="F1">
@@ -137,7 +129,6 @@
         <labl>Sonstiges:</labl>
         <labl xml:lang="en">Other:</labl>
       </catgry>
-      <concept>Wie haben Sie von uns erfahren?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_quelle_other" name="quelle_other" intrvl="discrete" files="F1">
@@ -148,7 +139,6 @@
       </qstn>
       <universe clusion="I">Nur wenn „Wie haben Sie von uns erfahren?“ = Sonstiges:</universe>
       <universe clusion="I" xml:lang="en">Only if “How did you hear about us?” = Other:</universe>
-      <concept>Sonstiges:</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${quelle} = 'other'</notes>
     </var>
@@ -176,7 +166,6 @@
         <labl>sehr</labl>
         <labl xml:lang="en">very much</labl>
       </catgry>
-      <concept>… dem Parlament?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala</notes>
     </var>
@@ -202,7 +191,6 @@
         <labl>sehr</labl>
         <labl xml:lang="en">very much</labl>
       </catgry>
-      <concept>… der Polizei?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala</notes>
     </var>

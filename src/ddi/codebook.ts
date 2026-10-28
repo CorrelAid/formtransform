@@ -2,7 +2,7 @@
  * Build DDI-Codebook 2.5 XML from parsed survey data.
  *
  * Output structure (qwacback-compatible):
- * - `<concept>` (not `<labl>`) on `<var>` / `<varGrp>`
+ * - `<concept>` only from the form's `concept` column (#173), never `<labl>`
  * - `responseDomainType` on every `<qstn>`
  * - `select_multiple` expands into `<varGrp type="multipleResp">` + binary vars
  * - grid groups (`appearance="table-list"`) as `<varGrp type="grid">`
@@ -117,10 +117,13 @@ interface AddVarSpec {
   /** The source variable's hint (→ postQTxt) and guidance hint (→ ivuInstr). */
   hint?: string;
   guidanceHint?: string;
-  /** `label` / `hint` / `guidanceHint` in the form's other languages. */
+  /** The form's `concept` column (#173). */
+  concept?: string;
+  /** `label` / `hint` / `guidanceHint` / `concept` in the other languages. */
   labelTranslations?: Translations;
   hintTranslations?: Translations;
   guidanceHintTranslations?: Translations;
+  conceptTranslations?: Translations;
   /** The variable whose logic (#151) this `<var>` carries. */
   logic?: { v: Variable; ctx: LogicContext };
 }
@@ -130,13 +133,39 @@ function specTranslations(
   v: Variable,
 ): Pick<
   AddVarSpec,
-  'labelTranslations' | 'hintTranslations' | 'guidanceHintTranslations'
+  | 'labelTranslations'
+  | 'hintTranslations'
+  | 'guidanceHintTranslations'
+  | 'conceptTranslations'
 > {
   return {
     labelTranslations: textsOf(v, 'label'),
     hintTranslations: textsOf(v, 'hint'),
     guidanceHintTranslations: textsOf(v, 'guidanceHint'),
+    conceptTranslations: textsOf(v, 'concept'),
   };
+}
+
+/**
+ * `<concept>`s: the form's concept in each language that has one (#173),
+ * none without. An external code list's `@vocab` is on the first, which is
+ * empty when the form states no concept.
+ */
+function addConcept(
+  el: XmlElement,
+  concept: string | undefined,
+  translations: Translations | undefined,
+  vocab = '',
+): void {
+  const attrs: Record<string, string> = vocab ? { vocab } : {};
+  if (concept) {
+    localizedChild(el, 'concept', concept, translations, attrs);
+    return;
+  }
+  if (vocab) el.child('concept', attrs);
+  for (const [lang, text] of Object.entries(translations ?? {})) {
+    el.textChild('concept', text, { 'xml:lang': lang });
+  }
 }
 
 /**
@@ -165,6 +194,7 @@ function categoricalFormat(
  * Append one `<var>`. Element order: `qstn → valrng → universe → catgry* →
  * concept → varFormat → notes`.
  * With `vocab`, no `<catgry>` is emitted and `<concept>` carries `@vocab`.
+ * Without a concept or vocab there is no `<concept>` (#173).
  */
 function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
   const { varId, name, label, varType, choices } = spec;
@@ -194,7 +224,7 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
 
   if (!vocab) addCategories(varEl, choices);
 
-  varEl.textChild('concept', label, vocab ? { vocab } : {});
+  addConcept(varEl, spec.concept, spec.conceptTranslations, vocab);
   varEl.child('varFormat', {
     type: fmtType,
     schema: 'other',
@@ -346,7 +376,6 @@ function addBinaryVar(
     varEl.child('catgry').textChild('catValu', val);
   }
 
-  varEl.textChild('concept', `${questionLabel}: ${choiceLabel}`);
   varEl.child('varFormat', { type: 'numeric', schema: 'other' });
 
   return varEl;
@@ -408,7 +437,8 @@ function emitOtherPattern(
       varGrp: childId,
     });
     localizedChild(parentEl, 'txt', label, labelTranslations);
-    parentEl.textChild('concept', label);
+    // The question is this group: its concept is here, not on the child.
+    addConcept(parentEl, base.concept, textsOf(base, 'concept'));
     // No var has the question's name: the parent group carries its logic,
     // and a note before it.
     addGroupLogic(parentEl, base, ctx, { note: notes, name: baseName });
@@ -428,7 +458,6 @@ function emitOtherPattern(
       var: childMembers,
     });
     localizedChild(childEl, 'txt', label, labelTranslations);
-    childEl.textChild('concept', label);
   } else {
     const parentEl = dataDscr.child('varGrp', {
       ID: makeGrpId(baseName),
@@ -437,7 +466,6 @@ function emitOtherPattern(
       var: [makeVarId(baseName), makeVarId(otherVar.name)].join(' '),
     });
     localizedChild(parentEl, 'txt', label, labelTranslations);
-    parentEl.textChild('concept', label);
     addOrOtherNote(parentEl, p);
   }
 }
@@ -471,6 +499,7 @@ function emitOtherPatternVars(
       },
       hint: base.hint,
       guidanceHint: base.guidanceHint,
+      concept: base.concept,
       ...specTranslations(base),
       logic: { v: base, ctx },
     });
@@ -485,6 +514,7 @@ function emitOtherPatternVars(
     choices: [],
     hint: otherVar.hint,
     guidanceHint: otherVar.guidanceHint,
+    concept: otherVar.concept,
     ...specTranslations(otherVar),
     logic: { v: otherVar, ctx },
   });
@@ -826,7 +856,7 @@ function addSection(
   });
   const label = group.label || group.name;
   localizedChild(grpEl, 'txt', label, group.translations);
-  grpEl.textChild('concept', label);
+  addConcept(grpEl, group.concept, group.conceptTranslations);
   addUniverse(grpEl, node.universe, ctx);
   addRelevantNote(grpEl, group.relevant);
   addGroupFieldNotes(grpEl, group, false);
@@ -858,8 +888,10 @@ function addVarGroups(
       ...(node?.groups.length ? { varGrp: node.groups.join(' ') } : {}),
     });
     localizedChild(grpEl, 'txt', group.label, group.translations);
-    grpEl.textChild('concept', group.label);
-    if (node) addUniverse(grpEl, node.universe, ctx);
+    if (node) {
+      addConcept(grpEl, node.group.concept, node.group.conceptTranslations);
+      addUniverse(grpEl, node.universe, ctx);
+    }
     // A lead-in note belongs to the group: a member's preQTxt must equal txt.
     addGroupNote(grpEl, notes, members[0]?.name ?? '');
     if (node) {
@@ -876,7 +908,7 @@ function addVarGroups(
       var: smVar.choices.map((c) => makeVarId(`${smName}_${c.name}`)).join(' '),
     });
     localizedChild(grpEl, 'txt', smVar.label, textsOf(smVar, 'label'));
-    grpEl.textChild('concept', smVar.label);
+    addConcept(grpEl, smVar.concept, textsOf(smVar, 'concept'));
     addGroupLogic(grpEl, smVar, ctx, { note: notes, name: smName });
   }
 
@@ -923,6 +955,7 @@ function addVars(
         },
         hint: unit.v.hint,
         guidanceHint: unit.v.guidanceHint,
+        concept: unit.v.concept,
         ...specTranslations(unit.v),
         logic: { v: unit.v, ctx },
       });
@@ -953,6 +986,7 @@ function addStandaloneVar(
     },
     hint: v.hint,
     guidanceHint: v.guidanceHint,
+    concept: v.concept,
     ...specTranslations(v),
     logic: { v, ctx },
   });

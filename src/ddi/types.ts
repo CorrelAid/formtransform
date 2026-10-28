@@ -53,6 +53,10 @@ export interface DdiGroup {
   appearanceCell?: string;
   /** `hint` in the form's other languages. */
   hintTranslations?: Translations;
+  /** Its `concept` column: the `<concept>` (#173); absent when none. */
+  concept?: string;
+  /** `concept` in the form's other languages. */
+  conceptTranslations?: Translations;
 }
 
 /** A variable's texts in one of the form's other languages. */
@@ -62,6 +66,7 @@ export interface VariableTexts {
   guidanceHint?: string;
   groupLabel?: string;
   constraintMessage?: string;
+  concept?: string;
 }
 
 /** One data-carrying (or note) row of a survey, normalized. */
@@ -88,6 +93,11 @@ export interface Variable {
   hint?: string;
   /** XLSForm `guidance_hint`, emitted as `<qstn><ivuInstr>`. */
   guidanceHint?: string;
+  /**
+   * XLSForm `concept` column, emitted as `<concept>` (#173). Absent when the
+   * form has none: the codebook then has no concept, not the label.
+   */
+  concept?: string;
   /**
    * The enclosing groups, outermost first (#152). Without it the codebook
    * has no `section` groups.

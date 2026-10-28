@@ -25,7 +25,7 @@
       <qstn responseDomainType="multiple" seqNo="1">
         <qstnLit>Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich.</qstnLit>
       </qstn>
-      <concept vocab="iso_3166_1">Welche dieser Länder haben Sie bereits besucht? Mehrere Antworten möglich.</concept>
+      <concept vocab="iso_3166_1"/>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

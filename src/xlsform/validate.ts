@@ -203,6 +203,7 @@ export class XLSValidator {
       'default',
       'appearance',
       'parameters',
+      'concept',
     ];
     const unexpectedColumns = [...allColumns].filter(
       (col) => !expectedColumns.includes(col) && !col.startsWith('_'),

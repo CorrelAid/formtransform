@@ -27,7 +27,6 @@
         <preQTxt>Validation and Relevance Test Survey</preQTxt>
         <qstnLit>Username</qstnLit>
       </qstn>
-      <concept>Username</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">. != ''</notes>
       <notes type="cdl:constraint_message">Username cannot be empty</notes>
@@ -40,7 +39,6 @@
       <valrng>
         <range min="18" max="120"/>
       </valrng>
-      <concept>Age</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= 18 and . &lt;= 120</notes>
       <notes type="cdl:constraint_message">Age must be between 18 and 120</notes>
@@ -52,7 +50,6 @@
       <valrng>
         <range minExclusive="0" maxExclusive="1000"/>
       </valrng>
-      <concept>Price</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">. &gt; 0 and . &lt; 1000</notes>
       <notes type="cdl:constraint_message">Price must be between 0 and 1000</notes>
@@ -69,7 +66,6 @@
         <catValu>no</catValu>
         <labl>No</labl>
       </catgry>
-      <concept>Do you consent?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">yes_no</notes>
     </var>
@@ -79,7 +75,6 @@
         <backward qstn="V_age"/>
       </qstn>
       <universe clusion="I">Only if “Age” ≥ 18</universe>
-      <concept>Adult Information</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt;= 18</notes>
       <notes type="cdl:constraint" subject="xlsform-xpath">. != ''</notes>
@@ -90,7 +85,6 @@
         <backward qstn="V_age"/>
       </qstn>
       <universe clusion="I">Only if “Age” ≥ 65</universe>
-      <concept>Senior Discount Code</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt;= 65</notes>
     </var>
@@ -100,7 +94,6 @@
         <backward qstn="V_consent"/>
       </qstn>
       <universe clusion="I">Only if “Do you consent?” = Yes</universe>
-      <concept>Additional Information</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${consent} = 'yes'</notes>
     </var>
@@ -110,7 +103,6 @@
         <backward qstn="V_age V_consent"/>
       </qstn>
       <universe clusion="I">Only if “Age” ≥ 18 and “Do you consent?” = Yes</universe>
-      <concept>Complex Relevance Test</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt;= 18 and ${consent} = 'yes'</notes>
     </var>
@@ -120,7 +112,6 @@
         <backward qstn="V_age V_consent"/>
       </qstn>
       <universe clusion="I">Only if “Age” &lt; 18 or “Do you consent?” = No</universe>
-      <concept>OR Relevance Test</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &lt; 18 or ${consent} = 'no'</notes>
     </var>
@@ -129,7 +120,6 @@
         <qstnLit>String Function Test</qstnLit>
         <backward qstn="V_username"/>
       </qstn>
-      <concept>String Function Test</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">string-length(${username}) &gt; 3</notes>
       <notes type="cdl:constraint" subject="xlsform-xpath">string-length(.) &gt;= 5</notes>
@@ -140,7 +130,6 @@
         <backward qstn="V_age"/>
       </qstn>
       <universe clusion="I">Only if “Age” &gt; 21</universe>
-      <concept>Math Function Test</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt; 21</notes>
       <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= ${age} * 2</notes>

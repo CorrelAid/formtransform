@@ -23,7 +23,6 @@
   <dataDscr>
     <varGrp ID="VG_wochenende" name="wochenende" type="multipleResp" var="V_wochenende_sa V_wochenende_so">
       <txt>An welchen Tagen des Wochenendes sind Sie erreichbar?</txt>
-      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?</concept>
       <notes type="cdl:list">wochenendtage</notes>
     </varGrp>
     <var ID="V_wochenende_sa" name="wochenende_sa" intrvl="discrete" files="F1">
@@ -37,7 +36,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?: Samstag</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_wochenende_so" name="wochenende_so" intrvl="discrete" files="F1">
@@ -51,7 +49,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>An welchen Tagen des Wochenendes sind Sie erreichbar?: Sonntag</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>

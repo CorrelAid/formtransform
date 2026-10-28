@@ -25,7 +25,7 @@
       <qstn responseDomainType="category" seqNo="1">
         <qstnLit>In welchem Land wurden Sie geboren?</qstnLit>
       </qstn>
-      <concept vocab="iso_3166_1">In welchem Land wurden Sie geboren?</concept>
+      <concept vocab="iso_3166_1"/>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

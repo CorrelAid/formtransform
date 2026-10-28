@@ -241,11 +241,6 @@ ASSERT_MUTATIONS = [
     ("type:select_one", _sub1(r'<qstn responseDomainType="[^"]+"', "<qstn"), "missing responseDomainType"),
     ("type:select_one", _sub1(r"<qstnLit>.*?</qstnLit>", ""), "missing a question literal"),
     ("type:select_one", _sub1(r"<varFormat[^>]*/>", ""), "missing technical format"),
-    (
-        "type:select_one",
-        _sub1(r"(<var\s[^>]*>.*?)<concept>[^<]*</concept>", r"\1<concept> </concept>"),
-        "missing a concept element",
-    ),
     ("type:select_one", _insert_after_first("</qstn>", "<labl>x</labl>"), "uses labl"),
     (
         "type:select_one",
@@ -257,7 +252,6 @@ ASSERT_MUTATIONS = [
         _sub1(r'(<varGrp\s[^>]*?)\s+name="[^"]+"', r"\1"),
         "Variable Group VG_institutionen is missing a name",
     ),
-    ("composite:grid", _sub1(r"(<varGrp\s[^>]*>.*?)<concept>[^<]*</concept>", r"\1"), "is missing a concept element"),
     ("composite:grid", _sub1(r"(<varGrp\s[^>]*>)", r"\1<labl>x</labl>"), "Variable Group VG_institutionen uses labl"),
     ("type:select_one", _sub1(r"<catValu>[^<]*</catValu>", ""), "A catgry element is missing catValu"),
     (
@@ -388,27 +382,30 @@ def test_unnamespaced_rules_reject_the_same(variant_id, mutator, message, worker
     _run_assert_mutation(variant_id, mutator, message, worker_jar, java_bin, tmp_path, strip_ns=True)
 
 
-def test_several_concepts_are_allowed(worker_jar, java_bin, tmp_path):
-    """DDI 2.5 allows any number of <concept> (e.g. one per language, #124);
-    the concept assert must not crash on two, and still rejects all-empty."""
+def test_concept_is_optional(worker_jar, java_bin, tmp_path):
+    """<concept> is optional (#173): a var and a varGrp validate with none,
+    with one per language (DDI 2.5 allows any number, #124) and with an
+    empty one."""
     from .fixtures import load_registry
 
-    variant = next(e for e in load_registry() if e.get("@id") == "type:select_one")
-    xml = load_example_ddi(variant)
-    two = re.sub(
-        r"(<concept>[^<]*</concept>)",
-        r'\1<concept xml:lang="en">Search tag</concept>',
-        xml,
-        count=2,
-    )
-    rc, out = _validate(java_bin, worker_jar, two.encode(), tmp_path)
-    assert rc == 0, out[out.index("{") :][:800]
+    registry = load_registry()
+    for slug in ("type:select_one", "composite:grid"):
+        variant = next(e for e in registry if e.get("@id") == slug)
+        xml = load_example_ddi(variant)
+        assert "<concept" not in xml, f"{slug}: the blessed codebook has a concept, but its form has no concept column"
+        rc, out = _validate(java_bin, worker_jar, xml.encode(), tmp_path)
+        assert rc == 0, out[out.index("{") :][:800]
 
-    empty = re.sub(r"<concept>[^<]*</concept>", "<concept> </concept>", two)
-    empty = re.sub(r'<concept xml:lang="en">[^<]*</concept>', '<concept xml:lang="en"></concept>', empty)
-    rc, out = _validate(java_bin, worker_jar, empty.encode(), tmp_path)
-    messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
-    assert rc == 1 and any("missing a concept element" in m for m in messages), messages
+    variant = next(e for e in registry if e.get("@id") == "type:select_one")
+    xml = load_example_ddi(variant)
+    for concepts in (
+        '<concept>Trust</concept><concept xml:lang="en">Search tag</concept>',
+        "<concept> </concept>",
+    ):
+        with_concepts = xml.replace("<varFormat", concepts + "<varFormat", 1)
+        assert with_concepts != xml
+        rc, out = _validate(java_bin, worker_jar, with_concepts.encode(), tmp_path)
+        assert rc == 0, out[out.index("{") :][:800]
 
 
 def test_typed_notes_and_one_untyped_note_per_language(worker_jar, java_bin, tmp_path):

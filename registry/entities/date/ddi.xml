@@ -25,7 +25,6 @@
       <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Wann wurden Sie geboren?</qstnLit>
       </qstn>
-      <concept>Wann wurden Sie geboren?</concept>
       <varFormat type="character" schema="other" category="date"/>
     </var>
   </dataDscr>

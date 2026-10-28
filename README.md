@@ -210,6 +210,12 @@ names are in standard DDI where it has a place and typed notes where not
 as far as its standard elements go, with a warning per missing field
 ([`src/pipelines/ddi2xlsform/README.md`](src/pipelines/ddi2xlsform/README.md)).
 
+**`<concept>` is optional** (#173). The codebook has one only where the form
+says what a question or group measures, in an optional `concept` column
+(`concept::<lang>` per language, like `label`); a `select_*_from_file` keeps
+its `concept/@vocab`. A form without the column gets no concept: the label
+is the question, not its concept.
+
 ## Errors and warnings
 
 Every error the library throws is a `ConversionError` with a stable `code`

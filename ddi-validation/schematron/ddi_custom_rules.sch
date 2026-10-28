@@ -20,15 +20,14 @@
     </pattern>
 
     <pattern id="essentials">
-    <!-- Variable essentials -->
+    <!-- Variable essentials. concept is optional (formtransform#173): a form states one or none. -->
     <rule context="ddi:var">
         <assert test="@name">Variable <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@intrvl">Variable <value-of select="@name"/> is missing an intrvl attribute (use "discrete" or "contin").</assert>
         <assert test="ddi:qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="ddi:qstn/ddi:qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="ddi:varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="ddi:concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
-        <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
         <assert test="every $l in distinct-values(ddi:notes[not(@type)]/string(@xml:lang)) satisfies count(ddi:notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -36,8 +35,7 @@
     <rule context="ddi:varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
-        <assert test="ddi:concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
-        <assert test="not(ddi:labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(ddi:labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is 'multiple' (checkboxes) -->
@@ -45,15 +43,14 @@
         <assert test="ddi:catValu">A catgry element is missing catValu.</assert>
         <assert test="ddi:labl or ancestor::ddi:var/ddi:qstn/@responseDomainType = 'multiple'">A catgry element (value: <value-of select="ddi:catValu"/>) is missing a labl (required for responseDomainType="category").</assert>
     </rule>
-    <!-- Variable essentials -->
+    <!-- Variable essentials. concept is optional (formtransform#173): a form states one or none. -->
     <rule context="var">
         <assert test="@name">Variable <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@intrvl">Variable <value-of select="@name"/> is missing an intrvl attribute (use "discrete" or "contin").</assert>
         <assert test="qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="qstn/qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
-        <assert test="not(labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
         <assert test="every $l in distinct-values(notes[not(@type)]/string(@xml:lang)) satisfies count(notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -61,8 +58,7 @@
     <rule context="varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
-        <assert test="concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
-        <assert test="not(labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is 'multiple' (checkboxes) -->

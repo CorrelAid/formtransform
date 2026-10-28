@@ -25,17 +25,14 @@
   <dataDscr>
     <varGrp ID="VG_demographics" name="demographics" type="section" var="V_full_name V_age V_gender">
       <txt>Demographics</txt>
-      <concept>Demographics</concept>
     </varGrp>
     <varGrp ID="VG_preferences" name="preferences" type="section" var="V_satisfaction_level V_other_comments" varGrp="VG_favorite_colors">
       <txt>Preferences</txt>
-      <concept>Preferences</concept>
       <universe clusion="I">Only if “Age” ≥ 18</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt;= 18</notes>
     </varGrp>
     <varGrp ID="VG_favorite_colors" name="favorite_colors" type="multipleResp" var="V_favorite_colors_red V_favorite_colors_blue V_favorite_colors_green V_favorite_colors_yellow">
       <txt>What are your favorite colors?</txt>
-      <concept>What are your favorite colors?</concept>
       <universe clusion="I">Only if “Age” ≥ 18</universe>
       <notes type="cdl:list">colors</notes>
     </varGrp>
@@ -43,7 +40,6 @@
       <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Full Name</qstnLit>
       </qstn>
-      <concept>Full Name</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
     </var>
@@ -54,7 +50,6 @@
       <valrng>
         <range min="18" max="120"/>
       </valrng>
-      <concept>Age</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= 18 and . &lt;= 120</notes>
       <notes type="cdl:constraint_message">Age must be between 18 and 120</notes>
@@ -75,7 +70,6 @@
         <catValu>othr</catValu>
         <labl>Other</labl>
       </catgry>
-      <concept>Gender</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_favorite_colors_red" name="favorite_colors_red" intrvl="discrete" files="F1">
@@ -91,7 +85,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>What are your favorite colors?: Red</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_favorite_colors_blue" name="favorite_colors_blue" intrvl="discrete" files="F1">
@@ -107,7 +100,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>What are your favorite colors?: Blue</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_favorite_colors_green" name="favorite_colors_green" intrvl="discrete" files="F1">
@@ -123,7 +115,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>What are your favorite colors?: Green</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_favorite_colors_yellow" name="favorite_colors_yellow" intrvl="discrete" files="F1">
@@ -139,7 +130,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>What are your favorite colors?: Yellow</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_satisfaction_level" name="satisfaction_level" intrvl="discrete" files="F1">
@@ -155,7 +145,6 @@
         <catValu>unhp</catValu>
         <labl>Unhappy</labl>
       </catgry>
-      <concept>How satisfied are you?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">satisfaction</notes>
     </var>
@@ -165,7 +154,6 @@
         <backward qstn="V_satisfaction_level"/>
       </qstn>
       <universe clusion="I">Only if “Age” ≥ 18 and “How satisfied are you?” = “unhappy”</universe>
-      <concept>Any other comments?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${satisfaction_level} = 'unhappy'</notes>
     </var>
@@ -173,7 +161,6 @@
       <qstn responseDomainType="text" seqNo="7">
         <qstnLit>Date of survey</qstnLit>
       </qstn>
-      <concept>Date of survey</concept>
       <varFormat type="character" schema="other" category="date"/>
       <notes type="cdl:default">today()</notes>
     </var>

@@ -25,7 +25,6 @@
       <qstn responseDomainType="numeric" seqNo="1">
         <qstnLit>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</qstnLit>
       </qstn>
-      <concept>Wie viele Stunden schlafen Sie durchschnittlich pro Nacht?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>

@@ -34,38 +34,31 @@
   <dataDscr>
     <varGrp ID="VG_teilnahme" name="teilnahme" type="section" var="V_dauer V_haeufigkeit V_stunden_gesamt V_hauptwerkstatt V_vorwissen" varGrp="VG_bereiche">
       <txt>teilnahme</txt>
-      <concept>teilnahme</concept>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_wirkung" name="wirkung" type="section" var="V_wohlfuehlen V_freundschaften V_eigene_ideen V_problemloesung V_skills_gelernt V_beruf_pre V_beruf_post V_attribution_beruf">
       <txt>wirkung</txt>
-      <concept>wirkung</concept>
       <notes type="cdl:hint">Bitte gib an, wie sehr du zustimmst (1 = stimme gar nicht zu, 5 = stimme voll zu):</notes>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_erfahrungen" name="erfahrungen" type="section" var="V_projekte V_am_meisten_gebracht V_verbesserungen">
       <txt>erfahrungen</txt>
-      <concept>erfahrungen</concept>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_empfehlung" name="empfehlung" type="section" var="V_nps_score">
       <txt>empfehlung</txt>
-      <concept>empfehlung</concept>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_demografie" name="demografie" type="section" var="V_alter V_geschlecht V_geschlecht_andere">
       <txt>demografie</txt>
-      <concept>demografie</concept>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_intro" name="intro" type="section">
       <txt>intro</txt>
-      <concept>intro</concept>
       <notes type="cdl:no_label">yes</notes>
     </varGrp>
     <varGrp ID="VG_bereiche" name="bereiche" type="multipleResp" var="V_bereiche_holz V_bereiche_metall V_bereiche_textil V_bereiche_digital">
       <txt>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</txt>
-      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich)</concept>
     </varGrp>
     <var ID="V_dauer" name="dauer" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -91,7 +84,6 @@
         <catValu>l_nger_als_drei_jahre</catValu>
         <labl>Länger als drei Jahre</labl>
       </catgry>
-      <concept>Wie lange kommst du schon zu TestWerk?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -115,7 +107,6 @@
         <catValu>4</catValu>
         <labl>Sehr oft (jede Woche oder öfter)</labl>
       </catgry>
-      <concept>Wie oft kommst du ungefähr?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -124,7 +115,6 @@
         <qstnLit>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</qstnLit>
         <postQTxt>z.B. 10, 50, 100...</postQTxt>
       </qstn>
-      <concept>Ca. wie viele Stunden warst du insgesamt bei TestWerk? (grobe Schätzung reicht)</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_hauptwerkstatt" name="hauptwerkstatt" intrvl="discrete" files="F1">
@@ -151,7 +141,6 @@
         <catValu>keine</catValu>
         <labl>Ich wechsle gleichmäßig</labl>
       </catgry>
-      <concept>In welcher Werkstatt bist du hauptsächlich?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -166,7 +155,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Holzwerkstatt</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_metall" name="bereiche_metall" intrvl="discrete" files="F1">
@@ -180,7 +168,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Metallwerkstatt</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_textil" name="bereiche_textil" intrvl="discrete" files="F1">
@@ -194,7 +181,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Textilwerkstatt</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_bereiche_digital" name="bereiche_digital" intrvl="discrete" files="F1">
@@ -208,7 +194,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Bereiche nutzt du überhaupt? (Mehrfachauswahl möglich): Medienwerkstatt/Digital</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_vorwissen" name="vorwissen" intrvl="discrete" files="F1">
@@ -227,7 +212,6 @@
         <catValu>ja</catValu>
         <labl>Ja, viel</labl>
       </catgry>
-      <concept>Hattest du vorher schon handwerkliche Erfahrung?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -255,7 +239,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Ich fühle mich bei TestWerk wohl und akzeptiert.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -285,7 +268,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Ich habe bei TestWerk Freund*innen gefunden.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -315,7 +297,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Ich traue mir zu, eigene Ideen und Projekte umzusetzen.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -345,7 +326,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Wenn bei einem Projekt etwas nicht klappt, finde ich eine Lösung.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -375,7 +355,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Ich habe bei TestWerk handwerkliche Fähigkeiten gelernt.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -406,7 +385,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -437,7 +415,6 @@
         <catValu>5</catValu>
         <labl>Stimme voll zu</labl>
       </catgry>
-      <concept>Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -453,7 +430,6 @@
         <range min="0" max="100"/>
       </valrng>
       <universe clusion="I">Only if “Aktuell habe ich eine klare Vorstellung von meiner beruflichen Zukunft.” ≠ “Bevor ich zu TestWerk kam, hatte ich eine klare Vorstellung von meiner beruflichen Zukunft.”</universe>
-      <concept>Ca. Wie viel Prozent dieser Veränderung geht auf TestWerk zurück?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${beruf_post} != ${beruf_pre}</notes>
       <notes type="cdl:parameters">start=0 end=100 step=5</notes>
@@ -462,21 +438,18 @@
       <qstn responseDomainType="text" seqNo="15">
         <qstnLit>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</qstnLit>
       </qstn>
-      <concept>Was hast du bei TestWerk gemacht oder gebaut? (gerne Beispiele)</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_am_meisten_gebracht" name="am_meisten_gebracht" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="16">
         <qstnLit>Was hat dir bei TestWerk am meisten gebracht?</qstnLit>
       </qstn>
-      <concept>Was hat dir bei TestWerk am meisten gebracht?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_verbesserungen" name="verbesserungen" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="17">
         <qstnLit>Was könnten wir besser machen?</qstnLit>
       </qstn>
-      <concept>Was könnten wir besser machen?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_nps_score" name="nps_score" intrvl="discrete" files="F1">
@@ -528,7 +501,6 @@
         <catValu>10</catValu>
         <labl>10</labl>
       </catgry>
-      <concept>Würdest du TestWerk Freund*innen empfehlen?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">likert</notes>
@@ -554,7 +526,6 @@
         <catValu>4</catValu>
         <labl>Älter</labl>
       </catgry>
-      <concept>Wie alt bist du? (optional)</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geschlecht" name="geschlecht" intrvl="discrete" files="F1">
@@ -581,7 +552,6 @@
         <catValu>andere</catValu>
         <labl>Anderes Geschlecht</labl>
       </catgry>
-      <concept>Geschlecht (optional)</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_geschlecht_andere" name="geschlecht_andere" intrvl="discrete" files="F1">
@@ -590,7 +560,6 @@
         <backward qstn="V_geschlecht"/>
       </qstn>
       <universe clusion="I">Only if “Geschlecht (optional)” = Anderes Geschlecht</universe>
-      <concept>Falls &quot;Anderes&quot;: Bitte angeben (optional)</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${geschlecht} = 'andere'</notes>
     </var>

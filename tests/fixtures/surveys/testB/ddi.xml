@@ -75,50 +75,41 @@ In accordance with the GDPR, you have the right to access and delete your person
     <varGrp ID="VG_group_lt58n55" name="group_lt58n55" type="section" varGrp="VG_group_lt58n55_rating_technologies_tools VG_group_lt58n55_rating_techniques VG_group_lt58n55_rating_topics VG_group_lt58n55_group_pr7pr34">
       <txt>Deine Fähigkeiten und Erfahrungen</txt>
       <txt xml:lang="en">Your skills and experiences</txt>
-      <concept>Deine Fähigkeiten und Erfahrungen</concept>
     </varGrp>
     <varGrp ID="VG_group_lt58n55_rating_technologies_tools" name="group_lt58n55/rating_technologies_tools" type="section" var="V_sosci_survey V_python V_rstats V_powerbi V_excel V_sql V_git V_jupyter V_tensorflow V_tools_other">
       <txt>Tools</txt>
       <txt xml:lang="en">Tools</txt>
-      <concept>Tools</concept>
     </varGrp>
     <varGrp ID="VG_group_lt58n55_rating_techniques" name="group_lt58n55/rating_techniques" type="section" var="V_survey_design V_indicator_development V_data_collection V_data_cleaning V_descriptive_statistics V_data_visualization V_data_engineering V_automation V_projectplanning V_mlmodeling">
       <txt>Techniken</txt>
       <txt xml:lang="en">Techniques</txt>
-      <concept>Techniken</concept>
       <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_group_lt58n55_rating_topics" name="group_lt58n55/rating_topics" type="section" var="V_wirkungsmessung V_research_design V_survey_research V_data_protection V_resilience_mental_health V_education_research">
       <txt>Themen</txt>
       <txt xml:lang="en">Topics</txt>
-      <concept>Themen</concept>
       <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_group_lt58n55_group_pr7pr34" name="group_lt58n55/group_pr7pr34" type="section" var="V_motivation_skills V_motivation_why V_past_applications V_past_applications_details">
       <txt>Du und das Projekt</txt>
       <txt xml:lang="en">You and the project</txt>
-      <concept>Du und das Projekt</concept>
     </varGrp>
     <varGrp ID="VG_demographics" name="demographics" type="section" var="V_first_name V_last_name V_email_address V_gender V_gender_self_identification">
       <txt>Über dich</txt>
       <txt xml:lang="en">About you</txt>
-      <concept>Über dich</concept>
     </varGrp>
     <varGrp ID="VG_group_gi4rv46" name="group_gi4rv46" type="section">
       <txt>Hallo!</txt>
-      <concept>Hallo!</concept>
     </varGrp>
     <varGrp ID="VG_project_id" name="project_id" type="multipleResp" var="V_project_id_project-alpha V_project_id_project-beta V_project_id_project-gamma">
       <txt>Für welche Projekte möchtest Du dich bewerben?</txt>
       <txt xml:lang="en">Which project(s) do you want to apply for?</txt>
-      <concept>Für welche Projekte möchtest Du dich bewerben?</concept>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:list">mb5co98</notes>
     </varGrp>
     <varGrp ID="VG_project_role_project-alpha" name="project_role_project-alpha" type="multipleResp" var="V_project_role_project-alpha_role-survey-design V_project_role_project-alpha_role-data-analysis V_project_role_project-alpha_team_coordinator V_project_role_project-alpha_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</txt>
       <txt xml:lang="en">Which role do you think you could fill in Project Alpha?</txt>
-      <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?</concept>
       <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Alpha</universe>
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Alpha</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-alpha')</notes>
@@ -128,7 +119,6 @@ In accordance with the GDPR, you have the right to access and delete your person
     <varGrp ID="VG_project_role_project-beta" name="project_role_project-beta" type="multipleResp" var="V_project_role_project-beta_role-visualization V_project_role_project-beta_role-data-engineering V_project_role_project-beta_team_coordinator V_project_role_project-beta_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Beta?</txt>
       <txt xml:lang="en">Which role do you see yourself in for Project Beta?</txt>
-      <concept>In welcher Rolle siehst du dich im Projekt Beta?</concept>
       <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Beta</universe>
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Beta</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-beta')</notes>
@@ -138,7 +128,6 @@ In accordance with the GDPR, you have the right to access and delete your person
     <varGrp ID="VG_project_role_project-gamma" name="project_role_project-gamma" type="multipleResp" var="V_project_role_project-gamma_role-project-management V_project_role_project-gamma_role-machine-learning V_project_role_project-gamma_team_coordinator V_project_role_project-gamma_team_trainee">
       <txt>In welcher Rolle siehst du dich im Projekt Gamma?</txt>
       <txt xml:lang="en">Which role do you see yourself in for Project Gamma?</txt>
-      <concept>In welcher Rolle siehst du dich im Projekt Gamma?</concept>
       <universe clusion="I">Nur wenn „Für welche Projekte möchtest Du dich bewerben?“ enthält Projekt Gamma</universe>
       <universe clusion="I" xml:lang="en">Only if “Which project(s) do you want to apply for?” includes Project Gamma</universe>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_id}, 'project-gamma')</notes>
@@ -158,7 +147,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Für welche Projekte möchtest Du dich bewerben?: Projekt Alpha</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_id_project-beta" name="project_id_project-beta" intrvl="discrete" files="F1">
@@ -174,7 +162,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Für welche Projekte möchtest Du dich bewerben?: Projekt Beta</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_id_project-gamma" name="project_id_project-gamma" intrvl="discrete" files="F1">
@@ -190,7 +177,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Für welche Projekte möchtest Du dich bewerben?: Projekt Gamma</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-alpha_role-survey-design" name="project_role_project-alpha_role-survey-design" intrvl="discrete" files="F1">
@@ -209,7 +195,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?: Umfragedesign und Datenerhebung</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-alpha_role-data-analysis" name="project_role_project-alpha_role-data-analysis" intrvl="discrete" files="F1">
@@ -228,7 +213,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?: Datenanalyse</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-alpha_team_coordinator" name="project_role_project-alpha_team_coordinator" intrvl="discrete" files="F1">
@@ -247,7 +231,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?: Teamkoordinator:in</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-alpha_team_trainee" name="project_role_project-alpha_team_trainee" intrvl="discrete" files="F1">
@@ -266,7 +249,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Projekt Alpha?: Team Trainee</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-beta_role-visualization" name="project_role_project-beta_role-visualization" intrvl="discrete" files="F1">
@@ -285,7 +267,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Beta?: Datenvisualisierung</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-beta_role-data-engineering" name="project_role_project-beta_role-data-engineering" intrvl="discrete" files="F1">
@@ -304,7 +285,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Beta?: Data Engineering</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-beta_team_coordinator" name="project_role_project-beta_team_coordinator" intrvl="discrete" files="F1">
@@ -323,7 +303,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Beta?: Teamkoordinator:in</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-beta_team_trainee" name="project_role_project-beta_team_trainee" intrvl="discrete" files="F1">
@@ -342,7 +321,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Beta?: Team Trainee</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-gamma_role-project-management" name="project_role_project-gamma_role-project-management" intrvl="discrete" files="F1">
@@ -361,7 +339,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Gamma?: Projektmanagement</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-gamma_role-machine-learning" name="project_role_project-gamma_role-machine-learning" intrvl="discrete" files="F1">
@@ -380,7 +357,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Gamma?: Machine Learning</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-gamma_team_coordinator" name="project_role_project-gamma_team_coordinator" intrvl="discrete" files="F1">
@@ -399,7 +375,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Gamma?: Teamkoordinator:in</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_project_role_project-gamma_team_trainee" name="project_role_project-gamma_team_trainee" intrvl="discrete" files="F1">
@@ -418,7 +393,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>In welcher Rolle siehst du dich im Projekt Gamma?: Team Trainee</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_sosci_survey" name="sosci_survey" intrvl="discrete" files="F1">
@@ -449,7 +423,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>SoSci Survey</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -484,7 +457,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Python</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">true</notes>
@@ -519,7 +491,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>R</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">true</notes>
@@ -554,7 +525,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Power BI</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">true</notes>
@@ -589,7 +559,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Microsoft Excel</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">true</notes>
@@ -624,7 +593,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>SQL</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">true</notes>
@@ -659,7 +627,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Git</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">true</notes>
@@ -694,7 +661,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Jupyter Notebooks</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">true</notes>
@@ -729,7 +695,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>TensorFlow / PyTorch</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">true</notes>
@@ -743,7 +708,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <postQTxt>Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.</postQTxt>
         <postQTxt xml:lang="en">Please specifiy other tools you know that you consider relevant</postQTxt>
       </qstn>
-      <concept>Andere relevante Tools</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">multiline</notes>
     </var>
@@ -775,7 +739,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Entwicklung von Fragebögen</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -810,7 +773,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Entwicklung von Indikatoren</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -845,7 +807,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Datenerhebung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -880,7 +841,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Datenbereinigung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">true</notes>
@@ -915,7 +875,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Deskriptive Statistik</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-data-analysis')</notes>
       <notes type="cdl:required">true</notes>
@@ -950,7 +909,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Datenvisualisierung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-visualization')</notes>
       <notes type="cdl:required">true</notes>
@@ -985,7 +943,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Data Engineering</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">true</notes>
@@ -1020,7 +977,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Automatisierung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-beta}, 'role-data-engineering')</notes>
       <notes type="cdl:required">true</notes>
@@ -1055,7 +1011,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Projektplanung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-project-management')</notes>
       <notes type="cdl:required">true</notes>
@@ -1090,7 +1045,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>ML-Modellierung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-gamma}, 'role-machine-learning')</notes>
       <notes type="cdl:required">true</notes>
@@ -1125,7 +1079,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Wirkungsmessung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1160,7 +1113,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Research Design</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1195,7 +1147,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Umfrageforschung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1230,7 +1181,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Datenschutz</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1265,7 +1215,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Resilienz und Mentale Gesundheit</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1300,7 +1249,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Expert:in</labl>
         <labl xml:lang="en">Expert</labl>
       </catgry>
-      <concept>Bildungsforschung o.ä.</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${project_role_project-alpha}, 'role-survey-design')</notes>
       <notes type="cdl:required">true</notes>
@@ -1314,7 +1262,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <postQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</postQTxt>
         <postQTxt xml:lang="en">Please write maximum 5 sentences per project that you are applying to.</postQTxt>
       </qstn>
-      <concept>Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">multiline</notes>
@@ -1326,7 +1273,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <postQTxt>Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.</postQTxt>
         <postQTxt xml:lang="en">Please write maximum 5 sentences per project that you are applying to.</postQTxt>
       </qstn>
-      <concept>Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:appearance">multiline</notes>
@@ -1353,7 +1299,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Nein, das ist meine erste Bewerbung.</labl>
         <labl xml:lang="en">No, this is my first application.</labl>
       </catgry>
-      <concept>Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:list">il2wc73</notes>
@@ -1368,7 +1313,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       </qstn>
       <universe clusion="I">Nur wenn „Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?“ = Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.</universe>
       <universe clusion="I" xml:lang="en">Only if “Have you applied to a CorrelAid project in the past?” = Yes, but I have not been successful / all my applications have been rejected so far.</universe>
-      <concept>Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${past_applications} = 'not_successful'</notes>
     </var>
@@ -1377,7 +1321,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <qstnLit>Wie lautet dein Vorname?</qstnLit>
         <qstnLit xml:lang="en">What is your first name?</qstnLit>
       </qstn>
-      <concept>Wie lautet dein Vorname?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -1386,7 +1329,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <qstnLit>Wie lautet dein Nachname?</qstnLit>
         <qstnLit xml:lang="en">What is your last name?</qstnLit>
       </qstn>
-      <concept>Wie lautet dein Nachname?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
     </var>
@@ -1395,7 +1337,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <qstnLit>Unter welcher E-Mail Adresse können wir dich erreichen?</qstnLit>
         <qstnLit xml:lang="en">Which email address can we use to contact you?</qstnLit>
       </qstn>
-      <concept>Unter welcher E-Mail Adresse können wir dich erreichen?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:constraint" subject="xlsform-xpath">regex(., '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')</notes>
       <notes type="cdl:constraint_message">Please specify a valid email address.</notes>
@@ -1433,7 +1374,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Mein Geschlecht ist (eigene Angabe):</labl>
         <labl xml:lang="en">My gender is (manually specify):</labl>
       </catgry>
-      <concept>Was ist dein Geschlecht?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:list">iy7os66</notes>
@@ -1448,7 +1388,6 @@ In accordance with the GDPR, you have the right to access and delete your person
       </qstn>
       <universe clusion="I">Nur wenn „Was ist dein Geschlecht?“ = Mein Geschlecht ist (eigene Angabe):</universe>
       <universe clusion="I" xml:lang="en">Only if “What is your gender?” = My gender is (manually specify):</universe>
-      <concept>Mein Geschlecht ist:</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${gender} = 'self_identification'</notes>
       <notes type="cdl:required">true</notes>
@@ -1465,7 +1404,6 @@ In accordance with the GDPR, you have the right to access and delete your person
         <labl>Ja</labl>
         <labl xml:lang="en">Yes</labl>
       </catgry>
-      <concept>Einwilligung in die Datenschutzerklärung</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">true</notes>
       <notes type="cdl:list">mj8ty33</notes>

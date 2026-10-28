@@ -25,7 +25,6 @@
   <dataDscr>
     <varGrp ID="VG_medien" name="medien" type="multipleResp" var="V_medien_tv V_medien_radio">
       <txt>Welche Medien nutzen Sie?</txt>
-      <concept>Welche Medien nutzen Sie?</concept>
     </varGrp>
     <var ID="V_personen" name="personen" intrvl="contin" dcml="0" files="F1">
       <qstn responseDomainType="numeric" seqNo="1">
@@ -33,7 +32,6 @@
         <qstnLit>Wie viele Personen leben in Ihrem Haushalt?</qstnLit>
         <postQTxt>Sie selbst mitgezählt.</postQTxt>
       </qstn>
-      <concept>Wie viele Personen leben in Ihrem Haushalt?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:note_names">intro</notes>
     </var>
@@ -43,7 +41,6 @@
         <postQTxt>Bitte möglichst genau.</postQTxt>
         <ivuInstr>Bei Unklarheit nach der Tätigkeit fragen.</ivuInstr>
       </qstn>
-      <concept>Was ist Ihr Beruf?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_ehrenamt" name="ehrenamt" intrvl="discrete" files="F1">
@@ -59,7 +56,6 @@
         <catValu>nein</catValu>
         <labl>Nein</labl>
       </catgry>
-      <concept>Sind Sie ehrenamtlich tätig?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:parameters">guidance_hint=Auch gelegentliches Engagement zählt.</notes>
       <notes type="cdl:list">janein</notes>
@@ -76,7 +72,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Medien nutzen Sie?: Fernsehen</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
@@ -91,7 +86,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Medien nutzen Sie?: Radio</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>
