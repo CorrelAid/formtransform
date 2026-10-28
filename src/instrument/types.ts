@@ -58,6 +58,11 @@ interface ItemBase {
 
 export interface GroupItem extends ItemBase {
   kind: 'group';
+  /**
+   * Its `guidance_hint` (#179): for interviewers and the codebook, not
+   * shown. Absent when it has none.
+   */
+  guidanceHint?: Text;
   children: Item[];
   /** The source closed it (an `end_group` row); unclosed groups end with the survey. */
   closed: boolean;

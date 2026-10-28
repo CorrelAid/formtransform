@@ -15,7 +15,8 @@
       "name": "group_gi4rv46",
       "label": {
         "de": "Hallo!"
-      }
+      },
+      "required": "false"
     },
     {
       "type": "note",
@@ -89,7 +90,8 @@
       "label": {
         "de": "Deine Fähigkeiten und Erfahrungen",
         "en": "Your skills and experiences"
-      }
+      },
+      "required": "false"
     },
     {
       "type": "begin_group",
@@ -97,7 +99,8 @@
       "label": {
         "de": "Tools",
         "en": "Tools"
-      }
+      },
+      "required": "false"
     },
     {
       "type": "select_one iy6st81",
@@ -234,7 +237,8 @@
         "de": "Techniken",
         "en": "Techniques"
       },
-      "appearance": "field-list"
+      "appearance": "field-list",
+      "required": "false"
     },
     {
       "type": "select_one xe9mo32",
@@ -369,7 +373,8 @@
         "de": "Themen",
         "en": "Topics"
       },
-      "appearance": "field-list"
+      "appearance": "field-list",
+      "required": "false"
     },
     {
       "type": "select_one dm1uu76",
@@ -459,7 +464,8 @@
       "label": {
         "de": "Du und das Projekt",
         "en": "You and the project"
-      }
+      },
+      "required": "false"
     },
     {
       "type": "text",
@@ -527,7 +533,8 @@
       "label": {
         "de": "Über dich",
         "en": "About you"
-      }
+      },
+      "required": "false"
     },
     {
       "type": "text",

@@ -50,7 +50,8 @@ export function addExclusiveNote(el: XmlElement, choices: Choice[]): void {
 }
 
 /**
- * A group's `cdl:hint` (per language) and `cdl:appearance`. A grid's
+ * A group's `cdl:hint` and `cdl:guidance_hint` (per language) and
+ * `cdl:appearance`. A grid's
  * `table-list` is its `type="grid"`, so only another appearance is noted.
  */
 export function addGroupFieldNotes(
@@ -62,6 +63,16 @@ export function addGroupFieldNotes(
     localizedChild(el, 'notes', group.hint, group.hintTranslations, {
       type: NOTES.hint.type,
     });
+  }
+  // A varGrp has no ivuInstr (#179).
+  if (group.guidanceHint) {
+    localizedChild(
+      el,
+      'notes',
+      group.guidanceHint,
+      group.guidanceHintTranslations,
+      { type: NOTES.guidance_hint.type },
+    );
   }
   const gridOnly =
     grid && group.appearance === GRID_APPEARANCE && !group.appearanceCell;
