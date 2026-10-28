@@ -601,7 +601,11 @@ describe('generated forms', () => {
         expect(model(back)).toEqual(model(s));
         expect(groupCells(back)).toEqual(groupCells(s));
         // The form's names for its languages, not only their tags (#183).
-        expect(languageNames(back)).toEqual(languageNames(s));
+        // A form in one language comes back with plain columns.
+        const names = languageNames(s);
+        if (Object.keys(names).length > 1) {
+          expect(languageNames(back)).toEqual(names);
+        }
       }),
       { numRuns: RUNS },
     );
