@@ -9,7 +9,10 @@
 import type { WarningHandler } from '../../diagnostics.js';
 import { languageTagOf } from '../../utils/languageUtils.js';
 import { buildDdiCodebook } from '../../ddi/codebook.js';
-import { instrumentFromXlsform } from '../../instrument/fromXlsform.js';
+import {
+  instrumentFromXlsform,
+  languageNamesOf,
+} from '../../instrument/fromXlsform.js';
 import type { BuildDdiOptions } from '../../ddi/codebook.js';
 
 import {
@@ -34,14 +37,19 @@ function ddiLanguage(
     : undefined;
 }
 
-/** The form's languages: tag → the form's own name (its column suffix). */
+/**
+ * The form's languages, in its order: tag → the form's own name (its column
+ * suffix, `Deutsch (de)`), the tag where the rows name none (#183).
+ */
 function languageNames(
   surveyRows: Record<string, unknown>[],
+  choiceRows: Record<string, unknown>[],
 ): Record<string, string> {
+  const named = languageNamesOf([...surveyRows, ...choiceRows]);
   const names: Record<string, string> = {};
   for (const key of instrumentFromXlsform(surveyRows).languages) {
     const tag = key ? languageTagOf(key) : null;
-    if (tag) names[tag] ??= key;
+    if (tag) names[tag] ??= named[tag] ?? key;
   }
   return names;
 }
@@ -74,7 +82,10 @@ export function buildDdiXml(
     language,
     onWarning,
   });
-  const names = languageNames(surveyRows);
+  const names = languageNames(
+    surveyRows,
+    Array.isArray(choices) ? choices : [],
+  );
   return buildDdiCodebook(variables, {
     languageNames: names,
     language: multilingualBase(names),

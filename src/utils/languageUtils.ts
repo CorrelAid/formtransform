@@ -265,6 +265,23 @@ export function getLanguageCodesFromHeaders(headers: string[]): string[] {
 }
 
 /**
+ * The form's own name for each language tag in the headers, its column
+ * suffix: `label::Deutsch (de)` → `{ de: 'Deutsch (de)' }`, the first one
+ * seen per tag.
+ */
+export function getLanguageNamesFromHeaders(
+  headers: string[],
+): Record<string, string> {
+  const names: Record<string, string> = {};
+  for (const header of headers) {
+    if (typeof header !== 'string') continue;
+    const code = extractLanguageCode(header);
+    if (code) names[code] ??= header.slice(header.lastIndexOf('::') + 2).trim();
+  }
+  return names;
+}
+
+/**
  * Whether `code` is a well-formed BCP 47 tag whose language is known: a
  * registered 2-letter ISO 639-1 code, or a 3-letter one LimeSurvey uses, then
  * optional script (`Hans`), region (`BE`, `419`) and variants (`valencia`).

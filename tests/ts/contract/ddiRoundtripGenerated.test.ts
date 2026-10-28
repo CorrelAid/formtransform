@@ -20,7 +20,10 @@ import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
 import { lstsvToDdiXml } from '../../../src/pipelines/lstsv2ddi/index.js';
 import { instrumentFromDdi } from '../../../src/instrument/fromDdi.js';
 import { instrumentFromLstsv } from '../../../src/instrument/fromLstsv.js';
-import { instrumentFromXlsform } from '../../../src/instrument/fromXlsform.js';
+import {
+  instrumentFromXlsform,
+  languageNamesOf,
+} from '../../../src/instrument/fromXlsform.js';
 import { parseLstsv } from '../../../src/lstsv/parser.js';
 import { allColumns } from '../../../src/conventions/columns.js';
 import conventions from '../../../src/generated/conventions.js';
@@ -34,7 +37,9 @@ import { canonical } from './canonicalInstrument.js';
 
 type Row = Record<string, unknown>;
 
-const LANGS = ['Deutsch (de)', 'English (en)'];
+/** The language columns' suffixes: named as most forms do, or bare tags. */
+const NAMED = ['Deutsch (de)', 'English (en)'];
+const BARE = ['de', 'en'];
 /** Runs per property; `FT_ROUNDTRIP_RUNS=5000` for a longer search. */
 const RUNS = Number(process.env['FT_ROUNDTRIP_RUNS'] ?? 200);
 /** The LimeSurvey paths convert twice more. */
@@ -233,6 +238,8 @@ const block: fc.Arbitrary<Block> = fc.oneof(
 
 const form = fc.record({
   multilingual: fc.boolean(),
+  /** `label::Deutsch (de)` or `label::de` (#183). */
+  named: fc.boolean(),
   /** Columns the model doesn't lift, on some rows of both sheets. */
   columns: fc.boolean(),
   settings: fc.record({
@@ -250,7 +257,12 @@ type Form = typeof form extends fc.Arbitrary<infer F> ? F : never;
  * Columns the model doesn't lift, on every other row: media (per language
  * in a multilingual form), `read_only`, `choice_filter`, a choice filter.
  */
-function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
+function addColumns(
+  survey: Row[],
+  choices: Row[],
+  multilingual: boolean,
+  LANGS: string[],
+) {
   const media = (row: Row, file: string) => {
     if (multilingual) {
       row[`media::image::${LANGS[0]}`] = `${file}-de.png`;
@@ -295,6 +307,7 @@ function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
 
 /** Serialize a generated form to XLSForm rows. */
 function sheets(f: Form) {
+  const LANGS = f.named ? NAMED : BARE;
   const survey: Row[] = [];
   const choices: Row[] = [];
   let n = 0;
@@ -490,7 +503,7 @@ function sheets(f: Form) {
       survey.push({ type: 'end_group' });
     }
   }
-  if (f.columns) addColumns(survey, choices, f.multilingual);
+  if (f.columns) addColumns(survey, choices, f.multilingual, LANGS);
   const settings: Row = Object.fromEntries(
     Object.entries(f.settings).filter(([, v]) => v !== undefined),
   );
@@ -523,6 +536,10 @@ const model = (s: {
       s.settings as Row[],
     ),
   );
+
+/** Each language tag's name in the form's text columns (#183). */
+const languageNames = (s: { survey: unknown[]; choices: unknown[] }) =>
+  languageNamesOf([...(s.survey as Row[]), ...(s.choices as Row[])]);
 
 /** A group's columns only a question's row lifts, and its guidance_hint. */
 const GROUP_CELLS = new Set([
@@ -583,6 +600,8 @@ describe('generated forms', () => {
         const back = ddiToXlsform(codebook(s));
         expect(model(back)).toEqual(model(s));
         expect(groupCells(back)).toEqual(groupCells(s));
+        // The form's names for its languages, not only their tags (#183).
+        expect(languageNames(back)).toEqual(languageNames(s));
       }),
       { numRuns: RUNS },
     );
