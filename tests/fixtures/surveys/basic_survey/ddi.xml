@@ -30,7 +30,6 @@
       <qstn responseDomainType="text" seqNo="1">
         <qstnLit>What is your name?</qstnLit>
       </qstn>
-      <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
     </var>
@@ -38,7 +37,6 @@
       <qstn responseDomainType="numeric" seqNo="2">
         <qstnLit>What is your age?</qstnLit>
       </qstn>
-      <concept>What is your age?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:required">yes</notes>
     </var>
@@ -54,7 +52,6 @@
         <catValu>no</catValu>
         <labl>No</labl>
       </catgry>
-      <concept>Do you consent to participate?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:required">yes</notes>
       <notes type="cdl:list">yes_no</notes>

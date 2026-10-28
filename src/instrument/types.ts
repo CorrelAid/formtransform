@@ -37,6 +37,11 @@ interface ItemBase {
   name: string;
   label: Text;
   hint: Text;
+  /**
+   * The `concept` column (#173): what the question or group measures, only
+   * as a source states it. Absent when it states none.
+   */
+  concept?: Text;
   /** XPath, as authored; `''` when absent. */
   relevant: string;
   /** Lowercased and trimmed; `''` when absent. */

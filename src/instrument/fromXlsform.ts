@@ -57,7 +57,13 @@ export function readText(row: Row, base: string): Text {
 }
 
 /** The columns whose texts the model reads, in every language. */
-const TEXT_COLUMNS = ['label', 'hint', 'guidance_hint', 'constraint_message'];
+const TEXT_COLUMNS = [
+  'label',
+  'hint',
+  'guidance_hint',
+  'constraint_message',
+  'concept',
+];
 
 /**
  * Language tags a row's texts use, label first, in column order: a language
@@ -84,10 +90,12 @@ function isTrue(value: unknown): boolean {
 }
 
 function baseFields(row: Row) {
+  const concept = readText(row, 'concept');
   return {
     name: cellString(row['name']).trim(),
     label: readText(row, 'label'),
     hint: readText(row, 'hint'),
+    ...(Object.values(concept).some((t) => t.trim()) ? { concept } : {}),
     relevant: cellString(row['relevant']).trim(),
     appearance: cellString(row['appearance']).trim().toLowerCase(),
     row,

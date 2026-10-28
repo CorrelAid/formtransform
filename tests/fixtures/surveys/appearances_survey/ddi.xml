@@ -28,17 +28,14 @@
   <dataDscr>
     <varGrp ID="VG_seite1" name="seite1" type="section" var="V_wohnort V_anmerkung V_zufrieden">
       <txt>Über Sie</txt>
-      <concept>Über Sie</concept>
       <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_matrix" name="matrix" type="section" var="V_bus V_bahn">
       <txt>Wie oft nutzen Sie …</txt>
-      <concept>Wie oft nutzen Sie …</concept>
       <notes type="cdl:appearance">field-list</notes>
     </varGrp>
     <varGrp ID="VG_raster" name="raster" type="grid" var="V_preis V_takt">
       <txt>Wie wichtig ist Ihnen …</txt>
-      <concept>Wie wichtig ist Ihnen …</concept>
     </varGrp>
     <var ID="V_wohnort" name="wohnort" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -52,7 +49,6 @@
         <catValu>dorf</catValu>
         <labl>Land</labl>
       </catgry>
-      <concept>Wo wohnen Sie?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">minimal</notes>
       <notes type="cdl:list">land</notes>
@@ -61,7 +57,6 @@
       <qstn responseDomainType="text" seqNo="2">
         <qstnLit>Möchten Sie etwas ergänzen?</qstnLit>
       </qstn>
-      <concept>Möchten Sie etwas ergänzen?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">multiline</notes>
     </var>
@@ -81,7 +76,6 @@
         <catValu>3</catValu>
         <labl>Sehr</labl>
       </catgry>
-      <concept>Wie zufrieden sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:appearance">likert</notes>
       <notes type="cdl:list">zust</notes>
@@ -98,7 +92,6 @@
         <catValu>oft</catValu>
         <labl>Oft</labl>
       </catgry>
-      <concept>Bus</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
       <notes type="cdl:list">oft</notes>
@@ -115,7 +108,6 @@
         <catValu>oft</catValu>
         <labl>Oft</labl>
       </catgry>
-      <concept>Bahn</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:appearance">list-nolabel</notes>
       <notes type="cdl:list">oft</notes>
@@ -133,7 +125,6 @@
         <catValu>oft</catValu>
         <labl>Oft</labl>
       </catgry>
-      <concept>… der Preis?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">oft</notes>
     </var>
@@ -150,7 +141,6 @@
         <catValu>oft</catValu>
         <labl>Oft</labl>
       </catgry>
-      <concept>… der Takt?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">oft</notes>
     </var>
@@ -158,14 +148,14 @@
       <qstn responseDomainType="category" seqNo="8">
         <qstnLit>Herkunftsland?</qstnLit>
       </qstn>
-      <concept vocab="iso_3166_1">Herkunftsland?</concept>
+      <concept vocab="iso_3166_1"/>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_reisen" name="reisen" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="9">
         <qstnLit>Wohin sind Sie gereist?</qstnLit>
       </qstn>
-      <concept vocab="iso_3166_1">Wohin sind Sie gereist?</concept>
+      <concept vocab="iso_3166_1"/>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

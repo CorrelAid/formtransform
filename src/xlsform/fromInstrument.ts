@@ -219,6 +219,8 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   };
   const hint = ctx.label(group.hint);
   if (hint) row.hint = htmlLabel(hint);
+  const concept = ctx.label(group.concept);
+  if (concept) row.concept = concept;
   if (group.appearance) row.appearance = appearanceCell(group);
   if (group.relevant) row.relevant = group.relevant;
   Object.assign(row, group.columns);
@@ -286,6 +288,9 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     const value = ctx.label(text);
     if (value) row[column] = htmlLabel(value);
   }
+  // Not a text a survey tool renders: as the form wrote it (#173).
+  const concept = ctx.label(q.concept);
+  if (concept) row.concept = concept;
   const plain: Array<[string, string]> = [
     ['required', q.required ? requiredCell(q) : ''],
     ['default', q.default],

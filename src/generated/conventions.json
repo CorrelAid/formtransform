@@ -206,6 +206,10 @@
           "ddi": "qstn/postQTxt; a group's in a cdl:hint note (varGrp has no hint element)",
           "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element. A note row's hint is a cdl:row_hint."
         },
+        "ItemBase.concept": {
+          "ddi": "concept, one per language (xml:lang siblings); on the var, or the varGrp of a group, a select_multiple or a semi-open select_multiple; a note's or data-less row's as cdl:row_column",
+          "note": "Optional (formtransform#173): only from the form's own concept column, never filled in from the label. A select_*_from_file always has concept/@vocab, empty without a concept column."
+        },
         "ItemBase.relevant": {
           "ddi": "universe + cdl:relevant note (convention:logicMapping)"
         },
@@ -317,7 +321,8 @@
           "constraint_message",
           "required",
           "default",
-          "parameters"
+          "parameters",
+          "concept"
         ],
         "choices": [
           "list_name",
@@ -359,7 +364,7 @@
       "vocabularyDeclaration": "Vocabularies are open-ended: this convention defines only how one is declared and handled, never which ones exist. To add one, put its options in registry/vocab/<name>.csv with a 'code,label' header and add a '@type': 'Vocabulary' node to the graph with xlsformFilename/ddiVocab/vocabURI/standard/skos:prefLabel. Every consumer discovers vocabularies by filtering '@type' == 'Vocabulary', so no code, convention or emitter needs editing. vocab:iso_3166_1 is one example, not a special case."
     },
     "languageTagging": {
-      "xlsformColumnPattern": "^(?P<base>label|hint|constraint_message|guidance_hint|media::image|media::audio|media::video)::(?P<lang>.+)$",
+      "xlsformColumnPattern": "^(?P<base>label|hint|constraint_message|guidance_hint|concept|media::image|media::audio|media::video)::(?P<lang>.+)$",
       "xlsformLanguageList": {
         "setting": "settings.default_language",
         "fallback": "first language encountered in label columns",

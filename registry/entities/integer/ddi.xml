@@ -25,7 +25,6 @@
       <qstn responseDomainType="numeric" seqNo="1">
         <qstnLit>Wie alt sind Sie?</qstnLit>
       </qstn>
-      <concept>Wie alt sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>

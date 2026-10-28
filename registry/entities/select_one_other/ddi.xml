@@ -23,7 +23,6 @@
   <dataDscr>
     <varGrp ID="VG_aufmerksam" name="aufmerksam" type="other" var="V_aufmerksam V_aufmerksam_other">
       <txt>Wie sind Sie auf unser Angebot aufmerksam geworden?</txt>
-      <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
     </varGrp>
     <var ID="V_aufmerksam" name="aufmerksam" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -45,7 +44,6 @@
         <catValu>other</catValu>
         <labl>Sonstiges</labl>
       </catgry>
-      <concept>Wie sind Sie auf unser Angebot aufmerksam geworden?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">quelle</notes>
     </var>
@@ -55,7 +53,6 @@
         <backward qstn="V_aufmerksam"/>
       </qstn>
       <universe clusion="I">Only if “Wie sind Sie auf unser Angebot aufmerksam geworden?” = Sonstiges</universe>
-      <concept>Sonstiges (bitte angeben)</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${aufmerksam} = 'other'</notes>
     </var>

@@ -25,7 +25,6 @@
       <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Haben Sie weitere Anmerkungen?</qstnLit>
       </qstn>
-      <concept>Haben Sie weitere Anmerkungen?</concept>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

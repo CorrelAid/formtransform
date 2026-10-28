@@ -30,7 +30,7 @@
       "@type": "GlobalConvention",
       "skos:prefLabel": "XLSForm `label::<lang>` ↔ LS TSV `language` cell ↔ DDI `xml:lang`",
       "rule": {
-        "xlsformColumnPattern": "^(?P<base>label|hint|constraint_message|guidance_hint|media::image|media::audio|media::video)::(?P<lang>.+)$",
+        "xlsformColumnPattern": "^(?P<base>label|hint|constraint_message|guidance_hint|concept|media::image|media::audio|media::video)::(?P<lang>.+)$",
         "xlsformLanguageList": {
           "setting": "settings.default_language",
           "fallback": "first language encountered in label columns",

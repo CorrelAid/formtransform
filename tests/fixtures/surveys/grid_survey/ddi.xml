@@ -26,11 +26,9 @@
   <dataDscr>
     <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
       <txt>Wie sehr vertrauen Sie …</txt>
-      <concept>Wie sehr vertrauen Sie …</concept>
     </varGrp>
     <varGrp ID="VG_medien" name="medien" type="multipleResp" var="V_medien_tv V_medien_radio">
       <txt>Welche Medien nutzen Sie?</txt>
-      <concept>Welche Medien nutzen Sie?</concept>
       <notes>Nun zu Ihrer Mediennutzung.</notes>
       <notes type="cdl:note_names">medienhinweis</notes>
     </varGrp>
@@ -53,7 +51,6 @@
         <catValu>3</catValu>
         <labl>Voll</labl>
       </catgry>
-      <concept>… dem Parlament?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala</notes>
     </var>
@@ -74,7 +71,6 @@
         <catValu>3</catValu>
         <labl>Voll</labl>
       </catgry>
-      <concept>… der Polizei?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:list">skala</notes>
     </var>
@@ -90,7 +86,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Medien nutzen Sie?: Fernsehen</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_medien_radio" name="medien_radio" intrvl="discrete" files="F1">
@@ -105,7 +100,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche Medien nutzen Sie?: Radio</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_alter" name="alter" intrvl="contin" dcml="0" files="F1">
@@ -114,7 +108,6 @@
         <qstnLit>Wie alt sind Sie?</qstnLit>
         <postQTxt>In Jahren</postQTxt>
       </qstn>
-      <concept>Wie alt sind Sie?</concept>
       <varFormat type="numeric" schema="other"/>
       <notes type="cdl:note_names">alterhinweis</notes>
     </var>

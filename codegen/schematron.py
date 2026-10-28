@@ -87,15 +87,14 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
 """
 
     essentials = f"""\
-    <!-- Variable essentials -->
+    <!-- Variable essentials. concept is optional (formtransform#173): a form states one or none. -->
     <rule context="%P%var">
         <assert test="@name">Variable <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@intrvl">Variable <value-of select="@name"/> is missing an intrvl attribute (use "discrete" or "contin").</assert>
         <assert test="%P%qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="%P%qstn/%P%qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="%P%varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="%P%concept[normalize-space(.) != '']">Variable <value-of select="@name"/> is missing a concept element.</assert>
-        <assert test="not(%P%labl)">Variable <value-of select="@name"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(%P%labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
         <assert test="every $l in distinct-values(%P%notes[not(@type)]/string(@xml:lang)) satisfies count(%P%notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -103,8 +102,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
     <rule context="%P%varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="{vg_type_test}">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only {vg_type_msg} are supported.</assert>
-        <assert test="%P%concept[normalize-space(.) != '']">Variable Group <value-of select="@ID"/> is missing a concept element.</assert>
-        <assert test="not(%P%labl)">Variable Group <value-of select="@ID"/> uses labl — use concept instead. labl is only for catgry elements.</assert>
+        <assert test="not(%P%labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is '{mult}' (checkboxes) -->

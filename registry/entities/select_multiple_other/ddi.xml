@@ -23,13 +23,11 @@
   <dataDscr>
     <varGrp ID="VG_geraetebesitz" name="geraetebesitz" type="other" var="V_geraetebesitz_other" varGrp="VG_geraetebesitz_choices">
       <txt>Welche dieser Geräte besitzen Sie?</txt>
-      <concept>Welche dieser Geräte besitzen Sie?</concept>
       <notes type="cdl:list">geraete</notes>
       <notes type="cdl:other_label">Sonstiges</notes>
     </varGrp>
     <varGrp ID="VG_geraetebesitz_choices" name="geraetebesitz_choices" type="multipleResp" var="V_geraetebesitz_smart V_geraetebesitz_lapt V_geraetebesitz_tabl">
       <txt>Welche dieser Geräte besitzen Sie?</txt>
-      <concept>Welche dieser Geräte besitzen Sie?</concept>
     </varGrp>
     <var ID="V_geraetebesitz_smart" name="geraetebesitz_smart" intrvl="discrete" files="F1">
       <qstn responseDomainType="multiple" seqNo="1">
@@ -42,7 +40,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche dieser Geräte besitzen Sie?: Smartphone</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_lapt" name="geraetebesitz_lapt" intrvl="discrete" files="F1">
@@ -56,7 +53,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche dieser Geräte besitzen Sie?: Laptop</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_tabl" name="geraetebesitz_tabl" intrvl="discrete" files="F1">
@@ -70,7 +66,6 @@
       <catgry>
         <catValu>1</catValu>
       </catgry>
-      <concept>Welche dieser Geräte besitzen Sie?: Tablet</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_geraetebesitz_other" name="geraetebesitz_other" intrvl="discrete" files="F1">
@@ -79,7 +74,6 @@
         <backward qstn="VG_geraetebesitz"/>
       </qstn>
       <universe clusion="I">Only if “Welche dieser Geräte besitzen Sie?” includes Sonstiges</universe>
-      <concept>Sonstiges (bitte angeben)</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${geraetebesitz}, 'other')</notes>
     </var>

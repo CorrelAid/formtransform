@@ -56,7 +56,8 @@ describe('groups', () => {
       'name="outer/inner" type="section" var="V_n" varGrp="VG_o">',
     );
     expect(varGrp(xml, 'VG_outer_inner')).toContain('<txt>Inner</txt>');
-    expect(varGrp(xml, 'VG_outer_inner')).toContain('<concept>Inner</concept>');
+    // No concept column, no concept: the label is not one (#173).
+    expect(varGrp(xml, 'VG_outer_inner')).not.toContain('<concept');
   });
 
   test('a grid stays a grid, inside its section', () => {

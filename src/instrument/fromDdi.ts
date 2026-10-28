@@ -104,6 +104,12 @@ function noteText(node: XmlNode, type: string, state: ReadState): string {
   return note ? textContent(note).trim() : '';
 }
 
+/** `<concept>`s with text (#173), absent when none: an empty one only has `@vocab`. */
+function withConcept(node: XmlNode, state: ReadState): { concept?: Text } {
+  const concept = childTexts(node, 'concept', state);
+  return Object.keys(concept).length ? { concept } : {};
+}
+
 const ids = (value: string | undefined) =>
   (value ?? '').split(/\s+/).filter(Boolean);
 
@@ -381,6 +387,7 @@ function plainQuestion(
 ): QuestionItem {
   const q = emptyQuestion(v.attrs['name'] ?? v.attrs['ID'] ?? '');
   readQstn(q, v, state);
+  Object.assign(q, withConcept(v, state));
   readNotes(q, v, state);
   q.type = varType(v, state);
   const vocab = childNamed(v, 'concept')?.attrs['vocab'];
@@ -419,6 +426,7 @@ function multiQuestion(
   const q = emptyQuestion(name);
   q.type = 'select_multiple';
   q.label = childTexts(grp, 'txt', state);
+  Object.assign(q, withConcept(grp, state));
   readNotes(q, grp, state);
   const first = binaries[0];
   if (first) {
@@ -669,6 +677,7 @@ function groupItem(id: string, state: ReadState): GroupItem {
       ? {}
       : childTexts(grp, 'txt', state),
     hint: texts(notesOf(grp, FIELDS.hint.type), state),
+    ...withConcept(grp, state),
     relevant: noteText(grp, LOGIC.relevant.type, state),
     appearance: grid ? GRID_APPEARANCE : '',
     row: {},
@@ -919,6 +928,7 @@ function renamed(text: Text, names: Map<string, string>): Text {
 function renameItem(item: Item, names: Map<string, string>): void {
   item.label = renamed(item.label, names);
   item.hint = renamed(item.hint, names);
+  if (item.concept) item.concept = renamed(item.concept, names);
   if (item.kind === 'group') {
     item.children.forEach((c) => renameItem(c, names));
     return;

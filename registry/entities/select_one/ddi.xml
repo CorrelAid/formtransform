@@ -45,7 +45,6 @@
         <catValu>5</catValu>
         <labl>Hochschulabschluss</labl>
       </catgry>
-      <concept>Was ist Ihr höchster Bildungsabschluss?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
   </dataDscr>

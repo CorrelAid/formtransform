@@ -16,6 +16,7 @@ import {
 } from '../conventions/other.js';
 import { isFromFileType, vocabFromFilename } from '../conventions/fromFile.js';
 import { isExclusive } from '../conventions/exclusive.js';
+import { allColumns } from '../conventions/columns.js';
 import {
   TYPE_MAP,
   NON_DDI_EMITTABLE_TYPES,
@@ -70,11 +71,28 @@ const NO_DATA_APPEARANCES: Set<string> = new Set(
     .map(([appearance]) => appearance),
 );
 
+type OptionalField = 'hint' | 'guidanceHint' | 'concept';
+
 /** Keep only the non-empty fields, so absent hints stay absent. */
 function optionalText(
-  fields: Record<'hint' | 'guidanceHint', string>,
-): Partial<Record<'hint' | 'guidanceHint', string>> {
+  fields: Partial<Record<OptionalField, string>>,
+): Partial<Record<OptionalField, string>> {
   return Object.fromEntries(Object.entries(fields).filter(([, v]) => v));
+}
+
+/**
+ * The `concept` cells of a row that has no `<var>` (a note, a row without
+ * data), as the form had them: its `cdl:row_column` notes keep them (#173).
+ */
+function withConceptCells(q: QuestionItem): {
+  columns?: Record<string, string>;
+} {
+  const cells = Object.fromEntries(
+    Object.entries(allColumns(q.row)).filter(
+      ([column]) => column.split('::')[0] === 'concept',
+    ),
+  );
+  return columnsOf({ columns: { ...q.columns, ...cells } });
 }
 
 interface ResolvedType {
@@ -106,6 +124,23 @@ function pick(text: Text, lang: string | undefined): string {
   if (lang !== undefined && lang in text) return text[lang];
   if ('' in text) return text[''];
   return Object.values(text)[0] ?? '';
+}
+
+/**
+ * The base language's concept (#173): `lang`'s, else the untagged. Never
+ * another language's, which stays its translation.
+ */
+function ownConcept(text: Text | undefined, lang: string | undefined): string {
+  const own = lang !== undefined && text && lang in text ? text[lang] : '';
+  return (own || text?.[''] || '').trim();
+}
+
+/**
+ * The concept a question's `<var>` has. A note is a preQTxt or a study note,
+ * not a var: its `concept` cells stay its columns ({@link withConceptCells}).
+ */
+function varConcept(q: QuestionItem): Text | undefined {
+  return q.type === 'note' ? undefined : (q.concept ?? {});
 }
 
 /** The enclosing group a variable is emitted under. */
@@ -354,7 +389,7 @@ function pushRow(q: QuestionItem, ctx: GroupContext, state: ProjectState) {
     ...(q.appearance ? { appearance: q.appearance } : {}),
     ...appearanceCell(q),
     ...(translations ? { translations } : {}),
-    ...columnsOf(q),
+    ...withConceptCells(q),
     group: ctx.path,
     groupLabel: ctx.label,
     groupAppearance: ctx.appearance,
@@ -421,6 +456,7 @@ function pushQuestion(
       guidanceHint: q.guidanceHint,
       groupLabel: ctx.labelText,
       constraintMessage: q.constraintMessage,
+      concept: varConcept(q),
     },
     state.others,
   );
@@ -437,13 +473,14 @@ function pushQuestion(
     ...optionalText({
       hint: pick(q.hint, state.lang).trim(),
       guidanceHint: pick(q.guidanceHint, state.lang).trim(),
+      concept: ownConcept(varConcept(q), state.lang),
     }),
     ...groupsOf(ctx),
     ...logicOf(q, state.lang),
     ...(translations ? { translations } : {}),
     ...(added ? { orOther: otherOrigin(q) } : {}),
     ...appearanceCell(q),
-    ...columnsOf(q),
+    ...(varConcept(q) ? columnsOf(q) : withConceptCells(q)),
   });
 
   if (other) pushCompanion(q, stdType, other, ctx, state);
@@ -459,6 +496,8 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
     const label = pick(item.label, state.lang);
     const translations = translationsOf(item.label, state.others);
     const hintTranslations = translationsOf(item.hint, state.others);
+    const concept = ownConcept(item.concept, state.lang);
+    const conceptTranslations = translationsOf(item.concept, state.others);
     const group: DdiGroup = {
       name: item.name,
       path,
@@ -468,6 +507,8 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       relevant: item.relevant.trim(),
       hint: pick(item.hint, state.lang).trim(),
       ...(hintTranslations ? { hintTranslations } : {}),
+      ...(concept ? { concept } : {}),
+      ...(conceptTranslations ? { conceptTranslations } : {}),
       ...(Object.values(item.label).some((t) => t.trim())
         ? {}
         : { unlabelled: true }),

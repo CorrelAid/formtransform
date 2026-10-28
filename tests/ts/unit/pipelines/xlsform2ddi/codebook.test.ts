@@ -73,7 +73,7 @@ describe('standalone scalar variables', () => {
     );
     expect(xml).toContain('<qstn responseDomainType="numeric" seqNo="1">');
     expect(xml).toContain('<varFormat type="numeric" schema="other"/>');
-    expect(xml).toContain('<concept>Age</concept>');
+    expect(xml).not.toContain('<concept');
   });
 
   test('text → discrete / text / character', () => {
@@ -135,7 +135,7 @@ describe('select_multiple → multipleResp expansion', () => {
     expect(xml).toContain('<catValu>0</catValu>');
     expect(xml).toContain('<catValu>1</catValu>');
     expect(xml).not.toContain('<labl>');
-    expect(xml).toContain('<concept>Devices: Phone</concept>');
+    expect(xml).not.toContain('<concept');
   });
 });
 
@@ -244,7 +244,8 @@ describe('external code list (select_*_from_file)', () => {
         label: 'Country',
       },
     ]);
-    expect(xml).toContain('<concept vocab="iso_3166_1">Country</concept>');
+    // No concept column: the vocabulary alone, not the label (#173).
+    expect(xml).toContain('<concept vocab="iso_3166_1"/>');
     expect(xml).toContain('<qstn responseDomainType="category"');
     expect(xml).not.toContain('<catgry>');
   });

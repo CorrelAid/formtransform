@@ -25,27 +25,23 @@
   <dataDscr>
     <varGrp ID="VG_consent_section" name="consent_section" type="section" var="V_consent V_age V_country V_adult_consent V_eligible_participant V_valid_response V_age_category V_complex_validation">
       <txt>Consent and Demographics</txt>
-      <concept>Consent and Demographics</concept>
     </varGrp>
     <var ID="V_consent" name="consent" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="1">
         <qstnLit>Do you consent to participate?</qstnLit>
       </qstn>
-      <concept>Do you consent to participate?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
       <qstn responseDomainType="numeric" seqNo="2">
         <qstnLit>What is your age?</qstnLit>
       </qstn>
-      <concept>What is your age?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_country" name="country" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="3">
         <qstnLit>What country do you live in?</qstnLit>
       </qstn>
-      <concept>What country do you live in?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_adult_consent" name="adult_consent" intrvl="discrete" files="F1">
@@ -54,7 +50,6 @@
         <backward qstn="V_consent V_age"/>
       </qstn>
       <universe clusion="I">Only if “Do you consent to participate?” = “yes” and “What is your age?” ≥ 18</universe>
-      <concept>Adult consent verification</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">selected(${consent}, 'yes') and ${age} &gt;= 18</notes>
     </var>
@@ -64,7 +59,6 @@
         <backward qstn="V_age V_country"/>
       </qstn>
       <universe clusion="I">Only if “What is your age?” ≥ 18 and (“What country do you live in?” = “USA” or “What country do you live in?” = “Canada”)</universe>
-      <concept>Eligible participant</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${age} &gt;= 18 and (${country} = 'USA' or ${country} = 'Canada')</notes>
     </var>
@@ -74,7 +68,6 @@
         <backward qstn="V_consent V_age"/>
       </qstn>
       <universe clusion="I">Only if not (“Do you consent to participate?” is not answered) and “What is your age?” &gt; 0</universe>
-      <concept>Valid response check</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">not(${consent} = '') and ${age} &gt; 0</notes>
     </var>
@@ -83,7 +76,6 @@
         <qstnLit>Age category</qstnLit>
         <backward qstn="V_age"/>
       </qstn>
-      <concept>Age category</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">if(${age} &gt; 18, true(), false())</notes>
     </var>
@@ -93,7 +85,6 @@
         <backward qstn="V_consent V_age V_country"/>
       </qstn>
       <universe clusion="I">Only if “Do you consent to participate?” = “yes” and (“What is your age?” ≥ 18 or “What country do you live in?” = “USA”)</universe>
-      <concept>Complex validation test</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${consent} = 'yes' and (${age} &gt;= 18 or ${country} = 'USA')</notes>
       <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= 5 and . &lt;= 100</notes>

@@ -28,7 +28,6 @@
     <varGrp ID="VG_demographics" name="demographics" type="section" var="V_name V_age V_gender">
       <txt>Demographics</txt>
       <txt xml:lang="es">Datos demográficos</txt>
-      <concept>Demographics</concept>
     </varGrp>
     <var ID="V_name" name="name" intrvl="discrete" files="F1">
       <qstn responseDomainType="text" seqNo="1">
@@ -37,7 +36,6 @@
         <postQTxt>Enter your full name</postQTxt>
         <postQTxt xml:lang="es">Ingresa tu nombre completo</postQTxt>
       </qstn>
-      <concept>What is your name?</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_age" name="age" intrvl="contin" dcml="0" files="F1">
@@ -45,7 +43,6 @@
         <qstnLit>What is your age?</qstnLit>
         <qstnLit xml:lang="es">¿Cuál es tu edad?</qstnLit>
       </qstn>
-      <concept>What is your age?</concept>
       <varFormat type="numeric" schema="other"/>
     </var>
     <var ID="V_gender" name="gender" intrvl="discrete" files="F1">
@@ -68,7 +65,6 @@
         <labl>Other</labl>
         <labl xml:lang="es">Otro</labl>
       </catgry>
-      <concept>Gender</concept>
       <varFormat type="character" schema="other"/>
     </var>
     <var ID="V_satisfaction" name="satisfaction" intrvl="discrete" files="F1">
@@ -91,7 +87,6 @@
         <labl>Not satisfied</labl>
         <labl xml:lang="es">No satisfecho</labl>
       </catgry>
-      <concept>How satisfied are you?</concept>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

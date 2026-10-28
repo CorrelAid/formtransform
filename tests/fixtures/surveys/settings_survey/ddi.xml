@@ -29,11 +29,9 @@
   <dataDscr>
     <varGrp ID="VG_main" name="main" type="section" var="V_comment" varGrp="VG_fav_color">
       <txt>Main Questions</txt>
-      <concept>Main Questions</concept>
     </varGrp>
     <varGrp ID="VG_fav_color" name="fav_color" type="other" var="V_fav_color V_fav_color_other">
       <txt>What is your _favorite_ color?</txt>
-      <concept>What is your _favorite_ color?</concept>
     </varGrp>
     <var ID="V_fav_color" name="fav_color" intrvl="discrete" files="F1">
       <qstn responseDomainType="category" seqNo="1">
@@ -51,7 +49,6 @@
         <catValu>other</catValu>
         <labl>Other</labl>
       </catgry>
-      <concept>What is your _favorite_ color?</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:list">colors</notes>
     </var>
@@ -61,7 +58,6 @@
         <backward qstn="V_fav_color"/>
       </qstn>
       <universe clusion="I">Only if “What is your _favorite_ color?” = Other</universe>
-      <concept>Please specify your color</concept>
       <varFormat type="character" schema="other"/>
       <notes type="cdl:relevant" subject="xlsform-xpath">${fav_color} = 'other'</notes>
     </var>
@@ -69,7 +65,6 @@
       <qstn responseDomainType="text" seqNo="3">
         <qstnLit>Any **comments**?</qstnLit>
       </qstn>
-      <concept>Any **comments**?</concept>
       <varFormat type="character" schema="other"/>
     </var>
   </dataDscr>

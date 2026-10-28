@@ -234,6 +234,10 @@
             "ddi": "qstn/postQTxt; a group's in a cdl:hint note (varGrp has no hint element)",
             "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element. A note row's hint is a cdl:row_hint."
           },
+          "ItemBase.concept": {
+            "ddi": "concept, one per language (xml:lang siblings); on the var, or the varGrp of a group, a select_multiple or a semi-open select_multiple; a note's or data-less row's as cdl:row_column",
+            "note": "Optional (formtransform#173): only from the form's own concept column, never filled in from the label. A select_*_from_file always has concept/@vocab, empty without a concept column."
+          },
           "ItemBase.relevant": {
             "ddi": "universe + cdl:relevant note (convention:logicMapping)"
           },
@@ -345,7 +349,8 @@
             "constraint_message",
             "required",
             "default",
-            "parameters"
+            "parameters",
+            "concept"
           ],
           "choices": [
             "list_name",

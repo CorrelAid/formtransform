@@ -4,7 +4,8 @@
  * languages, logic, fields, named and shared lists, `or_other` and explicit
  * other pairs, runs of notes (with blank lines, in only some languages),
  * groups of notes only or without a label, metadata rows, `required`
- * spellings, messages without a constraint and settings. Compared as `ddiRoundtrip.test.ts` and
+ * spellings, messages without a constraint, `concept` columns (#173) and
+ * settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
  */
 import { describe, test, expect } from 'vitest';
@@ -228,6 +229,13 @@ function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
       row['appearance'] = a.charAt(0).toUpperCase() + a.slice(1);
     }
     if (i % 2 === 0) media(row, String(row['name']));
+    // What a row measures, on some rows of every kind (#173).
+    if (i % 3 === 1) {
+      if (multilingual) {
+        row[`concept::${LANGS[0]}`] = `Konzept ${i}`;
+        if (i % 2 === 0) row[`concept::${LANGS[1]}`] = `Concept ${i}`;
+      } else row['concept'] = `Concept ${i}`;
+    }
     if (type === 'text' && i % 3 === 0) row['read_only'] = 'yes';
     if (type.startsWith('select_one') && i % 3 === 1) {
       row['choice_filter'] = "filter = 'a'";

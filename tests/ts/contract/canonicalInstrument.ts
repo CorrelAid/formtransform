@@ -61,6 +61,17 @@ function required(q: QuestionItem): string | false {
   return typeof cell === 'string' && cell.trim() ? cell.trim() : 'yes';
 }
 
+/**
+ * A note's or data-less row's columns: its `concept` cells are among them,
+ * as the codebook keeps them (`cdl:row_column`, #173).
+ */
+function rowColumns(q: QuestionItem): Record<string, string> {
+  const concept = Object.entries(allColumns(q.row)).filter(
+    ([column]) => column.split('::')[0] === 'concept',
+  );
+  return { ...q.columns, ...Object.fromEntries(concept) };
+}
+
 /** Whether the DDI has it: a variable, a note or a row without data. */
 function kept(q: QuestionItem): boolean {
   const type = ALIASES[q.type] ?? q.type;
@@ -71,6 +82,8 @@ function kept(q: QuestionItem): boolean {
 function question(q: QuestionItem, ctx: Ctx): Canon {
   const type = ALIASES[q.type] ?? q.type;
   if (q.list) ctx.lists.add(q.list);
+  // A matrix header has no var: its concept is one of its columns.
+  const header = NO_DATA.has(q.appearance);
   return {
     name: q.name,
     type,
@@ -79,6 +92,7 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     orOther: q.orOther,
     label: text(q.label, ctx),
     hint: text(q.hint, ctx),
+    concept: header ? {} : text(q.concept, ctx),
     guidance: text(q.guidanceHint, ctx),
     relevant: q.relevant.trim(),
     constraint: q.constraint.trim(),
@@ -88,7 +102,7 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     appearance: appearance(q),
     // A guidance_hint pyxform rejects in parameters is moved to its column.
     parameters: withoutSpacedGuidance(q.parameters.trim()).parameters,
-    columns: q.columns ?? {},
+    columns: header ? rowColumns(q) : (q.columns ?? {}),
   };
 }
 
@@ -100,6 +114,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         group: item.name,
         label: text(item.label, ctx),
         hint: text(item.hint, ctx),
+        concept: text(item.concept, ctx),
         relevant: item.relevant.trim(),
         appearance: appearance(item),
         columns: item.columns ?? {},
@@ -112,7 +127,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
       out.push({
         metadata: item.name,
         type: item.type,
-        columns: item.columns ?? {},
+        columns: rowColumns(item),
       });
     } else if (item.type === 'note') {
       out.push({
@@ -121,7 +136,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
         hint: text(item.hint, ctx),
         relevant: item.relevant.trim(),
         appearance: appearance(item),
-        columns: item.columns ?? {},
+        columns: rowColumns(item),
       });
     } else {
       out.push(question(item, ctx));
