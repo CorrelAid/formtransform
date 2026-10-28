@@ -271,8 +271,13 @@ ASSERT_MUTATIONS = [
     ),
     (
         "composite:grid",
+        _sub1(r'<qstn responseDomainType="category"', '<qstn responseDomainType="numeric"'),
+        'should all have responseDomainType="category" or all "numeric"',
+    ),
+    (
+        "composite:grid",
         _sub1(r'<qstn responseDomainType="category"', '<qstn responseDomainType="text"'),
-        'should have responseDomainType="category"',
+        'should all have responseDomainType="category" or all "numeric"',
     ),
     (
         "variant:select_one_other",
@@ -406,6 +411,22 @@ def test_concept_is_optional(worker_jar, java_bin, tmp_path):
         assert with_concepts != xml
         rc, out = _validate(java_bin, worker_jar, with_concepts.encode(), tmp_path)
         assert rc == 0, out[out.index("{") :][:800]
+
+
+def test_a_table_of_numbers_is_a_grid(worker_jar, java_bin, tmp_path):
+    """A grid's rows may all be numeric instead of all categorical: a table
+    of numbers under one question (composite:grid, #174). A mix of the two
+    is rejected (test_each_assert_rejects_its_violation)."""
+    from .fixtures import load_registry
+
+    variant = next(e for e in load_registry() if e.get("@id") == "composite:grid")
+    xml = load_example_ddi(variant)
+    numeric = re.sub(r"<catgry>.*?</catgry>\s*", "", xml, flags=re.S).replace(
+        'responseDomainType="category"', 'responseDomainType="numeric"'
+    )
+    assert 'type="grid"' in numeric and "<catgry>" not in numeric
+    rc, out = _validate(java_bin, worker_jar, numeric.encode(), tmp_path)
+    assert rc == 0, out[out.index("{") :][:800]
 
 
 def test_typed_notes_and_one_untyped_note_per_language(worker_jar, java_bin, tmp_path):

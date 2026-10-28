@@ -2,6 +2,12 @@ import { SurveyRow } from '../../xlsform/types.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { SKIP_TYPES } from './constants.js';
 import type { Item, QuestionItem } from '../../instrument/types.js';
+import {
+  CHOICE_GRID_DOMAIN,
+  gridDomain,
+  isGridAppearance,
+} from '../../conventions/grid.js';
+import { TYPE_MAP } from '../../generated/DdiMappings.js';
 
 export interface GroupInfo {
   originalName: string;
@@ -31,6 +37,7 @@ function isMessageNoteRow(row: SurveyRow, flags: WelcomeEndFlags): boolean {
 export class GroupProcessor {
   private messageOnlyGroups = new Set<string>();
   private parentOnlyGroups = new Set<string>();
+  private arrayGroups = new Set<string>();
 
   constructor(private configManager: ConfigManager) {}
 
@@ -42,10 +49,17 @@ export class GroupProcessor {
     return this.parentOnlyGroups;
   }
 
+  /** `table-list` groups with choice rows: a LimeSurvey array (F) each. */
+  getArrayGroups(): Set<string> {
+    return this.arrayGroups;
+  }
+
   /**
    * Classify every closed group of the Instrument's tree (#69):
    * - message-only: its direct content is only a welcome/end note (suppressed);
-   * - parent-only: it has no direct questions, only child groups (flattened).
+   * - parent-only: it has no direct questions, only child groups (flattened);
+   * - array: a `table-list` group with choice rows, its subquestions (a
+   *   table of numbers has none: it is a plain group, #174).
    * Skipped types (metadata, …) count as no content. Groups the sheet never
    * closed are neither.
    */
@@ -53,6 +67,7 @@ export class GroupProcessor {
     const flags = this.configManager.getConfig();
     const messageOnly = new Set<string>();
     const parentOnly = new Set<string>();
+    const arrays = new Set<string>();
     const visit = (items: Item[]) => {
       for (const item of items) {
         if (item.kind !== 'group') continue;
@@ -69,10 +84,20 @@ export class GroupProcessor {
           messageOnly.add(item.name);
         }
         if (content.length === 0) parentOnly.add(item.name);
+        const rows = content
+          .filter((c) => c.type !== 'note')
+          .map((c) => TYPE_MAP[c.type] ?? c.type);
+        if (
+          isGridAppearance(item.appearance) &&
+          rows.some((t) => gridDomain([t]) === CHOICE_GRID_DOMAIN)
+        ) {
+          arrays.add(item.name);
+        }
       }
     };
     visit(body);
     this.messageOnlyGroups = messageOnly;
     this.parentOnlyGroups = parentOnly;
+    this.arrayGroups = arrays;
   }
 }

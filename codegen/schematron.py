@@ -24,6 +24,15 @@ def _schematron_facts(registry: dict[str, Any]) -> dict[str, Any]:
     # domains. (Derived from the registry, not a hardcoded concept flag.)
     cat_rdts = sorted({r for r in (rdt_of("select_one"), rdt_of("select_multiple")) if r})
 
+    # The response domains a grid's rows may share (composite:grid): one per
+    # row-level QuestionType it is made of — a choice grid's 'category', a
+    # table of numbers' 'numeric' (formtransform#174).
+    grid = registry.get("composite:grid", {})
+    broader = grid.get("skos:broader", [])
+    grid_rdts = sorted(
+        {r for b in (broader if isinstance(broader, list) else [broader]) if (r := rdt_of(b["@id"].split(":", 1)[1]))}
+    )
+
     # Allowed varGrp @type values — scanned from every `varGrp[@type='X']` the
     # registry mentions (composite containers, type structures, conventions).
     vg_types = sorted(set(re.findall(r"varGrp\[@type='([^']+)'\]", json.dumps(registry, ensure_ascii=False))))
@@ -48,6 +57,7 @@ def _schematron_facts(registry: dict[str, Any]) -> dict[str, Any]:
         "note_types": note_types,
         "note_subjects": note_subjects,
         "cat_rdts": cat_rdts,
+        "grid_rdts": grid_rdts,
         "vg_types": vg_types,
         "category_rdt": rdt_of("select_one"),
         "multiple_rdt": rdt_of("select_multiple"),
@@ -72,7 +82,12 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
     vg_type_test = " or ".join(f"@type = '{t}'" for t in f["vg_types"])
     quoted = [f'"{t}"' for t in f["vg_types"]]
     vg_type_msg = (", ".join(quoted[:-1]) + f", or {quoted[-1]}") if len(quoted) > 1 else quoted[0]
-    mult, cat = f["multiple_rdt"], f["category_rdt"]
+    mult = f["multiple_rdt"]
+    grid_rdt_test = " or ".join(
+        f"(every $id in tokenize(@var, '\\s+') satisfies (//%P%var[@ID=$id]/%P%qstn/@responseDomainType = '{r}'))"
+        for r in f["grid_rdts"]
+    )
+    grid_rdt_msg = " or all ".join(f'"{r}"' for r in f["grid_rdts"])
     sfx, cc = f["suffix"], f["choice_code"]
     c_rdt, c_intrvl, c_fmt = f["comp_rdt"], f["comp_intrvl"], f["comp_fmt"]
 
@@ -134,8 +149,9 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\\s+') satisfies (//%P%var[@ID=$id]/%P%qstn/@responseDomainType = '{mult}'))">
             Semantic Error: Variables in a multipleResp group (<value-of select="@ID"/>) should have responseDomainType="{mult}".
         </assert>
-        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\\s+') satisfies (//%P%var[@ID=$id]/%P%qstn/@responseDomainType = '{cat}'))">
-            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should have responseDomainType="{cat}".
+        <!-- A grid's rows share one response domain: a choice grid's or a table of numbers' (composite:grid, #174). -->
+        <assert test="not(@type='grid') or {grid_rdt_test}">
+            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should all have responseDomainType={grid_rdt_msg}.
         </assert>
     </rule>
 

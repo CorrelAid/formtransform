@@ -31,7 +31,7 @@ Standard DDI first, `cdl:` notes where DDI has no element
 | a note row's hint, relevant, appearance | `cdl:row_hint`, `cdl:row_relevant`, `cdl:row_appearance` on `stdyDscr` |
 | rows without data (`start`, `deviceid`, …, a matrix header) | `cdl:row` (the type cell) and `cdl:row_label` on `stdyDscr`, placed by `cdl:position` |
 | choices | `catgry` (`catValu`, `labl`); a select_multiple's binary `var`s; the list's name in `cdl:list` when it isn't the question's; a select_multiple pair's other label in `cdl:other_label` |
-| groups | `varGrp type="section"` / `"grid"`, nested by `@varGrp`; label `txt` (none: `cdl:no_label`), hint `cdl:hint`; a group of notes only placed by `cdl:position` |
+| groups | `varGrp type="section"` / `"grid"`, nested by `@varGrp`; label `txt` (none: `cdl:no_label`), hint `cdl:hint`; a group of notes only placed by `cdl:position`. A grid is a `table-list` group of `select_one` rows or of `integer` / `decimal` / `range` rows (a table of numbers, #174); its members' `preQTxt` is its `txt`, not a note, and a note row between two of its rows is a `cdl:grid_note` (subject: the row after it). Any other `table-list` group is a section with `cdl:appearance` |
 | order | `var` order, `qstn/@seqNo` |
 | relevant, constraint, constraint_message, required | `cdl:relevant`, `cdl:constraint`, `cdl:constraint_message`, `cdl:required` (the cell as authored) |
 | default, appearance, parameters | `cdl:default`, `cdl:appearance`, `cdl:parameters` as authored (a range's bounds also `valrng/range`, a `guidance_hint` also `ivuInstr`) |

@@ -158,6 +158,10 @@ listed here must match exactly.
 12. **Group relevance includes the enclosing groups'.** LimeSurvey groups are
     flat, so the forward ANDs every enclosing group's condition into each G
     row; the reverse gives each (flat) group that combined condition.
+13. **A table of numbers comes back as a plain group.** A `table-list` group
+    of `integer` / `decimal` / `range` rows (#174) has no LimeSurvey array, so the
+    forward writes an ordinary group of `N` questions under the group's label.
+    It comes back as a group without `table-list` (`field-list` under item 9).
 
 Resolved (kept here so the questions don't get re-litigated): **date subtypes**
 are fully recoverable — `TYPE_MAPPINGS[type].dateFormat` is a genuine 1:1 hint

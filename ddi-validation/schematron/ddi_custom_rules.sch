@@ -90,8 +90,9 @@
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'multiple'))">
             Semantic Error: Variables in a multipleResp group (<value-of select="@ID"/>) should have responseDomainType="multiple".
         </assert>
-        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'category'))">
-            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should have responseDomainType="category".
+        <!-- A grid's rows share one response domain: a choice grid's or a table of numbers' (composite:grid, #174). -->
+        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'category')) or (every $id in tokenize(@var, '\s+') satisfies (//ddi:var[@ID=$id]/ddi:qstn/@responseDomainType = 'numeric'))">
+            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should all have responseDomainType="category" or all "numeric".
         </assert>
     </rule>
 
@@ -128,8 +129,9 @@
         <assert test="not(@type='multipleResp') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'multiple'))">
             Semantic Error: Variables in a multipleResp group (<value-of select="@ID"/>) should have responseDomainType="multiple".
         </assert>
-        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'category'))">
-            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should have responseDomainType="category".
+        <!-- A grid's rows share one response domain: a choice grid's or a table of numbers' (composite:grid, #174). -->
+        <assert test="not(@type='grid') or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'category')) or (every $id in tokenize(@var, '\s+') satisfies (//var[@ID=$id]/qstn/@responseDomainType = 'numeric'))">
+            Semantic Error: Variables in a grid group (<value-of select="@ID"/>) should all have responseDomainType="category" or all "numeric".
         </assert>
     </rule>
 
@@ -212,11 +214,12 @@
 
     <pattern id="cdl_notes">
     <rule context="ddi:notes[starts-with(@type, 'cdl:')]">
-        <assert test="@type = 'cdl:appearance' or @type = 'cdl:choice_column' or @type = 'cdl:column' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:end_column' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:no_label' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_column' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:choice_column, cdl:column, cdl:constraint, cdl:constraint_message, cdl:default, cdl:end_column, cdl:exclusive, cdl:hint, cdl:language, cdl:list, cdl:no_label, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_column, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
+        <assert test="@type = 'cdl:appearance' or @type = 'cdl:choice_column' or @type = 'cdl:column' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:end_column' or @type = 'cdl:exclusive' or @type = 'cdl:grid_note' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:no_label' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_column' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:choice_column, cdl:column, cdl:constraint, cdl:constraint_message, cdl:default, cdl:end_column, cdl:exclusive, cdl:grid_note, cdl:hint, cdl:language, cdl:list, cdl:no_label, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_column, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
         <assert test="not(@type = 'cdl:choice_column') or normalize-space(@subject) != ''">A cdl:choice_column note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:column') or normalize-space(@subject) != ''">A cdl:column note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:constraint') or @subject = 'xlsform-xpath'">A cdl:constraint note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
         <assert test="not(@type = 'cdl:end_column') or normalize-space(@subject) != ''">A cdl:end_column note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:grid_note') or normalize-space(@subject) != ''">A cdl:grid_note note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:language') or normalize-space(@subject) != ''">A cdl:language note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:position') or normalize-space(@subject) != ''">A cdl:position note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:relevant') or @subject = 'xlsform-xpath'">A cdl:relevant note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
@@ -229,11 +232,12 @@
         <assert test="not(@type = 'cdl:setting') or normalize-space(@subject) != ''">A cdl:setting note needs a subject: the name of what it holds.</assert>
     </rule>
     <rule context="notes[starts-with(@type, 'cdl:')]">
-        <assert test="@type = 'cdl:appearance' or @type = 'cdl:choice_column' or @type = 'cdl:column' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:end_column' or @type = 'cdl:exclusive' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:no_label' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_column' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:choice_column, cdl:column, cdl:constraint, cdl:constraint_message, cdl:default, cdl:end_column, cdl:exclusive, cdl:hint, cdl:language, cdl:list, cdl:no_label, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_column, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
+        <assert test="@type = 'cdl:appearance' or @type = 'cdl:choice_column' or @type = 'cdl:column' or @type = 'cdl:constraint' or @type = 'cdl:constraint_message' or @type = 'cdl:default' or @type = 'cdl:end_column' or @type = 'cdl:exclusive' or @type = 'cdl:grid_note' or @type = 'cdl:hint' or @type = 'cdl:language' or @type = 'cdl:list' or @type = 'cdl:no_label' or @type = 'cdl:note_names' or @type = 'cdl:or_other' or @type = 'cdl:other_label' or @type = 'cdl:parameters' or @type = 'cdl:position' or @type = 'cdl:relevant' or @type = 'cdl:required' or @type = 'cdl:row' or @type = 'cdl:row_appearance' or @type = 'cdl:row_column' or @type = 'cdl:row_hint' or @type = 'cdl:row_label' or @type = 'cdl:row_relevant' or @type = 'cdl:setting'">Note type "<value-of select="@type"/>" is not in the CDL vocabulary (cdl:appearance, cdl:choice_column, cdl:column, cdl:constraint, cdl:constraint_message, cdl:default, cdl:end_column, cdl:exclusive, cdl:grid_note, cdl:hint, cdl:language, cdl:list, cdl:no_label, cdl:note_names, cdl:or_other, cdl:other_label, cdl:parameters, cdl:position, cdl:relevant, cdl:required, cdl:row, cdl:row_appearance, cdl:row_column, cdl:row_hint, cdl:row_label, cdl:row_relevant, cdl:setting).</assert>
         <assert test="not(@type = 'cdl:choice_column') or normalize-space(@subject) != ''">A cdl:choice_column note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:column') or normalize-space(@subject) != ''">A cdl:column note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:constraint') or @subject = 'xlsform-xpath'">A cdl:constraint note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>
         <assert test="not(@type = 'cdl:end_column') or normalize-space(@subject) != ''">A cdl:end_column note needs a subject: the name of what it holds.</assert>
+        <assert test="not(@type = 'cdl:grid_note') or normalize-space(@subject) != ''">A cdl:grid_note note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:language') or normalize-space(@subject) != ''">A cdl:language note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:position') or normalize-space(@subject) != ''">A cdl:position note needs a subject: the name of what it holds.</assert>
         <assert test="not(@type = 'cdl:relevant') or @subject = 'xlsform-xpath'">A cdl:relevant note needs subject="xlsform-xpath": its text is an expression in that syntax.</assert>

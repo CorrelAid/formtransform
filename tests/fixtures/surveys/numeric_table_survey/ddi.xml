@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" xml:lang="de">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>numeric_table_survey</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="instruction" subject="intro">Zunächst einige Angaben zu Ihrem Unternehmen.</notes>
+    <notes type="instruction" subject="intro" xml:lang="en">First, some details about your company.</notes>
+    <notes type="cdl:position" subject="intro">in= after=</notes>
+    <notes type="cdl:setting" subject="default_language">Deutsch (de)</notes>
+    <notes type="cdl:language" subject="de">de</notes>
+    <notes type="cdl:language" subject="en">en</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_kurse" name="kurse" type="section" var="V_anzahlkurse V_anbieter">
+      <txt>Zu den Kursen</txt>
+      <txt xml:lang="en">About the courses</txt>
+      <notes type="cdl:appearance">table-list</notes>
+    </varGrp>
+    <varGrp ID="VG_beschaeftigte" name="beschaeftigte" type="grid" var="V_gesamt V_maennlich V_weiblich V_divers V_ohneangabe">
+      <txt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</txt>
+      <txt xml:lang="en">How many people did your company employ in Germany in total?</txt>
+      <notes type="cdl:grid_note" subject="maennlich">davon: Geschlecht (nach Geburtenregister)</notes>
+      <notes type="cdl:grid_note" subject="maennlich" xml:lang="en">of whom: sex (as registered at birth)</notes>
+      <notes type="cdl:hint">Anzahl</notes>
+      <notes type="cdl:hint" xml:lang="en">Number</notes>
+    </varGrp>
+    <varGrp ID="VG_kosten" name="kosten" type="grid" var="V_gebuehren V_reisekosten">
+      <txt>Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?</txt>
+      <txt xml:lang="en">What did training cost your company in 2025?</txt>
+      <universe clusion="I">Nur wenn „Beschäftigte am 31.12.2025 insgesamt“ &gt; 0</universe>
+      <universe clusion="I" xml:lang="en">Only if “Employees on 31.12.2025 in total” &gt; 0</universe>
+      <notes>Angaben in Euro.</notes>
+      <notes xml:lang="en">In euros.</notes>
+      <notes type="cdl:note_names">kostenhinweis</notes>
+      <notes type="cdl:relevant" subject="xlsform-xpath">${gesamt} &gt; 0</notes>
+    </varGrp>
+    <var ID="V_gesamt" name="gesamt" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="1">
+        <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
+        <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
+        <qstnLit>Beschäftigte am 31.12.2025 insgesamt</qstnLit>
+        <qstnLit xml:lang="en">Employees on 31.12.2025 in total</qstnLit>
+      </qstn>
+      <valrng>
+        <range min="0"/>
+      </valrng>
+      <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:constraint" subject="xlsform-xpath">. &gt;= 0</notes>
+      <notes type="cdl:constraint_message">Bitte eine Zahl ab 0 eintragen.</notes>
+      <notes type="cdl:constraint_message" xml:lang="en">Please enter a number from 0.</notes>
+      <notes type="cdl:required">yes</notes>
+    </var>
+    <var ID="V_maennlich" name="maennlich" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="2">
+        <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
+        <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
+        <qstnLit>Männlich</qstnLit>
+        <qstnLit xml:lang="en">Male</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:note_names">davon</notes>
+    </var>
+    <var ID="V_weiblich" name="weiblich" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="3">
+        <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
+        <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
+        <qstnLit>Weiblich</qstnLit>
+        <qstnLit xml:lang="en">Female</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_divers" name="divers" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="4">
+        <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
+        <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
+        <qstnLit>Divers</qstnLit>
+        <qstnLit xml:lang="en">Diverse</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_ohneangabe" name="ohneangabe" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="5">
+        <preQTxt>Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?</preQTxt>
+        <preQTxt xml:lang="en">How many people did your company employ in Germany in total?</preQTxt>
+        <qstnLit>Ohne Angabe</qstnLit>
+        <qstnLit xml:lang="en">Not stated</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_gebuehren" name="gebuehren" intrvl="contin" files="F1">
+      <qstn responseDomainType="numeric" seqNo="6">
+        <preQTxt>Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?</preQTxt>
+        <preQTxt xml:lang="en">What did training cost your company in 2025?</preQTxt>
+        <qstnLit>Gebühren für Kurse</qstnLit>
+        <qstnLit xml:lang="en">Course fees</qstnLit>
+      </qstn>
+      <universe clusion="I">Nur wenn „Beschäftigte am 31.12.2025 insgesamt“ &gt; 0</universe>
+      <universe clusion="I" xml:lang="en">Only if “Employees on 31.12.2025 in total” &gt; 0</universe>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_reisekosten" name="reisekosten" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="7">
+        <preQTxt>Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?</preQTxt>
+        <preQTxt xml:lang="en">What did training cost your company in 2025?</preQTxt>
+        <qstnLit>Reisekosten</qstnLit>
+        <qstnLit xml:lang="en">Travel costs</qstnLit>
+      </qstn>
+      <universe clusion="I">Nur wenn „Beschäftigte am 31.12.2025 insgesamt“ &gt; 0</universe>
+      <universe clusion="I" xml:lang="en">Only if “Employees on 31.12.2025 in total” &gt; 0</universe>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_anzahlkurse" name="anzahlkurse" intrvl="contin" dcml="0" files="F1">
+      <qstn responseDomainType="numeric" seqNo="8">
+        <qstnLit>Anzahl der Kurse</qstnLit>
+        <qstnLit xml:lang="en">Number of courses</qstnLit>
+      </qstn>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_anbieter" name="anbieter" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text" seqNo="9">
+        <qstnLit>Wichtigster Anbieter</qstnLit>
+        <qstnLit xml:lang="en">Main provider</qstnLit>
+      </qstn>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>
