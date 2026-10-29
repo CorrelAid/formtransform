@@ -141,7 +141,10 @@ describe('ddi2xlsform', () => {
     expect(back.survey[0]).toMatchObject({
       name: 'besch',
       appearance: 'table-list',
-      label: { de: 'Wie viele Beschäftigte?', en: 'How many employees?' },
+      label: {
+        'Deutsch (de)': 'Wie viele Beschäftigte?',
+        'English (en)': 'How many employees?',
+      },
     });
     // No note row: the rows' preQTxt is the group's text.
     expect(back.survey.some((r) => r.type === 'note')).toBe(false);

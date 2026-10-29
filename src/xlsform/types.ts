@@ -15,6 +15,8 @@ export interface SurveyRow {
   calculation?: string;
   default?: string;
   _languages?: string[];
+  /** The loader's: each tag's name in the sheet (`label::Deutsch (de)`). */
+  _languageNames?: Record<string, string>;
   [key: string]: unknown;
 }
 
@@ -27,6 +29,8 @@ export interface ChoiceRow {
   label?: string | Record<string, string>;
   filter?: string;
   _languages?: string[];
+  /** The loader's: each tag's name in the sheet (`label::Deutsch (de)`). */
+  _languageNames?: Record<string, string>;
   [key: string]: unknown;
 }
 

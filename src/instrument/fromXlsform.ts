@@ -42,8 +42,9 @@ function tagOf(column: string): string {
 
 /**
  * The translations of `base` in a row: the plain column (tag `''`), each
- * `base::<lang>` column, and the entries of a `{ lang: text }` cell. Order is
- * the row's column order.
+ * `base::<lang>` column, and the entries of a `{ lang: text }` cell, by
+ * language tag (`Deutsch (de)` → `de`; the names are
+ * {@link languageNamesOf}'s). Order is the row's column order.
  */
 export function readText(row: Row, base: string): Text {
   const text: Text = {};
@@ -51,7 +52,7 @@ export function readText(row: Row, base: string): Text {
     if (key === base) {
       if (value !== null && typeof value === 'object') {
         for (const [lang, v] of Object.entries(value as Row)) {
-          text[lang] = cellString(v);
+          text[languageTagOf(lang) ?? lang] = cellString(v);
         }
       } else if (value !== undefined) {
         text[''] = cellString(value);
@@ -79,6 +80,41 @@ const TEXT_COLUMNS = [
  */
 function labelLanguages(row: Row): string[] {
   return TEXT_COLUMNS.flatMap((column) => Object.keys(readText(row, column)));
+}
+
+/**
+ * The form's own name for each language tag (`convention:ddiFields`
+ * `cdl:language`): a text column's suffix (`label::Deutsch (de)` →
+ * `de: 'Deutsch (de)'`), a `{ lang: text }` cell's key, or the loader's
+ * `_languageNames`. The first one seen per tag.
+ */
+export function languageNamesOf(rows: Row[]): Record<string, string> {
+  const names: Record<string, string> = {};
+  const add = (name: string) => {
+    const tag = languageTagOf(name);
+    if (tag) names[tag] ??= name.trim();
+  };
+  for (const row of rows) {
+    const loader = row['_languageNames'];
+    if (loader !== null && typeof loader === 'object') {
+      for (const [tag, name] of Object.entries(loader as Row)) {
+        if (typeof name === 'string') names[tag] ??= name;
+      }
+    }
+    for (const column of TEXT_COLUMNS) {
+      for (const [key, value] of Object.entries(row)) {
+        if (key.startsWith(`${column}::`)) add(key.slice(column.length + 2));
+        else if (
+          key === column &&
+          value !== null &&
+          typeof value === 'object'
+        ) {
+          Object.keys(value).forEach(add);
+        }
+      }
+    }
+  }
+  return names;
 }
 
 /** Parse `parameters`' `guidance_hint=<text>` (qwacback's encoding). */

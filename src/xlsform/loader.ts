@@ -5,6 +5,7 @@ import {
   extractBaseColumnName,
   extractLanguageCode,
   getLanguageCodesFromHeaders,
+  getLanguageNamesFromHeaders,
   validateLanguageCodes,
   isValidLanguageCode,
 } from '../utils/languageUtils.js';
@@ -94,6 +95,7 @@ export class XLSLoader {
 
       // Detect language codes from headers
       const languageCodes = getLanguageCodesFromHeaders(headers);
+      const languageNames = getLanguageNamesFromHeaders(headers);
 
       // Validate language codes
       const invalidLanguageCodes = validateLanguageCodes(languageCodes);
@@ -134,6 +136,9 @@ export class XLSLoader {
         const validLanguages = languageCodes.filter(isValidLanguageCode);
         if (validLanguages.length > 0) {
           obj._languages = validLanguages;
+          obj._languageNames = Object.fromEntries(
+            validLanguages.map((tag) => [tag, languageNames[tag] ?? tag]),
+          );
         }
 
         return obj;
