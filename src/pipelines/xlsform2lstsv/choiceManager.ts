@@ -15,6 +15,11 @@ export class ChoiceManager {
   private questionBaseTypeMap = new Map<string, string>();
   /** Selects with the `or_other` shorthand (LimeSurvey's native other). */
   private orOtherQuestions = new Set<string>();
+  /**
+   * A question whose LimeSurvey answer codes differ from its list's
+   * (convention:choiceFilter `recode`): choice name → code.
+   */
+  private questionCodes = new Map<string, Map<string, string>>();
 
   constructor(private fieldSanitizer: FieldSanitizer) {}
 
@@ -91,8 +96,7 @@ export class ChoiceManager {
    * in list order), by its emitted name; `[]` when it is no select.
    */
   answerCodesOf(resolvedName: string): string[] {
-    const listName = this.questionToListMap.get(resolvedName);
-    const codeMap = listName ? this.answerCodeMap.get(listName) : undefined;
+    const codeMap = this.codeMapOf(resolvedName);
     return codeMap ? [...codeMap.values()] : [];
   }
 
@@ -109,9 +113,32 @@ export class ChoiceManager {
     const resolved = this.fieldSanitizer.resolveStrippedName(stripped);
     const listName = this.questionToListMap.get(resolved);
     if (!listName) return { code: choiceValue, listName: undefined };
-    const codeMap = this.answerCodeMap.get(listName);
+    const codeMap = this.codeMapOf(resolved);
     if (!codeMap) return { code: choiceValue, listName };
     return { code: codeMap.get(choiceValue) ?? choiceValue, listName };
+  }
+
+  /**
+   * A select's choice name → LimeSurvey answer code, by its emitted name;
+   * `undefined` when it is no select.
+   */
+  codeMapOf(resolvedName: string): ReadonlyMap<string, string> | undefined {
+    const own = this.questionCodes.get(resolvedName);
+    if (own) return own;
+    const listName = this.questionToListMap.get(resolvedName);
+    return listName ? this.answerCodeMap.get(listName) : undefined;
+  }
+
+  /** Give one question its own answer codes (choice name → code). */
+  setQuestionCodes(resolvedName: string, codes: Map<string, string>): void {
+    this.questionCodes.set(resolvedName, codes);
+  }
+
+  /** The question's own answer codes, if it has any (see setQuestionCodes). */
+  questionCodesOf(
+    resolvedName: string,
+  ): ReadonlyMap<string, string> | undefined {
+    return this.questionCodes.get(resolvedName);
   }
 
   getChoices(listName: string): ChoiceRow[] | undefined {

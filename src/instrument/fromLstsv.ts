@@ -18,6 +18,11 @@ import {
   MIN_ANSWERS_ATTRIBUTE,
   countsSelections,
 } from '../conventions/selectionCount.js';
+import {
+  ARRAY_FILTER_ATTRIBUTE,
+  CHOICE_FILTER_COLUMN,
+  choiceFilterFor,
+} from '../conventions/choiceFilter.js';
 import type { APPEARANCES } from '../generated/Appearances.js';
 
 /** The registry appearance for a group shown as one page. */
@@ -175,6 +180,11 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
   const otherLabel = state.tr.has(`other:${key}`)
     ? { otherLabel: text(state, `other:${key}`) }
     : {};
+  // array_filter = q: the options q's ticked subquestions keep (convention:choiceFilter).
+  const arrayFilter = cell(row, ARRAY_FILTER_ATTRIBUTE);
+  const columns = arrayFilter
+    ? { columns: { [CHOICE_FILTER_COLUMN]: choiceFilterFor(arrayFilter) } }
+    : {};
   return {
     kind: 'question',
     ...emptyItem(row),
@@ -194,6 +204,7 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
     default: cell(row, 'default'),
     parameters: t.resolved.parameters ?? '',
     ...otherLabel,
+    ...columns,
   };
 }
 

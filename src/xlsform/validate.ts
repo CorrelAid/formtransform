@@ -18,6 +18,10 @@ import {
 } from '../conventions/exclusive.js';
 import { OTHER_SUFFIX, otherCompanionBase } from '../conventions/other.js';
 import { isFromFileType } from '../conventions/fromFile.js';
+import {
+  CHOICE_FILTER_COLUMN,
+  filterColumns,
+} from '../conventions/choiceFilter.js';
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
 import { normalizeName } from './identifiers.js';
 import { expressionReferenceDiagnostics } from './references.js';
@@ -205,6 +209,7 @@ export class XLSValidator {
       'parameters',
       'concept',
       'label_short',
+      CHOICE_FILTER_COLUMN,
     ];
     const unexpectedColumns = [...allColumns].filter(
       (col) => !expectedColumns.includes(col) && !col.startsWith('_'),
@@ -230,6 +235,7 @@ export class XLSValidator {
     data: ChoiceRow[],
     sheetName: string,
     onWarning: WarningHandler = consoleWarning,
+    filterColumnNames: ReadonlySet<string> = new Set(),
   ): void {
     // An empty choices sheet is fine: a form without selects needs no rows.
     if (data.length === 0) return;
@@ -280,6 +286,8 @@ export class XLSValidator {
       'label',
       'filter',
       EXCLUSIVE_RULE.choicesColumn,
+      // Columns a choice_filter reads (convention:choiceFilter).
+      ...filterColumnNames,
     ];
     const unexpectedColumns = [...allColumns].filter(
       (col) => !expectedColumns.includes(col) && !col.startsWith('_'),
@@ -327,6 +335,7 @@ export class XLSValidator {
         choicesData,
         choicesSheetName,
         onWarning,
+        filterColumns(surveyData),
       );
     }
 

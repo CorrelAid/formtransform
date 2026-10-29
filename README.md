@@ -302,6 +302,16 @@ that bounds it (`count-selected(.) >= 1 and count-selected(.) <= 3`) becomes
 LimeSurvey's `min_answers` / `max_answers`; the reverse paths read those back
 as the same constraint.
 
+A `choice_filter` that keeps the options ticked in an earlier
+`select_multiple` (`selected(${k04}, name)`) becomes LimeSurvey's
+`array_filter`, which needs the option codes to equal the filtering
+question's answer codes. When a choices column holds the matching codes
+instead (`selected(${k04}, kurz)`), the filtered question's LimeSurvey answer
+codes are that column's values, and a `choice-filter-recoded` warning says
+so: LimeSurvey then stores those codes for it. Any other `choice_filter` is
+dropped with a `choice-filter-dropped` warning, and LimeSurvey shows every
+option.
+
 The `or_other` shorthand writes no text for its "other" answer; the survey
 tool supplies one. LimeSurvey shows its own `Other:` in the survey language
 (`Sonstiges:`), ODK and Kobo an untranslated "Other" / "Specify other.". The

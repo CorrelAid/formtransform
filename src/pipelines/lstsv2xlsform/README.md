@@ -47,6 +47,7 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | per-language rows | `label::<lang>` / `hint::<lang>` | direct |
 | S rows | settings (`default_language`, `form_title`, `style`) | direct |
 | `relevance`, `em_validation_q` | `relevant`, `constraint` | reverse-transpiled — see below |
+| `array_filter = q` | `choice_filter: selected(${q}, name)` | convention:choiceFilter. A filter the forward path recoded (`selected(${q}, <column>)`) comes back on the codes LimeSurvey stores, not the list's own |
 
 `label` / `list-nolabel` matrix appearances (the non-`table-list` matrix
 pattern) are **not handled** — no fixture uses them.
