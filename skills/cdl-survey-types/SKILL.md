@@ -15,6 +15,7 @@ Generated from the [`formtransform`](https://github.com/) — the single source 
 |---|---|---|
 | `date` | Date | When capturing a specific calendar date (e.g. date of birth, appointment date). |
 | `decimal` | Decimal/Float | When collecting open decimal numeric values without predefined categories (e.g. height in metres, temperature). |
+| `hidden` | Hidden (Prefilled Value) | When a value comes from the survey link rather than the respondent, such as a partner, channel or module code, so that responses can be split by it. |
 | `integer` | Integer | When collecting open integer values without predefined categories, where respondents provide a raw number (e.g. age, household size). |
 | `note` | Note (Display Text) | When displaying non-interactive informational text, instructions, or section headers that require no respondent answer. |
 | `range` | Range | When collecting a number on a bounded scale set with `parameters` (`start`, `end`, `step`), e.g. a 0–100 percentage or a 1–10 rating. LimeSurvey enforces the bounds and, for whole-number steps, integers; it does not enforce the step itself. |

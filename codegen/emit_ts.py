@@ -35,6 +35,8 @@ def generate_typescript(registry: dict[str, Any], output: Path):
         "  parameterAttributes?: Record<string, string>;",
         "  /** Set `attribute` to 1 when all `whenWhole` parameters are whole numbers. */",
         "  integerOnly?: { attribute: string; whenWhole: string[] };",
+        "  /** Written with LimeSurvey's `hidden` attribute set (convention:linkPrefill). */",
+        "  hidden?: boolean;",
         "}",
         "",
         "export const TYPE_MAPPINGS: Record<string, TypeMapping> = {",
@@ -65,6 +67,8 @@ def generate_typescript(registry: dict[str, Any], output: Path):
             lines.append(f"    parameterAttributes: {json.dumps(ls['parameterAttributes'])},")
         if ls.get("integerOnly"):
             lines.append(f"    integerOnly: {json.dumps(ls['integerOnly'])},")
+        if ls.get("hidden"):
+            lines.append("    hidden: true,")
         lines.append("  },")
 
     kind_map = {
@@ -169,6 +173,17 @@ def generate_typescript_ddi(registry: dict[str, Any], output: Path):  # noqa: C9
         rd = data["ddi"].get("responseDomainType")
         if rd:
             L.append(f"  {_ts_key(_slug(type_id))}: {json.dumps(rd)},")
+    L.append("};")
+    L.append("")
+
+    L.append("/** Standardized type → otherResponseDomainType, for responseDomainType `other`. */")
+    L.append("export const OTHER_RESPONSE_DOMAIN_MAP: Record<string, string> = {")
+    for type_id, data in registry.items():
+        if not _is_ddi_emittable(data):
+            continue
+        ord_ = data["ddi"].get("otherResponseDomainType")
+        if ord_:
+            L.append(f"  {_ts_key(_slug(type_id))}: {json.dumps(ord_)},")
     L.append("};")
     L.append("")
 

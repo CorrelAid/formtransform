@@ -211,21 +211,6 @@ describe('Unimplemented XLSForm Types Validation', () => {
         message: expect.stringContaining('type "calculate"'),
       });
     });
-
-    test('silently skips hidden type', async () => {
-      const survey = [
-        {
-          type: 'hidden',
-          name: 'hidden_q',
-          label: 'Hidden Field',
-          calculation: 'uuid()',
-        },
-        { type: 'text', name: 'q1', label: 'Question 1' },
-      ];
-
-      const rows = await convertAndParse(survey);
-      expect(rows.find((r) => r.name === 'hiddenq')).toBeUndefined();
-    });
   });
 
   describe('Edge Cases', () => {

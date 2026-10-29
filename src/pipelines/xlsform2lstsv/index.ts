@@ -352,21 +352,8 @@ class Conversion {
   /** Emit one question item (skipping metadata and promoted welcome/end notes). */
   private processQuestion(q: QuestionItem): void {
     const row = q.row as SurveyRow;
-    // Metadata types are skipped silently, except a `hidden` row: in
-    // ODK/Kobo its value comes from the survey link, which LimeSurvey loses
-    // with the row (#207).
-    if (SKIP_TYPES.includes(q.type)) {
-      if (q.type === 'hidden') {
-        this.warn(
-          warning(
-            'hidden-dropped',
-            `hidden row "${q.name}" is not converted: LimeSurvey gets no question for it, so a value prefilled through the survey link is lost`,
-            q.name,
-          ),
-        );
-      }
-      return;
-    }
+    // Metadata types are skipped silently.
+    if (SKIP_TYPES.includes(q.type)) return;
     // Notes promoted to welcome/end messages are not questions.
     if (q.rawType === 'note') {
       const name = q.name.toLowerCase();
@@ -564,7 +551,7 @@ class Conversion {
   private computeQuestionFields(
     q: QuestionItem,
     xfTypeInfo: { base: string },
-    lsType: { other?: boolean; dateFormat?: string },
+    lsType: { other?: boolean; dateFormat?: string; hidden?: boolean },
   ): {
     relevance: string;
     emValidation: string;
@@ -601,7 +588,7 @@ class Conversion {
       mandatory,
       other,
       defaultVal,
-      hidden: '',
+      hidden: lsType.hidden ? '1' : '',
       hideTip,
       isNote,
       answerBounds,

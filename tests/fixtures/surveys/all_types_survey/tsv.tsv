@@ -4,6 +4,7 @@ S		format	1	A		de
 S		shownoanswer	1	N		de											
 SL		surveyls_title	1	Workshop-Feedback-Umfrage		de											
 G	1	G0	1	G0		de											
+Q	S	hidden1	1	hidden1		de							1	1			
 Q	S	orphanbefore	1	Wie lautet Ihre Teilnehmer-ID?		de								1			
 G	2	Persönliche Angaben	1			de											
 Q	S	qtext	1	Wie heißen Sie (Vor- und Nachname)?		de								1			

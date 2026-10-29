@@ -21,6 +21,8 @@ export interface LSType {
   other?: boolean;
   answerClass?: 'A' | 'SQ';
   dateFormat?: string;
+  /** LimeSurvey's `hidden` attribute (convention:linkPrefill). */
+  hidden?: boolean;
 }
 
 export class TypeMapper {
@@ -78,6 +80,10 @@ export class TypeMapper {
 
     if (mapping.dateFormat) {
       result.dateFormat = mapping.dateFormat;
+    }
+
+    if (mapping.hidden) {
+      result.hidden = true;
     }
 
     return result;

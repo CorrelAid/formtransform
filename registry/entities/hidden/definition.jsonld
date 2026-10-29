@@ -1,0 +1,55 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "prefLabelDe": {
+      "@id": "skos:prefLabel",
+      "@language": "de"
+    },
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/"
+  },
+  "@graph": [
+    {
+      "@id": "type:hidden",
+      "@type": "QuestionType",
+      "skos:prefLabel": "Hidden (Prefilled Value)",
+      "prefLabelDe": "Verstecktes Feld (vorbelegter Wert)",
+      "xlsform": {
+        "typeString": "hidden"
+      },
+      "limesurvey": {
+        "typeCode": "S",
+        "supportsOther": false,
+        "answerClass": null,
+        "hidden": true
+      },
+      "ddi": {
+        "intrvl": "discrete",
+        "formatType": "character",
+        "responseDomainType": "other",
+        "otherResponseDomainType": "hidden"
+      },
+      "kobo": {
+        "nativeSupport": true
+      },
+      "constraints": {
+        "maxNameLength": 20,
+        "namePattern": "^[a-zA-Z0-9]+$",
+        "warnings": [
+          "Respondents never see it: the value comes from the survey link (convention:linkPrefill) or the `default`; without either it stays empty.",
+          "Kobo fills it from the link only in web forms (Enketo); KoboCollect gets the `default` alone.",
+          "In LimeSurvey the link parameter is the question code, which differs from the XLSForm name when it is sanitized or over 20 characters: take it from the mapping (--mapping)."
+        ]
+      },
+      "tests": [
+        "tests/types/hidden/"
+      ],
+      "exampleDir": "registry/entities/hidden",
+      "examplePath": "registry/entities/hidden/xlsform.json",
+      "useWhen": "When a value comes from the survey link rather than the respondent, such as a partner, channel or module code, so that responses can be split by it."
+    }
+  ]
+}

@@ -26,6 +26,7 @@ import {
 } from '../conventions/other.js';
 import { fromFileTypeFor } from '../conventions/fromFile.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
+import { OTHER_RESPONSE_DOMAIN_MAP } from '../generated/DdiMappings.js';
 import { parseParameters } from '../utils/parameters.js';
 import {
   childNamed,
@@ -379,9 +380,29 @@ function textType(v: XmlNode): string {
   return category === 'date' || category === 'time' ? category : 'text';
 }
 
+/** `otherResponseDomainType` → the type it stands for (`hidden`). */
+const TYPE_BY_OTHER_DOMAIN: Record<string, string> = Object.fromEntries(
+  Object.entries(OTHER_RESPONSE_DOMAIN_MAP).map(([type, other]) => [
+    other,
+    type,
+  ]),
+);
+
+/**
+ * The type a `responseDomainType="other"` stands for, by its
+ * `otherResponseDomainType` (`hidden`), if formtransform writes it.
+ */
+function otherDomainType(qstn: XmlNode | undefined): string | undefined {
+  if (qstn?.attrs['responseDomainType'] !== 'other') return undefined;
+  return TYPE_BY_OTHER_DOMAIN[qstn.attrs['otherResponseDomainType'] ?? ''];
+}
+
 /** A plain `var`'s XLSForm type, from its standard DDI. */
 function varType(v: XmlNode, state: ReadState): string {
-  const domain = childNamed(v, 'qstn')?.attrs['responseDomainType'] ?? 'text';
+  const qstn = childNamed(v, 'qstn');
+  const other = otherDomainType(qstn);
+  if (other) return other;
+  const domain = qstn?.attrs['responseDomainType'] ?? 'text';
   const vocab = childNamed(v, 'concept')?.attrs['vocab'];
   const select = (base: string) => (vocab ? fromFileTypeFor(base) : base);
   if (domain === 'category') return select('select_one');

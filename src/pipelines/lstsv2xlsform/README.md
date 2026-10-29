@@ -170,7 +170,9 @@ Resolved (kept here so the questions don't get re-litigated): **date subtypes**
 are fully recoverable — `TYPE_MAPPINGS[type].dateFormat` is a genuine 1:1 hint
 (`time` sets `HH:MM`, `date` sets none), read back from the TSV's `date_format`
 column, and `datetime` no longer exists as a separate type (consolidated into
-`date`). **Names and answer codes** need no reversal at all: strict validation
+`date`). **`hidden`** is too: the forward writes it as an `S` question with
+`hidden = 1` (`TYPE_MAPPINGS.hidden.hidden`), and any hidden `S` comes back as
+`hidden` (#207, convention:linkPrefill). **Names and answer codes** need no reversal at all: strict validation
 (`XLSValidator.validateNamesAndCodes`, default-on) means an XLSForm's names are
 already LimeSurvey-legal, so the TSV carries them verbatim — there is no
 sanitization to undo.

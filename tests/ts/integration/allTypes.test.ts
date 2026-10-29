@@ -38,11 +38,18 @@ describe('Integration: all_types_survey.json', () => {
         'today',
         'deviceid',
         'username',
-        'hidden1',
         'audit',
       ]) {
         expect(allNames).not.toContain(skip);
       }
+    });
+  });
+
+  it('hidden → S with hidden=1 (convention:linkPrefill)', async () => {
+    const rows = await convertFixture();
+    expect(findQ(rows, 'hidden1')).toMatchObject({
+      'type/scale': 'S',
+      hidden: '1',
     });
   });
 

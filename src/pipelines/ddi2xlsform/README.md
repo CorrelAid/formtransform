@@ -23,7 +23,7 @@ Standard DDI first, `cdl:` notes where DDI has no element
 
 | XLSForm | DDI |
 |---|---|
-| type | `qstn/@responseDomainType`; `varFormat/@category` (date, time); `var/@dcml="0"` (integer); `valrng` without a constraint (range); `concept/@vocab` (`select_*_from_file`); the `or_other` shorthand: `cdl:or_other` |
+| type | `qstn/@responseDomainType`; `varFormat/@category` (date, time); `qstn/@otherResponseDomainType` with `responseDomainType="other"` (hidden); `var/@dcml="0"` (integer); `valrng` without a constraint (range); `concept/@vocab` (`select_*_from_file`); the `or_other` shorthand: `cdl:or_other` |
 | label / hint / guidance_hint | `qstnLit` / `postQTxt` / `ivuInstr`, every `xml:lang` |
 | label_short (and `label_short::<lang>`) | `labl` on the `varGrp` of a group, a select_multiple or a semi-open question, every `xml:lang` (#181); on any other row a `cdl:column` (a note's or data-less row's `cdl:row_column`) |
 | concept (and `concept::<lang>`) | `concept` on the `var`, or on the `varGrp` of a group, a select_multiple or a semi-open select_multiple, every `xml:lang` (#173); a note's or data-less row's `cdl:row_column`. A codebook from elsewhere that copies the label into `concept` gets a `concept` column with that copy |

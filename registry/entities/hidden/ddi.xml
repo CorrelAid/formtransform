@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>hidden</titl>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2026-10-29">2026-10-29</prodDate>
+      </prodStmt>
+    </citation>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <var ID="V_partner" name="partner" intrvl="discrete" files="F1">
+      <qstn responseDomainType="other" otherResponseDomainType="hidden" seqNo="1">
+        <qstnLit>Partnerkennung (über den Link vorbelegt)</qstnLit>
+      </qstn>
+      <varFormat type="character" schema="other"/>
+    </var>
+    <var ID="V_modul" name="modul" intrvl="discrete" files="F1">
+      <qstn responseDomainType="other" otherResponseDomainType="hidden" seqNo="2">
+        <qstnLit>Modul</qstnLit>
+      </qstn>
+      <varFormat type="character" schema="other"/>
+      <notes type="cdl:default">O</notes>
+    </var>
+    <var ID="V_anmerkungen" name="anmerkungen" intrvl="discrete" files="F1">
+      <qstn responseDomainType="text" seqNo="3">
+        <qstnLit>Haben Sie weitere Anmerkungen?</qstnLit>
+      </qstn>
+      <varFormat type="character" schema="other"/>
+    </var>
+  </dataDscr>
+</codeBook>

@@ -99,15 +99,7 @@ describe('QUESTION_TYPES', () => {
       .map(([slug]) => slug);
 
     expect(metadata.sort()).toEqual(
-      [
-        'audit',
-        'deviceid',
-        'end',
-        'hidden',
-        'start',
-        'today',
-        'username',
-      ].sort(),
+      ['audit', 'deviceid', 'end', 'start', 'today', 'username'].sort(),
     );
   });
 

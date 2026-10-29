@@ -1,0 +1,51 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:linkPrefill",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "Prefilling a question from the survey link",
+      "rule": {
+        "appliesTo": [
+          "hidden"
+        ],
+        "description": "Both platforms take a question's value from a parameter of the survey link, so one survey can tell its distribution channels apart (a partner, a module): give each channel its own link. A `hidden` question holds the value without showing it. formtransform converts the question; it builds no links.",
+        "kobo": {
+          "link": "<form URL>?d[/<root>/<name>]=<value>",
+          "root": "the form's root element (often `data`); take the path from the deployed form",
+          "scope": "web forms (Enketo) only; KoboCollect has no link"
+        },
+        "limesurvey": {
+          "link": "<survey URL>?<code>=<value>",
+          "code": "the question code: the XLSForm name, unless the conversion renamed it (sanitized, or over 20 characters) — the mapping (convention:lstsvMapping) gives it"
+        },
+        "default": "Without the parameter the question holds its `default` (empty if none): give a default where one link should mean 'none given'.",
+        "data": "The value is a column of the response data on both platforms, and a variable in the codebook."
+      }
+    }
+  ]
+}
