@@ -290,6 +290,18 @@ validates against this subset, rejecting:
   `selected(${m}, 'x')`, `${age} = 'old'`) is only a warning: the form converts,
   but the condition is never true
 
+A `select_*_from_file` list keeps each code that fits LimeSurvey's answer
+codes (`DE`). Any other code (a 12-digit regional key, `059700040040`) gets a
+5-character code derived from the code itself, so it stays the same when the
+file is reordered or rows are added or removed (`convention:externalCodeList`,
+`limesurveyCodes`). The mapping beside the TSV (see `--sanitize` below) records
+each derived code, and `lstsv2ddi --data` writes the file's own codes back.
+`appearance: minimal` or `autocomplete` makes the question a LimeSurvey
+dropdown instead of a radio list. LimeSurvey's dropdown has no search: its
+`cssclass` `cdlvocab-<vocabulary>` records where the options came from (the
+way back reads it), and it is where a LimeSurvey theme can hook in a
+searchable dropdown. formtransform ships no such theme.
+
 An exclusive answer in a `select_multiple` ("Keine Angabe", "Nichts davon")
 is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 `count-selected()` constraint. LimeSurvey enforces it through
@@ -324,7 +336,8 @@ To keep such names, convert with `--sanitize` (`xlsformToLstsvWithMapping(form,
 instead of refused (`k23_ars` → `k23ars`, a long name truncated and made
 unique, `abwesend` → `abwes`, a negative code `-98` → `n98`), and every change
 is recorded in a mapping, `survey.mapping.json` beside the TSV
-(`convention:lstsvMapping`). `lstsv2ddi` (with `--data`) and `lstsv2xlsform`
+(`convention:lstsvMapping`; the CLI writes it beside `-o` whenever the TSV
+renames anything). `lstsv2ddi` (with `--data`) and `lstsv2xlsform`
 read it, from beside the TSV or `--mapping <file>`, and give back the
 XLSForm's names and codes in the codebook, the data and the form. One XLSForm
 then serves Kobo and LimeSurvey without renaming it for either.

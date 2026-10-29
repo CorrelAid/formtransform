@@ -100,7 +100,8 @@ export class AnswerEmitter {
     const own = helpers.codes;
     const choiceNames = own
       ? choices.map((c) => own.get(c.name?.trim() ?? '') ?? '')
-      : answerCodes(
+      : (this.choiceManager.fileListCodesOf(xfTypeInfo.listName!, choices) ??
+        answerCodes(
           choices,
           (code) => helpers.sanitizeAnswerCode(code),
           () =>
@@ -109,7 +110,7 @@ export class AnswerEmitter {
               : `A${this.counters.answerSeq++}`,
           this.onWarning,
           xfTypeInfo.listName ?? undefined,
-        );
+        ));
     helpers.recordCodes?.(choices, choiceNames);
 
     for (let i = 0; i < choices.length; i++) {

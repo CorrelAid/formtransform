@@ -428,8 +428,16 @@
       "xlsformTypePattern": "^select_(one|multiple)_from_file (?P<filename>[^ ]+\\.csv)$",
       "ddiVocabFromFilename": "stripExtension",
       "ddiEmission": "concept[@vocab='<vocab>'] in place of inline catgry; catgry MUST NOT be emitted",
-      "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import)",
+      "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import). appearance minimal or autocomplete makes a select_one a dropdown (!) instead of a radio list",
       "limesurveyCssClassPrefix": "cdlvocab-",
+      "limesurveyCssClassPurpose": "A machine hook, not styling: it records which vocabulary the options came from (the way back reads it as select_*_from_file <vocab>.csv), and it is where a LimeSurvey theme can attach a searchable dropdown to a long list (`.cdlvocab-<vocab> select`). formtransform ships no such theme",
+      "limesurveyCodes": {
+        "rule": "An option code that already fits LimeSurvey (convention:sanitization choiceCode: pattern and maxLength) is kept. Every other one gets a code derived from the code itself, never from its row: hash(code) in base 36, maxLength characters. The codes are the same whatever the order of the file or which rows are added or removed; a collision (with a kept code or an earlier hashed one, case-insensitively, codes taken in sorted order) re-hashes `<code><collisionSeparator><n>`, n = 1, 2, …",
+        "hash": "fnv1a32",
+        "alphabet": "0123456789abcdefghijklmnopqrstuvwxyz",
+        "collisionSeparator": "#",
+        "mapping": "Each derived code is recorded in convention:lstsvMapping, and the CLI writes that mapping beside the TSV, so lstsv2ddi and its --data give back the file's own codes"
+      },
       "structuralNote": "select_multiple_from_file emits a flat <var> with concept/@vocab, NOT a varGrp[@type='multipleResp'] with binary children. This differs from select_multiple.",
       "appliesTo": [
         "select_one_from_file",

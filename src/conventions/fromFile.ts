@@ -51,3 +51,61 @@ export function vocabFromCssClass(cssclass: string): string {
 export function registeredVocabCodes(vocab: string): string[] {
   return (VOCABULARY_OPTIONS[`${vocab}.csv`] ?? []).map(([code]) => code);
 }
+
+const CODES = RULE.limesurveyCodes;
+const CHOICE_RULES = conventions.conventions.sanitization.choiceCode;
+const FITS = new RegExp(CHOICE_RULES.pattern);
+const CODE_LENGTH: number = CHOICE_RULES.maxLength;
+const ALPHABET: string = CODES.alphabet;
+const SPACE = ALPHABET.length ** CODE_LENGTH;
+
+/** 32-bit FNV-1a over the UTF-16 code units (`limesurveyCodes.hash`). */
+function fnv1a32(text: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+/** `text`'s code: its hash, written in the alphabet, padded to the length. */
+function hashedCode(text: string): string {
+  let n = fnv1a32(text) % SPACE;
+  let out = '';
+  for (let i = 0; i < CODE_LENGTH; i++) {
+    out = ALPHABET[n % ALPHABET.length] + out;
+    n = Math.floor(n / ALPHABET.length);
+  }
+  return out;
+}
+
+/** Whether a vocabulary code can be a LimeSurvey answer code as it is. */
+export function fitsLimeSurvey(code: string): boolean {
+  return FITS.test(code) && code.length <= CODE_LENGTH;
+}
+
+/**
+ * The LimeSurvey answer codes of a vocabulary's options
+ * (convention:externalCodeList `limesurveyCodes`): a code that fits is kept,
+ * every other one gets a code derived from the code itself, so it is the same
+ * whatever the file's order and whichever rows are added or removed.
+ */
+export function vocabAnswerCodes(codes: readonly string[]): string[] {
+  const used = new Set(
+    codes.filter(fitsLimeSurvey).map((c) => c.toLowerCase()),
+  );
+  const assigned = new Map<string, string>();
+  const derived = [...new Set(codes.filter((c) => !fitsLimeSurvey(c)))].sort(
+    (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  for (const code of derived) {
+    let candidate = hashedCode(code);
+    for (let n = 1; used.has(candidate); n++) {
+      candidate = hashedCode(`${code}${CODES.collisionSeparator}${n}`);
+    }
+    used.add(candidate);
+    assigned.set(code, candidate);
+  }
+  return codes.map((c) => assigned.get(c) ?? c);
+}
