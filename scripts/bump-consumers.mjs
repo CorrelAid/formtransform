@@ -37,7 +37,9 @@ function sumOf(sums, file) {
 
 /**
  * Per consumer: the files with pins, each a list of [pattern, replacement]
- * (every pattern must match), the npm package directories and their manager,
+ * (every pattern must match), the npm package directories and their manager
+ * (ownVersion: the package's own version field follows formtransform's, as
+ * qwacback's ddi-emitter does since qwacback#71),
  * and the consumer's own consistency check.
  */
 export const CONSUMERS = {
@@ -52,7 +54,7 @@ export const CONSUMERS = {
         ],
       ],
     },
-    npm: [{ dir: 'ddi-emitter', manager: 'npm' }],
+    npm: [{ dir: 'ddi-emitter', manager: 'npm', ownVersion: true }],
     verify: ['bash', 'scripts/check-registry-version.sh'],
     // Its CI pulls the worker image at the pinned tag.
     image: 'ghcr.io/correlaid/schematron-worker',
@@ -125,8 +127,13 @@ export function rewritePins(consumer, version, sums, read) {
   for (const [path, rules] of Object.entries(spec.files)) {
     apply(path, rules(version, sums));
   }
-  for (const { dir } of spec.npm) {
-    apply(join(dir, 'package.json'), [[TARBALL, (v) => tarballUrl(v)]]);
+  for (const { dir, ownVersion } of spec.npm) {
+    apply(join(dir, 'package.json'), [
+      [TARBALL, (v) => tarballUrl(v)],
+      ...(ownVersion
+        ? [[/^(\s*"version":\s*)"[^"]*"/m, (v) => `$1"${v}"`]]
+        : []),
+    ]);
   }
   return out;
 }

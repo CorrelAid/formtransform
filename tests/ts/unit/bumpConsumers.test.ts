@@ -34,7 +34,10 @@ const REPOS: Record<string, Record<string, string>> = {
     '.registry-version': 'v0.7.1\n',
     'docker-compose.yml':
       'services:\n  schematron-worker:\n    image: ghcr.io/correlaid/schematron-worker:v0.7.1  # must equal .registry-version\n',
-    'ddi-emitter/package.json': npmPkg(OLD),
+    'ddi-emitter/package.json': npmPkg(OLD).replace(
+      '{\n',
+      '{\n\t"version": "0.7.1",\n',
+    ),
   },
   formulaid: {
     'package.json': npmPkg(OLD),
@@ -58,14 +61,17 @@ describe('bump-consumers', () => {
     expect(Object.keys(CONSUMERS).sort()).toEqual(Object.keys(REPOS).sort());
   });
 
-  test('qwacback: .registry-version, worker image, ddi-emitter tarball', () => {
+  test('qwacback: .registry-version, worker image, ddi-emitter tarball and version', () => {
     const out = bump('qwacback');
     expect(out['.registry-version']).toBe('v0.8.1\n');
     expect(out['docker-compose.yml']).toContain(
       'schematron-worker:v0.8.1  # must equal .registry-version',
     );
+    // Its own version follows formtransform's (qwacback#71).
     expect(out['ddi-emitter/package.json']).toBe(
-      npmPkg(NEW).replace('0.7.1.tgz', '0.8.1.tgz'),
+      npmPkg(NEW)
+        .replace('0.7.1.tgz', '0.8.1.tgz')
+        .replace('{\n', '{\n\t"version": "0.8.1",\n'),
     );
   });
 
