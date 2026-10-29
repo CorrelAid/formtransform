@@ -110,6 +110,15 @@ function withConcept(node: XmlNode, state: ReadState): { concept?: Text } {
   return Object.keys(concept).length ? { concept } : {};
 }
 
+/** A varGrp's `<labl>`s (#181), absent when none. */
+function withLabelShort(
+  node: XmlNode,
+  state: ReadState,
+): { labelShort?: Text } {
+  const labelShort = childTexts(node, 'labl', state);
+  return Object.keys(labelShort).length ? { labelShort } : {};
+}
+
 const ids = (value: string | undefined) =>
   (value ?? '').split(/\s+/).filter(Boolean);
 
@@ -426,7 +435,7 @@ function multiQuestion(
   const q = emptyQuestion(name);
   q.type = 'select_multiple';
   q.label = childTexts(grp, 'txt', state);
-  Object.assign(q, withConcept(grp, state));
+  Object.assign(q, withLabelShort(grp, state), withConcept(grp, state));
   readNotes(q, grp, state);
   const first = binaries[0];
   if (first) {
@@ -659,11 +668,18 @@ function placeVar(
   const [select, ...companions] = varsOf(owner, state);
   if (select && isShorthand(owner)) {
     const items = withLeadIn(select, state, true);
-    withOtherLabel(items[items.length - 1], owner, companions[0], state);
+    const q = items[items.length - 1];
+    withOtherLabel(q, owner, companions[0], state);
+    Object.assign(q, withLabelShort(owner, state));
     return { items, anchor: ownerId };
   }
+  // An explicit pair: the select's own items, then its companion's.
+  const lead = select ? withLeadIn(select, state) : [];
+  if (lead.length) {
+    Object.assign(lead[lead.length - 1], withLabelShort(owner, state));
+  }
   return {
-    items: varsOf(owner, state).flatMap((m) => withLeadIn(m, state)),
+    items: [...lead, ...companions.flatMap((m) => withLeadIn(m, state))],
     anchor: ownerId,
   };
 }
@@ -694,6 +710,7 @@ function groupItem(id: string, state: ReadState): GroupItem {
       ? {}
       : childTexts(grp, 'txt', state),
     hint: texts(notesOf(grp, FIELDS.hint.type), state),
+    ...withLabelShort(grp, state),
     ...withGuidance(grp, state),
     ...withConcept(grp, state),
     relevant: noteText(grp, LOGIC.relevant.type, state),
@@ -771,6 +788,16 @@ function readSettings(
       ...texts(parallel, state),
       [state.base]: out['form_title'],
     };
+  }
+  // Subtitle and short title (#181): plain, or one per language.
+  if (titlStmt) {
+    for (const [tag, key] of Object.entries(FIELDS.setting.titles)) {
+      const text = texts(childrenNamed(titlStmt, tag), state);
+      const langs = Object.keys(text);
+      if (!langs.length) continue;
+      out[key] =
+        langs.length === 1 && langs[0] === state.base ? text[langs[0]] : text;
+    }
   }
   for (const note of notesOf(stdy, FIELDS.setting.type)) {
     const key = note.attrs['subject'];
@@ -947,6 +974,7 @@ function renameItem(item: Item, names: Map<string, string>): void {
   item.label = renamed(item.label, names);
   item.hint = renamed(item.hint, names);
   if (item.concept) item.concept = renamed(item.concept, names);
+  if (item.labelShort) item.labelShort = renamed(item.labelShort, names);
   if (item.guidanceHint) {
     item.guidanceHint = renamed(item.guidanceHint, names);
   }
@@ -971,9 +999,11 @@ function renameLanguages(
   for (const choices of Object.values(instrument.lists)) {
     for (const c of choices) c.label = renamed(c.label, names);
   }
-  const title = instrument.settings['form_title'];
-  if (title && typeof title === 'object') {
-    instrument.settings['form_title'] = renamed(title as Text, names);
+  for (const key of ['form_title', ...Object.values(FIELDS.setting.titles)]) {
+    const value = instrument.settings[key];
+    if (value && typeof value === 'object') {
+      instrument.settings[key] = renamed(value as Text, names);
+    }
   }
   instrument.languages = instrument.languages.map((l) => names.get(l) ?? l);
   return instrument;

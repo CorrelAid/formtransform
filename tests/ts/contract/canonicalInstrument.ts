@@ -12,6 +12,7 @@ import { isExclusive } from '../../../src/conventions/exclusive.js';
 import { allColumns } from '../../../src/conventions/columns.js';
 import { withoutSpacedGuidance } from '../../../src/utils/parameters.js';
 import { languageTagOf } from '../../../src/utils/languageUtils.js';
+import conventions from '../../../src/generated/conventions.js';
 import type {
   Instrument,
   Item,
@@ -91,6 +92,7 @@ function question(q: QuestionItem, ctx: Ctx): Canon {
     file: q.file,
     orOther: q.orOther,
     label: text(q.label, ctx),
+    labelShort: text(q.labelShort, ctx),
     hint: text(q.hint, ctx),
     concept: header ? {} : text(q.concept, ctx),
     guidance: text(q.guidanceHint, ctx),
@@ -113,6 +115,7 @@ function items(list: Item[], ctx: Ctx): Canon[] {
       out.push({
         group: item.name,
         label: text(item.label, ctx),
+        labelShort: text(item.labelShort, ctx),
         hint: text(item.hint, ctx),
         guidance: text(item.guidanceHint, ctx),
         concept: text(item.concept, ctx),
@@ -182,13 +185,30 @@ function lists(ctx: Ctx): Canon {
 }
 
 /** Settings by column: one per language for a `{ lang: text }` one. */
+/** Settings with a title element: per language like form_title (#181). */
+const TITLES = [
+  'form_title',
+  ...Object.values(conventions.conventions.ddiFields.notes.setting.titles),
+];
+
 function settings(instrument: Instrument, ctx: Ctx): Canon {
-  const { form_title: title, ...rest } = instrument.settings;
+  const rest = Object.fromEntries(
+    Object.entries(instrument.settings).filter(([k]) => !TITLES.includes(k)),
+  );
   const out: Canon = { ...allColumns(rest) };
-  if (title && typeof title === 'object') {
-    out['form_title'] = text(title as Text, ctx);
-  } else if (typeof title === 'string' || typeof title === 'number') {
-    if (String(title).trim()) out['form_title'] = String(title).trim();
+  for (const key of TITLES) {
+    const title = instrument.settings[key];
+    if (title && typeof title === 'object') {
+      // By tag: the codebook's titles carry no language names.
+      out[key] = Object.fromEntries(
+        Object.entries(text(title as Text, ctx)).map(([k, v]) => [
+          languageTagOf(k) ?? k,
+          v,
+        ]),
+      );
+    } else if (typeof title === 'string' || typeof title === 'number') {
+      if (String(title).trim()) out[key] = String(title).trim();
+    }
   }
   return out;
 }

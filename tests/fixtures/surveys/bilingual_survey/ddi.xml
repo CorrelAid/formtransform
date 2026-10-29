@@ -4,6 +4,9 @@
     <citation>
       <titlStmt>
         <titl>bilingual_survey</titl>
+        <subTitl>Eine Testbefragung</subTitl>
+        <subTitl xml:lang="en">A test survey</subTitl>
+        <altTitl>ZB</altTitl>
         <IDNo>bilingual_survey</IDNo>
       </titlStmt>
       <prodStmt>
@@ -29,18 +32,25 @@
   </fileDscr>
   <dataDscr>
     <varGrp ID="VG_person" name="person" type="section" var="V_beruf V_bildung" varGrp="VG_sprachen VG_quelle">
+      <labl>Teil A</labl>
+      <labl xml:lang="en">Part A</labl>
       <txt>Zur Person</txt>
       <txt xml:lang="en">About you</txt>
     </varGrp>
     <varGrp ID="VG_vertrauen" name="vertrauen" type="grid" var="V_parlament V_polizei">
+      <labl>Vertrauen (5 Items)</labl>
+      <labl xml:lang="en">Trust (5 items)</labl>
       <txt>Wie sehr vertrauen Sie …</txt>
       <txt xml:lang="en">How much do you trust …</txt>
     </varGrp>
     <varGrp ID="VG_sprachen" name="sprachen" type="multipleResp" var="V_sprachen_de V_sprachen_en">
+      <labl>F3</labl>
       <txt>Welche Sprachen sprechen Sie?</txt>
       <txt xml:lang="en">Which languages do you speak?</txt>
     </varGrp>
     <varGrp ID="VG_quelle" name="quelle" type="other" var="V_quelle V_quelle_other">
+      <labl>F4</labl>
+      <labl xml:lang="en">Q4</labl>
       <txt>Wie haben Sie von uns erfahren?</txt>
       <txt xml:lang="en">How did you hear about us?</txt>
       <notes type="cdl:or_other">shorthand</notes>

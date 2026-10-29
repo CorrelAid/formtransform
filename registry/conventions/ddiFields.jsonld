@@ -38,6 +38,11 @@
           "ivuInstr": "guidance_hint (for interviewers and the codebook, not shown; a group's is a cdl:guidance_hint note)",
           "order": "preQTxt, qstnLit, postQTxt, backward, ivuInstr (XSD order)"
         },
+        "groupText": {
+          "labl": "label_short: the group's short label, one per language (formtransform#181)",
+          "txt": "the label",
+          "order": "labl, txt, concept, universe, notes (XSD order)"
+        },
         "backward": "qstn/backward/@qstn lists the IDs of the questions its own relevant refers to (a var, or the varGrp of a select_multiple or other pair).",
         "seqNo": "qstn/@seqNo is the question's position among the form's data questions, from 1; a select_multiple's binaries share their question's.",
         "notes": {
@@ -97,8 +102,14 @@
             "standard": [
               "form_title",
               "form_id",
-              "version"
-            ]
+              "version",
+              "form_subtitle",
+              "form_title_short"
+            ],
+            "titles": {
+              "subTitl": "form_subtitle",
+              "altTitl": "form_title_short"
+            }
           },
           "list": {
             "type": "cdl:list",
@@ -251,6 +262,10 @@
             "ddi": "qstn/postQTxt; a group's in a cdl:hint note (varGrp has no hint element)",
             "note": "CDL uses postQTxt for the hint shown to respondents with the question, though the XSD describes it as text about what follows the question: DDI 2.5 has no hint element. A note row's hint is a cdl:row_hint."
           },
+          "ItemBase.labelShort": {
+            "ddi": "varGrp/labl, one per language (xml:lang siblings, base untagged and first), before txt: on a group's section or grid varGrp, a select_multiple's multipleResp varGrp, and a semi-open question's other varGrp",
+            "note": "Optional (formtransform#181): the `label_short` column (`label_short::<lang>` per language, like `label`), a short printed name for the group or question (a scale's name like ATTARI-12, a question number), which a reader can show as a title above the txt. Not a concept. CDL keeps labl off var, so it is lifted only on a row that becomes a varGrp (liftedColumns.varGrpOnly); on any other row it is one of the row's columns (cdl:column, a note's or data-less row's cdl:row_column)."
+          },
           "ItemBase.concept": {
             "ddi": "concept, one per language (xml:lang siblings); on the var, or the varGrp of a group, a select_multiple or a semi-open select_multiple; a note's or data-less row's as cdl:row_column",
             "note": "Optional (formtransform#173): only from the form's own concept column, never filled in from the label. A select_*_from_file always has concept/@vocab, empty without a concept column."
@@ -336,7 +351,7 @@
             "ddi": "codeBook/@xml:lang"
           },
           "Instrument.settings": {
-            "ddi": "form_title: titl (+ parTitl); form_id: IDNo; version: verStmt/version; every other setting, default_language as authored too: stdyDscr/notes[@type='cdl:setting'][@subject=<key>]",
+            "ddi": "form_title: titl (+ parTitl); form_subtitle: subTitl and form_title_short: altTitl (formtransform#181; plain or one per language, xml:lang siblings); form_id: IDNo; version: verStmt/version; every other setting, default_language as authored too: stdyDscr/notes[@type='cdl:setting'][@subject=<key>]",
             "note": "Settings that are neither a string nor a number are not carried."
           },
           "Instrument.lists": {
@@ -357,7 +372,7 @@
           }
         },
         "liftedColumns": {
-          "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's. The questionOnly survey columns are lifted only on a question's row: a group has no such field, so on a begin_group row they are columns too (formtransform#179).",
+          "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's. The questionOnly survey columns are lifted only on a question's row: a group has no such field, so on a begin_group row they are columns too (formtransform#179). The varGrpOnly survey columns are lifted only on a row the codebook makes a varGrp: a begin_group, a select_multiple, and a select_one or select_multiple with an other pair (or_other, or an `other` choice and a `<name>_other` text question); on any other row they are its columns (formtransform#181).",
           "survey": [
             "type",
             "name",
@@ -371,7 +386,8 @@
             "required",
             "default",
             "parameters",
-            "concept"
+            "concept",
+            "label_short"
           ],
           "questionOnly": [
             "required",
@@ -379,6 +395,9 @@
             "constraint_message",
             "default",
             "parameters"
+          ],
+          "varGrpOnly": [
+            "label_short"
           ],
           "choices": [
             "list_name",

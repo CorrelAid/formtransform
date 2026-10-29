@@ -53,6 +53,8 @@ import { registeredVocabCodes } from '../conventions/fromFile.js';
 import { languageTagOf } from '../utils/languageUtils.js';
 
 const NOTES = conventions.conventions.ddiFields.notes;
+/** The settings with a title element (#181): element → setting key. */
+const TITLE_SETTINGS = NOTES.setting.titles;
 
 const NS = 'ddi:codebook:2_5';
 const XSI = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -156,6 +158,21 @@ function specTranslations(
     guidanceHintTranslations: textsOf(v, 'guidanceHint'),
     conceptTranslations: textsOf(v, 'concept'),
   };
+}
+
+/**
+ * A varGrp's `<labl>`s, before its `txt` (#181): the form's `label_short` in
+ * each language that has one (xml:lang siblings), none without.
+ */
+function addShortLabel(
+  el: XmlElement,
+  labelShort: string | undefined,
+  translations: Translations | undefined,
+): void {
+  if (labelShort) el.textChild('labl', labelShort);
+  for (const [lang, text] of Object.entries(translations ?? {})) {
+    el.textChild('labl', text, { 'xml:lang': lang });
+  }
 }
 
 /**
@@ -445,6 +462,7 @@ function emitOtherPattern(
       var: makeVarId(otherVar.name),
       varGrp: childId,
     });
+    addShortLabel(parentEl, base.labelShort, textsOf(base, 'labelShort'));
     localizedChild(parentEl, 'txt', label, labelTranslations);
     // The question is this group: its concept is here, not on the child.
     addConcept(parentEl, base.concept, textsOf(base, 'concept'));
@@ -474,6 +492,7 @@ function emitOtherPattern(
       type: 'other',
       var: [makeVarId(baseName), makeVarId(otherVar.name)].join(' '),
     });
+    addShortLabel(parentEl, base.labelShort, textsOf(base, 'labelShort'));
     localizedChild(parentEl, 'txt', label, labelTranslations);
     addOrOtherNote(parentEl, p);
   }
@@ -655,11 +674,7 @@ function addStudyDscr(
   const citation = stdy.child('citation');
 
   const titlStmt = citation.child('titlStmt');
-  titlStmt.textChild('titl', title.title);
-  // A title in another language is DDI's parallel title.
-  for (const [lang, text] of Object.entries(title.parallel)) {
-    titlStmt.textChild('parTitl', text, { 'xml:lang': lang });
-  }
+  addTitles(titlStmt, title);
   const studyId = settings.form_id ?? settings.id_string;
   if (studyId) titlStmt.textChild('IDNo', String(studyId));
 
@@ -694,25 +709,50 @@ function addStudyDscr(
   addLanguageNotes(stdy, study.languageNames);
 }
 
+/** A setting's text: the base language's, and the others by tag. */
+interface Localized {
+  text: string;
+  translations: Translations;
+}
+
+/** `titl`, `subTitl`, `altTitl`, `parTitl`: the XSD order. */
+function addTitles(titlStmt: XmlElement, title: StudyTitle): void {
+  titlStmt.textChild('titl', title.title);
+  for (const [tag, setting] of [
+    ['subTitl', title.subtitle],
+    ['altTitl', title.short],
+  ] as const) {
+    if (setting.text) titlStmt.textChild(tag, setting.text);
+    for (const [lang, text] of Object.entries(setting.translations)) {
+      titlStmt.textChild(tag, text, { 'xml:lang': lang });
+    }
+  }
+  // A title in another language is DDI's parallel title.
+  for (const [lang, text] of Object.entries(title.parallel)) {
+    titlStmt.textChild('parTitl', text, { 'xml:lang': lang });
+  }
+}
+
 interface StudyTitle {
   title: string;
   /** `form_title` in the form's other languages, by tag. */
   parallel: Translations;
+  /** `form_subtitle`: `subTitl` (#181). */
+  subtitle: Localized;
+  /** `form_title_short`: `altTitl` (#181). */
+  short: Localized;
 }
 
 /**
- * The study title: `assetName`, else `form_title` (a `{ lang: text }` one in
- * the base language, the others as parallel titles), else `Untitled`.
+ * A setting that is a plain text or one per language (`{ lang: text }`):
+ * the base language's (else the first) and the others by tag.
  */
-function studyTitle(
-  assetName: string,
-  settings: DdiSettings,
-  base: string | null,
-): StudyTitle {
-  const raw = settings.form_title;
-  if (assetName.trim()) return { title: assetName.trim(), parallel: {} };
+function localized(raw: unknown, base: string | null): Localized {
+  if (typeof raw === 'string' || typeof raw === 'number') {
+    return { text: String(raw).trim(), translations: {} };
+  }
   if (raw === null || typeof raw !== 'object') {
-    return { title: String(raw ?? '').trim() || 'Untitled', parallel: {} };
+    return { text: '', translations: {} };
   }
   const byTag = Object.entries(raw as Record<string, unknown>)
     .map(([key, v]): [string, string] => [
@@ -722,8 +762,32 @@ function studyTitle(
     .filter(([, v]) => v);
   const main = byTag.find(([tag]) => tag === base) ?? byTag[0];
   return {
-    title: main?.[1] ?? 'Untitled',
-    parallel: Object.fromEntries(byTag.filter((e) => e !== main)),
+    text: main?.[1] ?? '',
+    translations: Object.fromEntries(byTag.filter((e) => e !== main)),
+  };
+}
+
+/**
+ * The study title: `assetName`, else `form_title` (a `{ lang: text }` one in
+ * the base language, the others as parallel titles), else `Untitled`; and
+ * the subtitle and short title settings, if any.
+ */
+function studyTitle(
+  assetName: string,
+  settings: DdiSettings,
+  base: string | null,
+): StudyTitle {
+  const subtitle = localized(settings[TITLE_SETTINGS.subTitl], base);
+  const short = localized(settings[TITLE_SETTINGS.altTitl], base);
+  if (assetName.trim()) {
+    return { title: assetName.trim(), parallel: {}, subtitle, short };
+  }
+  const title = localized(settings.form_title, base);
+  return {
+    title: title.text || 'Untitled',
+    parallel: title.translations,
+    subtitle,
+    short,
   };
 }
 
@@ -887,6 +951,7 @@ function addSection(
     ...(node.groups.length ? { varGrp: node.groups.join(' ') } : {}),
   });
   const label = group.label || group.name;
+  addShortLabel(grpEl, group.labelShort, group.labelShortTranslations);
   localizedChild(grpEl, 'txt', label, group.translations);
   addConcept(grpEl, group.concept, group.conceptTranslations);
   addUniverse(grpEl, node.universe, ctx);
@@ -919,6 +984,13 @@ function addVarGroups(
       var: members.map((m) => makeVarId(m.name)).join(' '),
       ...(node?.groups.length ? { varGrp: node.groups.join(' ') } : {}),
     });
+    if (node) {
+      addShortLabel(
+        grpEl,
+        node.group.labelShort,
+        node.group.labelShortTranslations,
+      );
+    }
     localizedChild(grpEl, 'txt', group.label, group.translations);
     if (node) {
       addConcept(grpEl, node.group.concept, node.group.conceptTranslations);
@@ -940,6 +1012,7 @@ function addVarGroups(
       type: 'multipleResp',
       var: smVar.choices.map((c) => makeVarId(`${smName}_${c.name}`)).join(' '),
     });
+    addShortLabel(grpEl, smVar.labelShort, textsOf(smVar, 'labelShort'));
     localizedChild(grpEl, 'txt', smVar.label, textsOf(smVar, 'label'));
     addConcept(grpEl, smVar.concept, textsOf(smVar, 'concept'));
     addGroupLogic(grpEl, smVar, ctx, { note: notes, name: smName });

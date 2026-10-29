@@ -5,7 +5,8 @@
  * languages, logic, fields, named and shared lists, `or_other` and explicit
  * other pairs, runs of notes (with blank lines, in only some languages),
  * groups of notes only or without a label, a group's hint and
- * guidance_hint (#179) and question-only cells on a group, metadata rows,
+ * guidance_hint (#179) and question-only cells on a group, short labels
+ * (`label_short`, #181) on rows of every kind, metadata rows,
  * `required` spellings, messages without a constraint, `concept` columns (#173) and
  * settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
@@ -242,12 +243,19 @@ const form = fc.record({
   named: fc.boolean(),
   /** Columns the model doesn't lift, on some rows of both sheets. */
   columns: fc.boolean(),
+  /** `label_short` on some rows of every kind (#181). */
+  short: fc.boolean(),
   settings: fc.record({
     form_title: fc.option(word, { nil: undefined }),
     form_id: fc.option(fc.constantFrom('f1', 'survey_2'), { nil: undefined }),
     version: fc.option(fc.constantFrom('1', '2024-01'), { nil: undefined }),
     style: fc.option(fc.constant('pages'), { nil: undefined }),
   }),
+  /** `form_subtitle` / `form_title_short` (#181), per language or plain. */
+  titles: fc.option(
+    fc.record({ subtitle: texts, short: texts, localized: fc.boolean() }),
+    { nil: undefined },
+  ),
   blocks: fc.array(block, { minLength: 1, maxLength: 6 }),
 });
 
@@ -302,6 +310,22 @@ function addColumns(
     if (i % 2 === 0)
       media(row, `${String(row['list_name'])}_${String(row['name'])}`);
     if (i % 3 === 0) row['filter'] = 'a';
+  });
+}
+
+/**
+ * A short label (#181) on every other row but `end_group`: the labl of a
+ * group's, select_multiple's or semi-open question's varGrp, a column on any
+ * other row. In a multilingual form: both languages, or only the base's.
+ */
+function addShortLabels(survey: Row[], multilingual: boolean, LANGS: string[]) {
+  survey.forEach((row, i) => {
+    if (row['type'] === 'end_group' || i % 2 === 0) return;
+    if (!multilingual) row['label_short'] = `S${i}`;
+    else {
+      row[`label_short::${LANGS[0]}`] = `K${i}`;
+      if (i % 4 === 1) row[`label_short::${LANGS[1]}`] = `S${i}`;
+    }
   });
 }
 
@@ -504,10 +528,23 @@ function sheets(f: Form) {
     }
   }
   if (f.columns) addColumns(survey, choices, f.multilingual, LANGS);
+  if (f.short) addShortLabels(survey, f.multilingual, LANGS);
   const settings: Row = Object.fromEntries(
     Object.entries(f.settings).filter(([, v]) => v !== undefined),
   );
   if (f.multilingual) settings.default_language = LANGS[0];
+  if (f.titles) {
+    const { subtitle, short, localized } = f.titles;
+    // Per language only where the body has both (a language only the
+    // settings have isn't one of the form's, as with form_title).
+    const both = survey.some((r) => `label::${LANGS[1]}` in r);
+    const value = (t: Texts) =>
+      f.multilingual && localized && both
+        ? { [LANGS[0]]: t.de, [LANGS[1]]: t.en }
+        : t.one;
+    settings.form_subtitle = value(subtitle);
+    settings.form_title_short = value(short);
+  }
   return {
     survey,
     choices,
