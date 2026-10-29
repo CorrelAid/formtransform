@@ -6,7 +6,8 @@
  * other pairs, runs of notes (with blank lines, in only some languages),
  * groups of notes only or without a label, a group's hint and
  * guidance_hint (#179) and question-only cells on a group, metadata rows,
- * `required` spellings, messages without a constraint, `concept` columns (#173) and
+ * a guidance_hint and question-only cells on note, metadata and
+ * matrix-header rows (#195), `required` spellings, messages without a constraint, `concept` columns (#173) and
  * settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
  */
@@ -58,6 +59,34 @@ const SIMPLE = ['text', 'integer', 'decimal', 'date', 'time', 'range'];
 const METADATA = ['start', 'end', 'today', 'deviceid'];
 const RANGE_PARAMETERS = ['start=0 end=20 step=2', 'start=1 end=10', 'step=1'];
 
+/**
+ * A guidance_hint and question-only cells on a row without a var (a note,
+ * a metadata row, a matrix header): its columns (#195).
+ */
+interface RowCells {
+  guidance?: Texts;
+  required?: string;
+  constraint: boolean;
+  message?: Texts;
+  default?: string;
+  params?: string;
+}
+const rowCells: fc.Arbitrary<RowCells | undefined> = fc.option(
+  fc.record({
+    guidance: fc.option(texts, { nil: undefined }),
+    required: fc.option(fc.constantFrom('yes', 'false', 'TRUE'), {
+      nil: undefined,
+    }),
+    constraint: fc.boolean(),
+    message: fc.option(texts, { nil: undefined }),
+    default: fc.option(fc.constantFrom('x', '0'), { nil: undefined }),
+    params: fc.option(fc.constantFrom('randomize=true', 'seed=3'), {
+      nil: undefined,
+    }),
+  }),
+  { nil: undefined },
+);
+
 type Question =
   | {
       kind: 'simple';
@@ -92,8 +121,9 @@ type Question =
       paragraphs: boolean;
       /** Only the first language has it. */
       partial: boolean;
+      cells?: RowCells;
     }
-  | { kind: 'metadata'; type: string };
+  | { kind: 'metadata'; type: string; cells?: RowCells };
 
 const question: fc.Arbitrary<Question> = fc.oneof(
   {
@@ -145,11 +175,13 @@ const question: fc.Arbitrary<Question> = fc.oneof(
       ref: fc.boolean(),
       paragraphs: fc.boolean(),
       partial: fc.boolean(),
+      cells: rowCells,
     }),
   },
   fc.record({
     kind: fc.constant('metadata' as const),
     type: fc.constantFrom(...METADATA),
+    cells: rowCells,
   }),
 );
 
@@ -174,6 +206,7 @@ type Block =
       rows: Texts[];
       /** A note row before the last row, not only the first (#174). */
       note?: Texts;
+      noteCells?: RowCells;
     }
   | {
       kind: 'table';
@@ -184,8 +217,16 @@ type Block =
       text: boolean;
       /** A note row before the last row ("davon: …"), not only the first. */
       note?: Texts;
+      noteCells?: RowCells;
     }
-  | { kind: 'matrix'; t: Texts; choices: Texts[]; rows: Texts[] };
+  | {
+      kind: 'matrix';
+      t: Texts;
+      choices: Texts[];
+      rows: Texts[];
+      /** On the header row. */
+      cells?: RowCells;
+    };
 
 const block: fc.Arbitrary<Block> = fc.oneof(
   {
@@ -212,6 +253,7 @@ const block: fc.Arbitrary<Block> = fc.oneof(
     choices: fc.array(texts, { minLength: 1, maxLength: 3 }),
     rows: fc.array(texts, { minLength: 1, maxLength: 3 }),
     note: fc.option(texts, { nil: undefined }),
+    noteCells: rowCells,
   }),
   fc.record({
     kind: fc.constant('table' as const),
@@ -222,12 +264,14 @@ const block: fc.Arbitrary<Block> = fc.oneof(
     }),
     text: fc.boolean(),
     note: fc.option(texts, { nil: undefined }),
+    noteCells: rowCells,
   }),
   fc.record({
     kind: fc.constant('matrix' as const),
     t: texts,
     choices: fc.array(texts, { minLength: 1, maxLength: 3 }),
     rows: fc.array(texts, { minLength: 1, maxLength: 3 }),
+    cells: rowCells,
   }),
 );
 
@@ -307,6 +351,15 @@ function sheets(f: Form) {
       row[`${column}::${LANGS[1]}`] = t.en;
     } else row[column] = t.one;
   };
+  const putCells = (row: Row, c: RowCells | undefined) => {
+    if (!c) return;
+    if (c.guidance) put(row, 'guidance_hint', c.guidance);
+    if (c.required) row.required = c.required;
+    if (c.constraint) row.constraint = ". != ''";
+    if (c.message) put(row, 'constraint_message', c.message);
+    if (c.default) row.default = c.default;
+    if (c.params) row.parameters = c.params;
+  };
   const list = (name: string, items: Texts[], exclusive: boolean) =>
     items.forEach((t, i) => {
       const row: Row = { list_name: name, name: `c${i + 1}` };
@@ -355,7 +408,9 @@ function sheets(f: Form) {
   const addQuestion = (q: Question) => {
     const name = `q${++n}`;
     if (q.kind === 'metadata') {
-      survey.push({ type: q.type, name });
+      const row: Row = { type: q.type, name };
+      putCells(row, q.cells);
+      survey.push(row);
       return;
     }
     if (q.kind === 'select') {
@@ -378,6 +433,7 @@ function sheets(f: Form) {
       if (q.hint) put(row, 'hint', q.hint);
       const c = q.ref ? condition() : undefined;
       if (c) row.relevant = c;
+      putCells(row, q.cells);
       survey.push(row);
       return;
     }
@@ -411,6 +467,7 @@ function sheets(f: Form) {
         appearance: 'label',
       };
       put(header, 'label', b.t);
+      putCells(header, b.cells);
       survey.push(header);
     }
     b.rows.forEach((r, i) => {
@@ -418,6 +475,7 @@ function sheets(f: Form) {
       if (b.kind === 'grid' && b.note && i === b.rows.length - 1 && i > 0) {
         const note: Row = { type: 'note', name: `q${++n}` };
         put(note, 'label', b.note);
+        putCells(note, b.noteCells);
         survey.push(note);
       }
       const member: Row = { type: `select_one ${name}`, name: `q${++n}` };
@@ -462,6 +520,7 @@ function sheets(f: Form) {
         if (b.note && i === b.rows.length - 1 && i > 0) {
           const note: Row = { type: 'note', name: `q${++n}` };
           put(note, 'label', b.note);
+          putCells(note, b.noteCells);
           survey.push(note);
         }
         const member: Row = {
@@ -524,29 +583,38 @@ const model = (s: {
     ),
   );
 
-/** A group's columns only a question's row lifts, and its guidance_hint. */
-const GROUP_CELLS = new Set([
+/** The columns only a question's row lifts, and the guidance_hint. */
+const ROW_CELLS = new Set([
   'guidance_hint',
   ...conventions.conventions.ddiFields.liftedColumns.questionOnly,
 ]);
 
+/** A row without a var of its own: a group, a note, a metadata row, a matrix header. */
+const withoutVar = (row: Row) => {
+  const [type] = String(row['type']).split(' ');
+  return (
+    type === 'begin_group' ||
+    type === 'note' ||
+    METADATA.includes(type) ||
+    String(row['appearance'] ?? '').toLowerCase() === 'label'
+  );
+};
+
 /**
- * Those cells of each `begin_group` row, read off the sheet (a language
- * by its tag): a cell the parser neither lifts nor keeps as a column is
- * missing from both models alike (#179).
+ * Those cells of each row {@link withoutVar}, by its name, read off the
+ * sheet (a language by its tag): a cell the parser neither lifts nor keeps
+ * as a column is missing from both models alike (#179, #195).
  */
-const groupCells = (s: { survey: unknown[] }) =>
-  (s.survey as Row[])
-    .filter((row) => row['type'] === 'begin_group')
-    .map((row) => {
-      const out: Record<string, string> = {};
-      for (const [column, cell] of Object.entries(allColumns(row))) {
-        const [base, lang] = column.split('::');
-        if (!GROUP_CELLS.has(base)) continue;
-        out[lang ? `${base}::${languageTagOf(lang) ?? lang}` : base] = cell;
-      }
-      return out;
-    });
+const rowCellsOf = (s: { survey: unknown[] }) =>
+  (s.survey as Row[]).filter(withoutVar).map((row) => {
+    const out: Record<string, string> = { name: String(row['name']) };
+    for (const [column, cell] of Object.entries(allColumns(row))) {
+      const [base, lang] = column.split('::');
+      if (!ROW_CELLS.has(base)) continue;
+      out[lang ? `${base}::${languageTagOf(lang) ?? lang}` : base] = cell;
+    }
+    return out;
+  });
 
 /** The form's LimeSurvey TSV, or `null` for one LimeSurvey can't hold. */
 async function toTsv(s: {
@@ -582,7 +650,7 @@ describe('generated forms', () => {
         const s = sheets(f);
         const back = ddiToXlsform(codebook(s));
         expect(model(back)).toEqual(model(s));
-        expect(groupCells(back)).toEqual(groupCells(s));
+        expect(rowCellsOf(back)).toEqual(rowCellsOf(s));
       }),
       { numRuns: RUNS },
     );

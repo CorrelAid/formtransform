@@ -21,27 +21,32 @@
     <notes type="cdl:row" subject="rating_technologies_tools_header">select_one iy6st81</notes>
     <notes type="cdl:row_label" subject="rating_technologies_tools_header">Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:</notes>
     <notes type="cdl:row_label" subject="rating_technologies_tools_header" xml:lang="en">Please rate your experience with the following technologies and tools:</notes>
+    <notes type="cdl:row_column" subject="rating_technologies_tools_header required">false</notes>
     <notes type="cdl:row_hint" subject="rating_technologies_tools_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_hint" subject="rating_technologies_tools_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_appearance" subject="rating_technologies_tools_header">label</notes>
     <notes type="cdl:row" subject="rating_techniques_header">select_one xe9mo32</notes>
     <notes type="cdl:row_label" subject="rating_techniques_header">Bitte bewerte Deine Erfahrung mit den folgenden Techniken.</notes>
     <notes type="cdl:row_label" subject="rating_techniques_header" xml:lang="en">Please rate your experience with the following techniques:</notes>
+    <notes type="cdl:row_column" subject="rating_techniques_header required">false</notes>
     <notes type="cdl:row_hint" subject="rating_techniques_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_hint" subject="rating_techniques_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_appearance" subject="rating_techniques_header">label</notes>
     <notes type="cdl:row" subject="rating_topics_header">select_one dm1uu76</notes>
     <notes type="cdl:row_label" subject="rating_topics_header">Bitte bewerte Deine Erfahrung mit den folgenden Themen:</notes>
     <notes type="cdl:row_label" subject="rating_topics_header" xml:lang="en">Please rate your experience with the following topics:</notes>
+    <notes type="cdl:row_column" subject="rating_topics_header required">false</notes>
     <notes type="cdl:row_hint" subject="rating_topics_header">Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_hint" subject="rating_topics_header" xml:lang="en">Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale</notes>
     <notes type="cdl:row_appearance" subject="rating_topics_header">label</notes>
+    <notes type="cdl:row_column" subject="Hallo required">false</notes>
     <notes type="cdl:row_hint" subject="Hallo">Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. 
 
 Für die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.</notes>
     <notes type="cdl:row_hint" subject="Hallo" xml:lang="en">Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. 
 
 The survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible.</notes>
+    <notes type="cdl:row_column" subject="Disclaimer required">false</notes>
     <notes type="cdl:row_hint" subject="Disclaimer">In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.
 
 Bei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.</notes>

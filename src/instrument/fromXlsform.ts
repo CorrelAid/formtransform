@@ -3,7 +3,12 @@
  * sees: `label::<lang>` columns (JSON fixtures, hand-built rows) and the
  * loader's `{ lang: text }` cells.
  */
-import { allColumns, otherColumns } from '../conventions/columns.js';
+import {
+  allColumns,
+  otherColumns,
+  questionSheet,
+  type Sheet,
+} from '../conventions/columns.js';
 import { extractLanguageCode, languageTagOf } from '../utils/languageUtils.js';
 import type {
   GroupItem,
@@ -94,7 +99,7 @@ function hasText(text: Text): boolean {
   return Object.values(text).some((t) => t.trim());
 }
 
-function baseFields(row: Row, sheet: 'survey' | 'group' = 'survey') {
+function baseFields(row: Row, sheet: Sheet = 'survey') {
   const concept = readText(row, 'concept');
   return {
     name: cellString(row['name']).trim(),
@@ -113,9 +118,21 @@ function withColumns(columns: Record<string, string>) {
   return Object.keys(columns).length ? { columns } : {};
 }
 
-function question(row: Row, rawType: string): QuestionItem {
-  const [type, ...rest] = rawType.split(/\s+/);
-  const fromFile = type.endsWith('_from_file');
+/**
+ * The fields only a question with a var has (#195): on a note, a metadata
+ * row or a matrix header they are its columns instead (`row`).
+ */
+function varFields(row: Row, sheet: Sheet) {
+  if (sheet === 'row') {
+    return {
+      guidanceHint: {},
+      constraint: '',
+      constraintMessage: {},
+      required: false,
+      default: '',
+      parameters: '',
+    };
+  }
   const parameters = cellString(row['parameters']);
   const guidance = readText(row, 'guidance_hint');
   const fromParams = guidanceFromParameters(parameters);
@@ -123,19 +140,31 @@ function question(row: Row, rawType: string): QuestionItem {
     guidance[''] = fromParams;
   }
   return {
-    kind: 'question',
-    ...baseFields(row),
-    type,
-    rawType,
-    list: !fromFile && type.startsWith('select_') ? (rest[0] ?? '') : '',
-    file: fromFile ? rest.join(' ') : '',
-    orOther: rest.includes(OR_OTHER_TOKEN),
     guidanceHint: guidance,
     constraint: cellString(row['constraint']).trim(),
     constraintMessage: readText(row, 'constraint_message'),
     required: isTrue(row['required']),
     default: cellString(row['default']).trim(),
     parameters,
+  };
+}
+
+function question(row: Row, rawType: string): QuestionItem {
+  const [type, ...rest] = rawType.split(/\s+/);
+  const fromFile = type.endsWith('_from_file');
+  const sheet = questionSheet(
+    type,
+    cellString(row['appearance']).trim().toLowerCase(),
+  );
+  return {
+    kind: 'question',
+    ...baseFields(row, sheet),
+    type,
+    rawType,
+    list: !fromFile && type.startsWith('select_') ? (rest[0] ?? '') : '',
+    file: fromFile ? rest.join(' ') : '',
+    orOther: rest.includes(OR_OTHER_TOKEN),
+    ...varFields(row, sheet),
   };
 }
 

@@ -3,20 +3,54 @@
  * `liftedColumns`, #160): kept by name, so a codebook can carry them and an
  * XLSForm get them back.
  */
+import { APPEARANCES } from '../generated/Appearances.js';
 import conventions from '../generated/conventions.js';
+import { isMetadataType } from './metadata.js';
 
 const LIFTED = conventions.conventions.ddiFields.liftedColumns;
 
-/** `group`: a `begin_group` row, which lifts no question-only column (#179). */
-type Sheet = 'survey' | 'group' | 'choices';
+/**
+ * `group`: a `begin_group` row, which lifts no question-only column (#179).
+ * `row`: a note row or a row without data, which lifts only what its
+ * `cdl:row_*` notes carry (#195).
+ */
+export type Sheet = 'survey' | 'group' | 'row' | 'choices';
 
 const QUESTION_ONLY = new Set<string>(LIFTED.questionOnly);
 
 const liftedBy: Record<Sheet, Set<string>> = {
   survey: new Set(LIFTED.survey),
   group: new Set(LIFTED.survey.filter((c) => !QUESTION_ONLY.has(c))),
+  row: new Set(LIFTED.row),
   choices: new Set(LIFTED.choices),
 };
+
+/**
+ * Appearances the registry marks `carriesData: false`: the row renders (a
+ * matrix header shows the shared choice labels above the body rows) but
+ * stores no response.
+ */
+const NO_DATA_APPEARANCES: ReadonlySet<string> = new Set(
+  Object.entries(APPEARANCES)
+    .filter(([, spec]) => spec.carriesData === false)
+    .map(([appearance]) => appearance),
+);
+
+/** An appearance whose row stores no response (a matrix header's). */
+export function carriesNoData(appearance: string): boolean {
+  return NO_DATA_APPEARANCES.has(appearance);
+}
+
+/**
+ * The columns a survey row of `type` (the base type) lifts: a note, a
+ * metadata row and a matrix header have no var, so only their `row`
+ * fields; any other question every survey column (#195).
+ */
+export function questionSheet(type: string, appearance: string): Sheet {
+  return type === 'note' || isMetadataType(type) || carriesNoData(appearance)
+    ? 'row'
+    : 'survey';
+}
 
 function cellText(value: unknown): string {
   if (typeof value === 'string') return value.trim();

@@ -15,6 +15,9 @@
     </citation>
     <notes type="instruction" subject="intro_text">Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!</notes>
     <notes type="instruction" subject="danke">Vielen Dank! Deine Meinung hilft uns sehr weiter!</notes>
+    <notes type="cdl:row_column" subject="intro_text required">false</notes>
+    <notes type="cdl:row_column" subject="beruf_note required">false</notes>
+    <notes type="cdl:row_column" subject="danke required">false</notes>
     <notes type="cdl:position" subject="intro">in= after=</notes>
     <notes type="cdl:position" subject="intro_text">in=intro after=</notes>
     <notes type="cdl:position" subject="danke">in= after=demografie</notes>

@@ -241,6 +241,64 @@ describe('cdl: notes', () => {
     });
   });
 
+  test('the guidance_hint and question-only cells of rows without a var (#195)', () => {
+    const cells = {
+      'guidance_hint::Deutsch (de)': 'Vorlesen',
+      'guidance_hint::English (en)': 'Read out',
+      required: 'yes',
+      constraint: ". != ''",
+      'constraint_message::Deutsch (de)': 'Nein',
+      default: 'x',
+      parameters: 'randomize=true',
+    };
+    const survey = [
+      { type: 'start', name: 'start', ...cells },
+      { type: 'note', name: 'n', 'label::Deutsch (de)': 'N', ...cells },
+      {
+        type: 'begin_group',
+        name: 'm',
+        'label::Deutsch (de)': 'M',
+        appearance: 'field-list',
+      },
+      {
+        type: 'select_one yn',
+        name: 'h',
+        'label::Deutsch (de)': 'H',
+        appearance: 'label',
+        ...cells,
+      },
+      {
+        type: 'select_one yn',
+        name: 'a',
+        'label::Deutsch (de)': 'A',
+        appearance: 'list-nolabel',
+      },
+      { type: 'end_group' },
+      // Named as a LimeSurvey message, still a note row (#195).
+      { type: 'note', name: 'end', 'label::Deutsch (de)': 'E', ...cells },
+    ];
+    const xml = buildDdiXml(survey, CHOICES, {
+      ...OPTS,
+      settings: { default_language: 'Deutsch (de)' },
+    });
+    for (const row of ['start', 'n', 'h', 'end']) {
+      for (const [column, cell] of Object.entries(cells)) {
+        expect(xml).toContain(
+          `<notes type="cdl:row_column" subject="${row} ${column}">${cell}</notes>`,
+        );
+      }
+    }
+    // No var's fields: a note's guidance_hint is no ivuInstr anywhere.
+    expect(xml).not.toContain('ivuInstr');
+    expect(xml).not.toContain('cdl:required');
+
+    // And back, as the sheet had them: columns, by the sheet's names.
+    const back = ddiToXlsform(xml).survey;
+    for (const name of ['start', 'n', 'h', 'end']) {
+      expect(back.find((r) => r['name'] === name)).toMatchObject(cells);
+    }
+  });
+
   test('style is a cdl:setting', () => {
     const xml = ddi([{ type: 'text', name: 't', label: 'T' }], {
       style: 'pages',
