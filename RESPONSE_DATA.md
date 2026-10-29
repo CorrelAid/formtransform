@@ -66,6 +66,12 @@ Both write `codebook.xml` and `data.csv` beside it. Options:
 
 With the XML on stdout (no `-o`), `--data-out` is required.
 
+If the TSV came from `xlsform2lstsv --sanitize`, `lstsv2ddi` reads the
+`survey.mapping.json` beside it (or `--mapping <file>`): the codebook and the
+data CSV then use the XLSForm's names and answer codes (`k23_ars`, `-98`), not
+LimeSurvey's (`k23ars`, `n98`), so they match what `xlsform2ddi` writes for the
+same form.
+
 `xlsform2ddi` checks the form against the supported subset for DDI: registered
 types, resolvable choice lists, unique names and codes. LimeSurvey's name and
 code limits don't apply, because DDI keeps names as authored, so a Kobo form with

@@ -55,14 +55,28 @@ export interface TranspilerContext {
    * counts (convention:logicMapping `selectionCount`).
    */
   selectionFields?: (fieldName: string) => string[] | null;
-  /** The normalized name `.` stands for (a constraint's own question). */
+  /** The name `.` stands for (a constraint's own question). */
   selfName?: string;
+  /**
+   * `${name}` (as authored) → the name every other hook receives. Without
+   * it, a reference is normalized (convention:sanitization) and the hooks
+   * resolve that, which can't tell apart two names that strip alike.
+   */
+  resolveReference?: (name: string) => string;
 }
 
 function isVariableRef(
   node: XPathNode,
 ): node is { kind: 'path'; name: string } {
   return node.kind === 'path' && node.name !== null;
+}
+
+/**
+ * A path's field name as the hooks want it: already resolved when the
+ * context resolves references, else normalized.
+ */
+function refName(name: string, ctx: TranspilerContext | undefined): string {
+  return ctx?.resolveReference ? name : sanitizeName(name);
 }
 
 function sanitizeName(name: string): string {
@@ -179,7 +193,7 @@ function rewriteWithAnswerLookup(
 ): string | null {
   if (!ctx?.lookupAnswerCode) return null;
   if (!isVariableRef(leftNode) || rightNode.kind !== 'str') return null;
-  const fieldName = sanitizeName(leftNode.name);
+  const fieldName = refName(leftNode.name, ctx);
   const rawValue = rightNode.value;
   const rewritten = ctx.lookupAnswerCode(fieldName, rawValue);
   if (rewritten === rawValue) return null;
@@ -194,7 +208,7 @@ function transpileSelected(args: XPathNode[], ctx?: TranspilerContext): string {
     throw new ConversionError('xpath-syntax', 'selected() needs 2 arguments');
   const fieldName = transpile(args[0], ctx);
   const value = transpile(args[1], ctx).replace(/^['"]|['"]$/g, '');
-  const sanitizedField = sanitizeName(fieldName);
+  const sanitizedField = refName(fieldName, ctx);
   if (ctx?.buildSelectedExpr) {
     return ctx.buildSelectedExpr(sanitizedField, value);
   }
@@ -216,7 +230,7 @@ function transpileCountSelected(
       `${COUNT_SELECTED}() needs a question reference`,
     );
   }
-  const name = target.name === null ? ctx?.selfName : sanitizeName(target.name);
+  const name = target.name === null ? ctx?.selfName : refName(target.name, ctx);
   const fields = name ? ctx?.selectionFields?.(name) : null;
   if (!fields || fields.length === 0) {
     throw new ConversionError(
@@ -277,7 +291,7 @@ function transpileVariableRef(
   ctx?: TranspilerContext,
 ): string {
   if (name === null) return 'self';
-  const fieldName = sanitizeName(name);
+  const fieldName = refName(name, ctx);
   return ctx?.getTruncatedFieldName
     ? ctx.getTruncatedFieldName(fieldName)
     : fieldName;
@@ -300,14 +314,11 @@ function transpile(node: XPathNode, ctx?: TranspilerContext): string {
   }
 }
 
-function preprocessExpression(expr: string): string {
-  return expr
-    .replace(/\$\{([^}]+)\}/g, (_m, name: string) => sanitizeName(name))
-    .replace(
-      /selected\(\s*\$\{([^}]+)\}\s*,\s*['"]([^'"]+)['"]\s*\)/g,
-      (_m, name: string, value: string) =>
-        `selected(${sanitizeName(name)}, '${value}')`,
-    );
+function preprocessExpression(expr: string, ctx?: TranspilerContext): string {
+  const resolve = ctx?.resolveReference ?? sanitizeName;
+  return expr.replace(/\$\{([^}]+)\}/g, (_m, name: string) =>
+    resolve(name.trim()),
+  );
 }
 
 /**
@@ -338,7 +349,7 @@ export function xpathToLimeSurveySync(
   ctx?: TranspilerContext,
 ): string {
   if (!xpathExpr || xpathExpr.trim() === '') return '1'; // default relevance
-  const processedExpr = preprocessExpression(xpathExpr);
+  const processedExpr = preprocessExpression(xpathExpr, ctx);
   try {
     return transpile(parseXPath(processedExpr), ctx);
   } catch (error: unknown) {
@@ -413,7 +424,7 @@ export function convertConstraintSync(
 ): string {
   if (!constraint) return '';
 
-  const processedExpr = preprocessExpression(constraint);
+  const processedExpr = preprocessExpression(constraint, ctx);
 
   // Special handling for regexMatch function — only invoked when the source
   // expression actually contains a top-level regexMatch(...).
@@ -484,8 +495,9 @@ const MIRROR: Partial<Record<BinaryOp, BinaryOp>> = {
  */
 function selectionBound(
   node: XPathNode,
-  selfName: string | undefined,
+  ctx: TranspilerContext | undefined,
 ): { min?: number; max?: number } | null {
+  const selfName = ctx?.selfName;
   if (node.kind !== 'bin' || !(node.op in MIRROR)) return null;
   const isSelfCount = (n: XPathNode) =>
     n.kind === 'call' &&
@@ -493,7 +505,7 @@ function selectionBound(
     n.args.length === 1 &&
     n.args[0].kind === 'path' &&
     (n.args[0].name === null ||
-      (selfName !== undefined && sanitizeName(n.args[0].name) === selfName));
+      (selfName !== undefined && refName(n.args[0].name, ctx) === selfName));
   let op: BinaryOp;
   let numNode: XPathNode;
   if (isSelfCount(node.left)) {
@@ -535,14 +547,14 @@ export function convertSelectionConstraintSync(
   if (!constraint) return { validation: '' };
   let terms: XPathNode[];
   try {
-    terms = conjuncts(parseXPath(preprocessExpression(constraint)));
+    terms = conjuncts(parseXPath(preprocessExpression(constraint, ctx)));
   } catch {
     return { validation: convertConstraintSync(constraint, onWarning, ctx) };
   }
   const out: SelectionConstraint = { validation: '' };
   const rest: XPathNode[] = [];
   for (const term of terms) {
-    const bound = selectionBound(term, ctx?.selfName);
+    const bound = selectionBound(term, ctx);
     if (!bound) {
       rest.push(term);
       continue;

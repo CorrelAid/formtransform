@@ -40,6 +40,8 @@ import {
   reverseRelevance,
 } from './reverseExpressions.js';
 import { allItems, allQuestions } from './walk.js';
+import { applyLstsvMapping } from './lstsvMapping.js';
+import type { LstsvMapping } from '../conventions/lstsvMapping.js';
 import type {
   GroupItem,
   Instrument,
@@ -486,6 +488,11 @@ export interface LstsvParseOptions {
    * leave it out, instead of throwing.
    */
   onWarning?: WarningHandler;
+  /**
+   * How xlsform2lstsv renamed the form (convention:lstsvMapping): the
+   * instrument gets the XLSForm's names and codes back.
+   */
+  mapping?: LstsvMapping;
 }
 
 /**
@@ -538,7 +545,7 @@ export function instrumentFromLstsv(
   }
   const pages = cell(setting('format') ?? {}, 'text') === 'G';
   if (pages) markPages(body);
-  return {
+  const instrument: Instrument = {
     languages: languages.length ? languages : [''],
     ...(base ? { defaultLanguage: base } : {}),
     settings: {
@@ -548,4 +555,7 @@ export function instrumentFromLstsv(
     lists: state.lists,
     body,
   };
+  return options.mapping
+    ? applyLstsvMapping(instrument, options.mapping)
+    : instrument;
 }

@@ -399,3 +399,83 @@ describe('ddi2xlsform', () => {
     expect(r.stderr).toContain('Not well-formed XML');
   });
 });
+
+describe('--sanitize and the mapping (#189)', () => {
+  const vars = (xml: string) =>
+    [...xml.matchAll(/<var [^>]*name="([^"]+)"/g)].map((m) => m[1]);
+
+  test('validate --sanitize accepts what --target lstsv refuses', () => {
+    const form = join(dir, 'testA.xlsx');
+    copyFileSync(join(SURVEYS, 'testA', 'xlsform.xlsx'), form);
+    expect(cli('validate', form).status).toBe(1);
+    const r = cli('validate', form, '--sanitize');
+    expect(r.status, r.stderr).toBe(0);
+  });
+
+  test('xlsform2lstsv --sanitize writes the mapping; lstsv2ddi and lstsv2xlsform use it', () => {
+    const form = join(dir, 'testA.xlsx');
+    copyFileSync(join(SURVEYS, 'testA', 'xlsform.xlsx'), form);
+    const out = join(dir, 'testA.tsv');
+    const r = cli('xlsform2lstsv', form, '--sanitize', '-o', out);
+    expect(r.status, r.stderr).toBe(0);
+    expect(r.stderr).toContain('testA.mapping.json');
+    // The same TSV --skip-validation gives: sanitizing is what the converter does.
+    expect(readFileSync(out, 'utf-8')).toBe(
+      readFileSync(join(SURVEYS, 'testA', 'tsv.tsv'), 'utf-8'),
+    );
+    const mapping = JSON.parse(
+      readFileSync(join(dir, 'testA.mapping.json'), 'utf-8'),
+    ) as { names: Record<string, string> };
+    expect(Object.keys(mapping.names).length).toBeGreaterThan(0);
+
+    // The side-car beside the TSV is picked up and said so.
+    const fromLs = cli('lstsv2ddi', out, '--prod-date', '2020-01-01');
+    expect(fromLs.status, fromLs.stderr).toBe(0);
+    expect(fromLs.stderr).toContain('Using mapping');
+    const fromForm = cli(
+      'xlsform2ddi',
+      form,
+      '--skip-validation',
+      '--prod-date',
+      '2020-01-01',
+    );
+    const lsVars = vars(fromLs.stdout);
+    for (const original of Object.values(mapping.names)) {
+      if (vars(fromForm.stdout).includes(original)) {
+        expect(lsVars).toContain(original);
+      }
+    }
+    const back = cli('lstsv2xlsform', out);
+    expect(back.status, back.stderr).toBe(0);
+    const names = (
+      JSON.parse(back.stdout) as { survey: { name?: string }[] }
+    ).survey.map((s) => s.name);
+    expect(names).toEqual(
+      expect.arrayContaining(Object.values(mapping.names).slice(0, 3)),
+    );
+  });
+
+  test('--mapping <file> writes it anywhere; without -o or --mapping it warns', () => {
+    const form = join(dir, 'testA.xlsx');
+    copyFileSync(join(SURVEYS, 'testA', 'xlsform.xlsx'), form);
+    const where = join(dir, 'elsewhere.json');
+    const r = cli('xlsform2lstsv', form, '--sanitize', '--mapping', where);
+    expect(r.status, r.stderr).toBe(0);
+    expect(JSON.parse(readFileSync(where, 'utf-8'))).toMatchObject({
+      format: 'formtransform-lstsv-mapping',
+      version: 1,
+    });
+    const stdout = cli('xlsform2lstsv', form, '--sanitize');
+    expect(stdout.status).toBe(0);
+    expect(stdout.stderr).toMatch(/--mapping <file>/);
+  });
+
+  test('a broken mapping file exits 1', () => {
+    const tsv = join(dir, 'basic.tsv');
+    copyFileSync(join(SURVEYS, 'basic_survey', 'tsv.tsv'), tsv);
+    writeFileSync(join(dir, 'basic.mapping.json'), '{"format":"nope"}');
+    const r = cli('lstsv2ddi', tsv);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/Not a LimeSurvey mapping/);
+  });
+});

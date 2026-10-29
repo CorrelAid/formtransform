@@ -319,6 +319,17 @@ DDI records LimeSurvey's wording in each of the form's languages, and the DDI
 check warns (`other-shorthand`). To record your own text on every platform,
 write an `other` choice and a `<question>_other` text question instead.
 
+To keep such names, convert with `--sanitize` (`xlsformToLstsvWithMapping(form,
+{ sanitize: true })`). Names and codes outside the limits are then sanitized
+instead of refused (`k23_ars` → `k23ars`, a long name truncated and made
+unique, `abwesend` → `abwes`, a negative code `-98` → `n98`), and every change
+is recorded in a mapping, `survey.mapping.json` beside the TSV
+(`convention:lstsvMapping`). `lstsv2ddi` (with `--data`) and `lstsv2xlsform`
+read it, from beside the TSV or `--mapping <file>`, and give back the
+XLSForm's names and codes in the codebook, the data and the form. One XLSForm
+then serves Kobo and LimeSurvey without renaming it for either.
+`validate --sanitize` checks a form for this.
+
 The name and code limits are LimeSurvey's. For DDI, check with
 `validateSubset(survey, choices, { target: 'ddi' })` (CLI: `validate --target
 ddi`; `xlsform2ddi` does it by default): same rules without those limits, since

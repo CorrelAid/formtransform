@@ -32,8 +32,9 @@ import type { RowCheckContext } from '../../xlsform/validate.js';
 import { ConversionError, consoleWarning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { parameterAttributes } from './parameters.js';
+import { MappingRecorder } from './mappingRecorder.js';
+import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../../conventions/exclusive.js';
-import { normalizeName } from '../../xlsform/identifiers.js';
 import {
   MAX_ANSWERS_ATTRIBUTE,
   MIN_ANSWERS_ATTRIBUTE,
@@ -91,6 +92,8 @@ class Conversion {
   private rowCheck: RowCheckContext = { listNames: new Set() };
   /** Each filtered question's `array_filter`, by LimeSurvey name. */
   private arrayFilters = new Map<string, ArrayFilter>();
+  /** How this conversion renamed the form (convention:lstsvMapping). */
+  readonly mapping = new MappingRecorder();
   private readonly warn: WarningHandler;
 
   constructor(config: Readonly<LstsvConfig>) {
@@ -158,6 +161,8 @@ class Conversion {
         this.fieldNameHandler.sanitizeAnswerCode(code),
       convertRelevance: (relevant) =>
         this.transpilerHelper.convertRelevance(relevant),
+      recordCodes: (grid, choices, codes) =>
+        this.mapping.codes(grid, choices, codes),
     };
   }
 
@@ -217,7 +222,9 @@ class Conversion {
     this.choiceManager.addFileChoices(this.fileChoices);
 
     // Pre-scan: register all field names to detect and resolve collisions
-    this.fieldNameHandler.registerFieldNames(rows);
+    this.fieldNameHandler.registerFieldNames(rows, (lsName, original) =>
+      this.mapping.name(lsName, original),
+    );
 
     // Build answer code and question-to-list maps for relevance rewriting
     this.choiceManager.buildAnswerCodeMap((code) =>
@@ -503,6 +510,8 @@ class Conversion {
         ...this.answerHelpers(),
         defaultCodes: new Set(q.default.split(/\s+/).filter(Boolean)),
         ...(codes ? { codes } : {}),
+        recordCodes: (choices, emitted) =>
+          this.mapping.codes(questionName, choices, emitted),
       });
     }
   }
@@ -567,7 +576,7 @@ class Conversion {
     q: QuestionItem,
     base: string,
   ): { emValidation: string; answerBounds: Record<string, string> } {
-    const self = normalizeName(q.name);
+    const self = this.fieldNameHandler.sanitizeName(q.name);
     if (!countsSelections(base)) {
       return {
         emValidation: this.transpilerHelper.convertConstraint(
@@ -740,15 +749,34 @@ export class XLSFormToTSVConverter {
     settingsData: SettingsRow[],
     fileChoices: Record<string, ChoiceRow[]> = {},
   ): Promise<string> {
+    return this.convertWithMapping(
+      surveyData,
+      choicesData,
+      settingsData,
+      fileChoices,
+    ).then(({ tsv }) => tsv);
+  }
+
+  /**
+   * {@link convert}, plus how the conversion renamed the form for LimeSurvey
+   * (convention:lstsvMapping): what the way back needs to restore the
+   * XLSForm's names and answer codes.
+   */
+  convertWithMapping(
+    surveyData: SurveyRow[],
+    choicesData: ChoiceRow[],
+    settingsData: SettingsRow[],
+    fileChoices: Record<string, ChoiceRow[]> = {},
+  ): Promise<{ tsv: string; mapping: LstsvMapping }> {
     try {
-      return Promise.resolve(
-        new Conversion(this.config).run(
-          surveyData,
-          choicesData,
-          settingsData,
-          fileChoices,
-        ),
+      const conversion = new Conversion(this.config);
+      const tsv = conversion.run(
+        surveyData,
+        choicesData,
+        settingsData,
+        fileChoices,
       );
+      return Promise.resolve({ tsv, mapping: conversion.mapping.result() });
     } catch (error: unknown) {
       return Promise.reject(
         error instanceof Error ? error : new Error(String(error)),

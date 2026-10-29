@@ -57,11 +57,12 @@
             "Ü": "Ue",
             "ß": "ss"
           },
+          "negativeNumberPrefix": "n",
           "stripDiacritics": true,
           "stripCharsRegex": "[^a-zA-Z0-9]",
           "pattern": "^[a-zA-Z0-9]+$"
         },
-        "order": "transliterate, then (if stripDiacritics) NFKD-decompose and drop combining marks, then delete every stripCharsRegex match, then truncate to maxLength. The result always matches `pattern`; an input with no letter or digit left is an error, not an empty name."
+        "order": "transliterate, then (if negativeNumberPrefix) write a negative number's leading `-` as that prefix (`-98` → `n98`, so it can't collide with `98`), then (if stripDiacritics) NFKD-decompose and drop combining marks, then delete every stripCharsRegex match, then truncate to maxLength. The result always matches `pattern`; an input with no letter or digit left is an error, not an empty name."
       }
     }
   ]

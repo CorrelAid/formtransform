@@ -30,8 +30,7 @@ export class TranspilerHelper {
    * (convention:logicMapping `selectionCount`): `<q>_<code>` per answer code,
    * plus `<q>_other` for a native other. `null` for any other question.
    */
-  private selectionFields(fieldName: string): string[] | null {
-    const resolved = this.fieldSanitizer.resolveStrippedName(fieldName);
+  private selectionFields(resolved: string): string[] | null {
     const base = this.choiceManager.getQuestionBaseTypeMap().get(resolved);
     if (!base || !countsSelections(base)) return null;
     const codes = this.choiceManager.answerCodesOf(resolved);
@@ -40,9 +39,18 @@ export class TranspilerHelper {
     return codes.map((code) => `${resolved}_${code}`);
   }
 
+  /**
+   * `${name}` → its LimeSurvey name, by the name as authored. Every hook
+   * below then receives LimeSurvey names: two authored names that strip
+   * alike (`v_`, `v`) keep their own references.
+   */
+  private resolveReference = (name: string): string =>
+    this.fieldSanitizer.resolveName(name);
+
   /** Only what `count-selected()` needs: constraints take no other context. */
   private countContext(selfName?: string): TranspilerContext {
     return {
+      resolveReference: this.resolveReference,
       selectionFields: (name) => this.selectionFields(name),
       ...(selfName ? { selfName } : {}),
     };
@@ -50,17 +58,18 @@ export class TranspilerHelper {
 
   buildTranspilerContext(): TranspilerContext {
     return {
+      resolveReference: this.resolveReference,
       selectionFields: (name) => this.selectionFields(name),
-      lookupAnswerCode: (fieldName: string, choiceValue: string) => {
-        return this.choiceManager.lookupAnswerCode(fieldName, choiceValue).code;
+      lookupAnswerCode: (resolved: string, choiceValue: string) => {
+        return this.choiceManager.lookupAnswerCodeByLsName(
+          resolved,
+          choiceValue,
+        ).code;
       },
-      getTruncatedFieldName: (fieldName: string) => {
-        return this.fieldSanitizer.resolveStrippedName(fieldName);
-      },
-      buildSelectedExpr: (fieldName: string, choiceValue: string) => {
-        const resolved = this.fieldSanitizer.resolveStrippedName(fieldName);
-        const { code } = this.choiceManager.lookupAnswerCode(
-          fieldName,
+      getTruncatedFieldName: (resolved: string) => resolved,
+      buildSelectedExpr: (resolved: string, choiceValue: string) => {
+        const { code } = this.choiceManager.lookupAnswerCodeByLsName(
+          resolved,
           choiceValue,
         );
         const baseType = this.choiceManager

@@ -1,6 +1,7 @@
 // ── Conversions (one function per direction) ───────────────────────────
 export {
   xlsformToLstsv,
+  xlsformToLstsvWithMapping,
   xlsformToDdi,
   lstsvToDdi,
   ddiToXlsform,
@@ -17,6 +18,11 @@ export type {
 } from './pipelines/lstsv2xlsform/index.js';
 export type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
 export type { DdiToXlsformOptions } from './pipelines/ddi2xlsform/index.js';
+export {
+  MAPPING_FILE_SUFFIX,
+  parseLstsvMapping,
+} from './conventions/lstsvMapping.js';
+export type { LstsvMapping } from './conventions/lstsvMapping.js';
 
 // ── Diagnostics ────────────────────────────────────────────────────────
 export { ConversionError, consoleWarning } from './diagnostics.js';

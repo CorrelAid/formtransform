@@ -36,6 +36,11 @@ export class FieldSanitizer {
    * Used by the transpiler to resolve variable references.
    */
   private strippedToUnique: Map<string, string> = new Map();
+  /**
+   * Map from the name as authored to its unique sanitized name. Two authored
+   * names can strip alike (`v_` and `v`), so only this map tells them apart.
+   */
+  private originalToUnique: Map<string, string> = new Map();
 
   /** @param onWarning receives truncation and collision notices (default: console). */
   constructor(private readonly onWarning: WarningHandler = consoleWarning) {}
@@ -85,7 +90,7 @@ export class FieldSanitizer {
 
     if (!this.usedNames.has(truncated)) {
       this.usedNames.add(truncated);
-      this.strippedToUnique.set(stripped, truncated);
+      this.remember(name, stripped, truncated);
       return truncated;
     }
 
@@ -100,7 +105,7 @@ export class FieldSanitizer {
     } while (this.usedNames.has(candidate));
 
     this.usedNames.add(candidate);
-    this.strippedToUnique.set(stripped, candidate);
+    this.remember(name, stripped, candidate);
     this.onWarning(
       warning(
         'name-collision',
@@ -109,6 +114,29 @@ export class FieldSanitizer {
       ),
     );
     return candidate;
+  }
+
+  /**
+   * Record a registered name. A stripped name keeps the first name that
+   * produced it: a later one that strips alike was renamed, and must not
+   * take the earlier one's references.
+   */
+  private remember(name: string, stripped: string, unique: string): void {
+    this.originalToUnique.set(name.trim(), unique);
+    if (!this.strippedToUnique.has(stripped)) {
+      this.strippedToUnique.set(stripped, unique);
+    }
+  }
+
+  /**
+   * Resolve a field name as authored (`k23_ars`) to its unique sanitized
+   * name: by the authored name first, then as {@link resolveStrippedName}.
+   */
+  resolveName(name: string): string {
+    return (
+      this.originalToUnique.get(name.trim()) ??
+      this.resolveStrippedName(normalizeName(name))
+    );
   }
 
   /**
@@ -133,12 +161,19 @@ export class FieldSanitizer {
     this.strippedToUnique.set(strippedName, target);
   }
 
+  /** {@link aliasStrippedName} for a name as authored. */
+  aliasName(name: string, target: string): void {
+    this.originalToUnique.set(name.trim(), target);
+    this.strippedToUnique.set(normalizeName(name), target);
+  }
+
   /**
    * Clear all registered names. Must be called at the start of each conversion.
    */
   resetNames(): void {
     this.usedNames.clear();
     this.strippedToUnique.clear();
+    this.originalToUnique.clear();
   }
 
   sanitizeAnswerCode(code: string): string {

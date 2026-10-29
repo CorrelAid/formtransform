@@ -24,6 +24,7 @@ import {
   type XlsformOutput,
 } from './pipelines/ddi2xlsform/index.js';
 import type { LstsvToDdiOptions } from './pipelines/lstsv2ddi/index.js';
+import type { LstsvMapping } from './conventions/lstsvMapping.js';
 
 /** An XLSForm: the `.xlsx` bytes, or its loaded sheets. */
 export type XlsformSource =
@@ -54,7 +55,16 @@ interface XlsformSourceOptions {
   skipValidation?: boolean;
 }
 
-export type XlsformToLstsvOptions = Partial<LstsvConfig> & XlsformSourceOptions;
+export type XlsformToLstsvOptions = Partial<LstsvConfig> &
+  XlsformSourceOptions & {
+    /**
+     * Accept names and answer codes outside LimeSurvey's limits (`k23_ars`,
+     * `-98`): the conversion sanitizes them, and
+     * {@link xlsformToLstsvWithMapping} returns each change, so the way back
+     * restores them (convention:lstsvMapping). Uniqueness is still checked.
+     */
+    sanitize?: boolean;
+  };
 
 export type XlsformToDdiOptions = BuildDdiOptions &
   Omit<XlsformSourceOptions, 'fileChoices'>;
@@ -87,10 +97,12 @@ function checkSubset(
   target: SubsetTarget,
   onWarning: WarningHandler,
   fileChoices?: Record<string, ChoiceRow[]>,
+  sanitize?: boolean,
 ): void {
   const found = XLSValidator.validateSubset(form.surveyData, form.choicesData, {
     target,
     fileChoices,
+    sanitize,
   });
   for (const d of found) if (d.severity === 'warning') onWarning(d);
   const errors = found.filter((d) => d.severity === 'error');
@@ -128,12 +140,27 @@ export async function xlsformToLstsv(
   source: XlsformSource,
   options: XlsformToLstsvOptions = {},
 ): Promise<string> {
-  const { fileChoices, skipValidation, ...config } = options;
+  return (await xlsformToLstsvWithMapping(source, options)).tsv;
+}
+
+/**
+ * {@link xlsformToLstsv}, plus the mapping from the TSV's names and answer
+ * codes back to the XLSForm's (convention:lstsvMapping). Pass it to
+ * `lstsvToDdi`, `lstsvToDataCsv` or `lstsvToXlsform` to get the XLSForm's
+ * names back.
+ */
+export async function xlsformToLstsvWithMapping(
+  source: XlsformSource,
+  options: XlsformToLstsvOptions = {},
+): Promise<{ tsv: string; mapping: LstsvMapping }> {
+  const { fileChoices, skipValidation, sanitize, ...config } = options;
   const onWarning = onceEach(config.onWarning);
   // The subset check covers the loader's name check and reports every finding.
   const form = load(source, { onWarning, skipValidation, skipNameCheck: true });
-  if (!skipValidation) checkSubset(form, 'lstsv', onWarning, fileChoices);
-  return new XLSFormToTSVConverter({ ...config, onWarning }).convert(
+  if (!skipValidation) {
+    checkSubset(form, 'lstsv', onWarning, fileChoices, sanitize);
+  }
+  return new XLSFormToTSVConverter({ ...config, onWarning }).convertWithMapping(
     form.surveyData,
     form.choicesData,
     form.settingsData,

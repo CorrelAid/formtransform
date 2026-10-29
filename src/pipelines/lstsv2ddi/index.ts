@@ -19,6 +19,8 @@ import type { NormalizeResponsesOptions } from './data.js';
 import { lstsvProjection, lstsvToVariables } from './toVariables.js';
 import { ConversionError } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
+import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
+import { remapSubmissions } from './mapping.js';
 
 export { parseLstsv } from '../../lstsv/parser.js';
 export { lstsvToVariables } from './toVariables.js';
@@ -35,6 +37,11 @@ export interface LstsvToDdiOptions extends BuildDdiOptions {
   skipValidation?: boolean;
   /** Receives what the DDI leaves out, e.g. an expression it can't reverse. */
   onWarning?: WarningHandler;
+  /**
+   * How xlsform2lstsv renamed the form (convention:lstsvMapping): the
+   * codebook gets the XLSForm's names and answer codes back.
+   */
+  mapping?: LstsvMapping;
 }
 
 /** Parse a TSV and apply the reverse subset check unless skipped. */
@@ -68,7 +75,7 @@ export function lstsvToDdiXml(
   tsv: string,
   options: LstsvToDdiOptions = {},
 ): string {
-  const { skipValidation, onWarning, ...ddiOptions } = options;
+  const { skipValidation, onWarning, mapping, ...ddiOptions } = options;
   const rows = parseChecked(tsv, skipValidation);
 
   const title = rows.find(
@@ -78,6 +85,7 @@ export function lstsvToDdiXml(
   const { variables, language, settings, languages } = lstsvProjection(
     rows,
     onWarning,
+    mapping,
   );
   // The untagged texts are the survey's language; say which (#135, #160).
   const opts: BuildDdiOptions = {
@@ -95,6 +103,12 @@ export function lstsvToDdiXml(
 export interface LstsvToDataCsvOptions extends NormalizeResponsesOptions {
   /** Skip the reverse subset check, as for {@link lstsvToDdiXml}. */
   skipValidation?: boolean;
+  /**
+   * How xlsform2lstsv renamed the form (convention:lstsvMapping): the CSV's
+   * columns and answer codes are the XLSForm's, matching a codebook built
+   * with the same mapping.
+   */
+  mapping?: LstsvMapping;
 }
 
 /**
@@ -108,11 +122,25 @@ export function lstsvToDataCsv(
   responses: Submission[],
   options: LstsvToDataCsvOptions = {},
 ): string {
-  const { skipValidation, ...normalizeOptions } = options;
-  const variables = lstsvToVariables(parseChecked(tsv, skipValidation));
-  return buildDataCsv(
+  const { skipValidation, mapping, ...normalizeOptions } = options;
+  const rows = parseChecked(tsv, skipValidation);
+  const variables = lstsvToVariables(rows);
+  // The export is keyed by LimeSurvey's names: read it with those, then
+  // rename.
+  const submissions = normalizeLimeSurveyResponses(
     variables,
-    normalizeLimeSurveyResponses(variables, responses, normalizeOptions),
+    responses,
+    normalizeOptions,
+  );
+  if (!mapping) {
+    return buildDataCsv(variables, submissions, {
+      onWarning: normalizeOptions.onWarning,
+    });
+  }
+  const mapped = lstsvToVariables(rows, mapping);
+  return buildDataCsv(
+    mapped,
+    remapSubmissions(submissions, variables, mapped, mapping),
     { onWarning: normalizeOptions.onWarning },
   );
 }

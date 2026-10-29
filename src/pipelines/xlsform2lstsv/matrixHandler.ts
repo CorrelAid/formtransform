@@ -7,6 +7,7 @@ import { ConfigManager } from '../../config/ConfigManager.js';
 import { Counters } from './counters.js';
 import { answerCodes } from './answerEmitter.js';
 import { consoleWarning, warning } from '../../diagnostics.js';
+import type { ChoiceRow } from '../../xlsform/types.js';
 
 export type MatrixCounters = Counters;
 
@@ -14,6 +15,8 @@ export interface MatrixHelpers {
   sanitizeName(name: string): string;
   sanitizeAnswerCode(code: string): string;
   convertRelevance(relevant?: string): string;
+  /** Receives the codes a grid's answer scale got (convention:lstsvMapping). */
+  recordCodes?(grid: string, choices: ChoiceRow[], codes: string[]): void;
 }
 
 /**
@@ -25,6 +28,8 @@ export interface MatrixHelpers {
 export class MatrixHandler {
   private inMatrix = false;
   private matrixListName: string | null = null;
+  /** The LimeSurvey name of the array (F) being built. */
+  private matrixName = '';
   // True while inside a `table-list` group emitted as a LimeSurvey array (F):
   // its select_one children become subquestions of one array question.
   private inTableListMatrix = false;
@@ -138,6 +143,7 @@ export class MatrixHandler {
     this.inMatrix = true;
     this.inTableListMatrix = true;
     this.matrixListName = null;
+    this.matrixName = questionName;
     this.counters.setSubquestionSeq(0);
 
     const relevance = helpers.convertRelevance(row.relevant);
@@ -171,6 +177,7 @@ export class MatrixHandler {
     this.counters.bumpQuestionSeq();
     this.inMatrix = true;
     this.matrixListName = xfTypeInfo.listName;
+    this.matrixName = questionName;
     this.counters.setSubquestionSeq(0);
 
     const relevance = helpers.convertRelevance(row.relevant);
@@ -228,6 +235,7 @@ export class MatrixHandler {
         this.configManager.getConfig().onWarning ?? consoleWarning,
         this.matrixListName,
       );
+      helpers.recordCodes?.(this.matrixName, choices, names);
       choices.forEach((choice, i) => {
         const choiceName = names[i];
         this.rowEmitter.emitForEachLanguage((lang) => ({

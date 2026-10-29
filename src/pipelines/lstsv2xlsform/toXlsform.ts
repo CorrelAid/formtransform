@@ -5,6 +5,7 @@
  * the known losses.
  */
 import { instrumentFromLstsv } from '../../instrument/fromLstsv.js';
+import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
 import {
   xlsformFromInstrument,
   type XlsformOutput,
@@ -20,8 +21,11 @@ type Row = Record<string, string>;
  * then emitted from it. See the module docstring for the known lossy
  * reconstructions.
  */
-export function lstsvRowsToXlsform(rows: Row[]): XlsformOutput {
+export function lstsvRowsToXlsform(
+  rows: Row[],
+  mapping?: LstsvMapping,
+): XlsformOutput {
   return xlsformFromInstrument(
-    instrumentFromLstsv(rows, { expressions: true }),
+    instrumentFromLstsv(rows, { expressions: true, mapping }),
   );
 }

@@ -1,6 +1,5 @@
 import type { QuestionItem } from '../../instrument/types.js';
 import { ChoiceRow } from '../../xlsform/types.js';
-import { normalizeName } from '../../xlsform/identifiers.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TypeInfo } from './typeMapper.js';
 import { deduplicateNames } from '../../utils/helpers.js';
@@ -109,8 +108,17 @@ export class ChoiceManager {
     fieldName: string,
     choiceValue: string,
   ): { code: string; listName: string | undefined } {
-    const stripped = normalizeName(fieldName);
-    const resolved = this.fieldSanitizer.resolveStrippedName(stripped);
+    return this.lookupAnswerCodeByLsName(
+      this.fieldSanitizer.resolveName(fieldName),
+      choiceValue,
+    );
+  }
+
+  /** {@link lookupAnswerCode} for a question's LimeSurvey name. */
+  lookupAnswerCodeByLsName(
+    resolved: string,
+    choiceValue: string,
+  ): { code: string; listName: string | undefined } {
     const listName = this.questionToListMap.get(resolved);
     if (!listName) return { code: choiceValue, listName: undefined };
     const codeMap = this.codeMapOf(resolved);
