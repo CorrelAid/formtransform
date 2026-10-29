@@ -13,7 +13,10 @@ import { describe, test, expect } from 'vitest';
 
 import { buildDdiXml } from '../../../src/pipelines/xlsform2ddi/index.js';
 import { instrumentFromDdi } from '../../../src/instrument/fromDdi.js';
-import { instrumentFromXlsform } from '../../../src/instrument/fromXlsform.js';
+import {
+  instrumentFromXlsform,
+  languageNamesOf,
+} from '../../../src/instrument/fromXlsform.js';
 import { ddiToXlsform } from '../../../src/pipelines/ddi2xlsform/index.js';
 import { withoutSpacedGuidance } from '../../../src/utils/parameters.js';
 import { canonical } from './canonicalInstrument.js';
@@ -51,6 +54,10 @@ describe('XLSForm → DDI → XLSForm sheets', () => {
     );
     expect(back).toEqual(
       canonical(instrumentFromXlsform(c.survey, c.choices, c.settings)),
+    );
+    // And the form's names for its languages (#183).
+    expect(languageNamesOf([...sheets.survey, ...sheets.choices])).toEqual(
+      languageNamesOf([...c.survey, ...c.choices]),
     );
   });
 });

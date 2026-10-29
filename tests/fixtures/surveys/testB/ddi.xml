@@ -58,8 +58,8 @@ In accordance with the GDPR, you have the right to access and delete your person
     <notes type="cdl:position" subject="rating_topics_header">in=group_lt58n55/rating_topics after=</notes>
     <notes type="cdl:setting" subject="default_language">Deutsch (de)</notes>
     <notes type="cdl:setting" subject="style">theme-grid no-text-transform</notes>
-    <notes type="cdl:language" subject="de">de</notes>
-    <notes type="cdl:language" subject="en">en</notes>
+    <notes type="cdl:language" subject="de">Deutsch (de)</notes>
+    <notes type="cdl:language" subject="en">English (en)</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>

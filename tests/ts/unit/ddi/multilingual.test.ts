@@ -4,11 +4,16 @@
  * form's own text. The whole-survey fixture `bilingual_survey` covers every
  * element kind; these pin the edge cases.
  */
+import * as XLSX from 'xlsx';
 import { describe, test, expect } from 'vitest';
 
 import { buildDdiXml } from '../../../../src/pipelines/xlsform2ddi/index.js';
 import { lstsvToDdiXml } from '../../../../src/pipelines/lstsv2ddi/index.js';
-import { xlsformToDdi } from '../../../../src/index.js';
+import {
+  ddiToXlsform,
+  xlsformToDdi,
+  xlsformToLstsv,
+} from '../../../../src/index.js';
 
 const OPTS = { prodDate: '2020-01-01' };
 
@@ -205,5 +210,120 @@ describe('lstsv → multilingual DDI', () => {
       line('Q', 'S', 'job', '1', 'Beruf?', '', 'de', 'N'),
     ].join('\n');
     expect(rootLang(lstsvToDdiXml(tsv, OPTS))).toBe('de');
+  });
+});
+
+describe("the form's names for its languages (#183)", () => {
+  const quiet = () => {};
+  const survey = [
+    {
+      type: 'select_one yn',
+      name: 'job',
+      'label::Deutsch (de)': 'Beruf?',
+      'label::English (en)': 'Occupation?',
+      'hint::Deutsch (de)': 'Aktuelle Tätigkeit',
+      'hint::English (en)': 'Current one',
+    },
+  ];
+  const choices = [
+    {
+      list_name: 'yn',
+      name: 'y',
+      'label::Deutsch (de)': 'Ja',
+      'label::English (en)': 'Yes',
+    },
+  ];
+  const settings = [{ default_language: 'Deutsch (de)' }];
+  const NAMES = [
+    '<notes type="cdl:language" subject="de">Deutsch (de)</notes>',
+    '<notes type="cdl:language" subject="en">English (en)</notes>',
+  ];
+
+  /** The sheets as an `.xlsx` workbook, as a form author saves them. */
+  function workbook(): Buffer {
+    const wb = XLSX.utils.book_new();
+    const sheet = (rows: Record<string, unknown>[], name: string) =>
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), name);
+    sheet(survey, 'survey');
+    sheet(choices, 'choices');
+    sheet(settings, 'settings');
+    return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+  }
+
+  test('JSON rows: cdl:language carries the names, and they come back', () => {
+    const xml = xlsformToDdi(
+      { surveyData: survey, choicesData: choices, settingsData: settings },
+      { onWarning: quiet },
+    );
+    for (const note of NAMES) expect(xml).toContain(note);
+    const back = ddiToXlsform(xml, { onWarning: quiet });
+    expect(back.survey[0]).toMatchObject({
+      label: { 'Deutsch (de)': 'Beruf?', 'English (en)': 'Occupation?' },
+      hint: {
+        'Deutsch (de)': 'Aktuelle Tätigkeit',
+        'English (en)': 'Current one',
+      },
+    });
+    expect(back.choices[0]).toMatchObject({
+      label: { 'Deutsch (de)': 'Ja', 'English (en)': 'Yes' },
+    });
+    expect(back.settings[0]).toMatchObject({
+      default_language: 'Deutsch (de)',
+    });
+    // The sheets it gives back convert as the form did.
+    const form = {
+      surveyData: back.survey,
+      choicesData: back.choices,
+      settingsData: back.settings,
+    };
+    expect(xlsformToDdi(form, { onWarning: quiet })).toBe(xml);
+  });
+
+  test('JSON rows and the .xlsx give the same codebook', () => {
+    const fromJson = xlsformToDdi(
+      { surveyData: survey, choicesData: choices, settingsData: settings },
+      { onWarning: quiet },
+    );
+    expect(xlsformToDdi(workbook(), { onWarning: quiet })).toBe(fromJson);
+  });
+
+  test('the sheets read back by name convert to LimeSurvey as the form', async () => {
+    const original = await xlsformToLstsv(
+      { surveyData: survey, choicesData: choices, settingsData: settings },
+      { onWarning: quiet },
+    );
+    const back = ddiToXlsform(
+      xlsformToDdi(
+        { surveyData: survey, choicesData: choices, settingsData: settings },
+        { onWarning: quiet },
+      ),
+      { onWarning: quiet },
+    );
+    expect(
+      await xlsformToLstsv(
+        {
+          surveyData: back.survey,
+          choicesData: back.choices,
+          settingsData: back.settings,
+        },
+        { onWarning: quiet },
+      ),
+    ).toBe(original);
+  });
+
+  test('a form with bare tags gets them back bare', () => {
+    const xml = xlsformToDdi(
+      {
+        surveyData: [
+          { type: 'text', name: 't', 'label::de': 'T', 'label::en': 'T' },
+        ],
+        choicesData: [],
+      },
+      { onWarning: quiet },
+    );
+    expect(xml).toContain('<notes type="cdl:language" subject="de">de</notes>');
+    expect(ddiToXlsform(xml, { onWarning: quiet }).survey[0]).toMatchObject({
+      label: { de: 'T', en: 'T' },
+    });
   });
 });

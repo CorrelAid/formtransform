@@ -14,7 +14,7 @@
       "type": "begin_group",
       "name": "group_gi4rv46",
       "label": {
-        "de": "Hallo!"
+        "Deutsch (de)": "Hallo!"
       },
       "required": "false"
     },
@@ -22,24 +22,24 @@
       "type": "note",
       "name": "Hallo",
       "label": {
-        "de": "Hallo!",
-        "en": "Hello!"
+        "Deutsch (de)": "Hallo!",
+        "English (en)": "Hello!"
       },
       "hint": {
-        "de": "Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. \n\nFür die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.",
-        "en": "Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. \n\nThe survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible."
+        "Deutsch (de)": "Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. \n\nFür die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.",
+        "English (en)": "Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. \n\nThe survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible."
       }
     },
     {
       "type": "note",
       "name": "Disclaimer",
       "label": {
-        "de": "Disclaimer",
-        "en": "Disclaimer"
+        "Deutsch (de)": "Disclaimer",
+        "English (en)": "Disclaimer"
       },
       "hint": {
-        "de": "In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.\n\nBei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.",
-        "en": "In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.\n\nIn accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to info@correlaid.org. Your data will be deleted after revocation."
+        "Deutsch (de)": "In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.\n\nBei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.",
+        "English (en)": "In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.\n\nIn accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to info@correlaid.org. Your data will be deleted after revocation."
       }
     },
     {
@@ -49,8 +49,8 @@
       "type": "select_multiple mb5co98",
       "name": "project_id",
       "label": {
-        "de": "Für welche Projekte möchtest Du dich bewerben?",
-        "en": "Which project(s) do you want to apply for?"
+        "Deutsch (de)": "Für welche Projekte möchtest Du dich bewerben?",
+        "English (en)": "Which project(s) do you want to apply for?"
       },
       "required": "true"
     },
@@ -58,8 +58,8 @@
       "type": "select_multiple cl-role-project-alpha",
       "name": "project_role_project-alpha",
       "label": {
-        "de": "In welcher Rolle siehst du dich im Projekt Projekt Alpha?",
-        "en": "Which role do you think you could fill in Project Alpha?"
+        "Deutsch (de)": "In welcher Rolle siehst du dich im Projekt Projekt Alpha?",
+        "English (en)": "Which role do you think you could fill in Project Alpha?"
       },
       "required": "true",
       "relevant": "selected(${project_id}, 'project-alpha')"
@@ -68,8 +68,8 @@
       "type": "select_multiple cl-role-project-beta",
       "name": "project_role_project-beta",
       "label": {
-        "de": "In welcher Rolle siehst du dich im Projekt Beta?",
-        "en": "Which role do you see yourself in for Project Beta?"
+        "Deutsch (de)": "In welcher Rolle siehst du dich im Projekt Beta?",
+        "English (en)": "Which role do you see yourself in for Project Beta?"
       },
       "required": "true",
       "relevant": "selected(${project_id}, 'project-beta')"
@@ -78,8 +78,8 @@
       "type": "select_multiple cl-role-project-gamma",
       "name": "project_role_project-gamma",
       "label": {
-        "de": "In welcher Rolle siehst du dich im Projekt Gamma?",
-        "en": "Which role do you see yourself in for Project Gamma?"
+        "Deutsch (de)": "In welcher Rolle siehst du dich im Projekt Gamma?",
+        "English (en)": "Which role do you see yourself in for Project Gamma?"
       },
       "required": "true",
       "relevant": "selected(${project_id}, 'project-gamma')"
@@ -88,8 +88,8 @@
       "type": "begin_group",
       "name": "group_lt58n55",
       "label": {
-        "de": "Deine Fähigkeiten und Erfahrungen",
-        "en": "Your skills and experiences"
+        "Deutsch (de)": "Deine Fähigkeiten und Erfahrungen",
+        "English (en)": "Your skills and experiences"
       },
       "required": "false"
     },
@@ -97,8 +97,8 @@
       "type": "begin_group",
       "name": "rating_technologies_tools",
       "label": {
-        "de": "Tools",
-        "en": "Tools"
+        "Deutsch (de)": "Tools",
+        "English (en)": "Tools"
       },
       "required": "false"
     },
@@ -106,12 +106,12 @@
       "type": "select_one iy6st81",
       "name": "rating_technologies_tools_header",
       "label": {
-        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:",
-        "en": "Please rate your experience with the following technologies and tools:"
+        "Deutsch (de)": "Bitte bewerte Deine Erfahrung mit den folgenden Technologien und Tools:",
+        "English (en)": "Please rate your experience with the following technologies and tools:"
       },
       "hint": {
-        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
-        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+        "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
       "appearance": "label"
     },
@@ -119,8 +119,8 @@
       "type": "select_one iy6st81",
       "name": "sosci_survey",
       "label": {
-        "de": "SoSci Survey",
-        "en": "SoSci Survey"
+        "Deutsch (de)": "SoSci Survey",
+        "English (en)": "SoSci Survey"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -130,8 +130,8 @@
       "type": "select_one iy6st81",
       "name": "python",
       "label": {
-        "de": "Python",
-        "en": "Python"
+        "Deutsch (de)": "Python",
+        "English (en)": "Python"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -141,8 +141,8 @@
       "type": "select_one iy6st81",
       "name": "rstats",
       "label": {
-        "de": "R",
-        "en": "R"
+        "Deutsch (de)": "R",
+        "English (en)": "R"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -152,8 +152,8 @@
       "type": "select_one iy6st81",
       "name": "powerbi",
       "label": {
-        "de": "Power BI",
-        "en": "Power BI"
+        "Deutsch (de)": "Power BI",
+        "English (en)": "Power BI"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -163,8 +163,8 @@
       "type": "select_one iy6st81",
       "name": "excel",
       "label": {
-        "de": "Microsoft Excel",
-        "en": "Microsoft Excel"
+        "Deutsch (de)": "Microsoft Excel",
+        "English (en)": "Microsoft Excel"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -174,8 +174,8 @@
       "type": "select_one iy6st81",
       "name": "sql",
       "label": {
-        "de": "SQL",
-        "en": "SQL"
+        "Deutsch (de)": "SQL",
+        "English (en)": "SQL"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -185,8 +185,8 @@
       "type": "select_one iy6st81",
       "name": "git",
       "label": {
-        "de": "Git",
-        "en": "Git"
+        "Deutsch (de)": "Git",
+        "English (en)": "Git"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -196,8 +196,8 @@
       "type": "select_one iy6st81",
       "name": "jupyter",
       "label": {
-        "de": "Jupyter Notebooks",
-        "en": "Jupyter Notebooks"
+        "Deutsch (de)": "Jupyter Notebooks",
+        "English (en)": "Jupyter Notebooks"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -207,8 +207,8 @@
       "type": "select_one iy6st81",
       "name": "tensorflow",
       "label": {
-        "de": "TensorFlow / PyTorch",
-        "en": "TensorFlow / PyTorch"
+        "Deutsch (de)": "TensorFlow / PyTorch",
+        "English (en)": "TensorFlow / PyTorch"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -218,12 +218,12 @@
       "type": "text",
       "name": "tools_other",
       "label": {
-        "de": "Andere relevante Tools",
-        "en": "Other relevant tools"
+        "Deutsch (de)": "Andere relevante Tools",
+        "English (en)": "Other relevant tools"
       },
       "hint": {
-        "de": "Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.",
-        "en": "Please specifiy other tools you know that you consider relevant"
+        "Deutsch (de)": "Bitte gib hier andere Tools an, die du kennst und die du für relevant erachtest.",
+        "English (en)": "Please specifiy other tools you know that you consider relevant"
       },
       "appearance": "multiline"
     },
@@ -234,8 +234,8 @@
       "type": "begin_group",
       "name": "rating_techniques",
       "label": {
-        "de": "Techniken",
-        "en": "Techniques"
+        "Deutsch (de)": "Techniken",
+        "English (en)": "Techniques"
       },
       "appearance": "field-list",
       "required": "false"
@@ -244,12 +244,12 @@
       "type": "select_one xe9mo32",
       "name": "rating_techniques_header",
       "label": {
-        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Techniken.",
-        "en": "Please rate your experience with the following techniques:"
+        "Deutsch (de)": "Bitte bewerte Deine Erfahrung mit den folgenden Techniken.",
+        "English (en)": "Please rate your experience with the following techniques:"
       },
       "hint": {
-        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
-        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+        "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
       "appearance": "label"
     },
@@ -257,8 +257,8 @@
       "type": "select_one xe9mo32",
       "name": "survey_design",
       "label": {
-        "de": "Entwicklung von Fragebögen",
-        "en": "Survey design"
+        "Deutsch (de)": "Entwicklung von Fragebögen",
+        "English (en)": "Survey design"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -268,8 +268,8 @@
       "type": "select_one xe9mo32",
       "name": "indicator_development",
       "label": {
-        "de": "Entwicklung von Indikatoren",
-        "en": "Development of indicators"
+        "Deutsch (de)": "Entwicklung von Indikatoren",
+        "English (en)": "Development of indicators"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -279,8 +279,8 @@
       "type": "select_one xe9mo32",
       "name": "data_collection",
       "label": {
-        "de": "Datenerhebung",
-        "en": "Data collection"
+        "Deutsch (de)": "Datenerhebung",
+        "English (en)": "Data collection"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -290,8 +290,8 @@
       "type": "select_one xe9mo32",
       "name": "data_cleaning",
       "label": {
-        "de": "Datenbereinigung",
-        "en": "Data cleaning"
+        "Deutsch (de)": "Datenbereinigung",
+        "English (en)": "Data cleaning"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -301,8 +301,8 @@
       "type": "select_one xe9mo32",
       "name": "descriptive_statistics",
       "label": {
-        "de": "Deskriptive Statistik",
-        "en": "Descriptive statistics"
+        "Deutsch (de)": "Deskriptive Statistik",
+        "English (en)": "Descriptive statistics"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -312,8 +312,8 @@
       "type": "select_one xe9mo32",
       "name": "data_visualization",
       "label": {
-        "de": "Datenvisualisierung",
-        "en": "Data visualization"
+        "Deutsch (de)": "Datenvisualisierung",
+        "English (en)": "Data visualization"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -323,8 +323,8 @@
       "type": "select_one xe9mo32",
       "name": "data_engineering",
       "label": {
-        "de": "Data Engineering",
-        "en": "Data engineering"
+        "Deutsch (de)": "Data Engineering",
+        "English (en)": "Data engineering"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -334,8 +334,8 @@
       "type": "select_one xe9mo32",
       "name": "automation",
       "label": {
-        "de": "Automatisierung",
-        "en": "Automation"
+        "Deutsch (de)": "Automatisierung",
+        "English (en)": "Automation"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -345,8 +345,8 @@
       "type": "select_one xe9mo32",
       "name": "projectplanning",
       "label": {
-        "de": "Projektplanung",
-        "en": "Project planning"
+        "Deutsch (de)": "Projektplanung",
+        "English (en)": "Project planning"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -356,8 +356,8 @@
       "type": "select_one xe9mo32",
       "name": "mlmodeling",
       "label": {
-        "de": "ML-Modellierung",
-        "en": "ML modeling"
+        "Deutsch (de)": "ML-Modellierung",
+        "English (en)": "ML modeling"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -370,8 +370,8 @@
       "type": "begin_group",
       "name": "rating_topics",
       "label": {
-        "de": "Themen",
-        "en": "Topics"
+        "Deutsch (de)": "Themen",
+        "English (en)": "Topics"
       },
       "appearance": "field-list",
       "required": "false"
@@ -380,12 +380,12 @@
       "type": "select_one dm1uu76",
       "name": "rating_topics_header",
       "label": {
-        "de": "Bitte bewerte Deine Erfahrung mit den folgenden Themen:",
-        "en": "Please rate your experience with the following topics:"
+        "Deutsch (de)": "Bitte bewerte Deine Erfahrung mit den folgenden Themen:",
+        "English (en)": "Please rate your experience with the following topics:"
       },
       "hint": {
-        "de": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
-        "en": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
+        "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
+        "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
       "appearance": "label"
     },
@@ -393,8 +393,8 @@
       "type": "select_one dm1uu76",
       "name": "wirkungsmessung",
       "label": {
-        "de": "Wirkungsmessung",
-        "en": "Impact Measurement"
+        "Deutsch (de)": "Wirkungsmessung",
+        "English (en)": "Impact Measurement"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -404,8 +404,8 @@
       "type": "select_one dm1uu76",
       "name": "research_design",
       "label": {
-        "de": "Research Design",
-        "en": "Research Design"
+        "Deutsch (de)": "Research Design",
+        "English (en)": "Research Design"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -415,8 +415,8 @@
       "type": "select_one dm1uu76",
       "name": "survey_research",
       "label": {
-        "de": "Umfrageforschung",
-        "en": "Survey Research"
+        "Deutsch (de)": "Umfrageforschung",
+        "English (en)": "Survey Research"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -426,8 +426,8 @@
       "type": "select_one dm1uu76",
       "name": "data_protection",
       "label": {
-        "de": "Datenschutz",
-        "en": "Data protection"
+        "Deutsch (de)": "Datenschutz",
+        "English (en)": "Data protection"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -437,8 +437,8 @@
       "type": "select_one dm1uu76",
       "name": "resilience_mental_health",
       "label": {
-        "de": "Resilienz und Mentale Gesundheit",
-        "en": "Resilience and mental health"
+        "Deutsch (de)": "Resilienz und Mentale Gesundheit",
+        "English (en)": "Resilience and mental health"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -448,8 +448,8 @@
       "type": "select_one dm1uu76",
       "name": "education_research",
       "label": {
-        "de": "Bildungsforschung o.ä.",
-        "en": "Education research (or similar)"
+        "Deutsch (de)": "Bildungsforschung o.ä.",
+        "English (en)": "Education research (or similar)"
       },
       "required": "true",
       "appearance": "list-nolabel",
@@ -462,8 +462,8 @@
       "type": "begin_group",
       "name": "group_pr7pr34",
       "label": {
-        "de": "Du und das Projekt",
-        "en": "You and the project"
+        "Deutsch (de)": "Du und das Projekt",
+        "English (en)": "You and the project"
       },
       "required": "false"
     },
@@ -471,12 +471,12 @@
       "type": "text",
       "name": "motivation_skills",
       "label": {
-        "de": "Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.",
-        "en": "Please describe here what skills and experiences you would bring to the project."
+        "Deutsch (de)": "Bitte beschreibe hier, welche Deiner Fähigkeiten und Erfahrungen Dich besonders für die Teilnahme an diesem Projekt qualifizieren.",
+        "English (en)": "Please describe here what skills and experiences you would bring to the project."
       },
       "hint": {
-        "de": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
-        "en": "Please write maximum 5 sentences per project that you are applying to."
+        "Deutsch (de)": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
+        "English (en)": "Please write maximum 5 sentences per project that you are applying to."
       },
       "required": "true",
       "appearance": "multiline"
@@ -485,12 +485,12 @@
       "type": "text",
       "name": "motivation_why",
       "label": {
-        "de": "Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.",
-        "en": "Please describe here why you want to get involved in this project."
+        "Deutsch (de)": "Bitte beschreibe hier, warum Du Dich für dieses Projekt engagieren möchtest.",
+        "English (en)": "Please describe here why you want to get involved in this project."
       },
       "hint": {
-        "de": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
-        "en": "Please write maximum 5 sentences per project that you are applying to."
+        "Deutsch (de)": "Bitte schreibe maximal 5 Sätze pro Projekt, auf das du dich bewerben möchtest.",
+        "English (en)": "Please write maximum 5 sentences per project that you are applying to."
       },
       "required": "true",
       "appearance": "multiline"
@@ -499,12 +499,12 @@
       "type": "select_one il2wc73",
       "name": "past_applications",
       "label": {
-        "de": "Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?",
-        "en": "Have you applied to a CorrelAid project in the past?"
+        "Deutsch (de)": "Hast du dich in der Vergangenheit bereits auf CorrelAid-Projekte beworben?",
+        "English (en)": "Have you applied to a CorrelAid project in the past?"
       },
       "hint": {
-        "de": "Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.",
-        "en": "In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project."
+        "Deutsch (de)": "Um möglichst vielen Personen die Gelegenheit zu geben, an unseren Projekten teilzunehmen, werden Bewerbungen von bisher unerfolgreichen Personen bei gleicher Eignung bevorzugt behandelt.",
+        "English (en)": "In order to give as many people as possible the opportunity to participate in one of our projects, applications of individuals who have unsuccessfully applied in the past are preferred given equal suitability for the project."
       },
       "required": "true"
     },
@@ -512,12 +512,12 @@
       "type": "text",
       "name": "past_applications_details",
       "label": {
-        "de": "Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.",
-        "en": "If you can remember, please specify which project(s) you have applied for."
+        "Deutsch (de)": "Bitte gib hier an, für welche Projekte du dich beworben hast, falls du dich noch erinnern kannst.",
+        "English (en)": "If you can remember, please specify which project(s) you have applied for."
       },
       "hint": {
-        "de": "Grobe Angaben helfen uns auch schon weiter.",
-        "en": "Any information is helpful to us."
+        "Deutsch (de)": "Grobe Angaben helfen uns auch schon weiter.",
+        "English (en)": "Any information is helpful to us."
       },
       "relevant": "${past_applications} = 'not_successful'"
     },
@@ -531,8 +531,8 @@
       "type": "begin_group",
       "name": "demographics",
       "label": {
-        "de": "Über dich",
-        "en": "About you"
+        "Deutsch (de)": "Über dich",
+        "English (en)": "About you"
       },
       "required": "false"
     },
@@ -540,8 +540,8 @@
       "type": "text",
       "name": "first_name",
       "label": {
-        "de": "Wie lautet dein Vorname?",
-        "en": "What is your first name?"
+        "Deutsch (de)": "Wie lautet dein Vorname?",
+        "English (en)": "What is your first name?"
       },
       "required": "true"
     },
@@ -549,8 +549,8 @@
       "type": "text",
       "name": "last_name",
       "label": {
-        "de": "Wie lautet dein Nachname?",
-        "en": "What is your last name?"
+        "Deutsch (de)": "Wie lautet dein Nachname?",
+        "English (en)": "What is your last name?"
       },
       "required": "true"
     },
@@ -558,11 +558,11 @@
       "type": "text",
       "name": "email_address",
       "label": {
-        "de": "Unter welcher E-Mail Adresse können wir dich erreichen?",
-        "en": "Which email address can we use to contact you?"
+        "Deutsch (de)": "Unter welcher E-Mail Adresse können wir dich erreichen?",
+        "English (en)": "Which email address can we use to contact you?"
       },
       "constraint_message": {
-        "de": "Please specify a valid email address."
+        "Deutsch (de)": "Please specify a valid email address."
       },
       "required": "true",
       "constraint": "regex(., '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$')"
@@ -571,12 +571,12 @@
       "type": "select_one iy7os66",
       "name": "gender",
       "label": {
-        "de": "Was ist dein Geschlecht?",
-        "en": "What is your gender?"
+        "Deutsch (de)": "Was ist dein Geschlecht?",
+        "English (en)": "What is your gender?"
       },
       "hint": {
-        "de": "Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.",
-        "en": "Note: We ask this question because we want to foster gender diversity within CorrelAid."
+        "Deutsch (de)": "Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.",
+        "English (en)": "Note: We ask this question because we want to foster gender diversity within CorrelAid."
       },
       "required": "true"
     },
@@ -584,12 +584,12 @@
       "type": "text",
       "name": "gender_self_identification",
       "label": {
-        "de": "Mein Geschlecht ist:",
-        "en": "My gender is:"
+        "Deutsch (de)": "Mein Geschlecht ist:",
+        "English (en)": "My gender is:"
       },
       "hint": {
-        "de": "Bitte gebe hier dein Geschlecht an.",
-        "en": "Please specify your gender here."
+        "Deutsch (de)": "Bitte gebe hier dein Geschlecht an.",
+        "English (en)": "Please specify your gender here."
       },
       "required": "true",
       "relevant": "${gender} = 'self_identification'"
@@ -601,12 +601,12 @@
       "type": "select_one mj8ty33",
       "name": "consent_privacy_policy",
       "label": {
-        "de": "Einwilligung in die Datenschutzerklärung",
-        "en": "Consent to privacy policy"
+        "Deutsch (de)": "Einwilligung in die Datenschutzerklärung",
+        "English (en)": "Consent to privacy policy"
       },
       "hint": {
-        "de": "Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.",
-        "en": "I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful."
+        "Deutsch (de)": "Ich habe den Disclaimer gelesen und erteile hiermit meine Zustimmung zur Erhebung, Verarbeitung und Nutzung meiner personenbezogener Daten (Geschlecht und persönliche Fähigkeiten) zu internen und externen Reporting- und Präsentationszwecken. Daneben erteile ich ausdrücklich die Erlaubnis meine Kontaktdaten (Name und E-Mail) zur Kontaktaufnahme zu nutzen und diese bei erfolgreicher Bewerbung mit dem Projektteam zu teilen.",
+        "English (en)": "I have read the disclaimer and hereby give my consent to the collection, processing and use of my personal data (gender and personal skills) for the team selection process and for internal and external reporting as well as presentation purposes. In addition, I expressly grant permission to use my contact details (name and e-mail) to contact me and to share them with the project team if the application is successful."
       },
       "required": "true"
     }
@@ -616,288 +616,288 @@
       "list_name": "mb5co98",
       "name": "project-alpha",
       "label": {
-        "de": "Projekt Alpha",
-        "en": "Project Alpha"
+        "Deutsch (de)": "Projekt Alpha",
+        "English (en)": "Project Alpha"
       }
     },
     {
       "list_name": "mb5co98",
       "name": "project-beta",
       "label": {
-        "de": "Projekt Beta",
-        "en": "Project Beta"
+        "Deutsch (de)": "Projekt Beta",
+        "English (en)": "Project Beta"
       }
     },
     {
       "list_name": "mb5co98",
       "name": "project-gamma",
       "label": {
-        "de": "Projekt Gamma",
-        "en": "Project Gamma"
+        "Deutsch (de)": "Projekt Gamma",
+        "English (en)": "Project Gamma"
       }
     },
     {
       "list_name": "cl-role-project-alpha",
       "name": "role-survey-design",
       "label": {
-        "de": "Umfragedesign und Datenerhebung",
-        "en": "Survey design and data collection"
+        "Deutsch (de)": "Umfragedesign und Datenerhebung",
+        "English (en)": "Survey design and data collection"
       }
     },
     {
       "list_name": "cl-role-project-alpha",
       "name": "role-data-analysis",
       "label": {
-        "de": "Datenanalyse",
-        "en": "Data analysis"
+        "Deutsch (de)": "Datenanalyse",
+        "English (en)": "Data analysis"
       }
     },
     {
       "list_name": "cl-role-project-alpha",
       "name": "team_coordinator",
       "label": {
-        "de": "Teamkoordinator:in",
-        "en": "Team Coordinator"
+        "Deutsch (de)": "Teamkoordinator:in",
+        "English (en)": "Team Coordinator"
       }
     },
     {
       "list_name": "cl-role-project-alpha",
       "name": "team_trainee",
       "label": {
-        "de": "Team Trainee",
-        "en": "Team Trainee"
+        "Deutsch (de)": "Team Trainee",
+        "English (en)": "Team Trainee"
       }
     },
     {
       "list_name": "cl-role-project-beta",
       "name": "role-visualization",
       "label": {
-        "de": "Datenvisualisierung",
-        "en": "Data visualization"
+        "Deutsch (de)": "Datenvisualisierung",
+        "English (en)": "Data visualization"
       }
     },
     {
       "list_name": "cl-role-project-beta",
       "name": "role-data-engineering",
       "label": {
-        "de": "Data Engineering",
-        "en": "Data engineering"
+        "Deutsch (de)": "Data Engineering",
+        "English (en)": "Data engineering"
       }
     },
     {
       "list_name": "cl-role-project-beta",
       "name": "team_coordinator",
       "label": {
-        "de": "Teamkoordinator:in",
-        "en": "Team Coordinator"
+        "Deutsch (de)": "Teamkoordinator:in",
+        "English (en)": "Team Coordinator"
       }
     },
     {
       "list_name": "cl-role-project-beta",
       "name": "team_trainee",
       "label": {
-        "de": "Team Trainee",
-        "en": "Team Trainee"
+        "Deutsch (de)": "Team Trainee",
+        "English (en)": "Team Trainee"
       }
     },
     {
       "list_name": "cl-role-project-gamma",
       "name": "role-project-management",
       "label": {
-        "de": "Projektmanagement",
-        "en": "Project management"
+        "Deutsch (de)": "Projektmanagement",
+        "English (en)": "Project management"
       }
     },
     {
       "list_name": "cl-role-project-gamma",
       "name": "role-machine-learning",
       "label": {
-        "de": "Machine Learning",
-        "en": "Machine learning"
+        "Deutsch (de)": "Machine Learning",
+        "English (en)": "Machine learning"
       }
     },
     {
       "list_name": "cl-role-project-gamma",
       "name": "team_coordinator",
       "label": {
-        "de": "Teamkoordinator:in",
-        "en": "Team Coordinator"
+        "Deutsch (de)": "Teamkoordinator:in",
+        "English (en)": "Team Coordinator"
       }
     },
     {
       "list_name": "cl-role-project-gamma",
       "name": "team_trainee",
       "label": {
-        "de": "Team Trainee",
-        "en": "Team Trainee"
+        "Deutsch (de)": "Team Trainee",
+        "English (en)": "Team Trainee"
       }
     },
     {
       "list_name": "iy6st81",
       "name": "beginner",
       "label": {
-        "de": "Anfänger:in",
-        "en": "Beginner"
+        "Deutsch (de)": "Anfänger:in",
+        "English (en)": "Beginner"
       }
     },
     {
       "list_name": "iy6st81",
       "name": "user",
       "label": {
-        "de": "Benutzer:in",
-        "en": "User"
+        "Deutsch (de)": "Benutzer:in",
+        "English (en)": "User"
       }
     },
     {
       "list_name": "iy6st81",
       "name": "advanced",
       "label": {
-        "de": "Fortgeschrittene:r",
-        "en": "Advanced"
+        "Deutsch (de)": "Fortgeschrittene:r",
+        "English (en)": "Advanced"
       }
     },
     {
       "list_name": "iy6st81",
       "name": "expert",
       "label": {
-        "de": "Expert:in",
-        "en": "Expert"
+        "Deutsch (de)": "Expert:in",
+        "English (en)": "Expert"
       }
     },
     {
       "list_name": "xe9mo32",
       "name": "beginner",
       "label": {
-        "de": "Anfänger:in",
-        "en": "Beginner"
+        "Deutsch (de)": "Anfänger:in",
+        "English (en)": "Beginner"
       }
     },
     {
       "list_name": "xe9mo32",
       "name": "user",
       "label": {
-        "de": "Benutzer:in",
-        "en": "User"
+        "Deutsch (de)": "Benutzer:in",
+        "English (en)": "User"
       }
     },
     {
       "list_name": "xe9mo32",
       "name": "advanced",
       "label": {
-        "de": "Fortgeschrittene:r",
-        "en": "Advanced"
+        "Deutsch (de)": "Fortgeschrittene:r",
+        "English (en)": "Advanced"
       }
     },
     {
       "list_name": "xe9mo32",
       "name": "expert",
       "label": {
-        "de": "Expert:in",
-        "en": "Expert"
+        "Deutsch (de)": "Expert:in",
+        "English (en)": "Expert"
       }
     },
     {
       "list_name": "dm1uu76",
       "name": "beginner",
       "label": {
-        "de": "Anfänger:in",
-        "en": "Beginner"
+        "Deutsch (de)": "Anfänger:in",
+        "English (en)": "Beginner"
       }
     },
     {
       "list_name": "dm1uu76",
       "name": "user",
       "label": {
-        "de": "Benutzer:in",
-        "en": "User"
+        "Deutsch (de)": "Benutzer:in",
+        "English (en)": "User"
       }
     },
     {
       "list_name": "dm1uu76",
       "name": "advanced",
       "label": {
-        "de": "Fortgeschrittene:r",
-        "en": "Advanced"
+        "Deutsch (de)": "Fortgeschrittene:r",
+        "English (en)": "Advanced"
       }
     },
     {
       "list_name": "dm1uu76",
       "name": "expert",
       "label": {
-        "de": "Expert:in",
-        "en": "Expert"
+        "Deutsch (de)": "Expert:in",
+        "English (en)": "Expert"
       }
     },
     {
       "list_name": "il2wc73",
       "name": "successful",
       "label": {
-        "de": "Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.",
-        "en": "Yes, and I have been successful / part of a project team at least once."
+        "Deutsch (de)": "Ja, und ich war mindestens einmal erfolgreich / Teil eines Projektteams.",
+        "English (en)": "Yes, and I have been successful / part of a project team at least once."
       }
     },
     {
       "list_name": "il2wc73",
       "name": "not_successful",
       "label": {
-        "de": "Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.",
-        "en": "Yes, but I have not been successful / all my applications have been rejected so far."
+        "Deutsch (de)": "Ja, aber ich war nicht erfolgreich / ich wurde bis jetzt immer abgelehnt.",
+        "English (en)": "Yes, but I have not been successful / all my applications have been rejected so far."
       }
     },
     {
       "list_name": "il2wc73",
       "name": "first_application",
       "label": {
-        "de": "Nein, das ist meine erste Bewerbung.",
-        "en": "No, this is my first application."
+        "Deutsch (de)": "Nein, das ist meine erste Bewerbung.",
+        "English (en)": "No, this is my first application."
       }
     },
     {
       "list_name": "iy7os66",
       "name": "female",
       "label": {
-        "de": "Weiblich",
-        "en": "Female"
+        "Deutsch (de)": "Weiblich",
+        "English (en)": "Female"
       }
     },
     {
       "list_name": "iy7os66",
       "name": "male",
       "label": {
-        "de": "Männlich",
-        "en": "Male"
+        "Deutsch (de)": "Männlich",
+        "English (en)": "Male"
       }
     },
     {
       "list_name": "iy7os66",
       "name": "non_binary",
       "label": {
-        "de": "Nicht-binär / non-binary",
-        "en": "Non-binary"
+        "Deutsch (de)": "Nicht-binär / non-binary",
+        "English (en)": "Non-binary"
       }
     },
     {
       "list_name": "iy7os66",
       "name": "not_disclosed",
       "label": {
-        "de": "Das möchte ich nicht angeben",
-        "en": "I do not want to disclose my gender"
+        "Deutsch (de)": "Das möchte ich nicht angeben",
+        "English (en)": "I do not want to disclose my gender"
       }
     },
     {
       "list_name": "iy7os66",
       "name": "self_identification",
       "label": {
-        "de": "Mein Geschlecht ist (eigene Angabe):",
-        "en": "My gender is (manually specify):"
+        "Deutsch (de)": "Mein Geschlecht ist (eigene Angabe):",
+        "English (en)": "My gender is (manually specify):"
       }
     },
     {
       "list_name": "mj8ty33",
       "name": "yes",
       "label": {
-        "de": "Ja",
-        "en": "Yes"
+        "Deutsch (de)": "Ja",
+        "English (en)": "Yes"
       }
     }
   ],

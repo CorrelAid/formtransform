@@ -201,11 +201,13 @@ export function canonical(instrument: Instrument): Canon {
   // A multilingual form's base: default_language, else its first language.
   const baseTag =
     instrument.defaultLanguage ?? (multilingual ? tags[0] : null) ?? '';
-  const baseKey = keys.find((k) => languageTagOf(k) === baseTag) ?? baseTag;
   const ctx: Ctx = {
     instrument,
-    // One language: every text is it. Several: an untagged column is the base's.
-    lang: (key) => (!multilingual ? '' : key || baseKey),
+    // One language: every text is it. Several: by tag (a form's name for a
+    // language, `Deutsch (de)`, is compared apart: #183); an untagged
+    // column is the base's.
+    lang: (key) =>
+      !multilingual ? '' : key ? (languageTagOf(key) ?? key) : baseTag,
     lists: new Set(),
     multiOther: new Set(),
   };
@@ -213,7 +215,7 @@ export function canonical(instrument: Instrument): Canon {
   const body = items(instrument.body, ctx);
   return {
     base: baseTag,
-    languages: multilingual ? keys : [],
+    languages: multilingual ? tags : [],
     settings: settings(instrument, ctx),
     lists: lists(ctx),
     body,

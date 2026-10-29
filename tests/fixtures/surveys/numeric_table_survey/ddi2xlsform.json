@@ -4,20 +4,20 @@
       "type": "note",
       "name": "intro",
       "label": {
-        "de": "Zunächst einige Angaben zu Ihrem Unternehmen.",
-        "en": "First, some details about your company."
+        "Deutsch (de)": "Zunächst einige Angaben zu Ihrem Unternehmen.",
+        "English (en)": "First, some details about your company."
       }
     },
     {
       "type": "begin_group",
       "name": "beschaeftigte",
       "label": {
-        "de": "Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?",
-        "en": "How many people did your company employ in Germany in total?"
+        "Deutsch (de)": "Wie viele in Deutschland Beschäftigte hatte Ihr Unternehmen insgesamt?",
+        "English (en)": "How many people did your company employ in Germany in total?"
       },
       "hint": {
-        "de": "Anzahl",
-        "en": "Number"
+        "Deutsch (de)": "Anzahl",
+        "English (en)": "Number"
       },
       "appearance": "table-list"
     },
@@ -25,12 +25,12 @@
       "type": "integer",
       "name": "gesamt",
       "label": {
-        "de": "Beschäftigte am 31.12.2025 insgesamt",
-        "en": "Employees on 31.12.2025 in total"
+        "Deutsch (de)": "Beschäftigte am 31.12.2025 insgesamt",
+        "English (en)": "Employees on 31.12.2025 in total"
       },
       "constraint_message": {
-        "de": "Bitte eine Zahl ab 0 eintragen.",
-        "en": "Please enter a number from 0."
+        "Deutsch (de)": "Bitte eine Zahl ab 0 eintragen.",
+        "English (en)": "Please enter a number from 0."
       },
       "required": "yes",
       "constraint": ". >= 0"
@@ -39,40 +39,40 @@
       "type": "note",
       "name": "davon",
       "label": {
-        "de": "davon: Geschlecht (nach Geburtenregister)",
-        "en": "of whom: sex (as registered at birth)"
+        "Deutsch (de)": "davon: Geschlecht (nach Geburtenregister)",
+        "English (en)": "of whom: sex (as registered at birth)"
       }
     },
     {
       "type": "integer",
       "name": "maennlich",
       "label": {
-        "de": "Männlich",
-        "en": "Male"
+        "Deutsch (de)": "Männlich",
+        "English (en)": "Male"
       }
     },
     {
       "type": "integer",
       "name": "weiblich",
       "label": {
-        "de": "Weiblich",
-        "en": "Female"
+        "Deutsch (de)": "Weiblich",
+        "English (en)": "Female"
       }
     },
     {
       "type": "integer",
       "name": "divers",
       "label": {
-        "de": "Divers",
-        "en": "Diverse"
+        "Deutsch (de)": "Divers",
+        "English (en)": "Diverse"
       }
     },
     {
       "type": "integer",
       "name": "ohneangabe",
       "label": {
-        "de": "Ohne Angabe",
-        "en": "Not stated"
+        "Deutsch (de)": "Ohne Angabe",
+        "English (en)": "Not stated"
       }
     },
     {
@@ -82,8 +82,8 @@
       "type": "begin_group",
       "name": "kosten",
       "label": {
-        "de": "Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?",
-        "en": "What did training cost your company in 2025?"
+        "Deutsch (de)": "Welche Kosten hatte Ihr Unternehmen 2025 für Weiterbildung?",
+        "English (en)": "What did training cost your company in 2025?"
       },
       "appearance": "table-list",
       "relevant": "${gesamt} > 0"
@@ -92,24 +92,24 @@
       "type": "note",
       "name": "kostenhinweis",
       "label": {
-        "de": "Angaben in Euro.",
-        "en": "In euros."
+        "Deutsch (de)": "Angaben in Euro.",
+        "English (en)": "In euros."
       }
     },
     {
       "type": "decimal",
       "name": "gebuehren",
       "label": {
-        "de": "Gebühren für Kurse",
-        "en": "Course fees"
+        "Deutsch (de)": "Gebühren für Kurse",
+        "English (en)": "Course fees"
       }
     },
     {
       "type": "integer",
       "name": "reisekosten",
       "label": {
-        "de": "Reisekosten",
-        "en": "Travel costs"
+        "Deutsch (de)": "Reisekosten",
+        "English (en)": "Travel costs"
       }
     },
     {
@@ -119,8 +119,8 @@
       "type": "begin_group",
       "name": "kurse",
       "label": {
-        "de": "Zu den Kursen",
-        "en": "About the courses"
+        "Deutsch (de)": "Zu den Kursen",
+        "English (en)": "About the courses"
       },
       "appearance": "table-list"
     },
@@ -128,16 +128,16 @@
       "type": "integer",
       "name": "anzahlkurse",
       "label": {
-        "de": "Anzahl der Kurse",
-        "en": "Number of courses"
+        "Deutsch (de)": "Anzahl der Kurse",
+        "English (en)": "Number of courses"
       }
     },
     {
       "type": "text",
       "name": "anbieter",
       "label": {
-        "de": "Wichtigster Anbieter",
-        "en": "Main provider"
+        "Deutsch (de)": "Wichtigster Anbieter",
+        "English (en)": "Main provider"
       }
     },
     {

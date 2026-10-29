@@ -323,7 +323,7 @@ describe('select_*_from_file with concept translations', () => {
         '      <concept xml:lang="en">Origin</concept>',
     );
     expect(back[0]?.type).toBe('select_one_from_file iso_3166_1.csv');
-    expect(back[0]?.concept).toEqual({ en: 'Origin' });
+    expect(back[0]?.concept).toEqual({ 'English (en)': 'Origin' });
     expect(again).toBe(xml);
   });
 });

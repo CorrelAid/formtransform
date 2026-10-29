@@ -1,5 +1,5 @@
 import { SurveyRow, ChoiceRow, SettingsRow } from '../../xlsform/types.js';
-import { getBaseLanguage } from '../../utils/languageUtils.js';
+import { getBaseLanguage, languageTagOf } from '../../utils/languageUtils.js';
 import { markdownToHtml } from '../../utils/markdownRenderer.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
 import { toLimeSurveyLanguage } from '../../conventions/language.js';
@@ -81,7 +81,9 @@ export class LanguageHandler {
     for (const row of choicesData) harvestRowCodes(row, languageCodes);
     for (const value of Object.values(settingsData[0] ?? {})) {
       if (isLanguageMap(value)) {
-        for (const lang of Object.keys(value)) languageCodes.add(lang);
+        for (const lang of Object.keys(value)) {
+          languageCodes.add(languageTagOf(lang) ?? lang);
+        }
       }
     }
 
@@ -164,11 +166,16 @@ export class LanguageHandler {
         string,
         unknown
       >;
-      if (languageCode in valueObj) {
-        return valueObj[languageCode] as string;
+      // Keyed by tag, or by the form's name for it (`Deutsch (de)`, #183).
+      const byTag = new Map<string, unknown>();
+      for (const [key, v] of Object.entries(valueObj)) {
+        if (!byTag.has(languageTagOf(key) ?? key)) {
+          byTag.set(languageTagOf(key) ?? key, v);
+        }
       }
+      if (byTag.has(languageCode)) return byTag.get(languageCode) as string;
       for (const lang of this.availableLanguages) {
-        if (lang in valueObj) return valueObj[lang] as string;
+        if (byTag.has(lang)) return byTag.get(lang) as string;
       }
     }
 
