@@ -21,7 +21,8 @@ export interface DdiToXlsformOptions {
 /**
  * The XLSForm sheets (`{ survey, choices, settings }`) of a DDI codebook or
  * fragment (`<dataDscr>`, `<var>`, `<varGrp>`). Throws `ddi-invalid` only
- * when the XML is not well-formed or holds no `<var>`.
+ * when the XML is not well-formed, holds no `<var>`, or has a `<var>` with
+ * neither `ID` nor `name` (a `<var>` without `ID` is read by its `name`).
  */
 export function ddiToXlsform(
   xml: string,
