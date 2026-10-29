@@ -1,4 +1,5 @@
 import { METADATA_ROW_TYPES } from '../../conventions/metadata.js';
+import type { SurveyRow } from '../../xlsform/types.js';
 
 // Derived from registry convention:unregisteredRows — device/session metadata
 // rows are silently skipped; any other unregistered type is an error.
@@ -11,7 +12,12 @@ export type { TSVRow as TSVRowData } from '../../lstsv/columns.js';
 export interface GroupStackItem {
   originalName: string;
   sanitizedName: string;
-  emittedAsGroup: boolean;
   /** The group's own XLSForm `relevant` (XPath), if any. */
   relevant?: string;
+  /** The begin_group row, its `relevant` AND-ed with the enclosing groups'. */
+  row: SurveyRow;
+  /** Its title is out already, as a G row or as the note it became. */
+  shown: boolean;
+  /** Holds only a welcome/end note: never a G row, never a note (#206). */
+  messageOnly?: boolean;
 }

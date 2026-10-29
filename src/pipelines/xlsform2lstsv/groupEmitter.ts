@@ -30,11 +30,18 @@ export interface GroupHelpers {
  * Emits G (group) rows and the X-row (note) placeholders that parent-only
  * groups become. Owns the group stack, current-group pointer, and pending
  * group-note queue.
+ *
+ * LimeSurvey groups are flat and a question belongs to the G row before it,
+ * so a group's G row waits for its first question ({@link openCurrentGroup}),
+ * and a group whose own questions resume after a nested group gets another
+ * G row there (#206).
  */
 export class GroupEmitter {
   private currentGroup: string | null = null;
   private groupStack: GroupStackItem[] = [];
   private pendingGroupNotes: SurveyRow[] = [];
+  /** The stack entry the last G row was emitted for. */
+  private openGroup: GroupStackItem | null = null;
 
   constructor(
     private configManager: ConfigManager,
@@ -96,6 +103,7 @@ export class GroupEmitter {
     row: SurveyRow,
     sanitizeName: (name: string) => string,
     convertRelevance: (relevant?: string) => string,
+    withDescription = true,
   ): void {
     const groupName =
       row.name && row.name.trim() !== ''
@@ -116,7 +124,9 @@ export class GroupEmitter {
         'type/scale': groupSeqKey,
         name: this.languageHandler.renderText(row, 'label', lang, groupName),
         relevance,
-        text: this.languageHandler.renderText(row, 'hint', lang),
+        text: withDescription
+          ? this.languageHandler.renderText(row, 'hint', lang)
+          : '',
       }),
       'direct',
     );
@@ -135,18 +145,37 @@ export class GroupEmitter {
   }
 
   /**
-   * Update currentGroup to the most recent emitted parent in the stack.
-   * Called on end_group so questions outside the closed group are still
-   * attributed to the right G row.
+   * Called on end_group. Outside every group, the next question needs a
+   * group of its own; inside one, {@link openCurrentGroup} gives the
+   * enclosing group's next question its G row.
    */
   restoreCurrentGroupFromStack(): void {
-    this.currentGroup = null;
-    for (let i = this.groupStack.length - 1; i >= 0; i--) {
-      if (this.groupStack[i].emittedAsGroup) {
-        this.currentGroup = this.groupStack[i].sanitizedName;
-        break;
-      }
+    if (this.groupStack.length === 0) {
+      this.currentGroup = null;
+      this.openGroup = null;
     }
+  }
+
+  /**
+   * Before a question: the innermost group's G row, unless it is the last
+   * one emitted. The first G row of a group carries its description; one
+   * after a nested group, or after its title became a note, carries the
+   * title alone (#206).
+   */
+  openCurrentGroup(helpers: GroupHelpers): void {
+    const top = this.groupStack[this.groupStack.length - 1];
+    if (!top || top === this.openGroup) return;
+    this.rowEmitter.flushGroupContent();
+    this.addGroup(
+      top.row,
+      helpers.sanitizeName,
+      helpers.convertRelevance,
+      !top.shown,
+    );
+    this.currentGroup = top.sanitizedName;
+    top.shown = true;
+    this.openGroup = top;
+    this.emitPendingGroupNotes(helpers.sanitizeName, helpers.convertRelevance);
   }
 
   /**
@@ -187,16 +216,18 @@ export class GroupEmitter {
   }
 
   /**
-   * Handle a `begin_group` row. Three cases:
+   * Handle a `begin_group` row. An enclosing group whose title is not out
+   * yet (no question of its own so far) becomes a note first. Then:
    *
    *   - `array` (a `table-list` group with choice rows): emit as a
    *     LimeSurvey array (F) — the G row plus an `addTableListHeader` to mark
    *     the array. A table of numbers is an ordinary group (#174).
-   *   - `messageOnly` (group contains only a welcome/end note): push to
-   *     stack with `emittedAsGroup: false` and skip emission.
+   *   - `messageOnly` (group contains only a welcome/end note): push, never
+   *     emitted.
    *   - `parentOnly` (group has no direct questions): push, queue a pending
-   *     note, do not emit.
-   *   - otherwise: push, emit G row, flush pending notes.
+   *     note, never emitted.
+   *   - otherwise: push; its first question emits the G row
+   *     ({@link openCurrentGroup}).
    */
   handleBeginGroup(
     groupRow: SurveyRow,
@@ -204,7 +235,6 @@ export class GroupEmitter {
     helpers: GroupHelpers,
     onTableList: (sanitizedName: string) => void,
   ): void {
-    const { sanitizeName, convertRelevance } = helpers;
     const ownRelevant = relevantOf(groupRow);
     // LimeSurvey groups are flat: a G row (or the note a flattened group
     // becomes) carries its enclosing groups' conditions too.
@@ -214,53 +244,39 @@ export class GroupEmitter {
     };
     const originalName = (row.name || '').trim();
     const sanitizedName = originalName
-      ? sanitizeName(originalName)
+      ? helpers.sanitizeName(originalName)
       : `G${this.counters.getGroupSeq()}`;
 
+    for (const outer of this.groupStack) {
+      if (outer.shown || outer.messageOnly) continue;
+      this.pendingGroupNotes.push(outer.row);
+      outer.shown = true;
+    }
+
+    const item: GroupStackItem = {
+      originalName,
+      sanitizedName,
+      relevant: ownRelevant,
+      row,
+      shown: false,
+    };
+    this.groupStack.push(item);
+
     if (kind.array) {
-      this.groupStack.push({
-        originalName,
-        sanitizedName,
-        emittedAsGroup: true,
-        relevant: ownRelevant,
-      });
-      this.rowEmitter.flushGroupContent();
-      this.addGroup(row, sanitizeName, convertRelevance);
-      this.emitPendingGroupNotes(sanitizeName, convertRelevance);
+      this.openCurrentGroup(helpers);
       onTableList(sanitizedName);
       return;
     }
 
     if (kind.messageOnly) {
-      this.groupStack.push({
-        originalName,
-        sanitizedName,
-        emittedAsGroup: false,
-        relevant: ownRelevant,
-      });
+      item.messageOnly = true;
       return;
     }
 
     if (kind.parentOnly) {
-      this.groupStack.push({
-        originalName,
-        sanitizedName,
-        emittedAsGroup: false,
-        relevant: ownRelevant,
-      });
       this.pendingGroupNotes.push(row);
-      return;
+      item.shown = true;
     }
-
-    this.groupStack.push({
-      originalName,
-      sanitizedName,
-      emittedAsGroup: true,
-      relevant: ownRelevant,
-    });
-    this.rowEmitter.flushGroupContent();
-    this.addGroup(row, sanitizeName, convertRelevance);
-    this.emitPendingGroupNotes(sanitizeName, convertRelevance);
   }
 }
 

@@ -20,6 +20,7 @@ import { allItems, allQuestions } from '../../instrument/walk.js';
 
 import { SurveySettingsEmitter } from './surveySettingsEmitter.js';
 import { GroupEmitter } from './groupEmitter.js';
+import type { GroupHelpers } from './groupEmitter.js';
 import { MatrixHandler, MatrixHelpers } from './matrixHandler.js';
 import { Counters } from './counters.js';
 import { AnswerEmitter, AnswerHelpers } from './answerEmitter.js';
@@ -165,6 +166,15 @@ class Conversion {
         this.transpilerHelper.convertRelevance(relevant),
       recordCodes: (grid, choices, codes) =>
         this.mapping.codes(grid, choices, codes),
+    };
+  }
+
+  /** Helpers passed to the group emitter. */
+  private groupHelpers(): GroupHelpers {
+    return {
+      sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
+      convertRelevance: (relevant) =>
+        this.transpilerHelper.convertRelevance(relevant),
     };
   }
 
@@ -342,8 +352,21 @@ class Conversion {
   /** Emit one question item (skipping metadata and promoted welcome/end notes). */
   private processQuestion(q: QuestionItem): void {
     const row = q.row as SurveyRow;
-    // Metadata types are skipped silently.
-    if (SKIP_TYPES.includes(q.type)) return;
+    // Metadata types are skipped silently, except a `hidden` row: in
+    // ODK/Kobo its value comes from the survey link, which LimeSurvey loses
+    // with the row (#207).
+    if (SKIP_TYPES.includes(q.type)) {
+      if (q.type === 'hidden') {
+        this.warn(
+          warning(
+            'hidden-dropped',
+            `hidden row "${q.name}" is not converted: LimeSurvey gets no question for it, so a value prefilled through the survey link is lost`,
+            q.name,
+          ),
+        );
+      }
+      return;
+    }
     // Notes promoted to welcome/end messages are not questions.
     if (q.rawType === 'note') {
       const name = q.name.toLowerCase();
@@ -357,6 +380,7 @@ class Conversion {
       this.rowEmitter.flushGroupContent();
       this.groupEmitter.addAutoGroupForOrphans();
     }
+    this.groupEmitter.openCurrentGroup(this.groupHelpers());
     this.addQuestion(q);
   }
 
@@ -407,11 +431,7 @@ class Conversion {
         parentOnly: this.groupProcessor.getParentOnlyGroups().has(originalName),
         array: this.groupProcessor.getArrayGroups().has(originalName),
       },
-      {
-        sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
-        convertRelevance: (relevant) =>
-          this.transpilerHelper.convertRelevance(relevant),
-      },
+      this.groupHelpers(),
       (sanitizedName) =>
         this.matrixHandler.addTableListHeader(
           row,
