@@ -8,9 +8,17 @@ import { ATTRIBUTE_COLUMNS } from '../../../../src/lstsv/columns.js';
 import { TSVGenerator } from '../../../../src/lstsv/serialize.js';
 import { TYPE_MAPPINGS } from '../../../../src/generated/TypeMappings.js';
 import { EXCLUSIVE_RULE } from '../../../../src/conventions/exclusive.js';
+import {
+  MAX_ANSWERS_ATTRIBUTE,
+  MIN_ANSWERS_ATTRIBUTE,
+} from '../../../../src/conventions/selectionCount.js';
 
 function registryAttributes(): string[] {
-  const attrs = new Set<string>([EXCLUSIVE_RULE.limesurveyAttribute]);
+  const attrs = new Set<string>([
+    EXCLUSIVE_RULE.limesurveyAttribute,
+    MIN_ANSWERS_ATTRIBUTE,
+    MAX_ANSWERS_ATTRIBUTE,
+  ]);
   for (const m of Object.values(TYPE_MAPPINGS)) {
     if (m.dateFormat) attrs.add('date_format');
     for (const a of Object.values(m.parameterAttributes ?? {})) attrs.add(a);

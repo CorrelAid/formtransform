@@ -26,7 +26,7 @@ Applies to: `select_one`, `select_multiple`. Add a choice with code `other`, the
 
 ## Exclusive answers (`exclusive` column)
 
-Applies to: `select_multiple`. For an answer that rules out all others (“Keine Angabe”, “Nichts davon”, “Weiß nicht”), add the `exclusive` column to the `choices` sheet and set it to `yes` on that choice. Leave it empty on every other row. Don't write a `count-selected()` constraint for this; it isn't converted.
+Applies to: `select_multiple`. For an answer that rules out all others (“Keine Angabe”, “Nichts davon”, “Weiß nicht”), add the `exclusive` column to the `choices` sheet and set it to `yes` on that choice. Leave it empty on every other row. Don't write a `count-selected()` constraint for this: LimeSurvey only gets it as a validation equation.
 
 ## Long lists from a file (`select_*_from_file`)
 
@@ -40,9 +40,11 @@ Type pattern: `^select_(one|multiple)_from_file (?P<filename>[^ ]+\.csv)$` — e
 
 Written in the XLSForm XPath subset. `${name}` references another answer; `.` (in `constraint`) refers to this answer; `selected(${q}, 'code')` tests a choice. `constraint_message` holds the plain-text error.
 
+To limit how many answers a `select_multiple` takes, write `count-selected(.) <= 3` (or `>= 1`, or both joined with `and`) as its `constraint`: LimeSurvey gets `max_answers` / `min_answers`. `count-selected(${q}) > 1` in a `relevant` counts the ticked answers of an earlier question.
+
 **Only these functions are supported** (anything else is rejected):
 
-`and`, `or`, `not`, `if`, `selected`, `contains`, `starts-with`, `ends-with`, `regex`, `string`, `number`, `concat`, `substring`, `string-length`, `normalize-space`, `count`, `sum`, `round`, `floor`, `ceiling`, `div`, `mod`, `today`, `now`
+`and`, `or`, `not`, `if`, `selected`, `contains`, `starts-with`, `ends-with`, `regex`, `string`, `number`, `concat`, `substring`, `string-length`, `normalize-space`, `count`, `count-selected`, `sum`, `round`, `floor`, `ceiling`, `div`, `mod`, `today`, `now`
 
 ## Appearances (`appearance` column)
 

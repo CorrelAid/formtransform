@@ -295,6 +295,13 @@ is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 `count-selected()` constraint. LimeSurvey enforces it through
 `exclude_all_others`; DDI has no field for it.
 
+`count-selected()` counts the ticked answers of a `select_multiple`. In a
+`relevant` (`count-selected(${k04}) > 1`) it becomes `count()` over the
+question's subquestions in LimeSurvey. A `constraint` on the question itself
+that bounds it (`count-selected(.) >= 1 and count-selected(.) <= 3`) becomes
+LimeSurvey's `min_answers` / `max_answers`; the reverse paths read those back
+as the same constraint.
+
 The `or_other` shorthand writes no text for its "other" answer; the survey
 tool supplies one. LimeSurvey shows its own `Other:` in the survey language
 (`Sonstiges:`), ODK and Kobo an untranslated "Other" / "Specify other.". The

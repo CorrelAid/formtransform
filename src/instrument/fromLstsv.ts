@@ -12,6 +12,12 @@
 import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
+import {
+  COUNT_SELECTED,
+  MAX_ANSWERS_ATTRIBUTE,
+  MIN_ANSWERS_ATTRIBUTE,
+  countsSelections,
+} from '../conventions/selectionCount.js';
 import type { APPEARANCES } from '../generated/Appearances.js';
 
 /** The registry appearance for a group shown as one page. */
@@ -406,9 +412,32 @@ function reverseAllExpressions(
       reverseRelevance(em, selectCtx),
     );
     if (item.kind === 'question') {
-      item.constraint = reverse(item, 'em_validation_q', reverseConstraint);
+      const equation = reverse(item, 'em_validation_q', (em) =>
+        reverseConstraint(em, { ...selectCtx, self: item.name }),
+      );
+      item.constraint = withAnswerBounds(item, equation);
     }
   }
+}
+
+/**
+ * A multiple choice's `min_answers` / `max_answers` as the
+ * `count-selected(.)` bounds the forward path read them from
+ * (convention:logicMapping `selectionCount`), ANDed before `equation`.
+ */
+function withAnswerBounds(q: QuestionItem, equation: string): string {
+  if (!countsSelections(q.type)) return equation;
+  const row = q.row as Row;
+  const min = cell(row, MIN_ANSWERS_ATTRIBUTE);
+  const max = cell(row, MAX_ANSWERS_ATTRIBUTE);
+  const terms = [
+    ...(min ? [`${COUNT_SELECTED}(.) >= ${min}`] : []),
+    ...(max ? [`${COUNT_SELECTED}(.) <= ${max}`] : []),
+  ];
+  if (terms.length === 0) return equation;
+  if (equation)
+    terms.push(/\bor\b/.test(equation) ? `(${equation})` : equation);
+  return terms.join(' and ');
 }
 
 export interface LstsvParseOptions {

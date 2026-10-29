@@ -33,6 +33,12 @@ import { ConversionError, consoleWarning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { parameterAttributes } from './parameters.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../../conventions/exclusive.js';
+import { normalizeName } from '../../xlsform/identifiers.js';
+import {
+  MAX_ANSWERS_ATTRIBUTE,
+  MIN_ANSWERS_ATTRIBUTE,
+  countsSelections,
+} from '../../conventions/selectionCount.js';
 import {
   FROM_FILE_BASE,
   cssClassForVocab,
@@ -437,6 +443,7 @@ class Conversion {
       attributes: {
         ...parameterAttributes(xfTypeInfo.base, q.parameters, questionName),
         ...this.exclusiveAttribute(xfTypeInfo.base, xfTypeInfo.listName),
+        ...fields.answerBounds,
       },
     };
 
@@ -474,14 +481,15 @@ class Conversion {
     hidden: string;
     hideTip: string;
     isNote: boolean;
+    answerBounds: Record<string, string>;
   } {
     // `calculate` is not registered, so it never gets here (validateRow).
     const isNote = xfTypeInfo.base === 'note';
 
     const relevance = this.transpilerHelper.convertRelevance(q.relevant);
-    const emValidation = isNote
-      ? ''
-      : this.transpilerHelper.convertConstraint(q.constraint);
+    const { emValidation, answerBounds } = isNote
+      ? { emValidation: '', answerBounds: {} }
+      : this.convertConstraint(q, xfTypeInfo.base);
     const mandatory = isNote || !q.required ? '' : 'Y';
     const other = this.computeOtherFlag(q.row, lsType, isNote);
     const defaultVal = isNote ? '' : this.defaultValue(q, xfTypeInfo.base);
@@ -503,6 +511,39 @@ class Conversion {
       hidden: '',
       hideTip,
       isNote,
+      answerBounds,
+    };
+  }
+
+  /**
+   * The validation equation, and for a select_multiple the bounds its
+   * constraint puts on the number of answers as `min_answers` /
+   * `max_answers` (convention:logicMapping `selectionCount`).
+   */
+  private convertConstraint(
+    q: QuestionItem,
+    base: string,
+  ): { emValidation: string; answerBounds: Record<string, string> } {
+    const self = normalizeName(q.name);
+    if (!countsSelections(base)) {
+      return {
+        emValidation: this.transpilerHelper.convertConstraint(
+          q.constraint,
+          self,
+        ),
+        answerBounds: {},
+      };
+    }
+    const { validation, min, max } =
+      this.transpilerHelper.convertSelectionConstraint(q.constraint, self);
+    return {
+      emValidation: validation,
+      answerBounds: {
+        ...(min !== undefined && min > 0
+          ? { [MIN_ANSWERS_ATTRIBUTE]: String(min) }
+          : {}),
+        ...(max !== undefined ? { [MAX_ANSWERS_ATTRIBUTE]: String(max) } : {}),
+      },
     };
   }
 
@@ -612,6 +653,7 @@ interface QuestionRowContext {
     hidden: string;
     hideTip: string;
     isNote: boolean;
+    answerBounds: Record<string, string>;
   };
   cdlVocab: string;
   /** LS question attributes from the `parameters` column (parameters.ts). */

@@ -401,7 +401,7 @@ const conventions = {
       "limesurveyAttribute": "exclude_all_others",
       "limesurveySeparator": ";",
       "limesurveyEmission": "the select_multiple Q row gets exclude_all_others = the exclusive choices' codes joined by ';'. LimeSurvey then unticks every other answer when one of them is picked, and vice versa",
-      "xlsformEquivalent": "constraint: not(selected(., '<code>') and count-selected(.) > 1). The exclusive column is the declarative form; the TSV converter does not translate count-selected()",
+      "xlsformEquivalent": "constraint: not(selected(., '<code>') and count-selected(.) > 1). The exclusive column is the declarative form. Such a constraint converts only to a validation equation (convention:logicMapping selectionCount), not to exclude_all_others",
       "ddiEmission": "none: DDI-Codebook 2.5 has no field for it (catgry/@excls is about classification hierarchies). The choice is emitted as its normal binary variable",
       "notes": "Typical use: 'Keine Angabe', 'Nichts davon', 'Weiß nicht'. On a list used only by select_one the column has no effect and is reported as a warning"
     },
@@ -679,6 +679,11 @@ const conventions = {
         {
           "xlsform": "regex(., '...')",
           "ls": "regexMatch(...)"
+        },
+        {
+          "xlsform": "count-selected(${f})",
+          "ls": "count(f_a.NAOK, f_b.NAOK, …)",
+          "note": "The number of ticked answers of a select_multiple: an unticked subquestion is empty, so count() over its subquestions counts the ticked ones (its native other text box, f_other, counts too). See selectionCount."
         }
       ],
       "supportedXPathFunctions": [
@@ -698,6 +703,7 @@ const conventions = {
         "string-length",
         "normalize-space",
         "count",
+        "count-selected",
         "sum",
         "round",
         "floor",
@@ -707,6 +713,19 @@ const conventions = {
         "today",
         "now"
       ],
+      "selectionCount": {
+        "xlsformFunction": "count-selected",
+        "appliesTo": [
+          "select_multiple"
+        ],
+        "expression": "count-selected(${q}) (or count-selected(.) in q's own constraint) becomes count() over q's subquestion fields, `<q>_<code>.NAOK` for every answer code of its list, plus `<q>_other.NAOK` when q carries LimeSurvey's native other. An argument that is not a select_multiple is an error.",
+        "constraintBounds": {
+          "minAttribute": "min_answers",
+          "maxAttribute": "max_answers",
+          "rule": "On a select_multiple, each top-level `and` term of the constraint that compares count-selected(.) with a number becomes a question attribute instead of validation: `<= n` max_answers=n, `< n` max_answers=n-1, `>= n` min_answers=n, `> n` min_answers=n+1, `= n` both (the number on the left mirrors the operator). The other terms stay the validation equation. A count-selected(.) anywhere else (inside `or`, `not()`) stays in the equation as count().",
+          "reverse": "A LimeSurvey multiple choice's min_answers/max_answers come back as `count-selected(.) >= n` / `count-selected(.) <= n`, ANDed before the reversed validation equation."
+        }
+      },
       "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions",
       "ddiEncoding": {
         "noteSubject": "xlsform-xpath",

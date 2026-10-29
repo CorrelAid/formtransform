@@ -24,6 +24,7 @@ import {
 import { consoleWarning, warning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { ConversionError } from '../../diagnostics.js';
+import { COUNT_SELECTED } from '../../conventions/selectionCount.js';
 
 /**
  * Callback to look up a sanitized answer code given a question name and original choice value.
@@ -47,6 +48,15 @@ export interface TranspilerContext {
   ) => string;
   /** Get the truncated field name (sanitized and truncated to 20 chars) */
   getTruncatedFieldName?: (fieldName: string) => string;
+  /**
+   * The LimeSurvey fields holding a select_multiple's ticks (`q_a`, `q_b`,
+   * …, plus `q_other` for a native other), given its normalized name, or
+   * `null` when the name is no select_multiple. What `count-selected()`
+   * counts (convention:logicMapping `selectionCount`).
+   */
+  selectionFields?: (fieldName: string) => string[] | null;
+  /** The normalized name `.` stands for (a constraint's own question). */
+  selfName?: string;
 }
 
 function isVariableRef(
@@ -191,6 +201,32 @@ function transpileSelected(args: XPathNode[], ctx?: TranspilerContext): string {
   return `(${sanitizedField}=="${value}")`;
 }
 
+/**
+ * `count-selected(${q})` → `count(q_a.NAOK, q_b.NAOK, …)`. An unticked
+ * subquestion is empty, so `count()` counts the ticked ones.
+ */
+function transpileCountSelected(
+  args: XPathNode[],
+  ctx?: TranspilerContext,
+): string {
+  const target = arg(args, 0, COUNT_SELECTED);
+  if (target.kind !== 'path') {
+    throw new ConversionError(
+      'xpath-unsupported',
+      `${COUNT_SELECTED}() needs a question reference`,
+    );
+  }
+  const name = target.name === null ? ctx?.selfName : sanitizeName(target.name);
+  const fields = name ? ctx?.selectionFields?.(name) : null;
+  if (!fields || fields.length === 0) {
+    throw new ConversionError(
+      'xpath-unsupported',
+      `${COUNT_SELECTED}() needs a select_multiple question, got ${target.name === null ? "'.'" : `'${target.name}'`}`,
+    );
+  }
+  return `count(${fields.map((f) => `${f}.NAOK`).join(', ')})`;
+}
+
 function transpileSubstring(
   args: XPathNode[],
   ctx?: TranspilerContext,
@@ -210,6 +246,7 @@ function transpileFunctionCall(
   const { name, args } = node;
   if (name === 'selected') return transpileSelected(args, ctx);
   if (name === 'substring') return transpileSubstring(args, ctx);
+  if (name === COUNT_SELECTED) return transpileCountSelected(args, ctx);
   const handler = FUNCTION_HANDLERS[name];
   if (handler) return handler(args, ctx);
   if (name === 'if' && args.length === 3) {
@@ -372,6 +409,7 @@ export function convertConstraint(
 export function convertConstraintSync(
   constraint: string,
   onWarning: WarningHandler = consoleWarning,
+  ctx?: TranspilerContext,
 ): string {
   if (!constraint) return '';
 
@@ -389,19 +427,147 @@ export function convertConstraintSync(
   }
 
   try {
-    return transpile(parseXPath(processedExpr));
+    return transpile(parseXPath(processedExpr), ctx);
   } catch (error: unknown) {
-    // Documented fallback: a constraint that isn't XPath (e.g. a bare regex)
-    // is dropped rather than failing the conversion — the form then accepts
-    // more input, it never hides questions.
-    onWarning(
-      warning(
-        'constraint-dropped',
-        `Constraint "${constraint}" can't be converted and is dropped (the question accepts any answer): ${(error as Error).message}`,
-      ),
-    );
-    return '';
+    return dropConstraint(constraint, error, onWarning);
   }
+}
+
+/**
+ * Documented fallback: a constraint that isn't XPath (e.g. a bare regex) is
+ * dropped rather than failing the conversion — the form then accepts more
+ * input, it never hides questions.
+ */
+function dropConstraint(
+  constraint: string,
+  error: unknown,
+  onWarning: WarningHandler,
+): string {
+  onWarning(
+    warning(
+      'constraint-dropped',
+      `Constraint "${constraint}" can't be converted and is dropped (the question accepts any answer): ${(error as Error).message}`,
+    ),
+  );
+  return '';
+}
+
+/** A select_multiple's constraint: bounds on its answer count + the rest. */
+export interface SelectionConstraint {
+  /** The validation equation for whatever isn't a bound ('' for none). */
+  validation: string;
+  /** Lower bound on the number of ticked answers (`min_answers`). */
+  min?: number;
+  /** Upper bound on the number of ticked answers (`max_answers`). */
+  max?: number;
+}
+
+/** The terms of a top-level `a and b and c`. */
+function conjuncts(node: XPathNode): XPathNode[] {
+  return node.kind === 'bin' && node.op === 'and'
+    ? [...conjuncts(node.left), ...conjuncts(node.right)]
+    : [node];
+}
+
+/** `x op n` read from the count's side: `3 >= count-selected(.)` is `<= 3`. */
+const MIRROR: Partial<Record<BinaryOp, BinaryOp>> = {
+  '<': '>',
+  '<=': '>=',
+  '>': '<',
+  '>=': '<=',
+  '=': '=',
+};
+
+/**
+ * The bound one constraint term puts on the question's own answer count, or
+ * null when the term is anything else (it then stays in the equation).
+ */
+function selectionBound(
+  node: XPathNode,
+  selfName: string | undefined,
+): { min?: number; max?: number } | null {
+  if (node.kind !== 'bin' || !(node.op in MIRROR)) return null;
+  const isSelfCount = (n: XPathNode) =>
+    n.kind === 'call' &&
+    n.name === COUNT_SELECTED &&
+    n.args.length === 1 &&
+    n.args[0].kind === 'path' &&
+    (n.args[0].name === null ||
+      (selfName !== undefined && sanitizeName(n.args[0].name) === selfName));
+  let op: BinaryOp;
+  let numNode: XPathNode;
+  if (isSelfCount(node.left)) {
+    op = node.op;
+    numNode = node.right;
+  } else if (isSelfCount(node.right)) {
+    op = MIRROR[node.op]!;
+    numNode = node.left;
+  } else return null;
+  if (numNode.kind !== 'num') return null;
+  const n = Number(numNode.text);
+  if (!Number.isFinite(n)) return null;
+  switch (op) {
+    case '<=':
+      return { max: Math.floor(n) };
+    case '<':
+      return { max: Math.ceil(n) - 1 };
+    case '>=':
+      return { min: Math.ceil(n) };
+    case '>':
+      return { min: Math.floor(n) + 1 };
+    default:
+      return Number.isInteger(n) ? { min: n, max: n } : null;
+  }
+}
+
+/**
+ * A select_multiple's constraint (convention:logicMapping `selectionCount`):
+ * each top-level `and` term comparing `count-selected(.)` with a number
+ * becomes a bound for LimeSurvey's `min_answers` / `max_answers`; the other
+ * terms stay the validation equation, where a `count-selected()` becomes
+ * `count()` over the subquestions.
+ */
+export function convertSelectionConstraintSync(
+  constraint: string,
+  onWarning: WarningHandler = consoleWarning,
+  ctx?: TranspilerContext,
+): SelectionConstraint {
+  if (!constraint) return { validation: '' };
+  let terms: XPathNode[];
+  try {
+    terms = conjuncts(parseXPath(preprocessExpression(constraint)));
+  } catch {
+    return { validation: convertConstraintSync(constraint, onWarning, ctx) };
+  }
+  const out: SelectionConstraint = { validation: '' };
+  const rest: XPathNode[] = [];
+  for (const term of terms) {
+    const bound = selectionBound(term, ctx?.selfName);
+    if (!bound) {
+      rest.push(term);
+      continue;
+    }
+    if (bound.min !== undefined) out.min = Math.max(out.min ?? 0, bound.min);
+    if (bound.max !== undefined)
+      out.max = Math.min(out.max ?? Infinity, bound.max);
+  }
+  if (rest.length === 0) return out;
+  if (rest.length === terms.length) {
+    out.validation = convertConstraintSync(constraint, onWarning, ctx);
+    return out;
+  }
+  const remaining = rest.reduce((left, right): XPathNode => ({
+    kind: 'bin',
+    op: 'and',
+    left,
+    right,
+  }));
+  try {
+    out.validation = transpile(remaining, ctx);
+  } catch (error: unknown) {
+    out.validation = dropConstraint(constraint, error, onWarning);
+  }
+  return out;
 }
 
 /** Char state inside {@link parseRegexMatchArguments}'s one-pass scanner. */
