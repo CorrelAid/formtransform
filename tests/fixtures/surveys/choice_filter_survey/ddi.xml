@@ -1,0 +1,156 @@
+<?xml version="1.0" ?>
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" xml:lang="de">
+  <stdyDscr>
+    <citation>
+      <titlStmt>
+        <titl>choice_filter_survey</titl>
+        <IDNo>choice_filter</IDNo>
+      </titlStmt>
+      <prodStmt>
+        <prodDate date="2020-01-01">2020-01-01</prodDate>
+      </prodStmt>
+    </citation>
+    <notes type="cdl:setting" subject="default_language">de</notes>
+  </stdyDscr>
+  <fileDscr ID="F1" URI="data.csv">
+    <fileTxt>
+      <fileName>data.csv</fileName>
+      <dimensns>
+        <caseQnty>0</caseQnty>
+      </dimensns>
+      <fileType>Comma-separated values (CSV)</fileType>
+      <format>text/csv</format>
+    </fileTxt>
+  </fileDscr>
+  <dataDscr>
+    <varGrp ID="VG_k04" name="k04" type="multipleResp" var="V_k04_umw V_k04_bil V_k04_arb">
+      <txt>Welche Themen sind Ihnen wichtig?</txt>
+      <notes type="cdl:list">themen</notes>
+    </varGrp>
+    <varGrp ID="VG_k05" name="k05" type="multipleResp" var="V_k05_tv V_k05_radio V_k05_netz">
+      <txt>Welche Medien nutzen Sie?</txt>
+      <notes type="cdl:list">medien</notes>
+    </varGrp>
+    <var ID="V_k04_umw" name="k04_umw" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="1">
+        <preQTxt>Welche Themen sind Ihnen wichtig?</preQTxt>
+        <qstnLit>Umwelt</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k04_bil" name="k04_bil" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="1">
+        <preQTxt>Welche Themen sind Ihnen wichtig?</preQTxt>
+        <qstnLit>Bildung</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k04_arb" name="k04_arb" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="1">
+        <preQTxt>Welche Themen sind Ihnen wichtig?</preQTxt>
+        <qstnLit>Arbeit</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k04haupt" name="k04haupt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category" seqNo="2">
+        <qstnLit>Welches davon ist Ihnen am wichtigsten?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>umw</catValu>
+        <labl>Umwelt</labl>
+      </catgry>
+      <catgry>
+        <catValu>bil</catValu>
+        <labl>Bildung</labl>
+      </catgry>
+      <catgry>
+        <catValu>arb</catValu>
+        <labl>Arbeit</labl>
+      </catgry>
+      <varFormat type="character" schema="other"/>
+      <notes type="cdl:column" subject="choice_filter">selected(${k04}, name)</notes>
+      <notes type="cdl:list">themen</notes>
+    </var>
+    <var ID="V_k05_tv" name="k05_tv" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="3">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Fernsehen</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k05_radio" name="k05_radio" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="3">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Radio</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k05_netz" name="k05_netz" intrvl="discrete" files="F1">
+      <qstn responseDomainType="multiple" seqNo="3">
+        <preQTxt>Welche Medien nutzen Sie?</preQTxt>
+        <qstnLit>Internet</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>0</catValu>
+      </catgry>
+      <catgry>
+        <catValu>1</catValu>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+    </var>
+    <var ID="V_k05haupt" name="k05haupt" intrvl="discrete" files="F1">
+      <qstn responseDomainType="category" seqNo="4">
+        <qstnLit>Welches nutzen Sie am meisten?</qstnLit>
+      </qstn>
+      <catgry>
+        <catValu>1</catValu>
+        <labl>Fernsehen</labl>
+      </catgry>
+      <catgry>
+        <catValu>2</catValu>
+        <labl>Radio</labl>
+      </catgry>
+      <catgry>
+        <catValu>3</catValu>
+        <labl>Internet</labl>
+      </catgry>
+      <varFormat type="numeric" schema="other"/>
+      <notes type="cdl:column" subject="choice_filter">selected(${k05}, kurz)</notes>
+      <notes type="cdl:list">medien_nr</notes>
+      <notes type="cdl:choice_column" subject="1 kurz">tv</notes>
+      <notes type="cdl:choice_column" subject="2 kurz">radio</notes>
+      <notes type="cdl:choice_column" subject="3 kurz">netz</notes>
+    </var>
+  </dataDscr>
+</codeBook>

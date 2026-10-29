@@ -39,6 +39,9 @@ import {
   MIN_ANSWERS_ATTRIBUTE,
   countsSelections,
 } from '../../conventions/selectionCount.js';
+import { ARRAY_FILTER_ATTRIBUTE } from '../../conventions/choiceFilter.js';
+import { resolveArrayFilter } from './choiceFilter.js';
+import type { ArrayFilter } from './choiceFilter.js';
 import {
   FROM_FILE_BASE,
   cssClassForVocab,
@@ -86,6 +89,8 @@ class Conversion {
   /** Parent select → its folded companion, whose label labels the native box. */
   private companionByParent = new Map<SurveyRow, SurveyRow>();
   private rowCheck: RowCheckContext = { listNames: new Set() };
+  /** Each filtered question's `array_filter`, by LimeSurvey name. */
+  private arrayFilters = new Map<string, ArrayFilter>();
   private readonly warn: WarningHandler;
 
   constructor(config: Readonly<LstsvConfig>) {
@@ -224,6 +229,8 @@ class Conversion {
       (name) => this.fieldNameHandler.sanitizeName(name),
     );
 
+    this.resolveArrayFilters(allQuestions(instrument.body));
+
     // Add survey row (class S)
     this.surveySettingsEmitter.emit(settingsData[0] || {});
 
@@ -265,6 +272,33 @@ class Conversion {
 
     // Generate TSV
     return this.tsvGenerator.generateTSV();
+  }
+
+  /**
+   * `choice_filter` → `array_filter` (convention:choiceFilter), before any
+   * row is emitted: a filter that recodes a question's answers must reach
+   * every expression that compares with them.
+   */
+  private resolveArrayFilters(questions: QuestionItem[]): void {
+    for (const q of questions) {
+      const { base, listName } = this.typeMapper.parseType(q.rawType);
+      const resolved = this.fieldNameHandler.sanitizeName(q.name);
+      const filter = resolveArrayFilter(q, {
+        sanitizeName: (name) => this.fieldNameHandler.sanitizeName(name),
+        baseTypeOf: (name) =>
+          this.choiceManager.getQuestionBaseTypeMap().get(name),
+        codeMapOf: (name) => this.choiceManager.codeMapOf(name),
+        choices: listName
+          ? (this.choiceManager.getChoices(listName) ?? [])
+          : [],
+        baseType: base,
+        onWarning: this.warn,
+      });
+      if (!filter) continue;
+      this.arrayFilters.set(resolved, filter);
+      if (filter.codes)
+        this.choiceManager.setQuestionCodes(resolved, filter.codes);
+    }
   }
 
   // ── Other question pattern detection ─────────────────────────────────
@@ -346,6 +380,12 @@ class Conversion {
       ),
     };
   }
+  /** `array_filter` for a question with a convertible choice_filter. */
+  private arrayFilterAttribute(questionName: string): Record<string, string> {
+    const filter = this.arrayFilters.get(questionName);
+    return filter ? { [ARRAY_FILTER_ATTRIBUTE]: filter.question } : {};
+  }
+
   private handleBeginGroup(row: SurveyRow): void {
     this.matrixHandler.flushMatrix(this.matrixHelpers());
     const originalName = (row.name || '').trim();
@@ -444,6 +484,7 @@ class Conversion {
         ...parameterAttributes(xfTypeInfo.base, q.parameters, questionName),
         ...this.exclusiveAttribute(xfTypeInfo.base, xfTypeInfo.listName),
         ...fields.answerBounds,
+        ...this.arrayFilterAttribute(questionName),
       },
     };
 
@@ -457,9 +498,11 @@ class Conversion {
 
     // Add answers/subquestions for select types (notes don't have answers)
     if (xfTypeInfo.base !== 'note' && xfTypeInfo.listName) {
+      const codes = this.choiceManager.questionCodesOf(questionName);
       this.answerEmitter.addAnswers(xfTypeInfo, lsType, {
         ...this.answerHelpers(),
         defaultCodes: new Set(q.default.split(/\s+/).filter(Boolean)),
+        ...(codes ? { codes } : {}),
       });
     }
   }

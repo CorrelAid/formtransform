@@ -1,0 +1,22 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	array_filter
+S		language	1	de		de									
+S		format	1	A		de									
+S		shownoanswer	1	N		de									
+SL		surveyls_title	1	Auswahl filtern		de									
+G		Questions	1			de									
+Q	M	k04	1	Welche Themen sind Ihnen wichtig?		de								1	
+SQ		umw		Umwelt		de									
+SQ		bil		Bildung		de									
+SQ		arb		Arbeit		de									
+Q	L	k04haupt	1	Welches davon ist Ihnen am wichtigsten?		de								1	k04
+A		umw		Umwelt		de									
+A		bil		Bildung		de									
+A		arb		Arbeit		de									
+Q	M	k05	1	Welche Medien nutzen Sie?		de								1	
+SQ		tv		Fernsehen		de									
+SQ		radio		Radio		de									
+SQ		netz		Internet		de									
+Q	L	k05haupt	1	Welches nutzen Sie am meisten?		de								1	k05
+A		tv		Fernsehen		de									
+A		radio		Radio		de									
+A		netz		Internet		de									

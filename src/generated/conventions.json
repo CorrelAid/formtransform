@@ -1,6 +1,24 @@
 {
   "$comment": "GENERATED - DO NOT EDIT. Source: registry/root.jsonld",
   "conventions": {
+    "choiceFilter": {
+      "surveyColumn": "choice_filter",
+      "selectedFunction": "selected",
+      "pattern": "selected(${<q>}, <column>): show only the options whose <column> cell (on the choices sheet) is ticked in <q>",
+      "filterTypes": [
+        "select_multiple"
+      ],
+      "appliesTo": [
+        "select_one",
+        "select_multiple"
+      ],
+      "codeColumn": "name",
+      "limesurveyAttribute": "array_filter",
+      "limesurveyEmission": "array_filter = <q>'s LimeSurvey name. LimeSurvey then shows an option only when <q>'s subquestion with the same code is ticked, so every option's <column> value must be one of <q>'s answer codes, each at most once",
+      "recode": "With <column> = name the codes already match. With another column, the filtered question's LimeSurvey answer codes are its <column> values (a `choice-filter-recoded` warning): LimeSurvey stores those codes for this question, not the list's names",
+      "unconvertible": "any other choice_filter, a <q> that is no select_multiple, or <column> values that are no answer code of <q> (or repeat one): the filter is dropped with a `choice-filter-dropped` warning, and LimeSurvey shows every option",
+      "reverse": "array_filter = <q> on a LimeSurvey list or multiple choice comes back as choice_filter selected(${<q>}, name)"
+    },
     "ddiFields": {
       "description": "Where each field of a form (the Instrument model, src/instrument/types.ts) goes in a CDL DDI codebook (formtransform#153): a standard DDI 2.5 element or attribute wherever one fits, a typed note `<notes type=\"cdl:<field>\">` (the XSD's controlled-vocabulary extension point, as in convention:logicMapping) only where DDI 2.5 has none, or a documented loss. A unit test fails when a model field has no entry.",
       "questionText": {

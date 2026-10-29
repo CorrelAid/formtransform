@@ -46,6 +46,11 @@ export interface AnswerHelpers {
   sanitizeAnswerCode(code: string): string;
   /** A select_multiple's default choices (XLSForm codes): their SQ rows get `Y`. */
   defaultCodes?: ReadonlySet<string>;
+  /**
+   * The question's own answer codes (choice name → code), when they aren't
+   * its list's (convention:choiceFilter `recode`).
+   */
+  codes?: ReadonlyMap<string, string>;
 }
 
 /**
@@ -90,16 +95,19 @@ export class AnswerEmitter {
       lsType.answerClass ||
       (xfTypeInfo.base === 'select_multiple' ? 'SQ' : 'A');
 
-    const choiceNames = answerCodes(
-      choices,
-      (code) => helpers.sanitizeAnswerCode(code),
-      () =>
-        answerClass === 'SQ'
-          ? `SQ${this.counters.subquestionSeq++}`
-          : `A${this.counters.answerSeq++}`,
-      this.onWarning,
-      xfTypeInfo.listName ?? undefined,
-    );
+    const own = helpers.codes;
+    const choiceNames = own
+      ? choices.map((c) => own.get(c.name?.trim() ?? '') ?? '')
+      : answerCodes(
+          choices,
+          (code) => helpers.sanitizeAnswerCode(code),
+          () =>
+            answerClass === 'SQ'
+              ? `SQ${this.counters.subquestionSeq++}`
+              : `A${this.counters.answerSeq++}`,
+          this.onWarning,
+          xfTypeInfo.listName ?? undefined,
+        );
 
     for (let i = 0; i < choices.length; i++) {
       const choice = choices[i];
