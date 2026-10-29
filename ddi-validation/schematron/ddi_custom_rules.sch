@@ -27,7 +27,7 @@
         <assert test="ddi:qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="ddi:qstn/ddi:qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="ddi:varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
+        <assert test="not(ddi:labl)">Variable <value-of select="@name"/> uses labl. A var has no labl in CDL: the question text is qstn/qstnLit, and a short label is only on a varGrp.</assert>
         <assert test="every $l in distinct-values(ddi:notes[not(@type)]/string(@xml:lang)) satisfies count(ddi:notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -35,7 +35,7 @@
     <rule context="ddi:varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
-        <assert test="not(ddi:labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
+        <assert test="every $l in distinct-values(ddi:labl/string(@xml:lang)) satisfies count(ddi:labl[string(@xml:lang) = $l]) &lt;= 1">Variable Group <value-of select="@ID"/> has more than one labl in one language. A group's labl is its short label (convention:ddiFields groupText), one per language: xml:lang siblings, like txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is 'multiple' (checkboxes) -->
@@ -50,7 +50,7 @@
         <assert test="qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="qstn/qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="not(labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
+        <assert test="not(labl)">Variable <value-of select="@name"/> uses labl. A var has no labl in CDL: the question text is qstn/qstnLit, and a short label is only on a varGrp.</assert>
         <assert test="every $l in distinct-values(notes[not(@type)]/string(@xml:lang)) satisfies count(notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -58,7 +58,7 @@
     <rule context="varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="@type = 'grid' or @type = 'multipleResp' or @type = 'other' or @type = 'section'">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only "grid", "multipleResp", "other", or "section" are supported.</assert>
-        <assert test="not(labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
+        <assert test="every $l in distinct-values(labl/string(@xml:lang)) satisfies count(labl[string(@xml:lang) = $l]) &lt;= 1">Variable Group <value-of select="@ID"/> has more than one labl in one language. A group's labl is its short label (convention:ddiFields groupText), one per language: xml:lang siblings, like txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is 'multiple' (checkboxes) -->

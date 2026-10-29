@@ -4,6 +4,13 @@
  * loader's `{ lang: text }` cells.
  */
 import { allColumns, otherColumns } from '../conventions/columns.js';
+import {
+  OTHER_APPLIES_TO,
+  OTHER_CODE,
+  OTHER_COMPANION_TYPE,
+  OTHER_SUFFIX,
+} from '../conventions/other.js';
+import { APPEARANCES } from '../generated/Appearances.js';
 import { extractLanguageCode, languageTagOf } from '../utils/languageUtils.js';
 import type {
   GroupItem,
@@ -59,6 +66,7 @@ export function readText(row: Row, base: string): Text {
 /** The columns whose texts the model reads, in every language. */
 const TEXT_COLUMNS = [
   'label',
+  'label_short',
   'hint',
   'guidance_hint',
   'constraint_message',
@@ -94,12 +102,15 @@ function hasText(text: Text): boolean {
   return Object.values(text).some((t) => t.trim());
 }
 
-function baseFields(row: Row, sheet: 'survey' | 'group' = 'survey') {
+function baseFields(row: Row, sheet: 'survey' | 'varGrp' | 'group' = 'survey') {
   const concept = readText(row, 'concept');
+  // Only a varGrp has a labl (#181): elsewhere label_short is a column.
+  const labelShort = sheet === 'survey' ? {} : readText(row, 'label_short');
   return {
     name: cellString(row['name']).trim(),
     label: readText(row, 'label'),
     hint: readText(row, 'hint'),
+    ...(hasText(labelShort) ? { labelShort } : {}),
     ...(hasText(concept) ? { concept } : {}),
     relevant: cellString(row['relevant']).trim(),
     appearance: cellString(row['appearance']).trim().toLowerCase(),
@@ -113,7 +124,40 @@ function withColumns(columns: Record<string, string>) {
   return Object.keys(columns).length ? { columns } : {};
 }
 
-function question(row: Row, rawType: string): QuestionItem {
+/** What decides whether a question row becomes a `varGrp`. */
+interface Shapes {
+  /** Lists with an `other` choice. */
+  otherLists: Set<string>;
+  /** Names of the companion-typed (`text`) rows. */
+  companions: Set<string>;
+}
+
+const NO_DATA = new Set(
+  Object.entries(APPEARANCES)
+    .filter(([, a]) => a.carriesData === false)
+    .map(([name]) => name),
+);
+
+/**
+ * The codebook makes it a `varGrp` (#181): a select_multiple, or a semi-open
+ * question (convention:other: the or_other shorthand, or an `other` choice
+ * and a `<name>_other` text question). Not a matrix header, which has no
+ * data.
+ */
+function becomesVarGrp(row: Row, rawType: string, shapes: Shapes): boolean {
+  const [type, list = '', ...rest] = rawType.split(/\s+/);
+  const appearance = cellString(row['appearance']).trim().toLowerCase();
+  if (NO_DATA.has(appearance)) return false;
+  if (type === 'select_multiple') return true;
+  if (!OTHER_APPLIES_TO.includes(type)) return false;
+  const name = cellString(row['name']).trim();
+  return (
+    rest.includes(OR_OTHER_TOKEN) ||
+    (shapes.otherLists.has(list) && shapes.companions.has(name + OTHER_SUFFIX))
+  );
+}
+
+function question(row: Row, rawType: string, shapes: Shapes): QuestionItem {
   const [type, ...rest] = rawType.split(/\s+/);
   const fromFile = type.endsWith('_from_file');
   const parameters = cellString(row['parameters']);
@@ -124,7 +168,10 @@ function question(row: Row, rawType: string): QuestionItem {
   }
   return {
     kind: 'question',
-    ...baseFields(row),
+    ...baseFields(
+      row,
+      becomesVarGrp(row, rawType, shapes) ? 'varGrp' : 'survey',
+    ),
     type,
     rawType,
     list: !fromFile && type.startsWith('select_') ? (rest[0] ?? '') : '',
@@ -140,7 +187,7 @@ function question(row: Row, rawType: string): QuestionItem {
 }
 
 /** Build the item tree from the survey sheet. */
-function parseBody(survey: Row[]): Item[] {
+function parseBody(survey: Row[], shapes: Shapes): Item[] {
   const root: Item[] = [];
   const stack: GroupItem[] = [];
   const append = (item: Item) =>
@@ -167,7 +214,7 @@ function parseBody(survey: Row[]): Item[] {
         if (Object.keys(cells).length) closed.endColumns = cells;
       }
     } else {
-      append(question(row, rawType));
+      append(question(row, rawType, shapes));
     }
   }
   return root;
@@ -188,6 +235,24 @@ function parseLists(choices: Row[]): Record<string, InstrumentChoice[]> {
   return lists;
 }
 
+function shapesOf(
+  survey: Row[],
+  lists: Record<string, InstrumentChoice[]>,
+): Shapes {
+  return {
+    otherLists: new Set(
+      Object.entries(lists)
+        .filter(([, choices]) => choices.some((c) => c.name === OTHER_CODE))
+        .map(([list]) => list),
+    ),
+    companions: new Set(
+      survey
+        .filter((r) => cellString(r['type']).trim() === OTHER_COMPANION_TYPE)
+        .map((r) => cellString(r['name']).trim()),
+    ),
+  };
+}
+
 /** Parse XLSForm sheets (survey, choices, settings rows) into an Instrument. */
 export function instrumentFromXlsform(
   survey: Row[],
@@ -200,6 +265,7 @@ export function instrumentFromXlsform(
       if (!languages.includes(lang)) languages.push(lang);
     }
   }
+  const lists = parseLists(choices);
   const first = settings[0] ?? {};
   const defaultLanguage =
     typeof first['default_language'] === 'string'
@@ -209,7 +275,7 @@ export function instrumentFromXlsform(
     languages: languages.length ? languages : [''],
     ...(defaultLanguage ? { defaultLanguage } : {}),
     settings: first,
-    lists: parseLists(choices),
-    body: parseBody(survey),
+    lists,
+    body: parseBody(survey, shapesOf(survey, lists)),
   };
 }

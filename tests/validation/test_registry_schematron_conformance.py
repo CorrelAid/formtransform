@@ -252,7 +252,11 @@ ASSERT_MUTATIONS = [
         _sub1(r'(<varGrp\s[^>]*?)\s+name="[^"]+"', r"\1"),
         "Variable Group VG_institutionen is missing a name",
     ),
-    ("composite:grid", _sub1(r"(<varGrp\s[^>]*>)", r"\1<labl>x</labl>"), "Variable Group VG_institutionen uses labl"),
+    (
+        "composite:grid",
+        _sub1(r"(<varGrp\s[^>]*>)", r"\1<labl>x</labl><labl>y</labl>"),
+        "Variable Group VG_institutionen has more than one labl in one language",
+    ),
     ("type:select_one", _sub1(r"<catValu>[^<]*</catValu>", ""), "A catgry element is missing catValu"),
     (
         "type:select_one",
@@ -457,3 +461,21 @@ def test_companion_of_a_name_that_ends_in_other(worker_jar, java_bin, tmp_path):
     _rc, out = _validate(java_bin, worker_jar, xml.encode(), tmp_path)
     messages = [e["message"] for e in json.loads(out[out.index("{") :])["errors"]]
     assert not any("quelle_other_other" in m for m in messages), messages
+
+
+def test_a_group_has_a_short_label_per_language(worker_jar, java_bin, tmp_path):
+    """A varGrp may have one labl per language, before its txt (#181);
+    two in one language are rejected (ASSERT_MUTATIONS), as is one on a var."""
+    from .fixtures import load_registry
+
+    variant = next(e for e in load_registry() if e.get("@id") == "composite:grid")
+    xml = load_example_ddi(variant)
+    labelled = re.sub(
+        r"(<varGrp\s[^>]*>)",
+        r'\1<labl>Kurz</labl><labl xml:lang="en">Short</labl>',
+        xml,
+        count=1,
+    )
+    assert labelled != xml
+    rc, out = _validate(java_bin, worker_jar, labelled.encode(), tmp_path)
+    assert rc == 0, out[out.index("{") :][:800]

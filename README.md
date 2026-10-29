@@ -216,6 +216,17 @@ says what a question or group measures, in an optional `concept` column
 its `concept/@vocab`. A form without the column gets no concept: the label
 is the question, not its concept.
 
+**A short label on a question group** (#181). An optional `label_short`
+column (`label_short::<lang>` per language, like `label`) gives a group a
+short printed name, such as a scale's name (`ATTARI-12`) or a question
+number, that a reader can show as a title above the group's text. It goes in
+the `varGrp`'s `<labl>`, before its `<txt>`: on a `begin_group` row, and on a
+`select_multiple` or semi-open question, which are `varGrp`s too. CDL keeps
+`labl` off `var`, so on any other row the cell is kept as one of the row's
+columns (`cdl:column`). Two settings name the whole form the same way:
+`form_subtitle` is the study's `<subTitl>` and `form_title_short` its
+`<altTitl>` (plain, or one per language like `form_title`).
+
 ## Errors and warnings
 
 Every error the library throws is a `ConversionError` with a stable `code`

@@ -7,13 +7,20 @@ import conventions from '../generated/conventions.js';
 
 const LIFTED = conventions.conventions.ddiFields.liftedColumns;
 
-/** `group`: a `begin_group` row, which lifts no question-only column (#179). */
-type Sheet = 'survey' | 'group' | 'choices';
+/**
+ * The kind of row: `survey` a question that is a `<var>` (or a note),
+ * `varGrp` a question the codebook makes a `varGrp` (a select_multiple, a
+ * semi-open question), `group` a `begin_group` row. A group lifts no
+ * question-only column (#179); only a varGrp lifts a varGrp-only one (#181).
+ */
+type Sheet = 'survey' | 'varGrp' | 'group' | 'choices';
 
 const QUESTION_ONLY = new Set<string>(LIFTED.questionOnly);
+const VARGRP_ONLY = new Set<string>(LIFTED.varGrpOnly);
 
 const liftedBy: Record<Sheet, Set<string>> = {
-  survey: new Set(LIFTED.survey),
+  survey: new Set(LIFTED.survey.filter((c) => !VARGRP_ONLY.has(c))),
+  varGrp: new Set(LIFTED.survey),
   group: new Set(LIFTED.survey.filter((c) => !QUESTION_ONLY.has(c))),
   choices: new Set(LIFTED.choices),
 };
