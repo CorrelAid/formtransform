@@ -1,0 +1,22 @@
+class	type/scale	name	relevance	text	help	language	validation	em_validation_q	mandatory	other	default	same_default	hidden	hide_tip	min_answers	max_answers	em_validation_q_tip
+S		language	1	de		de											
+S		format	1	A		de											
+S		shownoanswer	1	N		de											
+SL		surveyls_title	1	Auswahl zählen		de											
+G		Questions	1			de											
+Q	M	k04	1	Welche Themen sind Ihnen wichtig?	Bitte wählen Sie bis zu drei Themen.	de			Y					1	1	3	Bitte wählen Sie ein bis drei Themen.
+SQ		umw		Umwelt		de											
+SQ		bil		Bildung		de											
+SQ		arb		Arbeit		de											
+SQ		wohn		Wohnen		de											
+Q	L	k04haupt	count(k04_umw.NAOK, k04_bil.NAOK, k04_arb.NAOK, k04_wohn.NAOK) > 1	Welches dieser Themen ist Ihnen am wichtigsten?		de								1			
+A		umw		Umwelt		de											
+A		bil		Bildung		de											
+A		arb		Arbeit		de											
+A		wohn		Wohnen		de											
+Q	M	k05	1	Worüber haben Sie zuletzt gesprochen?		de								1		2	
+SQ		umw		Umwelt		de											
+SQ		bil		Bildung		de											
+SQ		arb		Arbeit		de											
+SQ		wohn		Wohnen		de											
+Q	S	k06	count(k05_umw.NAOK, k05_bil.NAOK, k05_arb.NAOK, k05_wohn.NAOK) == 0	Warum keines?		de								1			

@@ -3,10 +3,14 @@ import { ChoiceManager } from './choiceManager.js';
 import {
   convertRelevanceSync,
   convertConstraintSync,
+  convertSelectionConstraintSync,
   TranspilerContext,
 } from './xpathTranspiler.js';
+import type { SelectionConstraint } from './xpathTranspiler.js';
 import { consoleWarning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
+import { OTHER_CODE } from '../../conventions/other.js';
+import { countsSelections } from '../../conventions/selectionCount.js';
 
 /**
  * Wraps expression transpilation. The XLSForm XPath/LimeSurvey EM bridge
@@ -21,8 +25,32 @@ export class TranspilerHelper {
     private onWarning: WarningHandler = consoleWarning,
   ) {}
 
+  /**
+   * The fields `count-selected()` counts for a select_multiple
+   * (convention:logicMapping `selectionCount`): `<q>_<code>` per answer code,
+   * plus `<q>_other` for a native other. `null` for any other question.
+   */
+  private selectionFields(fieldName: string): string[] | null {
+    const resolved = this.fieldSanitizer.resolveStrippedName(fieldName);
+    const base = this.choiceManager.getQuestionBaseTypeMap().get(resolved);
+    if (!base || !countsSelections(base)) return null;
+    const codes = this.choiceManager.answerCodesOf(resolved);
+    if (this.choiceManager.hasOrOther(resolved) && !codes.includes(OTHER_CODE))
+      codes.push(OTHER_CODE);
+    return codes.map((code) => `${resolved}_${code}`);
+  }
+
+  /** Only what `count-selected()` needs: constraints take no other context. */
+  private countContext(selfName?: string): TranspilerContext {
+    return {
+      selectionFields: (name) => this.selectionFields(name),
+      ...(selfName ? { selfName } : {}),
+    };
+  }
+
   buildTranspilerContext(): TranspilerContext {
     return {
+      selectionFields: (name) => this.selectionFields(name),
       lookupAnswerCode: (fieldName: string, choiceValue: string) => {
         return this.choiceManager.lookupAnswerCode(fieldName, choiceValue).code;
       },
@@ -51,7 +79,27 @@ export class TranspilerHelper {
     return convertRelevanceSync(relevant, this.buildTranspilerContext());
   }
 
-  convertConstraint(constraint: string): string {
-    return convertConstraintSync(constraint, this.onWarning);
+  /** @param selfName the question's normalized name, what `.` refers to. */
+  convertConstraint(constraint: string, selfName?: string): string {
+    return convertConstraintSync(
+      constraint,
+      this.onWarning,
+      this.countContext(selfName),
+    );
+  }
+
+  /**
+   * A select_multiple's constraint: count bounds for `min_answers` /
+   * `max_answers`, the rest as the validation equation.
+   */
+  convertSelectionConstraint(
+    constraint: string,
+    selfName: string,
+  ): SelectionConstraint {
+    return convertSelectionConstraintSync(
+      constraint,
+      this.onWarning,
+      this.countContext(selfName),
+    );
   }
 }

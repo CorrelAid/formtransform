@@ -13,6 +13,8 @@ export class ChoiceManager {
   private answerCodeMap = new Map<string, Map<string, string>>();
   private questionToListMap = new Map<string, string>();
   private questionBaseTypeMap = new Map<string, string>();
+  /** Selects with the `or_other` shorthand (LimeSurvey's native other). */
+  private orOtherQuestions = new Set<string>();
 
   constructor(private fieldSanitizer: FieldSanitizer) {}
 
@@ -72,14 +74,31 @@ export class ChoiceManager {
   ): void {
     this.questionToListMap = new Map();
     this.questionBaseTypeMap = new Map();
+    this.orOtherQuestions = new Set();
     for (const q of questions) {
       const typeInfo = parseType(q.rawType);
       if (typeInfo.listName && q.name) {
         const sanitizedName = sanitizeName(q.name);
         this.questionToListMap.set(sanitizedName, typeInfo.listName);
         this.questionBaseTypeMap.set(sanitizedName, typeInfo.base);
+        if (typeInfo.orOther) this.orOtherQuestions.add(sanitizedName);
       }
     }
+  }
+
+  /**
+   * The answer codes LimeSurvey gets for a select (sanitized, deduplicated,
+   * in list order), by its emitted name; `[]` when it is no select.
+   */
+  answerCodesOf(resolvedName: string): string[] {
+    const listName = this.questionToListMap.get(resolvedName);
+    const codeMap = listName ? this.answerCodeMap.get(listName) : undefined;
+    return codeMap ? [...codeMap.values()] : [];
+  }
+
+  /** Whether the select uses the `or_other` shorthand. */
+  hasOrOther(resolvedName: string): boolean {
+    return this.orOtherQuestions.has(resolvedName);
   }
 
   lookupAnswerCode(

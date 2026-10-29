@@ -36,10 +36,15 @@
 
 import { parseEm, EmNode } from './emParser.js';
 import { ConversionError } from '../diagnostics.js';
+import { COUNT_SELECTED } from '../conventions/selectionCount.js';
 
 export interface SelectContext {
   /** `${qname}_${code}` → the select_multiple question + choice it refers to. */
   multipleCompounds: Map<string, { question: string; code: string }>;
+  /** Each select_multiple's number of answer codes (other included). */
+  multipleSizes?: Map<string, number>;
+  /** The question `.` refers to (a constraint's own). */
+  self?: string;
 }
 
 /** Build the lookup `emToXPath` needs to reconstruct `selected()` calls. */
@@ -50,12 +55,40 @@ export function buildSelectContext(
     string,
     { question: string; code: string }
   >();
+  const multipleSizes = new Map<string, number>();
   for (const q of selectMultiple) {
     for (const code of q.codes) {
       multipleCompounds.set(`${q.name}_${code}`, { question: q.name, code });
     }
+    multipleSizes.set(q.name, new Set(q.codes).size);
   }
-  return { multipleCompounds };
+  return { multipleCompounds, multipleSizes };
+}
+
+/**
+ * `count(q_a.NAOK, q_b.NAOK, …)` over every subquestion of one select_multiple
+ * → `count-selected(${q})` (`.` for the constraint's own question), the form
+ * the forward path writes (convention:logicMapping `selectionCount`). `null`
+ * for any other `count()`.
+ */
+function countSelectedToXPath(
+  node: EmNode & { t: 'call' },
+  ctx: SelectContext,
+): string | null {
+  if (node.name !== 'count' || node.args.length === 0) return null;
+  const questions = new Set<string>();
+  const codes = new Set<string>();
+  for (const a of node.args) {
+    if (a.t !== 'ident' || !a.naok) return null;
+    const compound = ctx.multipleCompounds.get(a.name);
+    if (!compound) return null;
+    questions.add(compound.question);
+    codes.add(compound.code);
+  }
+  const [question] = [...questions];
+  if (questions.size !== 1 || ctx.multipleSizes?.get(question) !== codes.size)
+    return null;
+  return `${COUNT_SELECTED}(${question === ctx.self ? '.' : `\${${question}}`})`;
 }
 
 const FUNCTION_NAME_TO_XPATH: Record<string, string> = {
@@ -174,6 +207,8 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
       return node.arg.t === 'bin' ? `-(${arg})` : `-${arg}`;
     }
     case 'call': {
+      const counted = countSelectedToXPath(node, ctx);
+      if (counted) return counted;
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
         throw new ConversionError(
@@ -249,8 +284,11 @@ const NO_SELECT_CONTEXT: SelectContext = buildSelectContext([]);
  *
  * @throws on any construct outside the forward transpiler's dialect.
  */
-export function reverseConstraint(em: string): string {
+export function reverseConstraint(
+  em: string,
+  ctx: SelectContext = NO_SELECT_CONTEXT,
+): string {
   const trimmed = em.trim();
   if (!trimmed) return '';
-  return nodeToXPath(parseEm(trimmed), NO_SELECT_CONTEXT);
+  return nodeToXPath(parseEm(trimmed), ctx);
 }

@@ -287,7 +287,7 @@ def _exclusive_section(ex: dict) -> list[str]:
         "(\u201cKeine Angabe\u201d, \u201cNichts davon\u201d, \u201cWei\u00df nicht\u201d), "
         f"add the `{col}` column to the `choices` sheet and set it to `{yes}` on that "
         "choice. Leave it empty on every other row. Don't write a `count-selected()` "
-        "constraint for this; it isn't converted.\n",
+        "constraint for this: LimeSurvey only gets it as a validation equation.\n",
     ]
 
 
@@ -320,6 +320,16 @@ def _logic_section(logic: dict) -> list[str]:
         "`.` (in `constraint`) refers to this answer; `selected(${q}, 'code')` tests a "
         "choice. `constraint_message` holds the plain-text error.\n",
     ]
+    sc = logic.get("selectionCount")
+    if sc:
+        bounds = sc.get("constraintBounds", {})
+        out.append(
+            f"To limit how many answers a `{'`/`'.join(sc.get('appliesTo', []))}` takes, write "
+            f"`{sc['xlsformFunction']}(.) <= 3` (or `>= 1`, or both joined with `and`) as its "
+            f"`constraint`: LimeSurvey gets `{bounds.get('maxAttribute')}` / "
+            f"`{bounds.get('minAttribute')}`. `{sc['xlsformFunction']}(${{q}}) > 1` in a "
+            "`relevant` counts the ticked answers of an earlier question.\n"
+        )
     fns = logic.get("supportedXPathFunctions", [])
     if fns:
         out.append(

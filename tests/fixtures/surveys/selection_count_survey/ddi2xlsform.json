@@ -1,0 +1,60 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple themen",
+      "name": "k04",
+      "label": "Welche Themen sind Ihnen wichtig?",
+      "hint": "Bitte wählen Sie bis zu drei Themen.",
+      "constraint_message": "Bitte wählen Sie ein bis drei Themen.",
+      "required": "yes",
+      "constraint": "count-selected(.) >= 1 and count-selected(.) <= 3"
+    },
+    {
+      "type": "select_one themen",
+      "name": "k04haupt",
+      "label": "Welches dieser Themen ist Ihnen am wichtigsten?",
+      "relevant": "count-selected(${k04}) > 1"
+    },
+    {
+      "type": "select_multiple themen",
+      "name": "k05",
+      "label": "Worüber haben Sie zuletzt gesprochen?",
+      "constraint": "count-selected(.) <= 2"
+    },
+    {
+      "type": "text",
+      "name": "k06",
+      "label": "Warum keines?",
+      "relevant": "count-selected(${k05}) = 0"
+    }
+  ],
+  "choices": [
+    {
+      "list_name": "themen",
+      "name": "umw",
+      "label": "Umwelt"
+    },
+    {
+      "list_name": "themen",
+      "name": "bil",
+      "label": "Bildung"
+    },
+    {
+      "list_name": "themen",
+      "name": "arb",
+      "label": "Arbeit"
+    },
+    {
+      "list_name": "themen",
+      "name": "wohn",
+      "label": "Wohnen"
+    }
+  ],
+  "settings": [
+    {
+      "default_language": "de",
+      "form_title": "selection_count_survey",
+      "form_id": "selection_count"
+    }
+  ]
+}
