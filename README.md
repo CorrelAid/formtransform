@@ -353,10 +353,47 @@ npm run bless
 2. Publish a GitHub release tagged `v<version>` on that commit.
 
 Publishing the tag builds the `schematron-worker` image
-(`worker-image.yml`). Publishing the release attaches the package tarball and
-the skill archive (`release-assets.yml`). That job fails if the tag and
+(`worker-image.yml`). Publishing the release attaches the package tarball,
+the skill and fixture archives and `SHA256SUMS` (`release-assets.yml`), then
+opens the consumer bump PRs (below). That job fails if the tag and
 `package.json` disagree, and it never replaces an asset that already exists:
 consumers pin the checksums, so a fix ships as a new version.
+
+#### Consumers pick up a release in one step
+
+Three repos pin a formtransform release. After the assets are attached,
+`bump-consumers.yml` opens one PR in each, moving every pin to the new version;
+the consumer reviews and merges it, and its CI runs on the PR:
+
+| Consumer | Pins the PR updates |
+|---|---|
+| qwacback | `.registry-version`; `docker-compose.yml` schematron-worker image tag (the job waits until `worker-image.yml` has pushed it); `ddi-emitter/package.json` tarball URL + `package-lock.json` (via `npm install --package-lock-only`); then runs its `scripts/check-registry-version.sh` |
+| formulaid | `package.json` tarball URL + `bun.lock`; `scripts/build_skill.sh` `FORMTRANSFORM_VERSION` and `FORMTRANSFORM_SKILL_SHA256` (`cdl-survey-types-<version>.tar.gz`) |
+| formtransform-app | `package.json` tarball URL + `bun.lock`; `tests/formtransform-fixtures.json` (`version`, `url`, `sha256` of `formtransform-fixtures-<version>.tar.gz`) |
+
+qwac pins nothing of formtransform's (it talks to qwacback), so it gets no PR.
+
+Checksums come from the release's `SHA256SUMS`; lockfiles are written by the
+consumer's own package manager. The pins are listed in one place,
+[`scripts/bump-consumers.mjs`](scripts/bump-consumers.mjs), which fails rather
+than skip a pin it can't find. When a consumer moves or adds a pin, update the
+list there (and `tests/ts/unit/bumpConsumers.test.ts`).
+
+**Setup:** the workflow needs a repository secret `CONSUMER_BUMP_TOKEN`, a
+fine-grained token (or a GitHub App's) with *Contents* and *Pull requests*
+read/write on the three repos; `GITHUB_TOKEN` can't push to other repos.
+Without it the job only prints the manual command. Re-run it for a released
+tag from the Actions tab (*Bump consumers*, `workflow_dispatch`); an open PR
+for the same version is updated, not duplicated.
+
+**By hand**, in a clean clone of a consumer:
+
+```bash
+node scripts/bump-consumers.mjs qwacback 0.8.1 ../qwacback   # or formulaid, formtransform-app
+```
+
+It rewrites the files and updates the lockfile (needs `npm` or `bun`), and
+never commits.
 
 ## Documentation
 

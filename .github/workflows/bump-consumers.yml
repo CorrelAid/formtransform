@@ -1,0 +1,150 @@
+name: Bump consumers
+
+# Opens one PR per consumer repo that moves every formtransform pin to a new
+# release (formtransform#172): npm tarball URL + lockfile, worker image tag,
+# .registry-version, asset versions and SHA-256s. The pins themselves are listed
+# in scripts/bump-consumers.mjs, which does the rewriting; this workflow only
+# checks the repo out, runs it and opens the PR. Consumers still review, and
+# their CI (e.g. qwacback's check-registry-version.sh) runs on the PR.
+#
+# Called by release-assets.yml once a release's assets are attached. Run it
+# manually with a released tag to (re)open the PRs; an open PR for the same
+# version is updated, not duplicated.
+#
+# Needs the secret CONSUMER_BUMP_TOKEN: a fine-grained token (or GitHub App
+# token) with Contents and Pull requests read/write on CorrelAid/qwacback,
+# CorrelAid/formulaid and CorrelAid/formtransform-app. GITHUB_TOKEN can't push
+# to other repos. Without the secret each job only prints the manual command.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+    secrets:
+      CONSUMER_BUMP_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Released tag, e.g. v0.8.1"
+        required: true
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        consumer: [qwacback, formulaid, formtransform-app]
+    env:
+      TAG: ${{ inputs.tag }}
+      CONSUMER: ${{ matrix.consumer }}
+      HAS_TOKEN: ${{ secrets.CONSUMER_BUMP_TOKEN != '' }}
+    steps:
+      - name: Check inputs
+        id: v
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::not a release tag: $TAG"
+            exit 1
+          fi
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_TOKEN" != "true" ]; then
+            echo "::notice::CONSUMER_BUMP_TOKEN is not set, so no PR for $CONSUMER. By hand, in a clone of it: node scripts/bump-consumers.mjs $CONSUMER ${TAG#v} <clone>"
+          fi
+
+      - uses: actions/checkout@v4
+        if: env.HAS_TOKEN == 'true'
+        with:
+          ref: ${{ env.TAG }}
+          path: formtransform
+
+      - name: Look up the consumer
+        if: env.HAS_TOKEN == 'true'
+        id: c
+        run: |
+          node formtransform/scripts/bump-consumers.mjs --list \
+            | awk -F'\t' -v c="$CONSUMER" '$1 == c { print "repo=" $2; print "image=" $3 }' >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        if: env.HAS_TOKEN == 'true'
+        with:
+          repository: ${{ steps.c.outputs.repo }}
+          token: ${{ secrets.CONSUMER_BUMP_TOKEN }}
+          path: consumer
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_TOKEN == 'true'
+        with:
+          node-version: "22"
+
+      - uses: oven-sh/setup-bun@v2
+        if: env.HAS_TOKEN == 'true'
+
+      - name: Download SHA256SUMS
+        if: env.HAS_TOKEN == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p SHA256SUMS -D "$RUNNER_TEMP"
+
+      - uses: docker/login-action@v3
+        if: env.HAS_TOKEN == 'true' && steps.c.outputs.image != ''
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      # The consumer's CI pulls the image at the new tag, and worker-image.yml
+      # builds it in parallel with the release assets: wait for it.
+      - name: Wait for the worker image
+        if: env.HAS_TOKEN == 'true' && steps.c.outputs.image != ''
+        env:
+          IMAGE: ${{ steps.c.outputs.image }}
+        run: |
+          for _ in $(seq 60); do
+            if docker buildx imagetools inspect "$IMAGE:$TAG" >/dev/null 2>&1; then exit 0; fi
+            sleep 30
+          done
+          echo "::error::$IMAGE:$TAG did not appear within 30 minutes (worker-image.yml)"
+          exit 1
+
+      - name: Rewrite the pins
+        if: env.HAS_TOKEN == 'true'
+        run: |
+          node formtransform/scripts/bump-consumers.mjs "$CONSUMER" "${{ steps.v.outputs.version }}" consumer \
+            --sums "$RUNNER_TEMP/SHA256SUMS"
+
+      - name: Open or update the PR
+        if: env.HAS_TOKEN == 'true'
+        working-directory: consumer
+        env:
+          GH_TOKEN: ${{ secrets.CONSUMER_BUMP_TOKEN }}
+          REPO: ${{ steps.c.outputs.repo }}
+        run: |
+          if git diff --quiet; then
+            echo "$REPO already pins $TAG"
+            exit 0
+          fi
+          branch="formtransform-$TAG"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "chore: bump formtransform to $TAG"
+          git push --force origin "$branch"
+          if [ -n "$(gh pr list -R "$REPO" --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            echo "PR for $branch already open; branch updated"
+            exit 0
+          fi
+          {
+            echo "Moves every formtransform pin to [$TAG](https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG):"
+            echo
+            git diff --stat HEAD~1 | sed '$d' | sed 's/^ */- /'
+            echo
+            echo "Opened by formtransform's bump-consumers workflow (scripts/bump-consumers.mjs). Checksums are from the release's SHA256SUMS; lockfiles were updated by the package manager."
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create -R "$REPO" --head "$branch" --title "chore: bump formtransform to $TAG" --body-file "$RUNNER_TEMP/body.md"

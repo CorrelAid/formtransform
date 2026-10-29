@@ -25,6 +25,9 @@ name: Attach release assets
 # package.json is the version source: bump it in a PR, then publish release
 # v<version>. The job fails if the tag and package.json disagree.
 #
+# Then bump-consumers.yml opens a PR in each consumer repo moving its pins to
+# this release (formtransform#172; needs the CONSUMER_BUMP_TOKEN secret).
+#
 # Runs when a release is published. Run it manually with an existing tag to
 # attach assets an older release is missing.
 #
@@ -116,3 +119,16 @@ jobs:
           gh release view "$TAG" --json body --jq .body > notes.md
           printf '\n## Checksums (SHA-256)\n\n```\n%s\n```\n' "$(cat assets/SHA256SUMS)" >> notes.md
           gh release edit "$TAG" --notes-file notes.md
+
+  # One PR per consumer repo moving its pins to this release (formtransform#172).
+  # Without the CONSUMER_BUMP_TOKEN secret it only prints the manual command.
+  bump-consumers:
+    needs: assets
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/bump-consumers.yml
+    with:
+      tag: ${{ github.event.release.tag_name || inputs.tag }}
+    secrets:
+      CONSUMER_BUMP_TOKEN: ${{ secrets.CONSUMER_BUMP_TOKEN }}
