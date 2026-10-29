@@ -97,4 +97,41 @@ describe('instrumentFromLstsv', () => {
     });
     expect(companion.name).toBe('src_other');
   });
+
+  test("a group titled like a question doesn't take its name", () => {
+    // LimeSurvey keeps group titles and question codes apart; XLSForm (and
+    // the DDI's xs:ID) doesn't. The question keeps its code, the group gives
+    // way, whichever comes first.
+    const ins = instrumentFromLstsv(
+      tsv(
+        'S\t\tlanguage\t1\ten\t\ten\t\t\t\t\t\t\t',
+        'SL\t\tsurveyls_welcometext\t\tHi\t\ten\t\t\t\t\t\t\t',
+        'G\t1\tq4\t1\t\t\ten\t\t\t\t\t\t\t',
+        'Q\tN\tq2\t1\tHow many?\t\ten\t\t\t\t\t\t\t',
+        'G\t2\tQ4ö\t1\t\t\ten\t\t\t\t\t\t\t',
+        'Q\tL\tq4\t1\tWhich?\t\ten\t\t\t\tY\t\t\t',
+        'A\t\tc1\t\tOne\t\ten\t\t\t\t\t\t\t',
+        'G\t3\tq4_other\t1\t\t\ten\t\t\t\t\t\t\t',
+        'Q\tF\tgrid\t1\tRate\t\ten\t\t\t\t\t\t\t',
+        'SQ\t\trow1\t\tRow\t\ten\t\t\t\t\t\t\t',
+        'A\t\tc1\t\tGood\t\ten\t\t\t\t\t\t\t',
+        'Q\tN\tq9\t1\tAnd?\t\ten\t\t\t\t\t\t\t',
+        'G\t4\trow1\t1\t\t\ten\t\t\t\t\t\t\t',
+        'Q\tN\tq10\t1\tMore?\t\ten\t\t\t\t\t\t\t',
+        'G\t5\twelcome\t1\t\t\ten\t\t\t\t\t\t\t',
+        'Q\tN\tq11\t1\tLast?\t\ten\t\t\t\t\t\t\t',
+      ),
+    );
+    const groups = ins.body.filter((i) => i.kind === 'group');
+    expect(groups.map((g) => g.name)).toEqual([
+      'q4_2',
+      'q4_3',
+      'q4_other_2',
+      'row1_2',
+      'welcome_2',
+    ]);
+    expect((groups[1] as GroupItem).children.map((q) => q.name)).toEqual([
+      'q4',
+    ]);
+  });
 });

@@ -91,6 +91,42 @@ describe('XLSForm → LimeSurvey → DDI → XLSForm', () => {
   });
 });
 
+describe('XLSForm → LimeSurvey → DDI → XLSForm, found by the generated forms', () => {
+  // A group titled like a question: LimeSurvey's group name is its title,
+  // which the way back took for the XLSForm name, so the table and the
+  // select were both `q4` and the codebook lost the group (#197).
+  test('a table of numbers titled like the select after it', async () => {
+    const label = (de: string, en: string) => ({
+      'label::Deutsch (de)': de,
+      'label::English (en)': en,
+    });
+    const tsv = await toTsv({
+      survey: [
+        {
+          type: 'begin_group',
+          name: 'table1',
+          appearance: 'table-list',
+          ...label('q4', 'a'),
+        },
+        { type: 'integer', name: 'q2', ...label('A', 'B') },
+        { type: 'end_group' },
+        { type: 'begin_group', name: 'g3', ...label('C', 'D') },
+        { type: 'select_one q4 or_other', name: 'q4', ...label('E', 'F') },
+        { type: 'end_group' },
+      ],
+      choices: [{ list_name: 'q4', name: 'c1', ...label('G', 'H') }],
+      settings: [{ default_language: 'Deutsch (de)' }],
+    });
+    const back = lstsvToXlsform(tsv!);
+    const names = back.survey.map((r) => r['name']).filter(Boolean);
+    expect(new Set(names).size).toBe(names.length);
+    const viaDdi = ddiToXlsform(
+      lstsvToDdiXml(tsv!, { prodDate: '2020-01-01', onWarning: quiet }),
+    );
+    expect(fromSheets(viaDdi)).toEqual(fromSheets(back));
+  });
+});
+
 describe('XLSForm → DDI → XLSForm → LimeSurvey', () => {
   test.each(CASES)('$name', async (c) => {
     const tsv = await toTsv(c);

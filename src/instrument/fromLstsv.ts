@@ -96,8 +96,13 @@ interface ParseState {
   lists: Record<string, InstrumentChoice[]>;
   /** Selects with `other=Y`, by name: their `<name>other` text is the companion. */
   otherSelects: Set<string>;
-  /** Group names given so far, to keep them unique. */
-  groupNames: Set<string>;
+  /**
+   * Names taken: every question's and array's code (and an `or_other`
+   * select's companion, the welcome and end notes) up front, then each
+   * group's as it is given. An
+   * XLSForm name is unique across groups and questions alike.
+   */
+  names: Set<string>;
 }
 
 const text = (state: ParseState, key: string): Text => ({
@@ -236,7 +241,10 @@ const XLSFORM_NAME = /^[A-Za-z_][A-Za-z0-9._-]*$/;
 
 /**
  * A plain group's name: LimeSurvey's group name is its title, so one that is
- * no XLSForm name (`Über Sie`) is slugified (`bersie`), made unique.
+ * no XLSForm name (`Über Sie`) is slugified (`bersie`), made unique among
+ * the groups and the questions: LimeSurvey keeps titles and question codes
+ * apart, XLSForm doesn't, so a group titled `q4` beside a question `q4` is
+ * `q4_2` (#197).
  */
 function groupName(title: string, state: ParseState): string {
   let name = title;
@@ -251,9 +259,27 @@ function groupName(title: string, state: ParseState): string {
     name = slug && !/^[0-9]/.test(slug) ? slug : `group${slug}`;
   }
   const base = name;
-  for (let i = 2; state.groupNames.has(name); i++) name = `${base}_${i}`;
-  state.groupNames.add(name);
+  for (let i = 2; state.names.has(name); i++) name = `${base}_${i}`;
+  state.names.add(name);
   return name;
+}
+
+/**
+ * Every name a question item can have: a Q row's code (an array's too), a
+ * grid member's SQ code, and an `or_other` select's companion.
+ */
+function reserveQuestionNames(baseRows: Row[], names: Set<string>): void {
+  let array = false;
+  for (const row of baseRows) {
+    const cls = cell(row, 'class');
+    if (cls === 'G') array = false;
+    if (cls === 'Q') {
+      array = cell(row, 'type/scale') === 'F';
+      names.add(cell(row, 'name'));
+      if (cell(row, 'other') === 'Y')
+        names.add(cell(row, 'name') + OTHER_SUFFIX);
+    } else if (cls === 'SQ' && array) names.add(cell(row, 'name'));
+  }
 }
 
 /** Walk the base-language rows into groups, questions and choice lists. */
@@ -348,6 +374,7 @@ function messageNote(
 ): QuestionItem[] {
   const label = text(state, `label:SL:${setting}`);
   if (Object.keys(label).length === 0) return [];
+  state.names.add(name);
   const row = { type: 'note', name };
   return [
     {
@@ -484,18 +511,17 @@ export function instrumentFromLstsv(
     tr: collectTranslations(rows),
     lists: {},
     otherSelects: new Set(),
-    groupNames: new Set(),
+    names: new Set(),
   };
   const baseRows = rows.filter(
     (r) =>
       !['S', 'SL'].includes(cell(r, 'class')) &&
       (!base || cell(r, 'language') === base),
   );
-  const body = [
-    ...messageNote('welcome', 'surveyls_welcometext', state),
-    ...parseBody(baseRows, state),
-    ...messageNote('end', 'surveyls_endtext', state),
-  ];
+  reserveQuestionNames(baseRows, state.names);
+  const welcome = messageNote('welcome', 'surveyls_welcometext', state);
+  const end = messageNote('end', 'surveyls_endtext', state);
+  const body = [...welcome, ...parseBody(baseRows, state), ...end];
   if (options.expressions) {
     reverseAllExpressions(body, state.lists, options.onWarning);
   }

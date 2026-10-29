@@ -116,7 +116,9 @@ listed here must match exactly.
    when it is a valid XLSForm name (`Later`) and otherwise slugifies it
    (`groupName` in `src/instrument/fromLstsv.ts`): lowercase, strip
    non-alphanumeric, join the first 4 words, `group` if empty, `_2`, `_3` …
-   for a repeat.
+   for a name already taken. A question's code takes it too: LimeSurvey
+   keeps group titles and question codes apart, XLSForm doesn't, so a group
+   titled `q4` beside a question `q4` comes back as `q4_2`.
 5. **Markdown vs HTML in labels is not distinguishable.** `htmlToMarkdown()`
    (`../../utils/markdownRenderer.ts`) reverses the HTML constructs `marked`
    produces (`<strong>`, `<em>`, `<a>`, `<code>`, `<p>`, `<ul>/<ol>/<li>`,
