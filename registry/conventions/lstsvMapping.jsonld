@@ -1,0 +1,44 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://civic-data.de/survey/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "type": "https://civic-data.de/survey/type/",
+    "variant": "https://civic-data.de/survey/variant/",
+    "composite": "https://civic-data.de/survey/composite/",
+    "appearance": "https://civic-data.de/survey/appearance/",
+    "convention": "https://civic-data.de/survey/convention/",
+    "vocab": "https://civic-data.de/survey/vocab/",
+    "meta": "https://civic-data.de/survey/meta/",
+    "classes": {
+      "@id": "meta:classes",
+      "@type": "@json"
+    },
+    "relations": {
+      "@id": "meta:relations",
+      "@type": "@json"
+    },
+    "rule": {
+      "@id": "https://civic-data.de/survey/rule",
+      "@type": "@json"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "convention:lstsvMapping",
+      "@type": "GlobalConvention",
+      "skos:prefLabel": "LimeSurvey name & code mapping (side-car)",
+      "rule": {
+        "format": "formtransform-lstsv-mapping",
+        "version": 1,
+        "fileSuffix": ".mapping.json",
+        "names": "LimeSurvey name → XLSForm name, for every question, grid row and grid the conversion renamed (convention:sanitization: transliterated, stripped, truncated, deduplicated)",
+        "codes": "LimeSurvey question (or grid) name → { LimeSurvey answer code → XLSForm choice name }, for every answer code the conversion changed",
+        "producedBy": "xlsform2lstsv: every conversion computes it (xlsformToLstsvWithMapping). The CLI writes it with --mapping <file>, and with --sanitize beside the -o file as <name>.mapping.json",
+        "appliedBy": "lstsv2ddi (codebook and --data) and lstsv2xlsform, with --mapping <file> or the <name>.mapping.json beside the TSV: names, choice codes, defaults and the names and codes in relevant/constraint come back as the XLSForm has them",
+        "sanitizeOption": "--sanitize (validateSubset sanitize: true): names and codes outside LimeSurvey's limits are no longer errors for target lstsv. The converter sanitizes them and the mapping records every change, so one XLSForm serves Kobo and LimeSurvey and the DDI keeps the XLSForm's names"
+      }
+    }
+  ]
+}

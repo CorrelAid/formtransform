@@ -14,6 +14,7 @@ import type { SubsetViolation } from '../../diagnostics.js';
 import { lstsvRowsToXlsform } from './toXlsform.js';
 import type { XlsformOutput } from './toXlsform.js';
 import { ConversionError } from '../../diagnostics.js';
+import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
 
 export { lstsvRowsToXlsform } from './toXlsform.js';
 export type { XlsformOutput } from './toXlsform.js';
@@ -21,6 +22,11 @@ export type { XlsformOutput } from './toXlsform.js';
 export interface LstsvToXlsformOptions {
   /** Skip the reverse subset check (unsupported question-type codes). */
   skipValidation?: boolean;
+  /**
+   * How xlsform2lstsv renamed the form (convention:lstsvMapping): the
+   * XLSForm gets its own names and answer codes back.
+   */
+  mapping?: LstsvMapping;
 }
 
 /**
@@ -47,5 +53,5 @@ export function lstsvToXlsform(
     }
   }
 
-  return lstsvRowsToXlsform(rows);
+  return lstsvRowsToXlsform(rows, options.mapping);
 }

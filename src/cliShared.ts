@@ -3,7 +3,7 @@
  * I/O, and the XLSForm → DDI XML + data CSV step. Node-only; never imported by
  * `src/index`.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs, ParseArgsConfig } from 'node:util';
 
 import { XLSFormData } from './xlsform/types.js';
@@ -18,6 +18,11 @@ import type { Submission } from './pipelines/xlsform2ddi/index.js';
 import { parseResponses } from './responseFile.js';
 import { XLSLoader } from './xlsform/loader.js';
 import type { LoadOptions } from './xlsform/loader.js';
+import {
+  MAPPING_FILE_SUFFIX,
+  parseLstsvMapping,
+} from './conventions/lstsvMapping.js';
+import type { LstsvMapping } from './conventions/lstsvMapping.js';
 
 export const PROG = 'formtransform';
 
@@ -77,6 +82,39 @@ export function emit(content: string, output: string | undefined): void {
     process.stderr.write(`Wrote ${output}\n`);
   } else {
     process.stdout.write(content);
+  }
+}
+
+/**
+ * The mapping side-car beside a TSV (convention:lstsvMapping):
+ * `survey.tsv` → `survey.mapping.json`.
+ */
+export function mappingPathFor(tsvPath: string): string {
+  return tsvPath.replace(/\.tsv$/i, '') + MAPPING_FILE_SUFFIX;
+}
+
+/**
+ * The mapping for a TSV: `--mapping <file>`, else the side-car beside the
+ * TSV when there is one (said on stderr), else none.
+ */
+export function readMapping(
+  explicit: string | undefined,
+  tsvPath: string,
+): LstsvMapping | undefined {
+  const path = explicit ?? mappingPathFor(tsvPath);
+  if (!explicit && !existsSync(path)) return undefined;
+  let text: string;
+  try {
+    text = readFileSync(path, 'utf-8');
+  } catch {
+    return die(`cannot read mapping file: ${path}`);
+  }
+  try {
+    const mapping = parseLstsvMapping(text);
+    if (!explicit) process.stderr.write(`Using mapping ${path}\n`);
+    return mapping;
+  } catch (err) {
+    return die(`${path}: ${(err as Error).message}`);
   }
 }
 

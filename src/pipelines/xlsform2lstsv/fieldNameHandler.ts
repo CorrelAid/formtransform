@@ -16,14 +16,17 @@ export class FieldNameHandler {
    * Pre-scan all survey rows and register every field name with the sanitizer,
    * so that collisions after sanitization + truncation are detected early.
    */
-  registerFieldNames(surveyData: SurveyRow[]): void {
+  registerFieldNames(
+    surveyData: SurveyRow[],
+    onName: (lsName: string, original: string) => void = () => {},
+  ): void {
     this.fieldSanitizer.resetNames();
     for (const row of surveyData) {
       const type = (row.type || '').trim();
       if (type === 'end_group' || type === 'end_repeat') continue;
       const name = row.name?.trim();
       if (!name) continue;
-      this.fieldSanitizer.sanitizeNameUnique(name);
+      onName(this.fieldSanitizer.sanitizeNameUnique(name), name);
     }
   }
 

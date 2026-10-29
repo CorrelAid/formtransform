@@ -23,7 +23,7 @@ import {
   filterColumns,
 } from '../conventions/choiceFilter.js';
 import { METADATA_ROW_TYPES } from '../conventions/metadata.js';
-import { normalizeName } from './identifiers.js';
+import { normalizeCode, normalizeName } from './identifiers.js';
 import { expressionReferenceDiagnostics } from './references.js';
 
 const NAME_RULES = conventions.conventions.sanitization.name;
@@ -63,6 +63,12 @@ export interface SubsetOptions {
    * choice lists, appearances and uniqueness are still checked.
    */
   target?: SubsetTarget;
+  /**
+   * With target `'lstsv'`: names and codes outside LimeSurvey's limits are no
+   * error, because the conversion sanitizes them and records each change in
+   * its mapping (convention:lstsvMapping). Uniqueness still applies.
+   */
+  sanitize?: boolean;
 }
 
 /** The conversion a subset check is for. */
@@ -528,8 +534,16 @@ export class XLSValidator {
 
     const target = options.target ?? 'lstsv';
     violations.push(
-      ...this.collectNameCodeDiagnostics(surveyData, choicesData, target),
+      ...this.collectNameCodeDiagnostics(
+        surveyData,
+        choicesData,
+        // Sanitized names keep the DDI's rules: only uniqueness.
+        options.sanitize ? 'ddi' : target,
+      ),
     );
+    if (options.sanitize && target === 'lstsv') {
+      violations.push(...this.unsanitizable(surveyData, choicesData));
+    }
 
     const ctx: RowCheckContext = {
       listNames: this.listNamesOf(choicesData),
@@ -562,6 +576,44 @@ export class XLSValidator {
     );
 
     return violations;
+  }
+
+  /**
+   * Names and codes sanitizing would leave empty (`日本`, `--`): the
+   * conversion can't give them a LimeSurvey name.
+   */
+  private static unsanitizable(
+    surveyData: SurveyRow[],
+    choicesData: ChoiceRow[],
+  ): Diagnostic[] {
+    const out: Diagnostic[] = [];
+    for (const row of surveyData) {
+      const name = String(row.name ?? '').trim();
+      if (!name || NO_NAME_TYPES.has(String(row.type ?? '').trim())) continue;
+      if (normalizeName(name) === '') {
+        out.push(
+          error(
+            'name-empty-after-sanitize',
+            `field name "${name}" has no letters or digits left after sanitization`,
+            name,
+          ),
+        );
+      }
+    }
+    for (const choice of choicesData) {
+      const code = String(choice.name ?? '').trim();
+      if (code && normalizeCode(code) === '') {
+        const list = String(choice.list_name ?? '').trim();
+        out.push(
+          error(
+            'code-empty-after-sanitize',
+            `answer code "${code}" (list "${list}") has no letters or digits left after sanitization`,
+            list,
+          ),
+        );
+      }
+    }
+    return out;
   }
 
   /**

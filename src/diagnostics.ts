@@ -58,6 +58,7 @@ export type DiagnosticCode =
   // LimeSurvey TSV (reverse)
   | 'lstsv-outside-subset'
   | 'em-unsupported'
+  | 'mapping-invalid'
   // DDI (reverse, #154)
   | 'ddi-invalid'
   | 'ddi-field-missing'

@@ -51,6 +51,8 @@ export interface AnswerHelpers {
    * its list's (convention:choiceFilter `recode`).
    */
   codes?: ReadonlyMap<string, string>;
+  /** Receives the codes the question's options got (convention:lstsvMapping). */
+  recordCodes?: (choices: ChoiceRow[], codes: string[]) => void;
 }
 
 /**
@@ -108,6 +110,7 @@ export class AnswerEmitter {
           this.onWarning,
           xfTypeInfo.listName ?? undefined,
         );
+    helpers.recordCodes?.(choices, choiceNames);
 
     for (let i = 0; i < choices.length; i++) {
       const choice = choices[i];

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { basename, dirname, join } from 'node:path';
 
-import { xlsformToLstsv } from './api.js';
+import { xlsformToLstsvWithMapping } from './api.js';
+import { isEmptyMapping } from './conventions/lstsvMapping.js';
 import { defaultConfig } from './config/types.js';
 import type { LstsvConfig } from './config/types.js';
 import { ConversionError } from './diagnostics.js';
@@ -18,7 +19,9 @@ import {
   die,
   emit,
   loadXlsform,
+  mappingPathFor,
   parse,
+  readMapping,
   readInput,
   readResponses,
   xlsformToDdi,
@@ -68,6 +71,12 @@ Options:
       --no-end-note       Do not promote an "end" note to surveyls_endtext
       --no-other-pattern  Do not collapse the _other question pattern into a native "other"
       --show-no-answer    Keep the "no answer" option on non-mandatory questions
+      --sanitize          Accept names and answer codes outside LimeSurvey's limits
+                          (k23_ars, -98): they are sanitized (k23ars, n98) and each
+                          change is recorded in the mapping, written beside -o as
+                          <name>.mapping.json unless --mapping says where
+      --mapping <file>    Write the mapping (LimeSurvey name/code → XLSForm) to
+                          <file>; lstsv2ddi and lstsv2xlsform read it back
       --skip-validation   Skip XLSForm sheet/column validation
   -h, --help              Show this help
 `,
@@ -124,6 +133,9 @@ Options:
       --dataset-filename <n>  Data file URI recorded in <fileDscr> (default: data.csv,
                              or the --data-out file name)
       --prod-date <date>     Override the prodDate (ISO YYYY-MM-DD; default: today)
+      --mapping <file>       The mapping xlsform2lstsv wrote: the codebook and data get the
+                             XLSForm's names and answer codes back (default: <input>.mapping.json
+                             beside the TSV, when it exists)
   -h, --help                 Show this help
 `,
   );
@@ -146,6 +158,9 @@ xlsform2lstsv — see src/pipelines/lstsv2xlsform/README.md for scope and known 
 Options:
   -o, --output <file>        Write JSON to <file> (default: stdout)
       --skip-validation      Skip the reverse subset check
+      --mapping <file>       The mapping xlsform2lstsv wrote: the XLSForm gets its names and
+                             answer codes back (default: <input>.mapping.json beside the TSV,
+                             when it exists)
   -h, --help                 Show this help
 `,
   );
@@ -165,6 +180,8 @@ Options:
       --target <t>        lstsv (default): every rule, including LimeSurvey's
                           limits (field names alnum ≤20, answer codes alnum ≤5).
                           ddi: without those limits; DDI keeps names as authored
+      --sanitize          With lstsv: names and codes outside the limits are fine,
+                          as for xlsform2lstsv --sanitize
   -h, --help              Show this help
 `,
   );
@@ -181,6 +198,7 @@ function checkSubset(
   data: XLSFormData,
   inputPath: string,
   target: SubsetTarget,
+  sanitize = false,
 ): number {
   const violations = XLSValidator.validateSubset(
     data.surveyData,
@@ -188,6 +206,7 @@ function checkSubset(
     {
       target,
       fileChoices: resolveFileChoices(data.surveyData, dirname(inputPath)),
+      sanitize,
     },
   );
   for (const v of violations) {
@@ -201,6 +220,7 @@ function checkSubset(
 function cmdValidate(argv: string[]): void {
   const { values, positionals } = parse(argv, {
     target: { type: 'string', default: 'lstsv' },
+    sanitize: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   });
 
@@ -213,7 +233,12 @@ function cmdValidate(argv: string[]): void {
   const bytes = readInput(positionals, validateHelp);
   // Parse without the built-in strict gate so we can report all findings.
   const data = loadXlsform(bytes, { skipValidation: true });
-  const errors = checkSubset(data, positionals[0], target);
+  const errors = checkSubset(
+    data,
+    positionals[0],
+    target,
+    values.sanitize as boolean,
+  );
   if (errors === 0) {
     process.stderr.write(
       `${positionals[0]}: OK — within the XLSForm subset (${target})\n`,
@@ -235,6 +260,8 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     'no-end-note': { type: 'boolean', default: false },
     'no-other-pattern': { type: 'boolean', default: false },
     'show-no-answer': { type: 'boolean', default: false },
+    sanitize: { type: 'boolean', default: false },
+    mapping: { type: 'string' },
     'skip-validation': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   });
@@ -272,12 +299,14 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     dirname(positionals[0]),
   );
 
-  let tsv: string;
+  const sanitize = values.sanitize as boolean;
+  let result: Awaited<ReturnType<typeof xlsformToLstsvWithMapping>>;
   try {
-    tsv = await xlsformToLstsv(data, {
+    result = await xlsformToLstsvWithMapping(data, {
       ...config,
       fileChoices,
       skipValidation,
+      sanitize,
       onWarning: (w) => process.stderr.write(`  ⚠ ${w.message}\n`),
     });
   } catch (err) {
@@ -287,13 +316,41 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     ) {
       for (const d of err.details) process.stderr.write(`  ✗ ${d.message}\n`);
       return die(
-        `${err.details.length} error(s): outside the XLSForm subset for LimeSurvey (--skip-validation to convert anyway)`,
+        `${err.details.length} error(s): outside the XLSForm subset for LimeSurvey (--sanitize to map the names and codes, --skip-validation to convert anyway)`,
       );
     }
     return die(`conversion failed: ${(err as Error).message}`);
   }
 
-  emit(tsv, values.output as string | undefined);
+  const output = values.output as string | undefined;
+  emit(result.tsv, output);
+  emitMapping(result.mapping, {
+    explicit: values.mapping as string | undefined,
+    output,
+    sanitize,
+  });
+}
+
+/**
+ * Write the mapping where `--mapping` says, else (with `--sanitize`) beside
+ * the TSV. With the TSV on stdout and no `--mapping`, say it isn't written.
+ */
+function emitMapping(
+  mapping: Parameters<typeof isEmptyMapping>[0],
+  where: { explicit?: string; output?: string; sanitize: boolean },
+): void {
+  const path =
+    where.explicit ??
+    (where.sanitize && where.output ? mappingPathFor(where.output) : undefined);
+  if (path) {
+    emit(JSON.stringify(mapping, null, 2) + '\n', path);
+    return;
+  }
+  if (where.sanitize && !isEmptyMapping(mapping)) {
+    process.stderr.write(
+      `${PROG}: warning: the TSV renames names or codes; pass --mapping <file> (or -o) to keep the mapping back to the XLSForm\n`,
+    );
+  }
 }
 
 /**
@@ -411,12 +468,17 @@ function cmdLstsv2ddi(argv: string[]): void {
     title: { type: 'string' },
     'dataset-filename': { type: 'string' },
     'prod-date': { type: 'string' },
+    mapping: { type: 'string' },
     help: { type: 'boolean', short: 'h', default: false },
   });
 
   if (values.help) return lstsv2ddiHelp();
 
   const tsv = readInput(positionals, lstsv2ddiHelp).toString('utf-8');
+  const mapping = readMapping(
+    values.mapping as string | undefined,
+    positionals[0],
+  );
   const { submissions, dataOut, datasetFilename } = planData(values);
 
   let xml: string;
@@ -427,11 +489,13 @@ function cmdLstsv2ddi(argv: string[]): void {
       datasetFilename,
       prodDate: values['prod-date'] as string | undefined,
       submissions,
+      mapping,
       onWarning: (w) =>
         process.stderr.write(`${PROG}: warning: ${w.message}\n`),
     });
     if (submissions) {
       csv = lstsvToDataCsv(tsv, submissions, {
+        mapping,
         onWarning: (msg) => process.stderr.write(`${PROG}: warning: ${msg}\n`),
       });
     }
@@ -447,17 +511,23 @@ function cmdLstsv2xlsform(argv: string[]): void {
   const { values, positionals } = parse(argv, {
     output: { type: 'string', short: 'o' },
     'skip-validation': { type: 'boolean', default: false },
+    mapping: { type: 'string' },
     help: { type: 'boolean', short: 'h', default: false },
   });
 
   if (values.help) return lstsv2xlsformHelp();
 
   const bytes = readInput(positionals, lstsv2xlsformHelp);
+  const mapping = readMapping(
+    values.mapping as string | undefined,
+    positionals[0],
+  );
 
   let json: string;
   try {
     const xlsform = lstsvToXlsform(bytes.toString('utf-8'), {
       skipValidation: values['skip-validation'] as boolean,
+      mapping,
     });
     json = JSON.stringify(xlsform, null, 2) + '\n';
   } catch (err) {

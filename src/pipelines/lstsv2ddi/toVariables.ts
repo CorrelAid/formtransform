@@ -13,6 +13,7 @@ import {
 } from '../../ddi/fromInstrument.js';
 import { instrumentFromLstsv } from '../../instrument/fromLstsv.js';
 import type { WarningHandler } from '../../diagnostics.js';
+import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
 
 type Row = Record<string, string>;
 
@@ -20,8 +21,11 @@ type Row = Record<string, string>;
  * Flatten LimeSurvey structure-TSV rows into an ordered {@link Variable} list:
  * parsed into the Instrument model (#69), then projected like an XLSForm's.
  */
-export function lstsvToVariables(rows: Row[]): Variable[] {
-  return lstsvProjection(rows).variables;
+export function lstsvToVariables(
+  rows: Row[],
+  mapping?: LstsvMapping,
+): Variable[] {
+  return lstsvProjection(rows, undefined, mapping).variables;
 }
 
 /**
@@ -35,6 +39,7 @@ export function lstsvToVariables(rows: Row[]): Variable[] {
 export function lstsvProjection(
   rows: Row[],
   onWarning?: WarningHandler,
+  mapping?: LstsvMapping,
 ): {
   variables: Variable[];
   language?: string;
@@ -45,6 +50,7 @@ export function lstsvProjection(
   const instrument = instrumentFromLstsv(rows, {
     expressions: true,
     onWarning: onWarning ?? (() => {}),
+    mapping,
   });
   return {
     variables: variablesFromInstrument(

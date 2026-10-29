@@ -325,13 +325,16 @@ function sanitizeName(name: string): string {
 }
 
 /** `[{name, responseDomainType}]` in document order — the comparable core. */
-function variableShape(xml: string): { name: string; domain: string }[] {
+function variableShape(
+  xml: string,
+  normalize: (name: string) => string = sanitizeName,
+): { name: string; domain: string }[] {
   const out: { name: string; domain: string }[] = [];
   const varRe = /<var\b[^>]*\bname="([^"]*)"[^>]*>([\s\S]*?)<\/var>/g;
   let m: RegExpExecArray | null;
   while ((m = varRe.exec(xml)) !== null) {
     const domain = /responseDomainType="([^"]*)"/.exec(m[2])?.[1] ?? '';
-    out.push({ name: sanitizeName(m[1]), domain });
+    out.push({ name: normalize(m[1]), domain });
   }
   return out;
 }
@@ -410,6 +413,23 @@ describe.each(CASES.map((c) => [c.name, c] as const))(
         variableShape(reverse),
         `${name}: reverse DDI lost or renamed variables (${known ?? 'no known reason'})`,
       ).toEqual(variableShape(forward));
+    });
+
+    test('with the mapping, tsv → ddi gives back the forward variables as named (#189)', async () => {
+      const { tsv, mapping } = await new XLSFormToTSVConverter({
+        onWarning: () => {},
+      }).convertWithMapping(c.survey, c.choices, c.settings);
+      const reverse = lstsvToDdiXml(tsv, {
+        assetName: name,
+        prodDate: PROD_DATE,
+        skipValidation: true,
+        mapping,
+      });
+      const forward = fs.readFileSync(path.join(c.dir, 'ddi.xml'), 'utf-8');
+      // Names as authored, not sanitized: every survey, including those
+      // REVERSE_DDI_STRUCTURAL_DIFF lists for renamed variables.
+      const exact = (xml: string) => variableShape(xml, (n) => n);
+      expect(exact(reverse)).toEqual(exact(forward));
     });
 
     test('tsv → xlsform gives back each question, except the pinned losses', () => {
