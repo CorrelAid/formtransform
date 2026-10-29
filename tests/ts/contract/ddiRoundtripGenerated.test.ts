@@ -37,6 +37,14 @@ type Row = Record<string, unknown>;
 const LANGS = ['Deutsch (de)', 'English (en)'];
 /** Runs per property; `FT_ROUNDTRIP_RUNS=5000` for a longer search. */
 const RUNS = Number(process.env['FT_ROUNDTRIP_RUNS'] ?? 200);
+/** A fixed seed (`FT_ROUNDTRIP_SEED=42`) to replay a failure. */
+const SEED = process.env['FT_ROUNDTRIP_SEED'];
+const seed = SEED === undefined ? {} : { seed: Number(SEED) };
+/**
+ * A property's time, by its runs: at 2000 one takes about 5 s alone, past
+ * vitest's default timeout under any load.
+ */
+const timeout = Math.max(5_000, RUNS * 25);
 /** The LimeSurvey paths convert twice more. */
 const LS_RUNS = Math.ceil(RUNS / 2);
 const quiet = () => {};
@@ -565,14 +573,14 @@ async function toTsv(s: {
   }
 }
 
-describe('generated forms', () => {
+describe('generated forms', { timeout }, () => {
   test('XLSForm → DDI → Instrument gives the form back', () => {
     fc.assert(
       fc.property(form, (f) => {
         const s = sheets(f);
         expect(canonical(instrumentFromDdi(codebook(s)))).toEqual(model(s));
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -584,7 +592,7 @@ describe('generated forms', () => {
         expect(model(back)).toEqual(model(s));
         expect(groupCells(back)).toEqual(groupCells(s));
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -594,7 +602,7 @@ describe('generated forms', () => {
         const xml = codebook(sheets(f));
         expect(codebook(ddiToXlsform(xml))).toBe(xml);
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -608,7 +616,7 @@ describe('generated forms', () => {
         converted++;
         expect(await toTsv(ddiToXlsform(codebook(s)))).toBe(tsv);
       }),
-      { numRuns: LS_RUNS },
+      { numRuns: LS_RUNS, ...seed },
     );
     expect(converted).toBeGreaterThan(LS_RUNS / 2);
   });
@@ -633,7 +641,7 @@ describe('generated forms', () => {
           ),
         );
       }),
-      { numRuns: LS_RUNS },
+      { numRuns: LS_RUNS, ...seed },
     );
   });
 });
