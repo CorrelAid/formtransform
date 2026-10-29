@@ -4,7 +4,6 @@
  * in survey order with each variable's enclosing group path/label/appearance. Both DDI pipelines go through here (#69).
  */
 import { METADATA_ROW_TYPES, isMetadataType } from '../conventions/metadata.js';
-import { APPEARANCES } from '../generated/Appearances.js';
 import {
   OTHER_APPLIES_TO,
   OTHER_CODE,
@@ -16,7 +15,7 @@ import {
 } from '../conventions/other.js';
 import { isFromFileType, vocabFromFilename } from '../conventions/fromFile.js';
 import { isExclusive } from '../conventions/exclusive.js';
-import { allColumns } from '../conventions/columns.js';
+import { allColumns, carriesNoData } from '../conventions/columns.js';
 import {
   TYPE_MAP,
   NON_DDI_EMITTABLE_TYPES,
@@ -58,18 +57,6 @@ const SKIP_TYPES: Set<string> = new Set([
   // LimeSurvey TSV (#86).
   ...METADATA_ROW_TYPES,
 ]);
-
-/**
- * Appearances the registry marks `carriesData: false`: the row renders (a matrix
- * header shows the shared choice labels above the body rows) but stores no
- * response, so it is not a variable of the dataset. Both engines agree — neither
- * LimeSurvey nor a `table-list` grid produces a column for it.
- */
-const NO_DATA_APPEARANCES: Set<string> = new Set(
-  Object.entries(APPEARANCES)
-    .filter(([, spec]) => spec.carriesData === false)
-    .map(([appearance]) => appearance),
-);
 
 type OptionalField = 'hint' | 'guidanceHint' | 'concept' | 'labelShort';
 
@@ -324,8 +311,9 @@ function otherChoice(
 /** True when the question is a data-carrying variable of the DDI. */
 function emitsVariable(q: QuestionItem): boolean {
   if (!q.name || SKIP_TYPES.has(q.type)) return false;
-  // A registry appearance with carriesData: false (a matrix header).
-  return !NO_DATA_APPEARANCES.has(q.appearance);
+  // A registry appearance with carriesData: false (a matrix header) stores
+  // no response: neither LimeSurvey nor a table-list grid has a column for it.
+  return !carriesNoData(q.appearance);
 }
 
 /**
@@ -422,7 +410,7 @@ function columnsOf(x: { columns?: Record<string, string> }): {
 /** A row with no data column: a metadata row, a matrix header. */
 function isRow(q: QuestionItem): boolean {
   if (!q.name) return false;
-  return isMetadataType(q.type) || NO_DATA_APPEARANCES.has(q.appearance);
+  return isMetadataType(q.type) || carriesNoData(q.appearance);
 }
 
 /** An added other pair: from the type cell's `or_other`, or said to be there. */

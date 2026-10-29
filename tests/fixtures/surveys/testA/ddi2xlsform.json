@@ -9,7 +9,8 @@
     {
       "type": "note",
       "name": "intro_text",
-      "label": "Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!"
+      "label": "Hey! Wir möchten gerne wissen, wie TestWerk für dich ist und was es dir bringt. Deine Antworten sind anonym und helfen uns, unser Angebot zu verbessern. Es gibt keine richtigen oder falschen Antworten - sag einfach deine Meinung!",
+      "required": "false"
     },
     {
       "type": "end_group"
@@ -103,7 +104,8 @@
     {
       "type": "note",
       "name": "beruf_note",
-      "label": "Jetzt denk mal an deine berufliche Zukunft:"
+      "label": "Jetzt denk mal an deine berufliche Zukunft:",
+      "required": "false"
     },
     {
       "type": "select_one likert5",
@@ -199,7 +201,8 @@
     {
       "type": "note",
       "name": "danke",
-      "label": "Vielen Dank! Deine Meinung hilft uns sehr weiter!"
+      "label": "Vielen Dank! Deine Meinung hilft uns sehr weiter!",
+      "required": "false"
     }
   ],
   "choices": [

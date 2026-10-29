@@ -3,14 +3,19 @@
  * sees: `label::<lang>` columns (JSON fixtures, hand-built rows) and the
  * loader's `{ lang: text }` cells.
  */
-import { allColumns, otherColumns } from '../conventions/columns.js';
+import {
+  allColumns,
+  carriesNoData,
+  otherColumns,
+  questionSheet,
+  type Sheet,
+} from '../conventions/columns.js';
 import {
   OTHER_APPLIES_TO,
   OTHER_CODE,
   OTHER_COMPANION_TYPE,
   OTHER_SUFFIX,
 } from '../conventions/other.js';
-import { APPEARANCES } from '../generated/Appearances.js';
 import { extractLanguageCode, languageTagOf } from '../utils/languageUtils.js';
 import type {
   GroupItem,
@@ -138,10 +143,12 @@ function hasText(text: Text): boolean {
   return Object.values(text).some((t) => t.trim());
 }
 
-function baseFields(row: Row, sheet: 'survey' | 'varGrp' | 'group' = 'survey') {
+function baseFields(row: Row, sheet: Sheet = 'survey') {
   const concept = readText(row, 'concept');
-  // Only a varGrp has a labl (#181): elsewhere label_short is a column.
-  const labelShort = sheet === 'survey' ? {} : readText(row, 'label_short');
+  // Only a varGrp has a labl (#181): elsewhere (a question's var, a note,
+  // a row without data) label_short is a column.
+  const labelShort =
+    sheet === 'varGrp' || sheet === 'group' ? readText(row, 'label_short') : {};
   return {
     name: cellString(row['name']).trim(),
     label: readText(row, 'label'),
@@ -168,12 +175,6 @@ interface Shapes {
   companions: Set<string>;
 }
 
-const NO_DATA = new Set(
-  Object.entries(APPEARANCES)
-    .filter(([, a]) => a.carriesData === false)
-    .map(([name]) => name),
-);
-
 /**
  * The codebook makes it a `varGrp` (#181): a select_multiple, or a semi-open
  * question (convention:other: the or_other shorthand, or an `other` choice
@@ -183,7 +184,7 @@ const NO_DATA = new Set(
 function becomesVarGrp(row: Row, rawType: string, shapes: Shapes): boolean {
   const [type, list = '', ...rest] = rawType.split(/\s+/);
   const appearance = cellString(row['appearance']).trim().toLowerCase();
-  if (NO_DATA.has(appearance)) return false;
+  if (carriesNoData(appearance)) return false;
   if (type === 'select_multiple') return true;
   if (!OTHER_APPLIES_TO.includes(type)) return false;
   const name = cellString(row['name']).trim();
@@ -193,9 +194,21 @@ function becomesVarGrp(row: Row, rawType: string, shapes: Shapes): boolean {
   );
 }
 
-function question(row: Row, rawType: string, shapes: Shapes): QuestionItem {
-  const [type, ...rest] = rawType.split(/\s+/);
-  const fromFile = type.endsWith('_from_file');
+/**
+ * The fields only a question with a var has (#195): on a note, a metadata
+ * row or a matrix header they are its columns instead (`row`).
+ */
+function varFields(row: Row, sheet: Sheet) {
+  if (sheet === 'row') {
+    return {
+      guidanceHint: {},
+      constraint: '',
+      constraintMessage: {},
+      required: false,
+      default: '',
+      parameters: '',
+    };
+  }
   const parameters = cellString(row['parameters']);
   const guidance = readText(row, 'guidance_hint');
   const fromParams = guidanceFromParameters(parameters);
@@ -203,22 +216,36 @@ function question(row: Row, rawType: string, shapes: Shapes): QuestionItem {
     guidance[''] = fromParams;
   }
   return {
-    kind: 'question',
-    ...baseFields(
-      row,
-      becomesVarGrp(row, rawType, shapes) ? 'varGrp' : 'survey',
-    ),
-    type,
-    rawType,
-    list: !fromFile && type.startsWith('select_') ? (rest[0] ?? '') : '',
-    file: fromFile ? rest.join(' ') : '',
-    orOther: rest.includes(OR_OTHER_TOKEN),
     guidanceHint: guidance,
     constraint: cellString(row['constraint']).trim(),
     constraintMessage: readText(row, 'constraint_message'),
     required: isTrue(row['required']),
     default: cellString(row['default']).trim(),
     parameters,
+  };
+}
+
+/** Which columns a question row lifts (#181, #195). */
+function sheetOf(row: Row, rawType: string, shapes: Shapes): Sheet {
+  const [type] = rawType.split(/\s+/);
+  const appearance = cellString(row['appearance']).trim().toLowerCase();
+  if (questionSheet(type, appearance) === 'row') return 'row';
+  return becomesVarGrp(row, rawType, shapes) ? 'varGrp' : 'survey';
+}
+
+function question(row: Row, rawType: string, shapes: Shapes): QuestionItem {
+  const [type, ...rest] = rawType.split(/\s+/);
+  const fromFile = type.endsWith('_from_file');
+  const sheet = sheetOf(row, rawType, shapes);
+  return {
+    kind: 'question',
+    ...baseFields(row, sheet),
+    type,
+    rawType,
+    list: !fromFile && type.startsWith('select_') ? (rest[0] ?? '') : '',
+    file: fromFile ? rest.join(' ') : '',
+    orOther: rest.includes(OR_OTHER_TOKEN),
+    ...varFields(row, sheet),
   };
 }
 

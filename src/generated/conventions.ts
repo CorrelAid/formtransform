@@ -312,7 +312,8 @@ const conventions = {
           "ddi": "varGrp[@type='other'] (convention:other), with cdl:or_other when it was the shorthand"
         },
         "QuestionItem.guidanceHint": {
-          "ddi": "qstn/ivuInstr"
+          "ddi": "qstn/ivuInstr",
+          "note": "A note row or a row without data has no qstn: there its guidance_hint is a column, as its required, constraint, constraint_message, default and parameters are (liftedColumns row, formtransform#195)."
         },
         "QuestionItem.constraint": {
           "ddi": "cdl:constraint note, plus valrng/range for a simple numeric range (convention:logicMapping)"
@@ -361,7 +362,7 @@ const conventions = {
         },
         "ItemBase.columns": {
           "cdlNote": "cdl:column",
-          "note": "On the var (a select_multiple's or pair's varGrp) or the group's varGrp; a note's or data-less row's as cdl:row_column."
+          "note": "On the var (a select_multiple's or pair's varGrp) or the group's varGrp; a note's or data-less row's as cdl:row_column, its guidance_hint, required, constraint, constraint_message, default and parameters cells too (liftedColumns row, formtransform#195)."
         },
         "InstrumentChoice.columns": {
           "cdlNote": "cdl:choice_column"
@@ -371,7 +372,7 @@ const conventions = {
         }
       },
       "liftedColumns": {
-        "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's. The questionOnly survey columns are lifted only on a question's row: a group has no such field, so on a begin_group row they are columns too (formtransform#179). The varGrpOnly survey columns are lifted only on a row the codebook makes a varGrp: a begin_group, a select_multiple, and a select_one or select_multiple with an other pair (or_other, or an `other` choice and a `<name>_other` text question); on any other row they are its columns (formtransform#181).",
+        "description": "The sheet columns the model reads into its own fields (a column with a language suffix, label::de, by its base). Every other non-empty column is an item's or choice's `columns`, carried as a cdl:column note (#160). A column starting with `_` is the loader's, not the form's. The questionOnly survey columns are lifted only on a question's row: a group has no such field, so on a begin_group row they are columns too (formtransform#179). The varGrpOnly survey columns are lifted only on a row the codebook makes a varGrp: a begin_group, a select_multiple, and a select_one or select_multiple with an other pair (or_other, or an `other` choice and a `<name>_other` text question); on any other row they are its columns (formtransform#181). A note row and a row without data (a metadata row, a matrix header) lift only the `row` columns, which their cdl:row_* notes carry: every other column of theirs, guidance_hint, label_short and the questionOnly ones too, is a column, carried as a cdl:row_column note (formtransform#195).",
         "survey": [
           "type",
           "name",
@@ -397,6 +398,15 @@ const conventions = {
         ],
         "varGrpOnly": [
           "label_short"
+        ],
+        "row": [
+          "type",
+          "name",
+          "label",
+          "hint",
+          "relevant",
+          "appearance",
+          "concept"
         ],
         "choices": [
           "list_name",

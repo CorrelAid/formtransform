@@ -28,7 +28,8 @@
       "hint": {
         "Deutsch (de)": "Hier kannst Du Dich auf das Projekt auf das Projekt Alpha bewerben. Bitte beachte, dass du dir pro Woche ca. 4h Zeit für das Projekt nehmen können solltest. \n\nFür die Umfrage benötigst Du 5 bis 10 Minuten. Mach Dir also keine Sorgen, falls Du auch mal Anfänger*in ankreuzt, du musst nicht alles schon perfekt können, um zum Projekt beitragen zu können. Das trifft vor allem auf das Thema Wirkungsmessung zu. Unsere Projektkoordinator*innen kontaktieren Dich dann schnellstmöglich.",
         "English (en)": "Here you can apply for projects. Please note that you should be able to devote approximately 4 hours per week to the project. \n\nThe survey will take 5 to 10 minutes to complete. So don't worry if you check the “beginner” box—you don't have to be an expert to contribute to the project. This applies in particular to the topic of impact measurement. Our project coordinators will then contact you as soon as possible."
-      }
+      },
+      "required": "false"
     },
     {
       "type": "note",
@@ -40,7 +41,8 @@
       "hint": {
         "Deutsch (de)": "In der folgenden Umfrage fragen wir Daten zu Dir und Deiner bisherigen Berufserfahrung ab. Dabei erheben wir Deinen Namen und Deine Kontaktdaten, damit unsere Projektmanager*innen Dich kontaktieren können. Nach erfolgreicher Ausschreibung werden diese Daten auch mit dem Projektteam innerhalb unserer Organisation geteilt.\n\nBei einer Umfrage hast Du gemäß der DSGVO das Recht auf Auskunft sowie Löschung Deiner personenbezogenen Daten. Du kannst diese Einwilligungserklärung jederzeit widerrufen. Schreib hierzu einfach eine E-Mail an info@correlaid.org. Nach erfolgtem Widerruf werden Deine Daten gelöscht.",
         "English (en)": "In the following survey, we ask for information about you and your previous professional experience. We collect your name and contact details so that our project managers can contact you. Once you have been successfully selected, this data will also be shared with the project team within our organization.\n\nIn accordance with the GDPR, you have the right to access and delete your personal data in a survey. You can revoke this declaration of consent at any time. Simply send an email to info@correlaid.org. Your data will be deleted after revocation."
-      }
+      },
+      "required": "false"
     },
     {
       "type": "end_group"
@@ -113,7 +115,8 @@
         "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
         "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
-      "appearance": "label"
+      "appearance": "label",
+      "required": "false"
     },
     {
       "type": "select_one iy6st81",
@@ -251,7 +254,8 @@
         "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
         "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
-      "appearance": "label"
+      "appearance": "label",
+      "required": "false"
     },
     {
       "type": "select_one xe9mo32",
@@ -387,7 +391,8 @@
         "Deutsch (de)": "Hier kannst du  mehr darüber lesen, wie wir die verschiedenen Erfahrungsstufen definieren: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale",
         "English (en)": "Read more about what the different experience labels mean for us: https://docs.correlaid.org/project-manual/data4good-projects#experience-scale"
       },
-      "appearance": "label"
+      "appearance": "label",
+      "required": "false"
     },
     {
       "type": "select_one dm1uu76",

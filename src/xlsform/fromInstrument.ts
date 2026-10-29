@@ -253,14 +253,8 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
 }
 
 function emitQuestion(q: QuestionItem, siblings: Item[], ctx: EmitCtx): void {
-  if (isMessageNote(q)) {
-    ctx.survey.push({
-      type: 'note',
-      name: q.name,
-      label: htmlLabel(ctx.label(q.label)),
-    });
-    return;
-  }
+  // A welcome / end note is a plain note row too: a message note has only
+  // a label, and one read from a codebook keeps its fields (#195).
   const source = q.row as Row;
   // Without the shorthand in its type (LimeSurvey's other=Y), the explicit pair.
   const expand = q.orOther && !/\sor_other\s*$/.test(q.rawType);

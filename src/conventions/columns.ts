@@ -3,17 +3,21 @@
  * `liftedColumns`, #160): kept by name, so a codebook can carry them and an
  * XLSForm get them back.
  */
+import { APPEARANCES } from '../generated/Appearances.js';
 import conventions from '../generated/conventions.js';
+import { isMetadataType } from './metadata.js';
 
 const LIFTED = conventions.conventions.ddiFields.liftedColumns;
 
 /**
- * The kind of row: `survey` a question that is a `<var>` (or a note),
- * `varGrp` a question the codebook makes a `varGrp` (a select_multiple, a
- * semi-open question), `group` a `begin_group` row. A group lifts no
- * question-only column (#179); only a varGrp lifts a varGrp-only one (#181).
+ * The kind of row: `survey` a question that is a `<var>`, `varGrp` a
+ * question the codebook makes a `varGrp` (a select_multiple, a semi-open
+ * question), `group` a `begin_group` row, `row` a note row or a row without
+ * data (a metadata row, a matrix header). A group lifts no question-only
+ * column (#179); only a varGrp lifts a varGrp-only one (#181); a `row`
+ * lifts only what its `cdl:row_*` notes carry (#195).
  */
-type Sheet = 'survey' | 'varGrp' | 'group' | 'choices';
+export type Sheet = 'survey' | 'varGrp' | 'group' | 'row' | 'choices';
 
 const QUESTION_ONLY = new Set<string>(LIFTED.questionOnly);
 const VARGRP_ONLY = new Set<string>(LIFTED.varGrpOnly);
@@ -22,8 +26,36 @@ const liftedBy: Record<Sheet, Set<string>> = {
   survey: new Set(LIFTED.survey.filter((c) => !VARGRP_ONLY.has(c))),
   varGrp: new Set(LIFTED.survey),
   group: new Set(LIFTED.survey.filter((c) => !QUESTION_ONLY.has(c))),
+  row: new Set(LIFTED.row),
   choices: new Set(LIFTED.choices),
 };
+
+/**
+ * Appearances the registry marks `carriesData: false`: the row renders (a
+ * matrix header shows the shared choice labels above the body rows) but
+ * stores no response.
+ */
+const NO_DATA_APPEARANCES: ReadonlySet<string> = new Set(
+  Object.entries(APPEARANCES)
+    .filter(([, spec]) => spec.carriesData === false)
+    .map(([appearance]) => appearance),
+);
+
+/** An appearance whose row stores no response (a matrix header's). */
+export function carriesNoData(appearance: string): boolean {
+  return NO_DATA_APPEARANCES.has(appearance);
+}
+
+/**
+ * The columns a survey row of `type` (the base type) lifts: a note, a
+ * metadata row and a matrix header have no var, so only their `row`
+ * fields; any other question every survey column (#195).
+ */
+export function questionSheet(type: string, appearance: string): Sheet {
+  return type === 'note' || isMetadataType(type) || carriesNoData(appearance)
+    ? 'row'
+    : 'survey';
+}
 
 function cellText(value: unknown): string {
   if (typeof value === 'string') return value.trim();
