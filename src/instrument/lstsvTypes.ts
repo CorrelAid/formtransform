@@ -75,6 +75,14 @@ const INTEGER_TYPE: [string, string] | undefined = Object.entries(TYPE_MAPPINGS)
   .filter(([, m]) => m.limeSurveyType === 'N' && m.integerOnly && !m.parameters)
   .map(([t, m]): [string, string] => [t, m.integerOnly!.attribute])[0];
 
+/** LS code → the type written as a hidden question of it (`S` → `hidden`). */
+const HIDDEN_TYPE_BY_CODE: Record<string, string> = {};
+for (const [xfType, m] of Object.entries(TYPE_MAPPINGS)) {
+  if (m.hidden && m.limeSurveyType) {
+    HIDDEN_TYPE_BY_CODE[m.limeSurveyType] = xfType;
+  }
+}
+
 /** Appearance name → LS type-override code it produces (e.g. `minimal` → `!`). */
 const APPEARANCE_BY_OVERRIDE: Record<string, string> = {};
 for (const [name, spec] of Object.entries(APPEARANCES)) {
@@ -123,6 +131,11 @@ export function resolveType(lsCode: string, row: Row): ResolvedType {
     case 'X':
       return { base: 'note' };
     default:
-      return { base: CANONICAL_TEXT_TYPE };
+      return { base: hiddenTypeOf(lsCode, row) ?? CANONICAL_TEXT_TYPE };
   }
+}
+
+/** A hidden question holds a value from the link (convention:linkPrefill). */
+function hiddenTypeOf(lsCode: string, row: Row): string | undefined {
+  return cell(row, 'hidden') === '1' ? HIDDEN_TYPE_BY_CODE[lsCode] : undefined;
 }

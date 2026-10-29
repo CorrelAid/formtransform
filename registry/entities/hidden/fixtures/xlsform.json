@@ -1,0 +1,21 @@
+{
+  "survey": [
+    {
+      "type": "hidden",
+      "name": "partner",
+      "label": "Partnerkennung (über den Link vorbelegt)"
+    },
+    {
+      "type": "hidden",
+      "name": "modul",
+      "label": "Modul",
+      "default": "O"
+    },
+    {
+      "type": "text",
+      "name": "anmerkungen",
+      "label": "Haben Sie weitere Anmerkungen?"
+    }
+  ],
+  "choices": []
+}

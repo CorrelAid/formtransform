@@ -29,6 +29,16 @@
       "sourceSha256": "d8b457d0e856c33b883641239e3f92e2c50a3490a7779997734408c642c8f8e7"
     }
   },
+  "hidden": {
+    "limesurvey": {
+      "renderedFrom": "0.9.2",
+      "sourceSha256": "1364d220c5e45f8e3009367e1a9d50225da6ccc9c563f92a06e87140713ac934"
+    },
+    "xlsform": {
+      "renderedFrom": "0.9.2",
+      "sourceSha256": "0ea6d4c86af1c54bde1e0bd4640809c50d3aa442167767224aafa44b8976ffb4"
+    }
+  },
   "integer": {
     "limesurvey": {
       "renderedFrom": "0.8.1",

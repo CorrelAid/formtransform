@@ -20,6 +20,8 @@ export interface TypeMapping {
   parameterAttributes?: Record<string, string>;
   /** Set `attribute` to 1 when all `whenWhole` parameters are whole numbers. */
   integerOnly?: { attribute: string; whenWhole: string[] };
+  /** Written with LimeSurvey's `hidden` attribute set (convention:linkPrefill). */
+  hidden?: boolean;
 }
 
 export const TYPE_MAPPINGS: Record<string, TypeMapping> = {
@@ -54,6 +56,12 @@ export const TYPE_MAPPINGS: Record<string, TypeMapping> = {
     kind: "question",
     limeSurveyType: "N",
     supported: true,
+  },
+  hidden: {
+    kind: "question",
+    limeSurveyType: "S",
+    supported: true,
+    hidden: true,
   },
   integer: {
     kind: "question",

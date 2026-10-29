@@ -36,7 +36,6 @@
           "today",
           "deviceid",
           "username",
-          "hidden",
           "audit"
         ],
         "metadataBehavior": "skip silently — device/session metadata rows carry no authored content",

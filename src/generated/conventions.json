@@ -640,6 +640,23 @@
         "implemented": "yes (formtransform#135)"
       }
     },
+    "linkPrefill": {
+      "appliesTo": [
+        "hidden"
+      ],
+      "description": "Both platforms take a question's value from a parameter of the survey link, so one survey can tell its distribution channels apart (a partner, a module): give each channel its own link. A `hidden` question holds the value without showing it. formtransform converts the question; it builds no links.",
+      "kobo": {
+        "link": "<form URL>?d[/<root>/<name>]=<value>",
+        "root": "the form's root element (often `data`); take the path from the deployed form",
+        "scope": "web forms (Enketo) only; KoboCollect has no link"
+      },
+      "limesurvey": {
+        "link": "<survey URL>?<code>=<value>",
+        "code": "the question code: the XLSForm name, unless the conversion renamed it (sanitized, or over 20 characters) — the mapping (convention:lstsvMapping) gives it"
+      },
+      "default": "Without the parameter the question holds its `default` (empty if none): give a default where one link should mean 'none given'.",
+      "data": "The value is a column of the response data on both platforms, and a variable in the codebook."
+    },
     "logicMapping": {
       "description": "XLSForm expresses survey logic in an XPath subset; LimeSurvey uses ExpressionScript (EM). The transformation transpiles between them (implemented in src/pipelines/xlsform2lstsv/xpathTranspiler.ts). DDI Codebook 2.5 has no expression syntax of its own, so a CDL codebook carries the logic in two parts (formtransform#151): readable prose in the standard element (`universe`, `valrng`) and the expression itself in a typed `<notes>`, the extension point the DDI XSD provides (\"The attributes for notes permit a controlled vocabulary to be developed ('type' and 'subject')\"). See ddiEncoding.",
       "fields": [
@@ -1052,7 +1069,6 @@
         "today",
         "deviceid",
         "username",
-        "hidden",
         "audit"
       ],
       "metadataBehavior": "skip silently — device/session metadata rows carry no authored content",

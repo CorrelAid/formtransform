@@ -13,7 +13,11 @@
  * - external code lists (`select_*_from_file`) as `<concept vocab="…">`
  */
 
-import { DDI_TYPE_MAP, RESPONSE_DOMAIN_MAP } from '../generated/DdiMappings.js';
+import {
+  DDI_TYPE_MAP,
+  OTHER_RESPONSE_DOMAIN_MAP,
+  RESPONSE_DOMAIN_MAP,
+} from '../generated/DdiMappings.js';
 
 import {
   OTHER_APPLIES_TO,
@@ -241,7 +245,10 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
     files: 'F1',
   });
 
-  if (label) addQstn(varEl, spec, respDomain);
+  // A type known by its `otherResponseDomainType` always gets its `qstn`.
+  if (label || OTHER_RESPONSE_DOMAIN_MAP[varType]) {
+    addQstn(varEl, spec, respDomain);
+  }
 
   if (spec.logic) {
     addValrng(varEl, spec.logic.v);
@@ -272,12 +279,17 @@ function addVarElement(parent: XmlElement, spec: AddVarSpec): XmlElement {
  * then the hints and dependencies (#153).
  */
 function addQstn(varEl: XmlElement, spec: AddVarSpec, respDomain: string) {
-  const qstn = varEl.child('qstn', qstnAttrs(respDomain, spec.logic));
+  const qstn = varEl.child(
+    'qstn',
+    qstnAttrs(respDomain, OTHER_RESPONSE_DOMAIN_MAP[spec.varType], spec.logic),
+  );
   const preQTxt = spec.opts?.preQTxt;
   if (preQTxt) {
     localizedChild(qstn, 'preQTxt', preQTxt, spec.opts?.preQTxtTranslations);
   }
-  localizedChild(qstn, 'qstnLit', spec.label, spec.labelTranslations);
+  if (spec.label) {
+    localizedChild(qstn, 'qstnLit', spec.label, spec.labelTranslations);
+  }
   addQstnTail(qstn, spec, spec.logic);
 }
 
@@ -292,14 +304,19 @@ function addCategories(varEl: XmlElement, choices: Choice[]): void {
 /** Types whose format is a `varFormat/@category` of the same name (#153). */
 const DATE_TIME = new Set(['date', 'time']);
 
-/** `<qstn>`'s attributes: its response domain and, known, its position. */
+/**
+ * `<qstn>`'s attributes: its response domain (with the type an `other` one
+ * stands for) and, known, its position.
+ */
 function qstnAttrs(
   respDomain: string,
+  otherDomain: string | undefined,
   logic: AddVarSpec['logic'],
 ): Record<string, string> {
   const seqNo = logic ? logic.ctx.seqNo.get(logic.v.name) : undefined;
   return {
     responseDomainType: respDomain,
+    ...(otherDomain ? { otherResponseDomainType: otherDomain } : {}),
     ...(seqNo ? { seqNo: String(seqNo) } : {}),
   };
 }
@@ -382,7 +399,7 @@ function addBinaryVar(
   });
 
   const logic = { v: question, ctx };
-  const qstn = varEl.child('qstn', qstnAttrs('multiple', logic));
+  const qstn = varEl.child('qstn', qstnAttrs('multiple', undefined, logic));
   localizedChild(qstn, 'preQTxt', questionLabel, textsOf(question, 'label'));
   localizedChild(qstn, 'qstnLit', choiceLabel, choice.translations);
   // The question's hints go with each of its options (#153).

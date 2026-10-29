@@ -6,7 +6,7 @@
 
 error — the registry is an allowlist; any survey-sheet type that is neither registered nor a metadata row MUST abort the transformation with a clear message
 
-Metadata rows (`start`, `end`, `today`, `deviceid`, `username`, `hidden`, `audit`) are accepted and carried but produce no authored question. Every other `type` must be one of the registered question / structural types.
+Metadata rows (`start`, `end`, `today`, `deviceid`, `username`, `audit`) are accepted and carried but produce no authored question. Every other `type` must be one of the registered question / structural types.
 
 ## Names & choice codes
 

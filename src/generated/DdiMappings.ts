@@ -23,6 +23,7 @@ export const TYPE_MAP: Record<string, string> = {
   select_multiple_from_file: "select_multiple_from_file",
   date: "date",
   decimal: "decimal",
+  hidden: "hidden",
   integer: "integer",
   int: "integer",
   note: "note",
@@ -51,6 +52,7 @@ export const DDI_TYPE_MAP: Record<string, DdiTypeInfo> = {
   select_multiple_from_file: ["discrete", "character"],
   date: ["discrete", "character"],
   decimal: ["contin", "numeric"],
+  hidden: ["discrete", "character"],
   integer: ["contin", "numeric"],
   range: ["contin", "numeric"],
   select_multiple: ["discrete", "numeric"],
@@ -65,12 +67,18 @@ export const RESPONSE_DOMAIN_MAP: Record<string, string> = {
   select_multiple_from_file: "multiple",
   date: "text",
   decimal: "numeric",
+  hidden: "other",
   integer: "numeric",
   range: "numeric",
   select_multiple: "multiple",
   select_one: "category",
   text: "text",
   time: "text",
+};
+
+/** Standardized type → otherResponseDomainType, for responseDomainType `other`. */
+export const OTHER_RESPONSE_DOMAIN_MAP: Record<string, string> = {
+  hidden: "hidden",
 };
 
 /** Standardized type → measurement level. */

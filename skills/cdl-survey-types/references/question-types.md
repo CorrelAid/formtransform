@@ -14,6 +14,18 @@
 
 **Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
 
+## `hidden` — Hidden (Prefilled Value)
+
+**Use when:** When a value comes from the survey link rather than the respondent, such as a partner, channel or module code, so that responses can be split by it.
+
+**Constraints:** variable `name` ≤ 20 chars, `^[a-zA-Z0-9]+$`
+
+> ⚠️ Respondents never see it: the value comes from the survey link (convention:linkPrefill) or the `default`; without either it stays empty.
+>
+> ⚠️ Kobo fills it from the link only in web forms (Enketo); KoboCollect gets the `default` alone.
+>
+> ⚠️ In LimeSurvey the link parameter is the question code, which differs from the XLSForm name when it is sanitized or over 20 characters: take it from the mapping (--mapping).
+
 ## `integer` — Integer
 
 **Use when:** When collecting open integer values without predefined categories, where respondents provide a raw number (e.g. age, household size).

@@ -61,7 +61,7 @@ def test_skip_types_absent(generated_files_dir: Path):
 
     rows = _parse_tsv(tsv_path)
     all_names = {r["name"] for r in rows}
-    skip_names = {"start", "end", "today", "deviceid", "username", "hidden1", "audit"}
+    skip_names = {"start", "end", "today", "deviceid", "username", "audit"}
     found = all_names & skip_names
     assert not found, f"Skip types should not appear in output: {found}"
     print("✓ No skip types in output")
