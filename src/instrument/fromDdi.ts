@@ -130,13 +130,39 @@ function dataElements(roots: XmlNode[]): XmlNode[] {
 
 const STRUCTURE_TYPES = new Set(['section', 'grid']);
 
+/**
+ * Index every `var` by its `ID`. DDI 2.5 makes `ID` optional (#170): a `var`
+ * without one gets a key no `ID` in the input has, so no `varGrp` can refer to
+ * it, and is read as a standalone question named by its `name`.
+ */
+function indexVars(vars: XmlNode[], state: ReadState): void {
+  const taken = new Set(vars.map((v) => v.attrs['ID']).filter(Boolean));
+  vars.forEach((v, i) => {
+    let key = v.attrs['ID'];
+    if (!key) {
+      if (!v.attrs['name']) {
+        throw new ConversionError(
+          'ddi-invalid',
+          `<var> ${i + 1} has neither an ID nor a name, so it can't become a question.`,
+        );
+      }
+      key = `var ${i + 1}`;
+      while (taken.has(key)) key += '_';
+      taken.add(key);
+    }
+    state.vars.set(key, v);
+  });
+}
+
 /** Index the groups and who contains whom. */
 function indexStructure(elements: XmlNode[], state: ReadState): void {
+  indexVars(
+    elements.filter((el) => el.name === 'var'),
+    state,
+  );
   for (const el of elements) {
     const id = el.attrs['ID'];
-    if (!id) continue;
-    if (el.name === 'var') state.vars.set(id, el);
-    else state.groups.set(id, el);
+    if (el.name === 'varGrp' && id) state.groups.set(id, el);
   }
   for (const [id, grp] of state.groups) {
     const type = grp.attrs['type'] ?? '';
@@ -1027,8 +1053,8 @@ export interface DdiParseOptions {
 
 /**
  * Parse DDI Codebook 2.5 XML (a whole codebook or a fragment) into an
- * Instrument. Throws `ddi-invalid` when the XML is not well-formed or holds
- * neither a `codeBook` nor a `var`.
+ * Instrument. Throws `ddi-invalid` when the XML is not well-formed, holds
+ * neither a `codeBook` nor a `var`, or has a `var` with neither `ID` nor `name`.
  */
 export function instrumentFromDdi(
   xml: string,

@@ -55,8 +55,11 @@ Standard DDI first, `cdl:` notes where DDI has no element
 - **A fragment**, i.e. a `<dataDscr>` or bare `<var>` / `<varGrp>` elements, is
   read the same way. A `varGrp` that refers to a `var` outside the fragment
   gets `ddi-reference-outside`.
-- XML that is not well-formed, or holds neither a `codeBook` nor a `var`,
-  throws `ddi-invalid`.
+- **A `var` without `ID`** (optional in DDI 2.5) is read by its `name`, as a
+  standalone question: no `varGrp` can refer to it (#170).
+- XML that is not well-formed, holds neither a `codeBook` nor a `var`, or has
+  a `var` with neither `ID` nor `name` (`name` is required in DDI 2.5) throws
+  `ddi-invalid`, and the message says which.
 
 ## Known losses
 
