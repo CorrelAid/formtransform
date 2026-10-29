@@ -166,6 +166,9 @@ describe('xlsform2lstsv', () => {
       'CLI Title',
     );
     expect(rows.find((x) => x.class === 'G')?.name).toBe('Fragen');
+    // The form has no default_language, so --language sets it (#207).
+    expect(rows.find((x) => x.name === 'language')?.text).toBe('de');
+    expect(new Set(rows.map((x) => x.language))).toEqual(new Set(['de']));
   });
 
   test('--no-markdown keeps the label as written', () => {

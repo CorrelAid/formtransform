@@ -310,12 +310,15 @@ export function validateLanguageCodes(languageCodes: string[]): string[] {
 
 /**
  * The base language from `settings.default_language` (`English (en)`,
- * `fr-BE`), falling back to `en`.
+ * `fr-BE`), falling back to `fallback` (`en` unless given).
  */
-export function getBaseLanguage(settings: Record<string, unknown>): string {
+export function getBaseLanguage(
+  settings: Record<string, unknown>,
+  fallback = 'en',
+): string {
   const defaultLanguage = settings.default_language;
   if (defaultLanguage && typeof defaultLanguage === 'string') {
-    return languageTagOf(defaultLanguage) ?? 'en';
+    return languageTagOf(defaultLanguage) ?? fallback;
   }
-  return 'en';
+  return fallback;
 }

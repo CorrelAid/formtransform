@@ -67,8 +67,12 @@ export class LanguageHandler {
     return this.baseLanguage;
   }
 
+  /** `settings.default_language`, else the configured `defaults.language` (#207). */
   setBaseLanguage(settings: SettingsRow): void {
-    this.baseLanguage = getBaseLanguage(settings);
+    this.baseLanguage = getBaseLanguage(
+      settings,
+      this.configManager.getDefaults().language,
+    );
   }
 
   detectAvailableLanguages(

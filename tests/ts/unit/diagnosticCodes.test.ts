@@ -323,6 +323,17 @@ describe('converter', () => {
     expect(warnings.map((w) => w.code)).toContain('other-label-noncanonical');
   });
 
+  test('hidden-dropped: a hidden row LimeSurvey gets no question for (#207)', async () => {
+    const warnings = await warningsOf(
+      [
+        { type: 'hidden', name: 'partner', label: 'Partner' },
+        { type: 'text', name: 'q', label: 'Q?' },
+      ],
+      [],
+    );
+    expect(warnings.map((w) => w.code)).toEqual(['hidden-dropped']);
+  });
+
   test('code-duplicate: two codes equal after truncation to 5', async () => {
     const warnings = await warningsOf(
       [{ type: 'select_one l', name: 'q', label: 'Q?' }],

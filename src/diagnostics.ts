@@ -51,6 +51,7 @@ export type DiagnosticCode =
   | 'parameter-invalid'
   | 'choice-filter-dropped'
   | 'choice-filter-recoded'
+  | 'hidden-dropped'
   | 'xlsform-outside-subset'
   // expressions
   | 'xpath-syntax'
