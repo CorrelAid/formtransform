@@ -17,6 +17,7 @@ patching is needed. `citric` is a dev dependency, imported lazily so plain
 
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -30,17 +31,24 @@ if TYPE_CHECKING:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 COMPOSE_DIR = REPO_ROOT / "tests" / "live" / "limesurvey"
 
-BASE_URL = "http://localhost:8080"
+# LIMESURVEY_PORT (default 8080) is also read by the compose file, so a stack
+# started here and one started by hand agree on where LimeSurvey is.
+PORT = os.environ.get("LIMESURVEY_PORT", "8080")
+BASE_URL = f"http://localhost:{PORT}"
 RPC_URL = f"{BASE_URL}/index.php/admin/remotecontrol"
 ADMIN_USER = "admin"
 ADMIN_PASSWORD = "admin"
 
 
 def is_ready(timeout: float = 5) -> bool:
-    """True when the admin page answers — i.e. a stack is already up."""
+    """True when LimeSurvey's admin page answers — i.e. a stack is already up.
+
+    Checks the page is LimeSurvey's, so another service on the port is not
+    mistaken for a running stack.
+    """
     try:
         with urlopen(f"{BASE_URL}/index.php/admin", timeout=timeout) as r:
-            return r.status in (200, 302)
+            return r.status in (200, 302) and b"limesurvey" in r.read().lower()
     except (URLError, OSError):
         return False
 

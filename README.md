@@ -18,8 +18,8 @@ Four things other projects consume — all derived from the one registry:
 | **DDI validation assets** — DDI 2.5 XSDs + the codegen-written `ddi_custom_rules.sch` | `ddi-validation/{xsd,schematron}/` | qwacback, synced via its `.registry-version` pin |
 | **`cdl-survey-types` skill** — self-contained Agent Skill (`SKILL.md` + `references/`), generated from the registry; portable to any agent runtime that reads the format  | `skills/cdl-survey-types/` | formulaid's `generating-xlsforms` skill, which owns the workflow and includes this as the type reference |
 
-Everything else here (`docs/` spec site, `screenshots/`, tests, fixtures) is
-in-repo only.
+Everything else here (`docs/` spec site, tests) is in-repo only; the
+fixtures and the question-type screenshots also ship as release assets (below).
 
 ## Installation
 
@@ -43,7 +43,11 @@ Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
 [`skills/cdl-survey-types/`](skills/cdl-survey-types/) sub-skill, and
 `formtransform-fixtures-<version>.tar.gz`, the example fixtures and blessed
 snapshots (`registry/entities/`, `tests/fixtures/surveys/`, same paths) for
-golden tests. Assets never change after publishing, so their checksums can be
+golden tests, and `formtransform-screenshots-<version>.tar.gz`, each registry
+type rendered in LimeSurvey and in Enketo (the engine behind KoboToolbox web
+forms), unpacking to `screenshots/<slug>/{limesurvey,xlsform}.png` with a
+`screenshots/manifest.json` (size, engine and the version that rendered each;
+see [`screenshots/README.md`](screenshots/README.md)). Assets never change after publishing, so their checksums can be
 pinned: each release also attaches `SHA256SUMS` and lists the checksums in its
 notes.
 
