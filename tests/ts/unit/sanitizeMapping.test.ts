@@ -229,48 +229,102 @@ describe('without sanitize, nothing changes', () => {
   });
 });
 
+/**
+ * XLSForm → LimeSurvey → XLSForm with the mapping: every name, code and
+ * reference comes back, and LimeSurvey gets one distinct name per question.
+ */
+async function roundTrip(names: string[], codes: string[]): Promise<void> {
+  const surveyData = [
+    ...names.map((n, i) => ({
+      type: i % 2 ? 'select_multiple l' : 'select_one l',
+      name: n,
+      label: n,
+    })),
+    // One reference to every select, so a mixed-up name shows.
+    ...names.map((n, i) => ({
+      type: 'text',
+      name: `ref${i}`,
+      label: 'x',
+      relevant:
+        i % 2
+          ? `selected(\${${n}}, '${codes[0]}')`
+          : `\${${n}} = '${codes[0]}'`,
+    })),
+  ];
+  const choicesData = codes.map((c) => ({ list_name: 'l', name: c, label: c }));
+  const { tsv, mapping } = await xlsformToLstsvWithMapping(
+    { surveyData, choicesData },
+    { ...quiet, sanitize: true },
+  );
+  const lsNames = tsv
+    .split('\n')
+    .filter((l) => l.startsWith('Q\t'))
+    .map((l) => l.split('\t')[2]);
+  expect(new Set(lsNames).size).toBe(lsNames.length);
+  const back = lstsvToXlsform(tsv, { mapping });
+  expect(back.survey.map((r) => r.name)).toEqual(surveyData.map((r) => r.name));
+  for (const row of back.survey) {
+    if (row.type === 'text') continue;
+    const list = String(row.type).split(' ')[1];
+    expect(
+      back.choices.filter((c) => c.list_name === list).map((c) => c.name),
+    ).toEqual(codes);
+  }
+  back.survey
+    .filter((r) => r.type === 'text')
+    .forEach((r, i) =>
+      expect(r.relevant).toBe(surveyData[names.length + i].relevant),
+    );
+}
+
+describe('names that sanitize alike keep their own LimeSurvey name', () => {
+  test('regression: v_ and v (CI counterexample)', async () => {
+    await roundTrip(['v_', 'v'], ['a', 'aa']);
+  });
+
+  test("regression: a renamed name never takes another one's references", async () => {
+    // v_ → v, v → v1, v1 → v2: `${v}` and `${v1}` must not cross.
+    await roundTrip(['v_', 'v', 'v1'], ['a', 'b']);
+  });
+});
+
 describe('property: sanitize + mapping gives back every name and code', () => {
-  const name = fc.stringMatching(/^[a-z][a-z0-9_]{0,27}$/);
+  const base = fc.stringMatching(/^[a-z][a-z0-9_]{0,27}$/);
+  // Bias towards names that strip alike (`ab`, `a_b`, `ab_`).
+  const name = fc.oneof(
+    base,
+    base.map((n) => `${n}_`),
+    base.map((n) => n.replace(/_/g, '')),
+  );
   const code = fc.oneof(
     fc.stringMatching(/^[a-z][a-z0-9_]{0,11}$/),
     fc.integer({ min: -99, max: 999 }).map(String),
   );
+  // FT_PROPERTY_RUNS / FT_PROPERTY_SEED: long local runs.
+  const runs = Number(process.env.FT_PROPERTY_RUNS ?? 150);
+  const seed = process.env.FT_PROPERTY_SEED
+    ? Number(process.env.FT_PROPERTY_SEED)
+    : undefined;
 
-  test('XLSForm → LimeSurvey → XLSForm', async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.uniqueArray(name, { minLength: 1, maxLength: 6 }),
-        fc.uniqueArray(code, { minLength: 2, maxLength: 6 }),
-        async (names, codes) => {
-          // Reserved by LimeSurvey or the other convention: not what this tests.
-          fc.pre(names.every((n) => !n.endsWith('_other')));
-          const surveyData = names.map((n, i) => ({
-            type: i % 2 ? 'select_multiple l' : 'select_one l',
-            name: n,
-            label: n,
-          }));
-          const choicesData = codes.map((c) => ({
-            list_name: 'l',
-            name: c,
-            label: c,
-          }));
-          const { tsv, mapping } = await xlsformToLstsvWithMapping(
-            { surveyData, choicesData },
-            { ...quiet, sanitize: true },
-          );
-          const back = lstsvToXlsform(tsv, { mapping });
-          expect(back.survey.map((r) => r.name)).toEqual(names);
-          for (const row of back.survey) {
-            const list = String(row.type).split(' ')[1];
-            expect(
-              back.choices
-                .filter((c) => c.list_name === list)
-                .map((c) => c.name),
-            ).toEqual(codes);
-          }
-        },
-      ),
-      { numRuns: 80 },
-    );
-  });
+  test(
+    'XLSForm → LimeSurvey → XLSForm',
+    async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.uniqueArray(name, { minLength: 1, maxLength: 6 }),
+          fc.uniqueArray(code, { minLength: 2, maxLength: 6 }),
+          async (names, codes) => {
+            // Reserved by the other convention, and taken by the ref questions.
+            fc.pre(
+              names.every((n) => !n.endsWith('_other') && !/^ref\d$/.test(n)),
+            );
+            await roundTrip(names, codes);
+          },
+        ),
+        { numRuns: runs, ...(seed !== undefined ? { seed } : {}) },
+      );
+      // A long run (FT_PROPERTY_RUNS) takes longer than vitest's 5 s default.
+    },
+    Math.max(30_000, runs * 20),
+  );
 });

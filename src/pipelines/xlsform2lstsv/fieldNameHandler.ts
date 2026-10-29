@@ -1,5 +1,4 @@
 import { SurveyRow } from '../../xlsform/types.js';
-import { normalizeName } from '../../xlsform/identifiers.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 
 /**
@@ -31,13 +30,12 @@ export class FieldNameHandler {
   }
 
   sanitizeName(name: string): string {
-    const stripped = normalizeName(name);
-    return this.fieldSanitizer.resolveStrippedName(stripped);
+    return this.fieldSanitizer.resolveName(name);
   }
 
   /** Resolve references to `name` as `target` from now on. */
   aliasName(name: string, target: string): void {
-    this.fieldSanitizer.aliasStrippedName(normalizeName(name), target);
+    this.fieldSanitizer.aliasName(name, target);
   }
 
   sanitizeAnswerCode(code: string): string {

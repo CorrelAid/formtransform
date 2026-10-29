@@ -35,7 +35,6 @@ import { parameterAttributes } from './parameters.js';
 import { MappingRecorder } from './mappingRecorder.js';
 import type { LstsvMapping } from '../../conventions/lstsvMapping.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../../conventions/exclusive.js';
-import { normalizeName } from '../../xlsform/identifiers.js';
 import {
   MAX_ANSWERS_ATTRIBUTE,
   MIN_ANSWERS_ATTRIBUTE,
@@ -577,7 +576,7 @@ class Conversion {
     q: QuestionItem,
     base: string,
   ): { emValidation: string; answerBounds: Record<string, string> } {
-    const self = normalizeName(q.name);
+    const self = this.fieldNameHandler.sanitizeName(q.name);
     if (!countsSelections(base)) {
       return {
         emValidation: this.transpilerHelper.convertConstraint(
