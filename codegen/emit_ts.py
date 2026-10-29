@@ -244,6 +244,8 @@ def generate_appearances(registry: dict[str, Any], output: Path):
         "  lsTypeOverride?: string;",
         "  /** False when a row bearing this appearance stores no response (matrix header). */",
         "  carriesData?: boolean;",
+        "  /** False when the way back from LimeSurvey writes another appearance for its override. */",
+        "  lsReverse?: boolean;",
         "}",
         "",
         "export const APPEARANCES: Record<string, AppearanceSpec> = {",
@@ -285,6 +287,8 @@ def generate_appearances(registry: dict[str, Any], output: Path):
         # Only emitted when explicitly false — absence means "carries data".
         if data.get("carriesData") is False:
             lines.append("    carriesData: false,")
+        if data.get("lsReverse") is False:
+            lines.append("    lsReverse: false,")
         lines.append("  },")
     lines.append("};")
     lines.append("")

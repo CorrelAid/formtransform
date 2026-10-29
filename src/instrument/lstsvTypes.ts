@@ -78,7 +78,10 @@ const INTEGER_TYPE: [string, string] | undefined = Object.entries(TYPE_MAPPINGS)
 /** Appearance name → LS type-override code it produces (e.g. `minimal` → `!`). */
 const APPEARANCE_BY_OVERRIDE: Record<string, string> = {};
 for (const [name, spec] of Object.entries(APPEARANCES)) {
-  if (spec.lsTypeOverride) APPEARANCE_BY_OVERRIDE[spec.lsTypeOverride] = name;
+  // `lsReverse: false`: another appearance has the override (autocomplete → `!` → minimal).
+  if (spec.lsTypeOverride && spec.lsReverse !== false) {
+    APPEARANCE_BY_OVERRIDE[spec.lsTypeOverride] = name;
+  }
 }
 
 export interface ResolvedType {
