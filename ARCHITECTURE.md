@@ -75,7 +75,8 @@ Python package (run `uv run codegen` or `python -m codegen`) that validates the 
 - `registry/entities/<slug>/` — `docs.md` + `xlsform.xlsx` per entity
 - `skills/cdl-survey-types/` — the generated sub-skill
 - `ddi-validation/ddi_custom_rules.sch` — the CDL Schematron rules
-- `screenshots/` — question-type previews (opt-in, `--screenshots`)
+- `screenshots/` — question-type previews (opt-in, `--screenshots`), plus
+  `rendered.json`; shipped as a release asset (`codegen/screenshot_manifest.py`)
 
 ### Tests (`tests/`)
 

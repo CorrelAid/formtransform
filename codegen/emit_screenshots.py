@@ -6,7 +6,7 @@ Two engines:
     LimeSurvey stack (see ``codegen.limesurvey_stack``), activates it, and
     screenshots the public survey page with Playwright. An already-running stack
     is reused; otherwise one is started and torn down again.
-  * xlsform    — uploads each entity's ``xlsform.xlsx`` to ODK XLSForm Online,
+  * xlsform    — uploads each entity's ``generated/xlsform.xlsx`` to ODK XLSForm Online,
     renders it in Enketo, and screenshots the question. NOTE: this sends the
     form definition to the public ODK/Enketo staging services.
 
@@ -26,6 +26,7 @@ import tempfile
 from pathlib import Path
 
 from . import limesurvey_stack as ls_stack
+from .screenshot_manifest import entity_slugs, record_render
 
 SHOT_DIR = Path(__file__).resolve().parent / "screenshots"
 SHOT_LS = SHOT_DIR / "shot_limesurvey.mjs"
@@ -51,7 +52,7 @@ def _has_datetime_question(tsv: Path) -> bool:
     return False
 
 
-def _shot_limesurvey(entities: list[tuple[str, Path]], out_dir: Path) -> dict[str, str]:
+def _shot_limesurvey(entities: list[tuple[str, Path]], out_dir: Path, done) -> dict[str, str]:
     report: dict[str, str] = {}
     started = ls_stack.ensure_up()
     try:
@@ -70,6 +71,7 @@ def _shot_limesurvey(entities: list[tuple[str, Path]], out_dir: Path) -> dict[st
                 if _has_datetime_question(tsv):
                     cmd.append("--picker")
                 _run(cmd)
+                done(slug, "limesurvey")
                 report[slug] = "ok"
             except Exception as e:
                 report[slug] = f"error: {e}"
@@ -92,8 +94,8 @@ def _render_xlsx(edir: Path, tmp_dir: Path) -> Path:
     from-file question once its media is present. Every other type uses the
     committed ``xlsform.xlsx`` unchanged.
     """
-    committed = edir / "xlsform.xlsx"
-    src = edir / "xlsform.json"
+    committed = edir / "generated" / "xlsform.xlsx"
+    src = edir / "fixtures" / "xlsform.json"
     if not src.exists():
         return committed
     xlsform = json.loads(src.read_text())
@@ -148,11 +150,12 @@ def _render_xlsx(edir: Path, tmp_dir: Path) -> Path:
     return dest
 
 
-def _shot_xlsform(entities: list[tuple[str, Path]], out_dir: Path) -> dict[str, str]:
+def _shot_xlsform(entities: list[tuple[str, Path]], out_dir: Path, done) -> dict[str, str]:
     report: dict[str, str] = {}
     tmp_dir = Path(tempfile.mkdtemp(prefix="cdl-shots-xlsx-"))
     for slug, edir in entities:
-        if not (edir / "xlsform.xlsx").exists():
+        if not (edir / "generated" / "xlsform.xlsx").exists():
+            report[slug] = "error: no generated/xlsform.xlsx (run codegen first)"
             continue
         try:
             xlsx = _render_xlsx(edir, tmp_dir)
@@ -162,6 +165,7 @@ def _shot_xlsform(entities: list[tuple[str, Path]], out_dir: Path) -> dict[str, 
             if slug.endswith("_other"):
                 cmd.append("--other")
             _run(cmd)
+            done(slug, "xlsform")
             report[slug] = "ok"
         except Exception as e:
             report[slug] = f"error: {e}"
@@ -176,16 +180,24 @@ def generate_screenshots(
 ) -> dict[str, dict[str, str]]:
     """Render screenshots for every entity on disk (optionally filtered by ``only``).
 
-    Writes ``<out_dir>/<slug>/{limesurvey,xlsform}.png``.
+    Writes ``<out_dir>/<slug>/{limesurvey,xlsform}.png`` and records each one
+    rendered in ``<out_dir>/rendered.json`` (version + source hash), which the
+    release manifest is built from (``codegen.screenshot_manifest``).
     """
-    entities = sorted((d.name, d) for d in (base_dir / "registry" / "entities").iterdir() if d.is_dir())
+    version = json.loads((base_dir / "package.json").read_text())["version"]
+
+    def done(slug: str, engine: str) -> None:
+        if out_dir.resolve() == (base_dir / "screenshots").resolve():
+            record_render(base_dir, slug, engine, version)
+
+    entities = [(s, base_dir / "registry" / "entities" / s) for s in entity_slugs(base_dir)]
     if only:
         wanted = set(only)
         entities = [(s, d) for s, d in entities if s in wanted]
 
     out: dict[str, dict[str, str]] = {}
     if "limesurvey" in engines:
-        out["limesurvey"] = _shot_limesurvey(entities, out_dir)
+        out["limesurvey"] = _shot_limesurvey(entities, out_dir, done)
     if "xlsform" in engines:
-        out["xlsform"] = _shot_xlsform(entities, out_dir)
+        out["xlsform"] = _shot_xlsform(entities, out_dir, done)
     return out

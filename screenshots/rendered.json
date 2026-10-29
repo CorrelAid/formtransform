@@ -1,0 +1,142 @@
+{
+  "date": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "8e6e18084e961dc63782ad58b4bee8badb82d57495d1d4da35da849345d478ed"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "cfa2c4d5f2552790c049dfde6c75ce155ccafa51cae10c545ba7d561915a2e0b"
+    }
+  },
+  "decimal": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "6d50cebf6d8d5a34857c95e4c05b6fdf4cc07e0e671c5f40cae401358db2966a"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "ee885f88157953577b2bd65b1ddfa8042afc1ffb4a29c9bed9169a28ecd98708"
+    }
+  },
+  "grid": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "c48b1045e691ad64faee852bee78e7771702bf11004729abd22826f8da4e64d0"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "d8b457d0e856c33b883641239e3f92e2c50a3490a7779997734408c642c8f8e7"
+    }
+  },
+  "integer": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "e625da3f51298e533420043cc8f1c9086b0b7140b9e9a773ee3193c2900a581f"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "ecab52c02744654c639344c0bb844e40420ba5993e9496d4e4d07397dfdc2f37"
+    }
+  },
+  "note": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "05171d0b086c92221b643e125d8d48c3e83a9264ca44d193423e067e855d481c"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "81cf8fd46fb60ed1fd26baacdb604245914fbdcdf77d88b0f07cbd87f78bc69f"
+    }
+  },
+  "range": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "0d409badede2c7178c45537f234731e792e380b5b6d7ccf6bdcf4baaa3d7fc19"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "ca1f19746b419c2f6cc1648de644fdcc23dcfd92297f7b0a3383977076456d33"
+    }
+  },
+  "select_multiple": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "cf4d43787c19f6f4fe358ce63e29e6319a96adf3525f4c135e2bd501f6d2373a"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "3c11976f85097fe1412691d3ef5f7f846bd6fb861ee604c493f72039de5e3981"
+    }
+  },
+  "select_multiple_long_list": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "6ba2a44ff1c12ebc061f7c88094065d2ebcfbb04d1b6d4d77f856c465136e2ce"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "1a55727d660a9c33093d2b6193a4ebc8d57fa2a3dee34048792b1db5038e18ee"
+    }
+  },
+  "select_multiple_other": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "d1a3e9d6e2b961f42bf051d0d5a669531df558bf032123d6647cc805d78232a0"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "ed2fb4f12e2e9dd4d286eb0e962d37f869325a25912cb01ae682bd8427490352"
+    }
+  },
+  "select_one": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "a5c95ce7e435628df13df9315842596a464ed4feb4b33920e38bf2f30ff6c1c9"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "dd5ac1e8813d694b86c08a6a859bae0ff2eb6a02301b16add64566bbfad258f1"
+    }
+  },
+  "select_one_long_list": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "57bb853aca82fedbd2a803858e95eefba71514ec1010c03ab454011231a59e89"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "47e2f3f3a784720660e46f1766ca6ac8abc6f3cf26a0f44d9959e6852c6f8c45"
+    }
+  },
+  "select_one_other": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "76b4259c95c4b7aa90a84b32127a04c95e1c127479ac36b7dc422e6fac3dee80"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "f22fcfe97dedbbc174c3e00b4a52c653082da1210324677aa5a833849641db8e"
+    }
+  },
+  "text": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "3312740e522f8e183eddd551e77ab1aa15915412c07363dce3a1dcec6de7c020"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "54b347ab9d8e326574e0c264178663fee4c790a58b05183a5e117db6be2dc0d6"
+    }
+  },
+  "time": {
+    "limesurvey": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "dd8aa52851ec073821004f62e5a73c5654aafab03f61c9d277841b255e4debb7"
+    },
+    "xlsform": {
+      "renderedFrom": "0.8.1",
+      "sourceSha256": "e788593cb1a7fff71d6a34fcc02e3ed0c9fa7d4e1de4416012fb6c2a72efbc52"
+    }
+  }
+}
