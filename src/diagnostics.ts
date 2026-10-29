@@ -40,6 +40,7 @@ export type DiagnosticCode =
   | 'vocab-file-missing'
   | 'vocab-unregistered'
   | 'vocab-csv-invalid'
+  | 'vocab-codes-derived'
   | 'appearance-unregistered'
   | 'appearance-invalid-for-type'
   | 'exclusive-invalid'

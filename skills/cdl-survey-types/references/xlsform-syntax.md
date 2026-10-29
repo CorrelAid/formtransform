@@ -50,11 +50,12 @@ To limit how many answers a `select_multiple` takes, write `count-selected(.) <=
 
 | `appearance` | Meaning | Valid on |
 |---|---|---|
+| `autocomplete` | Dropdown with search (autocomplete) | `select_one`, `select_one_from_file` |
 | `field-list` | Field list group | `begin_group` |
 | `label` | Matrix header row | `begin_group`, `select_one` |
 | `likert` | Likert appearance hint | `select_one` |
 | `list-nolabel` | Matrix body row | `select_one` |
-| `minimal` | Dropdown / minimal display | `select_one` |
+| `minimal` | Dropdown / minimal display | `select_one`, `select_one_from_file` |
 | `multiline` | Multi-line text | `text` |
 | `table-list` | Table list (matrix) | `begin_group` |
 

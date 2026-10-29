@@ -881,6 +881,14 @@
                 "ddi-emitter"
               ],
               "description": "False when a row bearing this appearance is presentation-only and stores no response (the matrix header row): it must not become a DDI variable. Absent means the row carries data as usual."
+            },
+            "lsReverse": {
+              "type": "boolean",
+              "required": false,
+              "consumedBy": [
+                "ls-transformer"
+              ],
+              "description": "False when the way back from LimeSurvey must not write this appearance for its lsTypeOverride, because another appearance has the same override (autocomplete and minimal both give `!`; the way back writes minimal). Absent means it does."
             }
           }
         },

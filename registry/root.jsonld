@@ -118,10 +118,28 @@
       "supported": true,
       "behavior": "handled",
       "validForTypes": [
-        "select_one"
+        "select_one",
+        "select_one_from_file"
       ],
       "lsEffect": "Override LS type from L to !",
       "lsTypeOverride": "!"
+    },
+    {
+      "@id": "appearance:autocomplete",
+      "@type": "Appearance",
+      "skos:prefLabel": "Dropdown with search (autocomplete)",
+      "xlsform": {
+        "appearanceString": "autocomplete"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one",
+        "select_one_from_file"
+      ],
+      "lsEffect": "Override LS type from L to ! (a dropdown; LimeSurvey has no built-in search, see convention:externalCodeList limesurveyCssClassPurpose)",
+      "lsTypeOverride": "!",
+      "lsReverse": false
     },
     {
       "@id": "appearance:multiline",

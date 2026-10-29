@@ -3,6 +3,7 @@ import { ChoiceRow } from '../../xlsform/types.js';
 import { FieldSanitizer } from '../../xlsform/sanitize.js';
 import { TypeInfo } from './typeMapper.js';
 import { deduplicateNames } from '../../utils/helpers.js';
+import { vocabAnswerCodes } from '../../conventions/fromFile.js';
 
 /**
  * Manages choice lists and answer codes for the XLSForm to TSV conversion
@@ -19,6 +20,8 @@ export class ChoiceManager {
    * (convention:choiceFilter `recode`): choice name → code.
    */
   private questionCodes = new Map<string, Map<string, string>>();
+  /** `select_*_from_file` lists (by filename) → their LimeSurvey codes. */
+  private fileListCodes = new Map<string, Map<string, string>>();
 
   constructor(private fieldSanitizer: FieldSanitizer) {}
 
@@ -49,6 +52,13 @@ export class ChoiceManager {
   addFileChoices(fileChoices: Record<string, ChoiceRow[]>): void {
     for (const [filename, choices] of Object.entries(fileChoices)) {
       this.choicesMap.set(filename, choices);
+      // convention:externalCodeList `limesurveyCodes`: stable, not row-ordered.
+      const names = choices.map((c) => String(c.name ?? '').trim());
+      const codes = vocabAnswerCodes(names);
+      this.fileListCodes.set(
+        filename,
+        new Map(names.map((name, i) => [name, codes[i]])),
+      );
     }
   }
 
@@ -56,11 +66,16 @@ export class ChoiceManager {
     this.answerCodeMap = new Map();
     for (const [listName, choices] of this.choicesMap) {
       const codeMap = new Map<string, string>();
-      const sanitized = choices.map((c) => {
-        const raw = c.name?.trim() || '';
-        return raw ? sanitizeAnswerCode(raw) : '';
-      });
-      const deduplicated = deduplicateNames(sanitized, 5);
+      const fileCodes = this.fileListCodes.get(listName);
+      const deduplicated = fileCodes
+        ? choices.map((c) => fileCodes.get(c.name?.trim() ?? '') ?? '')
+        : deduplicateNames(
+            choices.map((c) => {
+              const raw = c.name?.trim() || '';
+              return raw ? sanitizeAnswerCode(raw) : '';
+            }),
+            5,
+          );
       for (let i = 0; i < choices.length; i++) {
         const originalName = choices[i].name?.trim() || '';
         if (originalName && deduplicated[i]) {
@@ -147,6 +162,27 @@ export class ChoiceManager {
     resolvedName: string,
   ): ReadonlyMap<string, string> | undefined {
     return this.questionCodes.get(resolvedName);
+  }
+
+  /** How many of a `select_*_from_file` list's codes were derived (didn't fit). */
+  derivedFileCodes(listName: string): number {
+    const codes = this.fileListCodes.get(listName);
+    if (!codes) return 0;
+    return [...codes].filter(([name, code]) => name !== code).length;
+  }
+
+  /**
+   * The LimeSurvey codes of `choices` when `listName` is a
+   * `select_*_from_file` list (convention:externalCodeList), else undefined.
+   */
+  fileListCodesOf(
+    listName: string,
+    choices: ChoiceRow[],
+  ): string[] | undefined {
+    const codes = this.fileListCodes.get(listName);
+    return (
+      codes && choices.map((c) => codes.get(String(c.name ?? '').trim()) ?? '')
+    );
   }
 
   getChoices(listName: string): ChoiceRow[] | undefined {

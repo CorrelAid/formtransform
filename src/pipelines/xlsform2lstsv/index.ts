@@ -29,7 +29,7 @@ import { AppearanceHandler } from './appearanceHandler.js';
 import { registeredFileChoices } from '../../vocab.js';
 import { XLSValidator } from '../../xlsform/validate.js';
 import type { RowCheckContext } from '../../xlsform/validate.js';
-import { ConversionError, consoleWarning } from '../../diagnostics.js';
+import { ConversionError, consoleWarning, warning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { parameterAttributes } from './parameters.js';
 import { MappingRecorder } from './mappingRecorder.js';
@@ -92,6 +92,8 @@ class Conversion {
   private rowCheck: RowCheckContext = { listNames: new Set() };
   /** Each filtered question's `array_filter`, by LimeSurvey name. */
   private arrayFilters = new Map<string, ArrayFilter>();
+  /** File lists whose derived codes were reported already. */
+  private reportedFileLists = new Set<string>();
   /** How this conversion renamed the form (convention:lstsvMapping). */
   readonly mapping = new MappingRecorder();
   private readonly warn: WarningHandler;
@@ -446,6 +448,7 @@ class Conversion {
     if (xfTypeInfo.base in FROM_FILE_BASE) {
       cdlVocab = vocabFromFilename(xfTypeInfo.listName ?? '');
       xfTypeInfo = { ...xfTypeInfo, base: FROM_FILE_BASE[xfTypeInfo.base] };
+      this.reportDerivedCodes(xfTypeInfo.listName ?? '');
     }
 
     const appearance = q.appearance;
@@ -514,6 +517,24 @@ class Conversion {
           this.mapping.codes(questionName, choices, emitted),
       });
     }
+  }
+
+  /**
+   * Once per `select_*_from_file` list: how many of its codes LimeSurvey
+   * can't take as they are, and so get derived ones
+   * (convention:externalCodeList `limesurveyCodes`).
+   */
+  private reportDerivedCodes(listName: string): void {
+    const count = this.choiceManager.derivedFileCodes(listName);
+    if (count === 0 || this.reportedFileLists.has(listName)) return;
+    this.reportedFileLists.add(listName);
+    this.warn(
+      warning(
+        'vocab-codes-derived',
+        `${count} code(s) of ${listName} don't fit LimeSurvey's answer codes; they get stable codes derived from each code, and the mapping (--mapping) gives back the originals`,
+        listName,
+      ),
+    );
   }
 
   /**

@@ -12,15 +12,25 @@ export interface AppearanceSpec {
   lsTypeOverride?: string;
   /** False when a row bearing this appearance stores no response (matrix header). */
   carriesData?: boolean;
+  /** False when the way back from LimeSurvey writes another appearance for its override. */
+  lsReverse?: boolean;
 }
 
 export const APPEARANCES: Record<string, AppearanceSpec> = {
   "minimal": {
     supported: true,
     behavior: "handled",
-    validForTypes: ["select_one"],
+    validForTypes: ["select_one", "select_one_from_file"],
     lsEffect: "Override LS type from L to !",
     lsTypeOverride: "!",
+  },
+  "autocomplete": {
+    supported: true,
+    behavior: "handled",
+    validForTypes: ["select_one", "select_one_from_file"],
+    lsEffect: "Override LS type from L to ! (a dropdown; LimeSurvey has no built-in search, see convention:externalCodeList limesurveyCssClassPurpose)",
+    lsTypeOverride: "!",
+    lsReverse: false,
   },
   "multiline": {
     supported: true,

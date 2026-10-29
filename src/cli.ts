@@ -73,10 +73,11 @@ Options:
       --show-no-answer    Keep the "no answer" option on non-mandatory questions
       --sanitize          Accept names and answer codes outside LimeSurvey's limits
                           (k23_ars, -98): they are sanitized (k23ars, n98) and each
-                          change is recorded in the mapping, written beside -o as
-                          <name>.mapping.json unless --mapping says where
+                          change is recorded in the mapping
       --mapping <file>    Write the mapping (LimeSurvey name/code → XLSForm) to
-                          <file>; lstsv2ddi and lstsv2xlsform read it back
+                          <file>; lstsv2ddi and lstsv2xlsform read it back.
+                          Default: beside -o as <name>.mapping.json, when the TSV
+                          renames anything (or with --sanitize)
       --skip-validation   Skip XLSForm sheet/column validation
   -h, --help              Show this help
 `,
@@ -332,21 +333,23 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
 }
 
 /**
- * Write the mapping where `--mapping` says, else (with `--sanitize`) beside
- * the TSV. With the TSV on stdout and no `--mapping`, say it isn't written.
+ * Write the mapping where `--mapping` says, else beside the TSV when it
+ * renames anything (or with `--sanitize`). With the TSV on stdout and no
+ * `--mapping`, say it isn't written.
  */
 function emitMapping(
   mapping: Parameters<typeof isEmptyMapping>[0],
   where: { explicit?: string; output?: string; sanitize: boolean },
 ): void {
+  const wanted = where.sanitize || !isEmptyMapping(mapping);
   const path =
     where.explicit ??
-    (where.sanitize && where.output ? mappingPathFor(where.output) : undefined);
+    (wanted && where.output ? mappingPathFor(where.output) : undefined);
   if (path) {
     emit(JSON.stringify(mapping, null, 2) + '\n', path);
     return;
   }
-  if (where.sanitize && !isEmptyMapping(mapping)) {
+  if (!isEmptyMapping(mapping)) {
     process.stderr.write(
       `${PROG}: warning: the TSV renames names or codes; pass --mapping <file> (or -o) to keep the mapping back to the XLSForm\n`,
     );

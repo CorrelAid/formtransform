@@ -479,3 +479,47 @@ describe('--sanitize and the mapping (#189)', () => {
     expect(r.stderr).toMatch(/Not a LimeSurvey mapping/);
   });
 });
+
+describe('a long select_one_from_file list (#188)', () => {
+  test('the mapping lands beside -o, and lstsv2ddi --data gives back the codes', () => {
+    const codes = Array.from({ length: 50 }, (_, i) =>
+      String(10_000_000_000 + i * 7919).padStart(12, '0'),
+    );
+    writeFileSync(
+      join(dir, 'kommunen.csv'),
+      ['name,label', ...codes.map((c, i) => `${c},Gemeinde ${i}`)].join('\n'),
+    );
+    const form = writeXlsx('kommunen_form', {
+      survey: [
+        {
+          type: 'select_one_from_file kommunen.csv',
+          name: 'kommune',
+          label: 'Gemeinde?',
+          appearance: 'autocomplete',
+        },
+      ],
+      choices: [{ list_name: 'x', name: 'x', label: 'x' }],
+    });
+    const out = join(dir, 'kommunen_form.tsv');
+    const r = cli('xlsform2lstsv', form, '-o', out);
+    expect(r.status, r.stderr).toBe(0);
+    expect(r.stderr).toContain('50 code(s) of kommunen.csv');
+    expect(r.stderr).toContain('kommunen_form.mapping.json');
+    const tsv = rowsOf(readFileSync(out, 'utf-8'));
+    expect(tsv.find((x) => x.class === 'Q')?.['type/scale']).toBe('!');
+    const lsCode = tsv.filter((x) => x.class === 'A')[7].name;
+
+    writeFileSync(join(dir, 'export.csv'), `id,kommune\n1,${lsCode}\n`);
+    const ddi = cli(
+      'lstsv2ddi',
+      out,
+      '-o',
+      join(dir, 'kommunen.xml'),
+      '--data',
+      join(dir, 'export.csv'),
+    );
+    expect(ddi.status, ddi.stderr).toBe(0);
+    const data = readFileSync(join(dir, 'data.csv'), 'utf-8');
+    expect(data.trim().split(/\r?\n/)[1]).toBe(codes[7]);
+  });
+});
