@@ -10,6 +10,7 @@
  */
 
 import { defaultConfig } from '../config/types.js';
+import conventions from '../generated/conventions.js';
 import type { SurveyRow, ChoiceRow, SettingsRow } from './types.js';
 import { EXCLUSIVE_RULE, isExclusive } from '../conventions/exclusive.js';
 import {
@@ -34,6 +35,11 @@ import { languageTagOf } from '../utils/languageUtils.js';
 import { withoutSpacedGuidance } from '../utils/parameters.js';
 
 type Row = Record<string, string>;
+
+/** Settings with a title element besides form_title (#181). */
+const TITLE_KEYS = new Set<string>(
+  Object.values(conventions.conventions.ddiFields.notes.setting.titles),
+);
 
 type LabelValue = string | Record<string, string>;
 
@@ -131,11 +137,24 @@ function buildSettingsRow(
   }
   for (const [key, value] of Object.entries(instrument.settings)) {
     if (key === 'form_title' || key === 'default_language') continue;
-    if ((typeof value === 'string' && value) || typeof value === 'number') {
-      row[key] = String(value);
-    }
+    const cell = settingCell(key, value);
+    if (cell !== undefined) row[key] = cell;
   }
   return Object.keys(row).length > 0 ? [row] : [];
+}
+
+/**
+ * A setting's cell: a string or number as text, and a subtitle or short
+ * title per language (#181) as the form had it; else none.
+ */
+function settingCell(key: string, value: unknown): LabelValue | undefined {
+  if ((typeof value === 'string' && value) || typeof value === 'number') {
+    return String(value);
+  }
+  if (value && typeof value === 'object' && TITLE_KEYS.has(key)) {
+    return value as Record<string, string>;
+  }
+  return undefined;
 }
 
 /** Emit an {@link Instrument} as XLSForm sheets. */
@@ -221,6 +240,8 @@ function emitGroup(group: GroupItem, ctx: EmitCtx): void {
   if (hint) row.hint = htmlLabel(hint);
   const guidance = ctx.label(group.guidanceHint);
   if (guidance) row.guidance_hint = htmlLabel(guidance);
+  const labelShort = ctx.label(group.labelShort);
+  if (labelShort) row.label_short = labelShort;
   const concept = ctx.label(group.concept);
   if (concept) row.concept = concept;
   if (group.appearance) row.appearance = appearanceCell(group);
@@ -285,6 +306,8 @@ function questionRow(q: QuestionItem, ctx: EmitCtx): SurveyRow {
     if (value) row[column] = htmlLabel(value);
   }
   // Not a text a survey tool renders: as the form wrote it (#173).
+  const labelShort = ctx.label(q.labelShort);
+  if (labelShort) row.label_short = labelShort;
   const concept = ctx.label(q.concept);
   if (concept) row.concept = concept;
   const plain: Array<[string, string]> = [

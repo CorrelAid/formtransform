@@ -10,16 +10,21 @@ import { isMetadataType } from './metadata.js';
 const LIFTED = conventions.conventions.ddiFields.liftedColumns;
 
 /**
- * `group`: a `begin_group` row, which lifts no question-only column (#179).
- * `row`: a note row or a row without data, which lifts only what its
- * `cdl:row_*` notes carry (#195).
+ * The kind of row: `survey` a question that is a `<var>`, `varGrp` a
+ * question the codebook makes a `varGrp` (a select_multiple, a semi-open
+ * question), `group` a `begin_group` row, `row` a note row or a row without
+ * data (a metadata row, a matrix header). A group lifts no question-only
+ * column (#179); only a varGrp lifts a varGrp-only one (#181); a `row`
+ * lifts only what its `cdl:row_*` notes carry (#195).
  */
-export type Sheet = 'survey' | 'group' | 'row' | 'choices';
+export type Sheet = 'survey' | 'varGrp' | 'group' | 'row' | 'choices';
 
 const QUESTION_ONLY = new Set<string>(LIFTED.questionOnly);
+const VARGRP_ONLY = new Set<string>(LIFTED.varGrpOnly);
 
 const liftedBy: Record<Sheet, Set<string>> = {
-  survey: new Set(LIFTED.survey),
+  survey: new Set(LIFTED.survey.filter((c) => !VARGRP_ONLY.has(c))),
+  varGrp: new Set(LIFTED.survey),
   group: new Set(LIFTED.survey.filter((c) => !QUESTION_ONLY.has(c))),
   row: new Set(LIFTED.row),
   choices: new Set(LIFTED.choices),

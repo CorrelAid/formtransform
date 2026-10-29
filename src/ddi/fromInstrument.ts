@@ -58,7 +58,7 @@ const SKIP_TYPES: Set<string> = new Set([
   ...METADATA_ROW_TYPES,
 ]);
 
-type OptionalField = 'hint' | 'guidanceHint' | 'concept';
+type OptionalField = 'hint' | 'guidanceHint' | 'concept' | 'labelShort';
 
 /** Keep only the non-empty fields, so absent hints stay absent. */
 function optionalText(
@@ -114,10 +114,11 @@ function pick(text: Text, lang: string | undefined): string {
 }
 
 /**
- * The base language's concept (#173): `lang`'s, else the untagged. Never
- * another language's, which stays its translation.
+ * The base language's text of an optional field, a concept (#173) or a
+ * short label (#181): `lang`'s, else the untagged. Never another
+ * language's, which stays its translation.
  */
-function ownConcept(text: Text | undefined, lang: string | undefined): string {
+function ownText(text: Text | undefined, lang: string | undefined): string {
   const own = lang !== undefined && text && lang in text ? text[lang] : '';
   return (own || text?.[''] || '').trim();
 }
@@ -445,6 +446,7 @@ function pushQuestion(
       groupLabel: ctx.labelText,
       constraintMessage: q.constraintMessage,
       concept: varConcept(q),
+      labelShort: q.labelShort,
     },
     state.others,
   );
@@ -461,7 +463,8 @@ function pushQuestion(
     ...optionalText({
       hint: pick(q.hint, state.lang).trim(),
       guidanceHint: pick(q.guidanceHint, state.lang).trim(),
-      concept: ownConcept(varConcept(q), state.lang),
+      concept: ownText(varConcept(q), state.lang),
+      labelShort: ownText(q.labelShort, state.lang),
     }),
     ...groupsOf(ctx),
     ...logicOf(q, state.lang),
@@ -472,6 +475,26 @@ function pushQuestion(
   });
 
   if (other) pushCompanion(q, stdType, other, ctx, state);
+}
+
+/** A group's concept (#173) and short label (#181), each where it has one. */
+function groupTexts(
+  item: Item,
+  state: ProjectState,
+): Pick<
+  DdiGroup,
+  'concept' | 'conceptTranslations' | 'labelShort' | 'labelShortTranslations'
+> {
+  const concept = ownText(item.concept, state.lang);
+  const conceptTranslations = translationsOf(item.concept, state.others);
+  const labelShort = ownText(item.labelShort, state.lang);
+  const labelShortTranslations = translationsOf(item.labelShort, state.others);
+  return {
+    ...(concept ? { concept } : {}),
+    ...(conceptTranslations ? { conceptTranslations } : {}),
+    ...(labelShort ? { labelShort } : {}),
+    ...(labelShortTranslations ? { labelShortTranslations } : {}),
+  };
 }
 
 function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
@@ -489,8 +512,7 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       item.guidanceHint,
       state.others,
     );
-    const concept = ownConcept(item.concept, state.lang);
-    const conceptTranslations = translationsOf(item.concept, state.others);
+
     const group: DdiGroup = {
       name: item.name,
       path,
@@ -502,8 +524,7 @@ function project(items: Item[], ctx: GroupContext, state: ProjectState): void {
       ...(hintTranslations ? { hintTranslations } : {}),
       ...(guidanceHint ? { guidanceHint } : {}),
       ...(guidanceHintTranslations ? { guidanceHintTranslations } : {}),
-      ...(concept ? { concept } : {}),
-      ...(conceptTranslations ? { conceptTranslations } : {}),
+      ...groupTexts(item, state),
       ...(Object.values(item.label).some((t) => t.trim())
         ? {}
         : { unlabelled: true }),

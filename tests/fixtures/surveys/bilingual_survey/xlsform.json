@@ -16,6 +16,10 @@
         "de": "Zur Person",
         "en": "About you"
       },
+      "label_short": {
+        "de": "Teil A",
+        "en": "Part A"
+      },
       "_languages": ["de", "en"]
     },
     {
@@ -59,6 +63,9 @@
         "de": "Welche Sprachen sprechen Sie?",
         "en": "Which languages do you speak?"
       },
+      "label_short": {
+        "de": "F3"
+      },
       "_languages": ["de", "en"]
     },
     {
@@ -67,6 +74,10 @@
       "label": {
         "de": "Wie haben Sie von uns erfahren?",
         "en": "How did you hear about us?"
+      },
+      "label_short": {
+        "de": "F4",
+        "en": "Q4"
       },
       "_languages": ["de", "en"]
     },
@@ -79,6 +90,10 @@
       "label": {
         "de": "Wie sehr vertrauen Sie …",
         "en": "How much do you trust …"
+      },
+      "label_short": {
+        "de": "Vertrauen (5 Items)",
+        "en": "Trust (5 items)"
       },
       "appearance": "table-list",
       "_languages": ["de", "en"]
@@ -203,6 +218,11 @@
   "settings": [
     {
       "form_title": "Zweisprachige Befragung",
+      "form_subtitle": {
+        "de": "Eine Testbefragung",
+        "en": "A test survey"
+      },
+      "form_title_short": "ZB",
       "form_id": "bilingual_survey",
       "default_language": "Deutsch (de)"
     }

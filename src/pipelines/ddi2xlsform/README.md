@@ -25,6 +25,7 @@ Standard DDI first, `cdl:` notes where DDI has no element
 |---|---|
 | type | `qstn/@responseDomainType`; `varFormat/@category` (date, time); `var/@dcml="0"` (integer); `valrng` without a constraint (range); `concept/@vocab` (`select_*_from_file`); the `or_other` shorthand: `cdl:or_other` |
 | label / hint / guidance_hint | `qstnLit` / `postQTxt` / `ivuInstr`, every `xml:lang` |
+| label_short (and `label_short::<lang>`) | `labl` on the `varGrp` of a group, a select_multiple or a semi-open question, every `xml:lang` (#181); on any other row a `cdl:column` (a note's or data-less row's `cdl:row_column`) |
 | concept (and `concept::<lang>`) | `concept` on the `var`, or on the `varGrp` of a group, a select_multiple or a semi-open select_multiple, every `xml:lang` (#173); a note's or data-less row's `cdl:row_column`. A codebook from elsewhere that copies the label into `concept` gets a `concept` column with that copy |
 | a note row before a question | its `preQTxt` (a grid member's is the grid's text) or its group's untyped `notes`; the rows' names in `cdl:note_names`, and each one's own text in `cdl:row_label` where the blank lines joining them can't separate them |
 | a note row with no question after it in its group | `stdyDscr/notes[@type='instruction']`, placed by `cdl:position` |
@@ -56,8 +57,11 @@ Standard DDI first, `cdl:` notes where DDI has no element
 - **A fragment**, i.e. a `<dataDscr>` or bare `<var>` / `<varGrp>` elements, is
   read the same way. A `varGrp` that refers to a `var` outside the fragment
   gets `ddi-reference-outside`.
-- XML that is not well-formed, or holds neither a `codeBook` nor a `var`,
-  throws `ddi-invalid`.
+- **A `var` without `ID`** (optional in DDI 2.5) is read by its `name`, as a
+  standalone question: no `varGrp` can refer to it (#170).
+- XML that is not well-formed, holds neither a `codeBook` nor a `var`, or has
+  a `var` with neither `ID` nor `name` (`name` is required in DDI 2.5) throws
+  `ddi-invalid`, and the message says which.
 
 ## Known losses
 

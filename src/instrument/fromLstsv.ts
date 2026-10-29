@@ -12,6 +12,17 @@
 import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
+import {
+  COUNT_SELECTED,
+  MAX_ANSWERS_ATTRIBUTE,
+  MIN_ANSWERS_ATTRIBUTE,
+  countsSelections,
+} from '../conventions/selectionCount.js';
+import {
+  ARRAY_FILTER_ATTRIBUTE,
+  CHOICE_FILTER_COLUMN,
+  choiceFilterFor,
+} from '../conventions/choiceFilter.js';
 import type { APPEARANCES } from '../generated/Appearances.js';
 
 /** The registry appearance for a group shown as one page. */
@@ -90,8 +101,13 @@ interface ParseState {
   lists: Record<string, InstrumentChoice[]>;
   /** Selects with `other=Y`, by name: their `<name>other` text is the companion. */
   otherSelects: Set<string>;
-  /** Group names given so far, to keep them unique. */
-  groupNames: Set<string>;
+  /**
+   * Names taken: every question's and array's code (and an `or_other`
+   * select's companion, the welcome and end notes) up front, then each
+   * group's as it is given. An
+   * XLSForm name is unique across groups and questions alike.
+   */
+  names: Set<string>;
 }
 
 const text = (state: ParseState, key: string): Text => ({
@@ -164,6 +180,11 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
   const otherLabel = state.tr.has(`other:${key}`)
     ? { otherLabel: text(state, `other:${key}`) }
     : {};
+  // array_filter = q: the options q's ticked subquestions keep (convention:choiceFilter).
+  const arrayFilter = cell(row, ARRAY_FILTER_ATTRIBUTE);
+  const columns = arrayFilter
+    ? { columns: { [CHOICE_FILTER_COLUMN]: choiceFilterFor(arrayFilter) } }
+    : {};
   return {
     kind: 'question',
     ...emptyItem(row),
@@ -183,6 +204,7 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
     default: cell(row, 'default'),
     parameters: t.resolved.parameters ?? '',
     ...otherLabel,
+    ...columns,
   };
 }
 
@@ -230,7 +252,10 @@ const XLSFORM_NAME = /^[A-Za-z_][A-Za-z0-9._-]*$/;
 
 /**
  * A plain group's name: LimeSurvey's group name is its title, so one that is
- * no XLSForm name (`Über Sie`) is slugified (`bersie`), made unique.
+ * no XLSForm name (`Über Sie`) is slugified (`bersie`), made unique among
+ * the groups and the questions: LimeSurvey keeps titles and question codes
+ * apart, XLSForm doesn't, so a group titled `q4` beside a question `q4` is
+ * `q4_2` (#197).
  */
 function groupName(title: string, state: ParseState): string {
   let name = title;
@@ -245,9 +270,27 @@ function groupName(title: string, state: ParseState): string {
     name = slug && !/^[0-9]/.test(slug) ? slug : `group${slug}`;
   }
   const base = name;
-  for (let i = 2; state.groupNames.has(name); i++) name = `${base}_${i}`;
-  state.groupNames.add(name);
+  for (let i = 2; state.names.has(name); i++) name = `${base}_${i}`;
+  state.names.add(name);
   return name;
+}
+
+/**
+ * Every name a question item can have: a Q row's code (an array's too), a
+ * grid member's SQ code, and an `or_other` select's companion.
+ */
+function reserveQuestionNames(baseRows: Row[], names: Set<string>): void {
+  let array = false;
+  for (const row of baseRows) {
+    const cls = cell(row, 'class');
+    if (cls === 'G') array = false;
+    if (cls === 'Q') {
+      array = cell(row, 'type/scale') === 'F';
+      names.add(cell(row, 'name'));
+      if (cell(row, 'other') === 'Y')
+        names.add(cell(row, 'name') + OTHER_SUFFIX);
+    } else if (cls === 'SQ' && array) names.add(cell(row, 'name'));
+  }
 }
 
 /** Walk the base-language rows into groups, questions and choice lists. */
@@ -342,6 +385,7 @@ function messageNote(
 ): QuestionItem[] {
   const label = text(state, `label:SL:${setting}`);
   if (Object.keys(label).length === 0) return [];
+  state.names.add(name);
   const row = { type: 'note', name };
   return [
     {
@@ -406,9 +450,32 @@ function reverseAllExpressions(
       reverseRelevance(em, selectCtx),
     );
     if (item.kind === 'question') {
-      item.constraint = reverse(item, 'em_validation_q', reverseConstraint);
+      const equation = reverse(item, 'em_validation_q', (em) =>
+        reverseConstraint(em, { ...selectCtx, self: item.name }),
+      );
+      item.constraint = withAnswerBounds(item, equation);
     }
   }
+}
+
+/**
+ * A multiple choice's `min_answers` / `max_answers` as the
+ * `count-selected(.)` bounds the forward path read them from
+ * (convention:logicMapping `selectionCount`), ANDed before `equation`.
+ */
+function withAnswerBounds(q: QuestionItem, equation: string): string {
+  if (!countsSelections(q.type)) return equation;
+  const row = q.row as Row;
+  const min = cell(row, MIN_ANSWERS_ATTRIBUTE);
+  const max = cell(row, MAX_ANSWERS_ATTRIBUTE);
+  const terms = [
+    ...(min ? [`${COUNT_SELECTED}(.) >= ${min}`] : []),
+    ...(max ? [`${COUNT_SELECTED}(.) <= ${max}`] : []),
+  ];
+  if (terms.length === 0) return equation;
+  if (equation)
+    terms.push(/\bor\b/.test(equation) ? `(${equation})` : equation);
+  return terms.join(' and ');
 }
 
 export interface LstsvParseOptions {
@@ -455,18 +522,17 @@ export function instrumentFromLstsv(
     tr: collectTranslations(rows),
     lists: {},
     otherSelects: new Set(),
-    groupNames: new Set(),
+    names: new Set(),
   };
   const baseRows = rows.filter(
     (r) =>
       !['S', 'SL'].includes(cell(r, 'class')) &&
       (!base || cell(r, 'language') === base),
   );
-  const body = [
-    ...messageNote('welcome', 'surveyls_welcometext', state),
-    ...parseBody(baseRows, state),
-    ...messageNote('end', 'surveyls_endtext', state),
-  ];
+  reserveQuestionNames(baseRows, state.names);
+  const welcome = messageNote('welcome', 'surveyls_welcometext', state);
+  const end = messageNote('end', 'surveyls_endtext', state);
+  const body = [...welcome, ...parseBody(baseRows, state), ...end];
   if (options.expressions) {
     reverseAllExpressions(body, state.lists, options.onWarning);
   }

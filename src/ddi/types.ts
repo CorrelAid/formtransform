@@ -61,6 +61,10 @@ export interface DdiGroup {
   concept?: string;
   /** `concept` in the form's other languages. */
   conceptTranslations?: Translations;
+  /** Its `label_short` column: the varGrp's `<labl>` (#181); absent when none. */
+  labelShort?: string;
+  /** `labelShort` in the form's other languages. */
+  labelShortTranslations?: Translations;
 }
 
 /** A variable's texts in one of the form's other languages. */
@@ -71,6 +75,7 @@ export interface VariableTexts {
   groupLabel?: string;
   constraintMessage?: string;
   concept?: string;
+  labelShort?: string;
 }
 
 /** One data-carrying (or note) row of a survey, normalized. */
@@ -102,6 +107,11 @@ export interface Variable {
    * form has none: the codebook then has no concept, not the label.
    */
   concept?: string;
+  /**
+   * XLSForm `label_short` column of a select_multiple or semi-open question,
+   * its varGrp's `<labl>` (#181). Absent when it has none.
+   */
+  labelShort?: string;
   /**
    * The enclosing groups, outermost first (#152). Without it the codebook
    * has no `section` groups.

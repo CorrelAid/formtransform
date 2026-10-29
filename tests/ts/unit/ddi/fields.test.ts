@@ -230,12 +230,12 @@ describe('cdl: notes', () => {
     );
     expect(varXml(xml, 't')).not.toContain('ivuInstr');
 
-    // And back, every language (keyed by tag: these rows name none).
+    // And back, every language, by the form's names for them (#183).
     const back = ddiToXlsform(xml).survey[0];
     expect(back).toMatchObject({
       type: 'begin_group',
       name: 'g',
-      guidance_hint: { de: 'Vorlesen', en: 'Read out' },
+      guidance_hint: { 'Deutsch (de)': 'Vorlesen', 'English (en)': 'Read out' },
       required: 'yes',
       constraint_message: 'Nope',
     });
@@ -250,6 +250,8 @@ describe('cdl: notes', () => {
       'constraint_message::Deutsch (de)': 'Nein',
       default: 'x',
       parameters: 'randomize=true',
+      // No varGrp, so no labl: a column too (#181).
+      'label_short::Deutsch (de)': 'Kurz',
     };
     const survey = [
       { type: 'start', name: 'start', ...cells },

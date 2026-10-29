@@ -61,8 +61,13 @@ export function extractVariables(
   choicesByList: Record<string, Choice[]>,
   options: { language?: string; onWarning?: WarningHandler } = {},
 ): Variable[] {
+  // The lists' codes only: whether a question is a semi-open pair, so a
+  // varGrp, decides where its label_short goes (#181).
+  const codes = Object.entries(choicesByList).flatMap(([list, choices]) =>
+    choices.map((c) => ({ list_name: list, name: c.name })),
+  );
   return variablesFromInstrument(
-    instrumentFromXlsform(surveyRows),
+    instrumentFromXlsform(surveyRows, codes),
     choicesByList,
     options,
   );

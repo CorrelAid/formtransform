@@ -13,7 +13,12 @@ name: Attach release assets
 #   snapshots (registry/entities/, tests/fixtures/surveys/), unpacking to those
 #   same repo paths. For consumers that run golden tests against them
 #   (formtransform-app), since the npm tarball ships dist/ only.
-# - SHA256SUMS: `sha256sum` of the three archives above, also appended to the
+# - formtransform-screenshots-<version>.tar.gz: screenshots/<slug>/{limesurvey,
+#   xlsform}.png, each registry type as a respondent sees it, plus
+#   screenshots/manifest.json (per slug and engine: file, width, height, engine,
+#   theme, renderedFrom, current). Built by `python -m codegen.screenshot_manifest
+#   pack`, which fails if an entity lacks a screenshot (formtransform#171).
+# - SHA256SUMS: `sha256sum` of the four archives above, also appended to the
 #   release notes, so consumers can pin a new version's checksums without
 #   downloading the archives first.
 #
@@ -65,6 +70,10 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       # npm ci runs `prepare`, which builds dist/.
       - name: Install and build
         run: npm ci
@@ -77,6 +86,8 @@ jobs:
             -C skills cdl-survey-types
           tar czf "assets/formtransform-fixtures-${{ steps.version.outputs.version }}.tar.gz" \
             registry/entities tests/fixtures/surveys
+          python -m codegen.screenshot_manifest pack "${{ steps.version.outputs.version }}" \
+            "assets/formtransform-screenshots-${{ steps.version.outputs.version }}.tar.gz"
           (cd assets && sha256sum -- * > SHA256SUMS && cat SHA256SUMS)
 
       - name: Smoke-test the tarball without install scripts

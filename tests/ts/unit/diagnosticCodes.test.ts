@@ -99,18 +99,18 @@ describe('loader', () => {
     );
   });
 
-  test('column-unexpected names the column (e.g. choice_filter)', () => {
+  test('column-unexpected names the column (e.g. read_only)', () => {
     const warnings: Diagnostic[] = [];
     const buf = workbook({
       survey: [
-        [...surveyHeader, 'choice_filter'],
+        [...surveyHeader, 'read_only'],
         ['text', 'q', 'Q?', 'x'],
       ],
       choices: [choicesHeader, ['yn', 'y', 'Ja']],
     });
     XLSLoader.parseXLSData(buf, { onWarning: (w) => warnings.push(w) });
     const w = warnings.find((x) => x.code === 'column-unexpected');
-    expect(w?.message).toContain('choice_filter');
+    expect(w?.message).toContain('read_only');
   });
 
   test('language-invalid: a well-formed tag with an unknown language', () => {

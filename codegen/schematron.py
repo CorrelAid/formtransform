@@ -109,7 +109,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
         <assert test="%P%qstn/@responseDomainType">Variable <value-of select="@name"/> is missing responseDomainType on qstn.</assert>
         <assert test="%P%qstn/%P%qstnLit">Variable <value-of select="@name"/> is missing a question literal (qstnLit).</assert>
         <assert test="%P%varFormat">Variable <value-of select="@name"/> is missing technical format (varFormat).</assert>
-        <assert test="not(%P%labl)">Variable <value-of select="@name"/> uses labl. labl is only for catgry elements: the question text is qstn/qstnLit.</assert>
+        <assert test="not(%P%labl)">Variable <value-of select="@name"/> uses labl. A var has no labl in CDL: the question text is qstn/qstnLit, and a short label is only on a varGrp.</assert>
         <assert test="every $l in distinct-values(%P%notes[not(@type)]/string(@xml:lang)) satisfies count(%P%notes[not(@type)][string(@xml:lang) = $l]) &lt;= 1">Variable <value-of select="@name"/> has more than one untyped notes element in one language. Only one untyped note per language is allowed; typed notes (convention:logicMapping, e.g. type="cdl:relevant") are not limited.</assert>
     </rule>
 
@@ -117,7 +117,7 @@ def generate_schematron(registry: dict[str, Any], output: Path) -> None:
     <rule context="%P%varGrp">
         <assert test="@name">Variable Group <value-of select="@ID"/> is missing a name attribute.</assert>
         <assert test="{vg_type_test}">Variable Group <value-of select="@ID"/> has type="<value-of select="@type"/>". Only {vg_type_msg} are supported.</assert>
-        <assert test="not(%P%labl)">Variable Group <value-of select="@ID"/> uses labl. labl is only for catgry elements: the group's text is txt.</assert>
+        <assert test="every $l in distinct-values(%P%labl/string(@xml:lang)) satisfies count(%P%labl[string(@xml:lang) = $l]) &lt;= 1">Variable Group <value-of select="@ID"/> has more than one labl in one language. A group's labl is its short label (convention:ddiFields groupText), one per language: xml:lang siblings, like txt.</assert>
     </rule>
 
     <!-- Category essentials — labl required unless the categorical response is '{mult}' (checkboxes) -->

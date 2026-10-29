@@ -5,9 +5,11 @@
  * languages, logic, fields, named and shared lists, `or_other` and explicit
  * other pairs, runs of notes (with blank lines, in only some languages),
  * groups of notes only or without a label, a group's hint and
- * guidance_hint (#179) and question-only cells on a group, metadata rows,
- * a guidance_hint and question-only cells on note, metadata and
- * matrix-header rows (#195), `required` spellings, messages without a constraint, `concept` columns (#173) and
+ * guidance_hint (#179) and question-only cells on a group, short labels
+ * (`label_short`, #181) on rows of every kind, metadata rows, a
+ * guidance_hint and question-only cells on note, metadata and
+ * matrix-header rows (#195), `required` spellings, messages without a
+ * constraint, `concept` columns (#173) and
  * settings. Compared as `ddiRoundtrip.test.ts` and
  * `lstsvDdiRoundtrip.test.ts` do.
  */
@@ -21,7 +23,10 @@ import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
 import { lstsvToDdiXml } from '../../../src/pipelines/lstsv2ddi/index.js';
 import { instrumentFromDdi } from '../../../src/instrument/fromDdi.js';
 import { instrumentFromLstsv } from '../../../src/instrument/fromLstsv.js';
-import { instrumentFromXlsform } from '../../../src/instrument/fromXlsform.js';
+import {
+  instrumentFromXlsform,
+  languageNamesOf,
+} from '../../../src/instrument/fromXlsform.js';
 import { parseLstsv } from '../../../src/lstsv/parser.js';
 import { allColumns } from '../../../src/conventions/columns.js';
 import conventions from '../../../src/generated/conventions.js';
@@ -35,9 +40,19 @@ import { canonical } from './canonicalInstrument.js';
 
 type Row = Record<string, unknown>;
 
-const LANGS = ['Deutsch (de)', 'English (en)'];
+/** The language columns' suffixes: named as most forms do, or bare tags. */
+const NAMED = ['Deutsch (de)', 'English (en)'];
+const BARE = ['de', 'en'];
 /** Runs per property; `FT_ROUNDTRIP_RUNS=5000` for a longer search. */
 const RUNS = Number(process.env['FT_ROUNDTRIP_RUNS'] ?? 200);
+/** A fixed seed (`FT_ROUNDTRIP_SEED=42`) to replay a failure. */
+const SEED = process.env['FT_ROUNDTRIP_SEED'];
+const seed = SEED === undefined ? {} : { seed: Number(SEED) };
+/**
+ * A property's time, by its runs: at 2000 one takes about 5 s alone, past
+ * vitest's default timeout under any load.
+ */
+const timeout = Math.max(5_000, RUNS * 25);
 /** The LimeSurvey paths convert twice more. */
 const LS_RUNS = Math.ceil(RUNS / 2);
 const quiet = () => {};
@@ -277,14 +292,23 @@ const block: fc.Arbitrary<Block> = fc.oneof(
 
 const form = fc.record({
   multilingual: fc.boolean(),
+  /** `label::Deutsch (de)` or `label::de` (#183). */
+  named: fc.boolean(),
   /** Columns the model doesn't lift, on some rows of both sheets. */
   columns: fc.boolean(),
+  /** `label_short` on some rows of every kind (#181). */
+  short: fc.boolean(),
   settings: fc.record({
     form_title: fc.option(word, { nil: undefined }),
     form_id: fc.option(fc.constantFrom('f1', 'survey_2'), { nil: undefined }),
     version: fc.option(fc.constantFrom('1', '2024-01'), { nil: undefined }),
     style: fc.option(fc.constant('pages'), { nil: undefined }),
   }),
+  /** `form_subtitle` / `form_title_short` (#181), per language or plain. */
+  titles: fc.option(
+    fc.record({ subtitle: texts, short: texts, localized: fc.boolean() }),
+    { nil: undefined },
+  ),
   blocks: fc.array(block, { minLength: 1, maxLength: 6 }),
 });
 
@@ -294,7 +318,12 @@ type Form = typeof form extends fc.Arbitrary<infer F> ? F : never;
  * Columns the model doesn't lift, on every other row: media (per language
  * in a multilingual form), `read_only`, `choice_filter`, a choice filter.
  */
-function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
+function addColumns(
+  survey: Row[],
+  choices: Row[],
+  multilingual: boolean,
+  LANGS: string[],
+) {
   const media = (row: Row, file: string) => {
     if (multilingual) {
       row[`media::image::${LANGS[0]}`] = `${file}-de.png`;
@@ -337,8 +366,25 @@ function addColumns(survey: Row[], choices: Row[], multilingual: boolean) {
   });
 }
 
+/**
+ * A short label (#181) on every other row but `end_group`: the labl of a
+ * group's, select_multiple's or semi-open question's varGrp, a column on any
+ * other row. In a multilingual form: both languages, or only the base's.
+ */
+function addShortLabels(survey: Row[], multilingual: boolean, LANGS: string[]) {
+  survey.forEach((row, i) => {
+    if (row['type'] === 'end_group' || i % 2 === 0) return;
+    if (!multilingual) row['label_short'] = `S${i}`;
+    else {
+      row[`label_short::${LANGS[0]}`] = `K${i}`;
+      if (i % 4 === 1) row[`label_short::${LANGS[1]}`] = `S${i}`;
+    }
+  });
+}
+
 /** Serialize a generated form to XLSForm rows. */
 function sheets(f: Form) {
+  const LANGS = f.named ? NAMED : BARE;
   const survey: Row[] = [];
   const choices: Row[] = [];
   let n = 0;
@@ -549,11 +595,24 @@ function sheets(f: Form) {
       survey.push({ type: 'end_group' });
     }
   }
-  if (f.columns) addColumns(survey, choices, f.multilingual);
+  if (f.columns) addColumns(survey, choices, f.multilingual, LANGS);
+  if (f.short) addShortLabels(survey, f.multilingual, LANGS);
   const settings: Row = Object.fromEntries(
     Object.entries(f.settings).filter(([, v]) => v !== undefined),
   );
   if (f.multilingual) settings.default_language = LANGS[0];
+  if (f.titles) {
+    const { subtitle, short, localized } = f.titles;
+    // Per language only where the body has both (a language only the
+    // settings have isn't one of the form's, as with form_title).
+    const both = survey.some((r) => `label::${LANGS[1]}` in r);
+    const value = (t: Texts) =>
+      f.multilingual && localized && both
+        ? { [LANGS[0]]: t.de, [LANGS[1]]: t.en }
+        : t.one;
+    settings.form_subtitle = value(subtitle);
+    settings.form_title_short = value(short);
+  }
   return {
     survey,
     choices,
@@ -583,9 +642,17 @@ const model = (s: {
     ),
   );
 
-/** The columns only a question's row lifts, and the guidance_hint. */
+/** Each language tag's name in the form's text columns (#183). */
+const languageNames = (s: { survey: unknown[]; choices: unknown[] }) =>
+  languageNamesOf([...(s.survey as Row[]), ...(s.choices as Row[])]);
+
+/**
+ * The columns only a question's row lifts, the guidance_hint and the
+ * short label: a column or a field depending on the row (#179, #181, #195).
+ */
 const ROW_CELLS = new Set([
   'guidance_hint',
+  ...conventions.conventions.ddiFields.liftedColumns.varGrpOnly,
   ...conventions.conventions.ddiFields.liftedColumns.questionOnly,
 ]);
 
@@ -633,14 +700,14 @@ async function toTsv(s: {
   }
 }
 
-describe('generated forms', () => {
+describe('generated forms', { timeout }, () => {
   test('XLSForm → DDI → Instrument gives the form back', () => {
     fc.assert(
       fc.property(form, (f) => {
         const s = sheets(f);
         expect(canonical(instrumentFromDdi(codebook(s)))).toEqual(model(s));
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -651,8 +718,14 @@ describe('generated forms', () => {
         const back = ddiToXlsform(codebook(s));
         expect(model(back)).toEqual(model(s));
         expect(rowCellsOf(back)).toEqual(rowCellsOf(s));
+        // The form's names for its languages, not only their tags (#183).
+        // A form in one language comes back with plain columns.
+        const names = languageNames(s);
+        if (Object.keys(names).length > 1) {
+          expect(languageNames(back)).toEqual(names);
+        }
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -662,7 +735,7 @@ describe('generated forms', () => {
         const xml = codebook(sheets(f));
         expect(codebook(ddiToXlsform(xml))).toBe(xml);
       }),
-      { numRuns: RUNS },
+      { numRuns: RUNS, ...seed },
     );
   });
 
@@ -676,7 +749,7 @@ describe('generated forms', () => {
         converted++;
         expect(await toTsv(ddiToXlsform(codebook(s)))).toBe(tsv);
       }),
-      { numRuns: LS_RUNS },
+      { numRuns: LS_RUNS, ...seed },
     );
     expect(converted).toBeGreaterThan(LS_RUNS / 2);
   });
@@ -701,7 +774,7 @@ describe('generated forms', () => {
           ),
         );
       }),
-      { numRuns: LS_RUNS },
+      { numRuns: LS_RUNS, ...seed },
     );
   });
 });

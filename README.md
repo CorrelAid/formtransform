@@ -18,8 +18,8 @@ Four things other projects consume — all derived from the one registry:
 | **DDI validation assets** — DDI 2.5 XSDs + the codegen-written `ddi_custom_rules.sch` | `ddi-validation/{xsd,schematron}/` | qwacback, synced via its `.registry-version` pin |
 | **`cdl-survey-types` skill** — self-contained Agent Skill (`SKILL.md` + `references/`), generated from the registry; portable to any agent runtime that reads the format  | `skills/cdl-survey-types/` | formulaid's `generating-xlsforms` skill, which owns the workflow and includes this as the type reference |
 
-Everything else here (`docs/` spec site, `screenshots/`, tests, fixtures) is
-in-repo only.
+Everything else here (`docs/` spec site, tests) is in-repo only; the
+fixtures and the question-type screenshots also ship as release assets (below).
 
 ## Installation
 
@@ -43,7 +43,11 @@ Releases also attach `cdl-survey-types-<version>.tar.gz`, the generated
 [`skills/cdl-survey-types/`](skills/cdl-survey-types/) sub-skill, and
 `formtransform-fixtures-<version>.tar.gz`, the example fixtures and blessed
 snapshots (`registry/entities/`, `tests/fixtures/surveys/`, same paths) for
-golden tests. Assets never change after publishing, so their checksums can be
+golden tests, and `formtransform-screenshots-<version>.tar.gz`, each registry
+type rendered in LimeSurvey and in Enketo (the engine behind KoboToolbox web
+forms), unpacking to `screenshots/<slug>/{limesurvey,xlsform}.png` with a
+`screenshots/manifest.json` (size, engine and the version that rendered each;
+see [`screenshots/README.md`](screenshots/README.md)). Assets never change after publishing, so their checksums can be
 pinned: each release also attaches `SHA256SUMS` and lists the checksums in its
 notes.
 
@@ -216,6 +220,17 @@ says what a question or group measures, in an optional `concept` column
 its `concept/@vocab`. A form without the column gets no concept: the label
 is the question, not its concept.
 
+**A short label on a question group** (#181). An optional `label_short`
+column (`label_short::<lang>` per language, like `label`) gives a group a
+short printed name, such as a scale's name (`ATTARI-12`) or a question
+number, that a reader can show as a title above the group's text. It goes in
+the `varGrp`'s `<labl>`, before its `<txt>`: on a `begin_group` row, and on a
+`select_multiple` or semi-open question, which are `varGrp`s too. CDL keeps
+`labl` off `var`, so on any other row the cell is kept as one of the row's
+columns (`cdl:column`). Two settings name the whole form the same way:
+`form_subtitle` is the study's `<subTitl>` and `form_title_short` its
+`<altTitl>` (plain, or one per language like `form_title`).
+
 ## Errors and warnings
 
 Every error the library throws is a `ConversionError` with a stable `code`
@@ -279,6 +294,23 @@ An exclusive answer in a `select_multiple` ("Keine Angabe", "Nichts davon")
 is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 `count-selected()` constraint. LimeSurvey enforces it through
 `exclude_all_others`; DDI has no field for it.
+
+`count-selected()` counts the ticked answers of a `select_multiple`. In a
+`relevant` (`count-selected(${k04}) > 1`) it becomes `count()` over the
+question's subquestions in LimeSurvey. A `constraint` on the question itself
+that bounds it (`count-selected(.) >= 1 and count-selected(.) <= 3`) becomes
+LimeSurvey's `min_answers` / `max_answers`; the reverse paths read those back
+as the same constraint.
+
+A `choice_filter` that keeps the options ticked in an earlier
+`select_multiple` (`selected(${k04}, name)`) becomes LimeSurvey's
+`array_filter`, which needs the option codes to equal the filtering
+question's answer codes. When a choices column holds the matching codes
+instead (`selected(${k04}, kurz)`), the filtered question's LimeSurvey answer
+codes are that column's values, and a `choice-filter-recoded` warning says
+so: LimeSurvey then stores those codes for it. Any other `choice_filter` is
+dropped with a `choice-filter-dropped` warning, and LimeSurvey shows every
+option.
 
 The `or_other` shorthand writes no text for its "other" answer; the survey
 tool supplies one. LimeSurvey shows its own `Other:` in the survey language

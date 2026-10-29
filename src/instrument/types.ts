@@ -38,6 +38,12 @@ interface ItemBase {
   label: Text;
   hint: Text;
   /**
+   * The `label_short` column (#181): a short printed name (a scale's name, a
+   * question number), the `labl` of its `varGrp`. Only on a group and a
+   * question that becomes a varGrp; absent when it has none.
+   */
+  labelShort?: Text;
+  /**
    * The `concept` column (#173): what the question or group measures, only
    * as a source states it. Absent when it states none.
    */

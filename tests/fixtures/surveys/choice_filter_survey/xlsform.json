@@ -1,0 +1,59 @@
+{
+  "survey": [
+    {
+      "type": "select_multiple themen",
+      "name": "k04",
+      "label": "Welche Themen sind Ihnen wichtig?"
+    },
+    {
+      "type": "select_one themen",
+      "name": "k04haupt",
+      "label": "Welches davon ist Ihnen am wichtigsten?",
+      "choice_filter": "selected(${k04}, name)"
+    },
+    {
+      "type": "select_multiple medien",
+      "name": "k05",
+      "label": "Welche Medien nutzen Sie?"
+    },
+    {
+      "type": "select_one medien_nr",
+      "name": "k05haupt",
+      "label": "Welches nutzen Sie am meisten?",
+      "choice_filter": "selected(${k05}, kurz)"
+    }
+  ],
+  "choices": [
+    { "list_name": "themen", "name": "umw", "label": "Umwelt" },
+    { "list_name": "themen", "name": "bil", "label": "Bildung" },
+    { "list_name": "themen", "name": "arb", "label": "Arbeit" },
+    { "list_name": "medien", "name": "tv", "label": "Fernsehen" },
+    { "list_name": "medien", "name": "radio", "label": "Radio" },
+    { "list_name": "medien", "name": "netz", "label": "Internet" },
+    {
+      "list_name": "medien_nr",
+      "name": "1",
+      "label": "Fernsehen",
+      "kurz": "tv"
+    },
+    {
+      "list_name": "medien_nr",
+      "name": "2",
+      "label": "Radio",
+      "kurz": "radio"
+    },
+    {
+      "list_name": "medien_nr",
+      "name": "3",
+      "label": "Internet",
+      "kurz": "netz"
+    }
+  ],
+  "settings": [
+    {
+      "form_title": "Auswahl filtern",
+      "form_id": "choice_filter",
+      "default_language": "de"
+    }
+  ]
+}

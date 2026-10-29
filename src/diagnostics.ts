@@ -48,6 +48,8 @@ export type DiagnosticCode =
   | 'other-label-missing'
   | 'other-shorthand'
   | 'parameter-invalid'
+  | 'choice-filter-dropped'
+  | 'choice-filter-recoded'
   | 'xlsform-outside-subset'
   // expressions
   | 'xpath-syntax'

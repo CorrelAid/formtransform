@@ -4,7 +4,42 @@ Rendered previews of each registry question type as a respondent sees it,
 cropped to the question presentation.
 
 - `<slug>/limesurvey.png` — LimeSurvey default theme (`fruity_twentythree`).
-- `<slug>/xlsform.png` — the XLSForm rendered in Enketo (ODK web form).
+- `<slug>/xlsform.png` — the XLSForm rendered in Enketo, the web-form engine
+  behind KoboToolbox (not the Kobo UI itself).
+- `rendered.json` — for each shot, the formtransform version that rendered it
+  and the SHA-256 of the entity file it was rendered from (`tsv.tsv`,
+  `fixtures/xlsform.json`). Written by `codegen --screenshots`; don't edit.
+
+Every registry entity (`registry/entities/<slug>/`) has both PNGs, and there is
+no screenshot for a slug that isn't one: `tests/codegen/test_screenshots.py`
+checks it in CI, without Docker (`uv run python -m codegen.screenshot_manifest
+check`). A new type therefore needs its screenshots in the same PR.
+
+## Release asset
+
+Each release attaches `formtransform-screenshots-<version>.tar.gz`
+(`release-assets.yml`), unpacking to `screenshots/<slug>/*.png` and
+`screenshots/manifest.json`:
+
+```json
+{
+  "version": "0.8.1",
+  "types": {
+    "select_one": {
+      "limesurvey": { "file": "select_one/limesurvey.png", "width": 1930, "height": 710,
+                      "engine": "LimeSurvey", "theme": "fruity_twentythree",
+                      "renderedFrom": "0.8.1", "current": true },
+      "xlsform":    { "file": "select_one/xlsform.png", "width": 1296, "height": 450,
+                      "engine": "Enketo", "renderedFrom": "0.8.1", "current": true }
+    }
+  }
+}
+```
+
+`file` is relative to the manifest; `width`/`height` are pixels (rendered at
+device scale 2). `current` is false when the entity's source file changed
+after the shot was rendered, so a consumer can flag a possibly outdated
+picture. The asset is keyed by registry slug, like the fixtures.
 
 ## Regenerating
 
@@ -17,6 +52,9 @@ uv run codegen --screenshots --screenshots-engine=xlsform
 uv run codegen --screenshots --screenshots-types=select_one,grid
 ```
 
+- `LIMESURVEY_PORT=18080 uv run codegen --screenshots` uses another port when
+  8080 is taken (the compose file reads the same variable). Set
+  `COMPOSE_PROJECT_NAME` too if another checkout's stack may be running.
 - LimeSurvey runs fully locally on the repo's single live stack
   ([`tests/live/limesurvey/docker-compose.yml`](../tests/live/limesurvey/docker-compose.yml),
   shared with the pytest live suite), imported via the RemoteControl API. A
@@ -27,6 +65,11 @@ uv run codegen --screenshots --screenshots-types=select_one,grid
   services to render — form definitions leave the machine.
 
 ## Rendering notes
+
+- **Group title** — hidden (space kept) before the LimeSurvey shot: it sits
+  right above the question, and its descenders reached into the crop.
+- **`select_*_long_list`** — the crop is cut at the viewport (3200 px tall at
+  device scale 2), i.e. the first ~55 countries.
 
 - **`select_*_other`** — the "Sonstiges" (other) option is selected before the
   shot so the conditional free-text field is visible. In LimeSurvey the field is

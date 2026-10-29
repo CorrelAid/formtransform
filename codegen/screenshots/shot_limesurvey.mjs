@@ -8,24 +8,24 @@
 // types). Closed, every `D` question shows the same static calendar glyph
 // whatever its date_format, so the shot cannot show whether it accepts a date
 // or a time — open, a `date_format: HH:MM` question reveals an HH:MM spinner.
-import { createRequire } from "module";
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 let chromium;
 try {
-  ({ chromium } = require("playwright"));
+  ({ chromium } = require('playwright'));
 } catch {
   // Fall back to a global install when there is no local node_modules.
-  ({ chromium } = require("/usr/lib/node_modules/playwright"));
+  ({ chromium } = require('/usr/lib/node_modules/playwright'));
 }
 
 const argv = process.argv.slice(2);
-const showOther = argv.includes("--other");
-const openPicker = argv.includes("--picker");
-const [url, out] = argv.filter((a) => !a.startsWith("--"));
+const showOther = argv.includes('--other');
+const openPicker = argv.includes('--picker');
+const [url, out] = argv.filter((a) => !a.startsWith('--'));
 if (!url || !out) {
   console.error(
-    "usage: node shot_limesurvey.mjs <survey_url> <out_png> [--other] [--picker]",
+    'usage: node shot_limesurvey.mjs <survey_url> <out_png> [--other] [--picker]',
   );
   process.exit(2);
 }
@@ -38,21 +38,28 @@ const page = await browser.newPage({
   viewport: { width: 1400, height: 1600 },
   deviceScaleFactor: 2,
 });
-await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
+await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
 
 // A survey may open on a welcome page; click through until questions appear.
-const nextBtn = page.locator('#ls-button-submit, button[value="movenext"], #movenextbtn');
+const nextBtn = page.locator(
+  '#ls-button-submit, button[value="movenext"], #movenextbtn',
+);
 for (let i = 0; i < 3; i++) {
-  if (await page.locator(".question-container, .ls-answers, .answer-container").count()) break;
+  if (
+    await page
+      .locator('.question-container, .ls-answers, .answer-container')
+      .count()
+  )
+    break;
   if (await nextBtn.count()) {
     await nextBtn.first().click();
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState('networkidle');
   }
 }
 
-const q = page.locator(".question-container").first();
+const q = page.locator('.question-container').first();
 if (!(await q.count())) {
-  console.error("no .question-container found");
+  console.error('no .question-container found');
   process.exit(1);
 }
 
@@ -74,7 +81,10 @@ if (showOther) {
       await page.waitForTimeout(500);
     }
   } catch (e) {
-    console.error("warn: could not tick other option (input still shown):", e.message);
+    console.error(
+      'warn: could not tick other option (input still shown):',
+      e.message,
+    );
   }
 }
 
@@ -104,15 +114,27 @@ if (openPicker) {
           '.xdsoft_datetimepicker, .datepicker',
       )
       .first();
-    await widget.waitFor({ state: "visible", timeout: 5000 });
+    await widget.waitFor({ state: 'visible', timeout: 5000 });
     await page.waitForTimeout(600); // let the open animation settle
     const b = await widget.boundingBox();
     if (b && b.height > 20) pickerBox = b;
-    else console.error("warn: picker box too small to include:", JSON.stringify(b));
+    else
+      console.error(
+        'warn: picker box too small to include:',
+        JSON.stringify(b),
+      );
   } catch (e) {
-    console.error("warn: could not open date/time picker:", e.message);
+    console.error('warn: could not open date/time picker:', e.message);
   }
 }
+
+// The group's title sits right above the first question, close enough that
+// its descenders reach into the top padding of the crop. Hide it (keeping its
+// space, so nothing moves) rather than shrink the padding.
+await page.addStyleTag({
+  content:
+    '.group-title, .group-description { visibility: hidden !important; }',
+});
 
 await q.scrollIntoViewIfNeeded();
 const box = await q.boundingBox();
@@ -134,5 +156,5 @@ await page.screenshot({
     height: maxY - minY + PAD * 2,
   },
 });
-console.log("wrote", out);
+console.log('wrote', out);
 await browser.close();

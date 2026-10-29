@@ -13,8 +13,8 @@
     <notes type="instruction" subject="intro" xml:lang="en">First, some details about your company.</notes>
     <notes type="cdl:position" subject="intro">in= after=</notes>
     <notes type="cdl:setting" subject="default_language">Deutsch (de)</notes>
-    <notes type="cdl:language" subject="de">de</notes>
-    <notes type="cdl:language" subject="en">en</notes>
+    <notes type="cdl:language" subject="de">Deutsch (de)</notes>
+    <notes type="cdl:language" subject="en">English (en)</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>

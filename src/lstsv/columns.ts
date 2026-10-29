@@ -39,6 +39,11 @@ export const BASE_COLUMNS = [
  *   `limesurvey.parameterAttributes` / `integerOnly`.
  * - `exclude_all_others`: exclusive answers of a multiple choice
  *   (convention:exclusiveChoice).
+ * - `min_answers`, `max_answers`: bounds on the number of answers of a
+ *   multiple choice, from a `count-selected(.)` constraint
+ *   (convention:logicMapping `selectionCount`).
+ * - `array_filter`: the multiple choice whose ticked subquestions keep a
+ *   question's options, from its `choice_filter` (convention:choiceFilter).
  * - `em_validation_q_tip`: the per-language message shown when the question's
  *   validation (`em_validation_q`) fails: the XLSForm `constraint_message`.
  * - `other_replace_text`: the label of the native "other" answer's text box,
@@ -55,6 +60,9 @@ export const ATTRIBUTE_COLUMNS = [
   'max_num_value_n',
   'num_value_int_only',
   'exclude_all_others',
+  'min_answers',
+  'max_answers',
+  'array_filter',
   'em_validation_q_tip',
   'other_replace_text',
 ] as const;

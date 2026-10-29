@@ -77,6 +77,47 @@ describe('fragments', () => {
     expect(warnings[0].message).toContain('V_gone');
   });
 
+  test('a <var> without ID is read, named by its name (#170)', () => {
+    const xml =
+      '<var name="x"><qstn responseDomainType="text"><qstnLit>Hi</qstnLit></qstn></var>';
+    expect(ddiToXlsform(xml).survey).toEqual([
+      { type: 'text', name: 'x', label: 'Hi' },
+    ]);
+  });
+
+  test('vars without ID keep their order and stay apart from IDs (#170)', () => {
+    const { instrument } = read(
+      `<var name="a"><qstn><qstnLit>A</qstnLit></qstn></var>` +
+        `<var ID="var 1" name="b"><qstn><qstnLit>B</qstnLit></qstn></var>` +
+        `<var name="c"><qstn><qstnLit>C</qstnLit></qstn></var>`,
+    );
+    expect(instrument.body.map((q) => (q as QuestionItem).name)).toEqual([
+      'a',
+      'b',
+      'c',
+    ]);
+  });
+
+  test('a varGrp member reference never matches a var without ID', () => {
+    const { instrument, codes } = read(
+      `<varGrp ID="VG_g" name="g" type="section" var="x"/>` +
+        `<var name="x"><qstn><qstnLit>X</qstnLit></qstn></var>`,
+    );
+    expect(codes).toContain('ddi-reference-outside');
+    expect(instrument.body).toMatchObject([{ kind: 'question', name: 'x' }]);
+  });
+
+  test('a <var> with neither ID nor name: ddi-invalid that says so', () => {
+    expect(() =>
+      instrumentFromDdi('<var><qstn><qstnLit>Hi</qstnLit></qstn></var>'),
+    ).toThrow(
+      expect.objectContaining({
+        code: 'ddi-invalid',
+        message: expect.stringContaining('neither an ID nor a name'),
+      }),
+    );
+  });
+
   test('neither a codeBook nor a var: ddi-invalid', () => {
     expect(() => instrumentFromDdi('<stdyDscr/>')).toThrow(ConversionError);
   });

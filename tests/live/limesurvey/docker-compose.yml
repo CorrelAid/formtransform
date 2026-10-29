@@ -15,8 +15,10 @@ services:
 
   limesurvey:
     image: adamzammit/limesurvey:${LIMESURVEY_VERSION:-6.16.4}
+    # LIMESURVEY_PORT moves it off 8080 when that port is taken; set the same
+    # variable for codegen --screenshots (codegen/limesurvey_stack.py).
     ports:
-      - "8080:80"
+      - "${LIMESURVEY_PORT:-8080}:80"
     environment:
       LIMESURVEY_DB_TYPE: mysql
       LIMESURVEY_DB_HOST: mysql
@@ -28,7 +30,7 @@ services:
       LIMESURVEY_ADMIN_PASSWORD: admin
       LIMESURVEY_ADMIN_NAME: "Administrator"
       LIMESURVEY_ADMIN_EMAIL: admin@example.com
-      LIMESURVEY_BASE_URL: http://localhost:8080
+      LIMESURVEY_BASE_URL: http://localhost:${LIMESURVEY_PORT:-8080}
       LIMESURVEY_API_MODE: json
     depends_on:
       mysql:
