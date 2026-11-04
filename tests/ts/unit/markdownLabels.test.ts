@@ -321,7 +321,7 @@ describe('htmlToMarkdown utility', () => {
   });
 
   test('<hr> → ---', () => {
-    expect(htmlToMarkdown('before<hr>after')).toBe('before\n---\nafter');
+    expect(htmlToMarkdown('before<hr>after')).toBe('before\n\n---\n\nafter');
   });
 
   test('<pre><code> block → ``` block', () => {
@@ -356,5 +356,59 @@ describe('htmlToMarkdown utility', () => {
       const normalized = (s: string) => s.replace(/\s+/g, ' ').trim();
       expect(normalized(reversed)).toBe(normalized(md));
     }
+  });
+});
+
+// ==============================================================
+// Block elements are joined without <br /> (#225)
+// ==============================================================
+
+describe('block joining without <br /> (#225)', () => {
+  const md = 'A.\n\nB **x**.\n\n- a\n- b\n\nEnd';
+
+  test('blocks are adjacent, no newlines or <br />', () => {
+    expect(markdownToHtml(md)).toBe(
+      '<p>A.</p><p>B <strong>x</strong>.</p><ul><li>a</li><li>b</li></ul><p>End</p>',
+    );
+  });
+
+  test('headings, ordered lists and blockquotes are joined too', () => {
+    expect(markdownToHtml('# H\n\ntext\n\n1. a\n2. b')).toBe(
+      '<h1>H</h1><p>text</p><ol><li>a</li><li>b</li></ol>',
+    );
+    expect(markdownToHtml('> q\n\ntext')).toBe(
+      '<blockquote><p>q</p></blockquote><p>text</p>',
+    );
+  });
+
+  test('single line break inside a paragraph stays a newline', () => {
+    expect(markdownToHtml('a\nb\n\nc')).toBe('<p>a\nb</p><p>c</p>');
+  });
+
+  test('newlines inside <pre> are kept', () => {
+    expect(markdownToHtml('```\nx\n\ny\n```\n\nafter')).toBe(
+      '<pre><code>x\n\ny\n</code></pre><p>after</p>',
+    );
+  });
+
+  test('new HTML round-trips to the original markdown', () => {
+    for (const src of [
+      md,
+      '# H\n\ntext\n\n1. a\n2. b',
+      '> q\n\ntext',
+      '```\nx\n\ny\n```\n\nafter',
+    ]) {
+      expect(htmlToMarkdown(markdownToHtml(src))).toBe(src);
+    }
+  });
+
+  test('old TSV HTML with <br /> between blocks reads back the same', () => {
+    const old =
+      '<p>A.</p><br /><p>B <strong>x</strong>.</p><br /><ul>\n<li>a</li>\n<li>b</li>\n</ul><br /><p>End</p>';
+    expect(htmlToMarkdown(old)).toBe(md);
+  });
+
+  test('<br /> inside a paragraph becomes a newline', () => {
+    expect(htmlToMarkdown('<p>a<br />b</p>')).toBe('a\nb');
   });
 });
