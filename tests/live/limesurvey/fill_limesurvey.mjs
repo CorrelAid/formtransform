@@ -221,6 +221,9 @@ for (let i = 0; i < 4; i++) {
     submitted = true;
     break;
   }
+  // A rejected answer opens LimeSurvey's alert dialog over the page: stop,
+  // the errors below say why.
+  if (await page.locator('#bootstrap-alert-box-modal.show').count()) break;
 }
 
 const report = {
@@ -230,7 +233,9 @@ const report = {
   finalUrl: page.url(),
   // Validation errors keep the respondent on the page; surface them verbatim.
   errors: await page
-    .locator('.alert-danger, .ls-em-tip.error, .text-danger')
+    .locator(
+      '.alert-danger, .ls-em-tip.error, .text-danger, #bootstrap-alert-box-modal.show .modal-body',
+    )
     .allTextContents()
     .then((t) => t.map((s) => s.trim()).filter(Boolean)),
 };
