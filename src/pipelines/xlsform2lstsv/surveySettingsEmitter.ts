@@ -3,6 +3,11 @@ import { SurveyRow, SettingsRow } from '../../xlsform/types.js';
 import { RowEmitter } from './rowEmitter.js';
 import { LanguageHandler } from './languageHandler.js';
 import { ConfigManager } from '../../config/ConfigManager.js';
+import type { WarningHandler } from '../../diagnostics.js';
+import {
+  LIMESURVEY_SETTING_DEFAULTS,
+  limesurveySettingsOf,
+} from '../../conventions/surveySettings.js';
 
 /**
  * Emits the S (survey-level settings) and SL (survey-language) rows that
@@ -17,6 +22,7 @@ export class SurveySettingsEmitter {
     private configManager: ConfigManager,
     private rowEmitter: RowEmitter,
     private languageHandler: LanguageHandler,
+    private warn: WarningHandler,
   ) {}
 
   /**
@@ -39,7 +45,8 @@ export class SurveySettingsEmitter {
   }
 
   /**
-   * Emit the S rows (language, additional_languages, format, shownoanswer) and
+   * Emit the S rows (language, additional_languages, format, shownoanswer,
+   * then the form's `limesurvey_<setting>` columns) and
    * the SL rows (title + optional welcome/end text) for the survey.
    */
   emit(settings: SettingsRow): void {
@@ -82,12 +89,25 @@ export class SurveySettingsEmitter {
       }),
     );
 
-    if (this.configManager.getConfig().hideNoAnswer !== false) {
+    // The form's limesurvey_<setting> columns (#228). shownoanswer=N is
+    // formtransform's default unless hideNoAnswer is false; a column overrides it.
+    const lsSettings = limesurveySettingsOf(settings, this.warn);
+    if (
+      this.configManager.getConfig().hideNoAnswer !== false &&
+      !lsSettings.has('shownoanswer')
+    ) {
+      lsSettings.set('shownoanswer', LIMESURVEY_SETTING_DEFAULTS.shownoanswer);
+    }
+    const ordered = [
+      ...(lsSettings.has('shownoanswer') ? ['shownoanswer'] : []),
+      ...[...lsSettings.keys()].filter((name) => name !== 'shownoanswer'),
+    ];
+    for (const name of ordered) {
       this.rowEmitter.addRow(
         this.rowEmitter.row({
           class: 'S',
-          name: 'shownoanswer',
-          text: 'N',
+          name,
+          text: lsSettings.get(name) ?? '',
         }),
       );
     }

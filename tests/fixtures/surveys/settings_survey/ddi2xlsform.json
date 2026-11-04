@@ -56,7 +56,9 @@
     {
       "default_language": "en",
       "form_title": "settings_survey",
-      "form_id": "settings_survey"
+      "form_id": "settings_survey",
+      "limesurvey_allowprev": "Y",
+      "limesurvey_showqnumcode": "X"
     }
   ]
 }

@@ -15,6 +15,8 @@
     <notes type="cdl:position" subject="welcome">in= after=</notes>
     <notes type="cdl:position" subject="end">in= after=main</notes>
     <notes type="cdl:setting" subject="default_language">en</notes>
+    <notes type="cdl:setting" subject="limesurvey_allowprev">Y</notes>
+    <notes type="cdl:setting" subject="limesurvey_showqnumcode">X</notes>
   </stdyDscr>
   <fileDscr ID="F1" URI="data.csv">
     <fileTxt>
