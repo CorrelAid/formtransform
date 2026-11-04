@@ -300,6 +300,10 @@ def _random_order_section(ro: dict) -> list[str]:
         "in the `parameters` column to shuffle the options, e.g. to avoid primacy effects. "
         "LimeSurvey shuffles them too, and keeps a `select_multiple`'s `exclusive` answers "
         "at their position (LimeSurvey 6.17 or later); ODK and Kobo shuffle every option. "
+        f"To keep another option in place too (\u201cSonstiges\u201d, \u201cKeine Angabe\u201d at the end), "
+        f"add the `{ro.get('fixedColumn', 'fixed')}` column to the `choices` sheet and set it to "
+        f"`{ro.get('fixedTrueValues', ['yes'])[0]}` on that choice, on a `select_one` or a "
+        f"`select_multiple`; it has no effect without `{key}={yes}`. "
         f"Don't add a `{ro.get('seedKey', 'seed')}`: LimeSurvey has none and drops it.\n",
     ]
 

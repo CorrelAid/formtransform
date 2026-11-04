@@ -1031,11 +1031,17 @@ const conventions = {
       },
       "keepAttribute": "keep_codes_order",
       "keepSeparator": ";",
+      "fixedColumn": "fixed",
+      "fixedTrueValues": [
+        "yes",
+        "true",
+        "1"
+      ],
       "limesurveyEmission": "parameters randomize=true on a select becomes LimeSurvey 6's ordering attribute for its question type: answer_order=random on a list (L) or dropdown (!), subquestion_order=random on a multiple choice (M). The legacy random_order=1 is only read back",
-      "pinned": "a randomized select_multiple's exclusive choices (convention:exclusiveChoice) also go in keep_codes_order, so LimeSurvey keeps them at their position in the list (usually last) while it shuffles the rest. keep_codes_order needs LimeSurvey 6.17 or later; older versions drop it on import and pin only a single exclude_all_others code. ODK and Kobo shuffle every choice, so a randomize-pinned warning names the pinned codes. LimeSurvey's own other option (convention:other) is always last, as or_other is in ODK",
+      "pinned": "a randomized select_multiple's exclusive choices (convention:exclusiveChoice) also go in keep_codes_order, so LimeSurvey keeps them at their position in the list (usually last) while it shuffles the rest. So do the choices marked in the optional choices column `fixed` (yes), on a select_one or a select_multiple: an option like 'Sonstiges' that is not exclusive but belongs at the end. The codes keep the list's order, an exclusive and fixed choice appears once. `fixed` has no effect without randomize=true and is carried as an ordinary choice column in DDI (cdl:choice_column) keep_codes_order needs LimeSurvey 6.17 or later; older versions drop it on import and pin only a single exclude_all_others code. ODK and Kobo shuffle every choice, so a randomize-pinned warning names the pinned (exclusive or fixed) codes. LimeSurvey's own other option (convention:other) is always last, as or_other is in ODK",
       "seed": "ODK's seed parameter has no LimeSurvey counterpart: it is dropped with a randomize-seed-dropped warning, and LimeSurvey draws an order per respondent",
       "unmapped": "a randomize=true LimeSurvey can't order (a select in a table-list grid, any other LimeSurvey type) is dropped with a randomize-dropped warning",
-      "reverse": "answer_order=random, subquestion_order=random or random_order=1 on a list, dropdown or multiple choice comes back as parameters randomize=true",
+      "reverse": "answer_order=random, subquestion_order=random or random_order=1 on a list, dropdown or multiple choice comes back as parameters randomize=true; a keep_codes_order code that is not an exclude_all_others code comes back as fixed=yes on its choice",
       "ddiEmission": "none beyond the form's parameters cell, kept as a cdl:parameters note (convention:ddiFields)"
     },
     "sanitization": {

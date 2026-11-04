@@ -147,3 +147,28 @@ def test_ddi2xlsform_output_is_valid_xlsform(survey_dir: Path, tmp_path: Path) -
     xlsx = _json_xlsx(survey_dir / "ddi2xlsform.json", tmp_path / f"{survey_dir.name}.xlsx")
     result = convert(str(xlsx))
     assert result.xform and result.xform.strip()
+
+
+# -- fixed choices (#237) ------------------------------------------------------
+
+
+def test_fixed_choices_column_is_ignored_by_pyxform(tmp_path: Path) -> None:
+    """A randomized select with a `fixed` choices column converts: pyxform
+    ignores the extra column and shuffles every choice (the converter warns
+    with randomize-pinned)."""
+    form = {
+        "survey": [
+            {"type": "select_multiple l", "name": "q1", "label": "Q", "parameters": "randomize=true"},
+            {"type": "select_one l", "name": "q2", "label": "Q", "parameters": "randomize=true"},
+        ],
+        "choices": [
+            {"list_name": "l", "name": "a", "label": "A"},
+            {"list_name": "l", "name": "sonst", "label": "Sonstiges", "fixed": "yes"},
+            {"list_name": "l", "name": "keine", "label": "Keine", "exclusive": "yes", "fixed": "yes"},
+        ],
+        "settings": [{"form_title": "T", "form_id": "t"}],
+    }
+    path = tmp_path / "fixed.json"
+    path.write_text(json.dumps(form))
+    result = convert(str(_json_xlsx(path, tmp_path / "fixed.xlsx")))
+    assert result.xform and result.xform.strip()

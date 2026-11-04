@@ -352,6 +352,10 @@ or dropdown gets `answer_order=random`, a multiple choice
 `subquestion_order=random`. A randomized `select_multiple` keeps its
 exclusive answers at their position (`keep_codes_order`, LimeSurvey 6.17 or
 later), which ODK and Kobo don't, so a `randomize-pinned` warning names them.
+An option that is not exclusive but belongs at the end ("Sonstiges") is marked
+with a `fixed` column (`yes`) on the choices sheet, on a `select_one` or a
+`select_multiple`: its code joins the exclusive ones in `keep_codes_order`.
+Without `randomize=true` it has no effect; DDI carries it as any choice column.
 LimeSurvey's "other" answer is always last. A `seed` is dropped with a
 `randomize-seed-dropped` warning, a randomized grid row with
 `randomize-dropped`. The reverse paths read `randomize=true` back.

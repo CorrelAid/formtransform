@@ -30,7 +30,7 @@ Applies to: `select_multiple`. For an answer that rules out all others (“Keine
 
 ## Random answer order (`parameters: randomize=true`)
 
-Applies to: `select_one`, `select_multiple` (also from a file). Write `randomize=true` in the `parameters` column to shuffle the options, e.g. to avoid primacy effects. LimeSurvey shuffles them too, and keeps a `select_multiple`'s `exclusive` answers at their position (LimeSurvey 6.17 or later); ODK and Kobo shuffle every option. Don't add a `seed`: LimeSurvey has none and drops it.
+Applies to: `select_one`, `select_multiple` (also from a file). Write `randomize=true` in the `parameters` column to shuffle the options, e.g. to avoid primacy effects. LimeSurvey shuffles them too, and keeps a `select_multiple`'s `exclusive` answers at their position (LimeSurvey 6.17 or later); ODK and Kobo shuffle every option. To keep another option in place too (“Sonstiges”, “Keine Angabe” at the end), add the `fixed` column to the `choices` sheet and set it to `yes` on that choice, on a `select_one` or a `select_multiple`; it has no effect without `randomize=true`. Don't add a `seed`: LimeSurvey has none and drops it.
 
 ## Long lists from a file (`select_*_from_file`)
 

@@ -3,10 +3,12 @@
  * shuffles its options. LimeSurvey 6 orders them by a question attribute that
  * depends on the question type: `answer_order=random` on a list or dropdown,
  * `subquestion_order=random` on a multiple choice. A randomized multiple
- * choice's exclusive answers keep their position (`keep_codes_order`).
+ * choice's exclusive answers keep their position (`keep_codes_order`), and
+ * so do the choices marked `fixed` (any select).
  */
 import conventions from '../generated/conventions.js';
 import { parseParameters } from '../utils/parameters.js';
+import type { ChoiceRow } from '../xlsform/types.js';
 import { FROM_FILE_BASE } from './fromFile.js';
 
 export const RANDOM_ORDER_RULE = conventions.conventions.randomOrder;
@@ -58,4 +60,18 @@ export function isRandomOrder(
     cell(spec.attribute) === spec.value ||
     cell(legacy.attribute) === legacy.value
   );
+}
+
+const FIXED_TRUE_VALUES = new Set<string>(RANDOM_ORDER_RULE.fixedTrueValues);
+
+/** Whether the choice is marked `fixed`: it keeps its position when shuffled. */
+export function isFixed(choice: ChoiceRow): boolean {
+  const value = choice[RANDOM_ORDER_RULE.fixedColumn];
+  const text =
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+      ? String(value).trim().toLowerCase()
+      : '';
+  return FIXED_TRUE_VALUES.has(text);
 }
