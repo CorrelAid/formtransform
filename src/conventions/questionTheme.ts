@@ -2,8 +2,10 @@
  * An appearance can select a LimeSurvey question theme (registry Appearance
  * `lsQuestionTheme`): `name` goes to the Q row's `question_theme_name`, each
  * theme attribute to a column of its own. `autocomplete` → `!` +
- * `bootstrap_dropdown` + `show_search=true`, LimeSurvey's searchable dropdown
- * (#226). LimeSurvey's TSV import sets the theme from `question_theme_name`
+ * `bootstrap_dropdown` + `show_search=true` (+ `width_entry=true`), LimeSurvey's
+ * searchable dropdown (#226). Only `attributes` identify the appearance on the
+ * way back; `emitOnlyAttributes` (`width_entry`) are presentation, so TSVs
+ * from before they were emitted still read back. LimeSurvey's TSV import sets the theme from `question_theme_name`
  * and stores the other columns as question attributes.
  */
 import { APPEARANCES } from '../generated/Appearances.js';

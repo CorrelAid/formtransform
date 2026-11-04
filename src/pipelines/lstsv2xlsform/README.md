@@ -42,7 +42,7 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | `cssclass=cdlvocab-<id>` | `select_*_from_file <id>.csv`, inlined A rows dropped | shares `vocabFromCssClass` with the DDI path |
 | `mandatory=Y` / `default` | `required: yes` / `default` | direct |
 | type override `!` / `T` | `appearance: minimal` / `multiline` | inverts `APPEARANCES[*].lsTypeOverride` — registry-driven, not hardcoded |
-| `question_theme_name` (+ theme attributes) | the appearance whose `lsQuestionTheme` matches: `!` + `bootstrap_dropdown` + `show_search=true` → `autocomplete` | inverts `APPEARANCES[*].lsQuestionTheme`; `bootstrap_dropdown` without `show_search=true` stays `minimal` |
+| `question_theme_name` (+ theme attributes) | the appearance whose `lsQuestionTheme` matches: `!` + `bootstrap_dropdown` + `show_search=true` → `autocomplete` | inverts `APPEARANCES[*].lsQuestionTheme`; `bootstrap_dropdown` without `show_search=true` stays `minimal`; `emitOnlyAttributes` (`width_entry`) are not checked |
 | F + SQ + A | `begin_group appearance=table-list` + child `select_one`s | inverts the grid → F encoding |
 | SL welcome/end text | `note` named `welcome` / `end` | inverts note promotion |
 | per-language rows | `label::<lang>` / `hint::<lang>` | direct |

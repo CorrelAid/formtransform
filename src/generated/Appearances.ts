@@ -15,8 +15,14 @@ export interface AppearanceSpec {
   /**
    * LimeSurvey question theme the appearance selects: `name` goes to the Q row's
    * `question_theme_name`, each of `attributes` to a column of its own.
+   * `emitOnlyAttributes` are written the same way but do not identify the
+   * appearance on the way back (presentation only).
    */
-  lsQuestionTheme?: { name: string; attributes?: Record<string, string> };
+  lsQuestionTheme?: {
+    name: string;
+    attributes?: Record<string, string>;
+    emitOnlyAttributes?: Record<string, string>;
+  };
 }
 
 export const APPEARANCES: Record<string, AppearanceSpec> = {
@@ -33,7 +39,7 @@ export const APPEARANCES: Record<string, AppearanceSpec> = {
     validForTypes: ["select_one", "select_one_from_file"],
     lsEffect: "Override LS type from L to ! with LimeSurvey's core question theme bootstrap_dropdown and its show_search attribute: a dropdown the respondent can search by typing",
     lsTypeOverride: "!",
-    lsQuestionTheme: {"name": "bootstrap_dropdown", "attributes": {"show_search": "true"}},
+    lsQuestionTheme: {"name": "bootstrap_dropdown", "attributes": {"show_search": "true"}, "emitOnlyAttributes": {"width_entry": "true"}},
   },
   "horizontal": {
     supported: true,

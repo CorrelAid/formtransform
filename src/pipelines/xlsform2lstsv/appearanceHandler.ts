@@ -65,6 +65,7 @@ export class AppearanceHandler {
       columns = {
         [QUESTION_THEME_COLUMN]: theme.name,
         ...(theme.attributes ?? {}),
+        ...(theme.emitOnlyAttributes ?? {}),
       };
     }
     return columns;

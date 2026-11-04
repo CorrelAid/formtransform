@@ -138,6 +138,7 @@ def test_long_file_list_dropdown_with_derived_codes(limesurvey_client: Client, t
         props = limesurvey_client.get_question_properties(q["qid"], settings=["question_theme_name"])
         assert props.get("question_theme_name") == "bootstrap_dropdown", props
         assert _attributes(limesurvey_client, q["qid"]).get("show_search") == "true"
+        assert _attributes(limesurvey_client, q["qid"]).get("width_entry") == "true"
         options = limesurvey_client.get_question_properties(q["qid"], settings=["answeroptions"])["answeroptions"]
         # Every derived code arrived unchanged (LimeSurvey stores varchar(5)),
         # and the mapping gives each one its file code back.
