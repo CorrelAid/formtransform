@@ -2,6 +2,8 @@ class	type/scale	name	relevance	text	help	language	validation	em_validation_q	ma
 S		language	1	en		en									
 S		format	1	A		en									
 S		shownoanswer	1	N		en									
+S		allowprev	1	Y		en									
+S		showxquestions	1	N		en									
 SL		surveyls_title	1	Complex XPath Survey		en									
 G	1	Consent and Demographics	1			en									
 Q	S	consent	1	Do you consent to participate?		en								1	

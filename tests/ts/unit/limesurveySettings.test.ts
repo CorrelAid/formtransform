@@ -20,7 +20,7 @@ const survey = [{ type: 'text', name: 'q1', label: 'Q' }];
 
 async function convert(
   settings: Record<string, unknown>,
-  config: { hideNoAnswer?: boolean } = {},
+  config: { hideNoAnswer?: boolean; surveySettingDefaults?: boolean } = {},
 ) {
   const warnings: Diagnostic[] = [];
   const tsv = await new XLSFormToTSVConverter({
@@ -131,8 +131,8 @@ describe('xlsform → LimeSurvey S rows', () => {
       ['format', 'A'],
       ['shownoanswer', 'N'],
       ['allowprev', 'Y'],
-      ['allowsave', 'Y'],
       ['showxquestions', 'N'],
+      ['allowsave', 'Y'],
       ['showgroupinfo', 'B'],
       ['showqnumcode', 'X'],
       ['showprogress', 'Y'],
@@ -140,13 +140,44 @@ describe('xlsform → LimeSurvey S rows', () => {
     expect(warnings).toEqual([]);
   });
 
-  test('without columns the S rows are unchanged', async () => {
+  test('without columns the S rows carry the defaults (#240)', async () => {
     const { sRows } = await convert({});
     expect(sRows).toEqual([
       ['language', 'de'],
       ['format', 'A'],
       ['shownoanswer', 'N'],
+      ['allowprev', 'Y'],
+      ['showxquestions', 'N'],
     ]);
+  });
+
+  test('a column overrides allowprev / showxquestions: one row each (#240)', async () => {
+    const { sRows } = await convert({
+      limesurvey_allowprev: 'N',
+      limesurvey_showxquestions: 'Y',
+    });
+    expect(sRows.filter(([n]) => n === 'allowprev')).toEqual([
+      ['allowprev', 'N'],
+    ]);
+    expect(sRows.filter(([n]) => n === 'showxquestions')).toEqual([
+      ['showxquestions', 'Y'],
+    ]);
+  });
+
+  test('surveySettingDefaults=false leaves both out; columns still count (#240)', async () => {
+    expect((await convert({}, { surveySettingDefaults: false })).sRows).toEqual(
+      [
+        ['language', 'de'],
+        ['format', 'A'],
+        ['shownoanswer', 'N'],
+      ],
+    );
+    const { sRows } = await convert(
+      { limesurvey_allowprev: 'Y' },
+      { surveySettingDefaults: false },
+    );
+    expect(sRows).toContainEqual(['allowprev', 'Y']);
+    expect(sRows.map(([n]) => n)).not.toContain('showxquestions');
   });
 
   test('limesurvey_shownoanswer overrides the default: one row', async () => {
@@ -160,6 +191,8 @@ describe('xlsform → LimeSurvey S rows', () => {
     expect((await convert({}, { hideNoAnswer: false })).sRows).toEqual([
       ['language', 'de'],
       ['format', 'A'],
+      ['allowprev', 'Y'],
+      ['showxquestions', 'N'],
     ]);
     const { sRows } = await convert(
       { limesurvey_shownoanswer: 'N' },
@@ -194,20 +227,22 @@ describe('LimeSurvey S rows → xlsform', () => {
         { name: 'format', text: 'G' },
         { name: 'shownoanswer', text: 'N' },
         { name: 'allowprev', text: 'Y' },
+        { name: 'showxquestions', text: 'N' },
+        { name: 'allowsave', text: 'Y' },
         { name: 'admin', text: 'Jane' },
         { name: 'showqnumcode', text: 'Q' },
         { name: 'questionindex', text: '1' },
       ]),
     ).toEqual({
-      limesurvey_allowprev: 'Y',
+      limesurvey_allowsave: 'Y',
       limesurvey_questionindex: '1',
     });
   });
 
   test('round trip: xlsform → TSV → xlsform keeps the columns', async () => {
     const settings = {
-      limesurvey_allowprev: 'Y',
-      limesurvey_showxquestions: 'N',
+      limesurvey_allowprev: 'N',
+      limesurvey_showxquestions: 'Y',
       limesurvey_showqnumcode: 'X',
       limesurvey_shownoanswer: 'Y',
     };
@@ -223,8 +258,9 @@ describe('LimeSurvey S rows → xlsform', () => {
     expect(again).toBe(tsv);
   });
 
-  test('a form without columns gets none back', async () => {
-    const { tsv } = await convert({});
+  test('a form without columns gets none back, defaults included (#240)', async () => {
+    const { tsv, sRows } = await convert({});
+    expect(sRows).toContainEqual(['allowprev', 'Y']);
     const back = lstsvToXlsform(tsv).settings[0] ?? {};
     expect(
       Object.keys(back).filter((k) => k.startsWith('limesurvey_')),
@@ -233,6 +269,14 @@ describe('LimeSurvey S rows → xlsform', () => {
 });
 
 describe('DDI', () => {
+  test('the survey-setting defaults are not in the DDI (#240)', () => {
+    const xml = buildDdiXml(survey, [], {
+      settings: { form_title: 'T', form_id: 't' },
+    });
+    expect(xml).not.toContain('allowprev');
+    expect(xml).not.toContain('showxquestions');
+  });
+
   test('each column is a cdl:setting note and comes back from it', () => {
     const settings = {
       form_title: 'T',

@@ -46,7 +46,7 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | F + SQ + A | `begin_group appearance=table-list` + child `select_one`s | inverts the grid → F encoding |
 | SL welcome/end text | `note` named `welcome` / `end` | inverts note promotion |
 | per-language rows | `label::<lang>` / `hint::<lang>` | direct |
-| S rows | settings (`default_language`, `form_title`, `style`, and `limesurvey_<setting>` for each supported survey setting) | convention:surveySettings `limesurveySettings`; `shownoanswer=N`, formtransform's default, isn't read back |
+| S rows | settings (`default_language`, `form_title`, `style`, and `limesurvey_<setting>` for each supported survey setting) | convention:surveySettings `limesurveySettings`; `shownoanswer=N`, `allowprev=Y` and `showxquestions=N`, formtransform's defaults, aren't read back |
 | `relevance`, `em_validation_q` | `relevant`, `constraint` | reverse-transpiled — see below |
 | `answer_order=random` (L, `!`), `subquestion_order=random` (M), legacy `random_order=1` | `parameters: randomize=true` | convention:randomOrder; a `keep_codes_order` code that isn't in `exclude_all_others` comes back as `fixed=yes` on its choice; exclusive answers come back from `exclude_all_others` |
 | `array_filter = q` | `choice_filter: selected(${q}, name)` | convention:choiceFilter. A filter the forward path recoded (`selected(${q}, <column>)`) comes back on the codes LimeSurvey stores, not the list's own |

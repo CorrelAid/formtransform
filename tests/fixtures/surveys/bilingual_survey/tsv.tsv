@@ -3,6 +3,8 @@ S		language	1	de		de
 S		additional_languages	1	en		de								
 S		format	1	A		de								
 S		shownoanswer	1	N		de								
+S		allowprev	1	Y		de								
+S		showxquestions	1	N		de								
 SL		surveyls_title	1	Zweisprachige Befragung		de								
 SL		surveyls_title	1	Zweisprachige Befragung		en								
 G	1	Questions	1			de								

@@ -20,7 +20,7 @@ export const LIMESURVEY_SETTING_PREFIX: string = RULE.prefix;
 
 const SETTINGS: Readonly<Record<string, SettingSpec>> = RULE.settings;
 const DERIVED: Readonly<Record<string, string>> = RULE.derived;
-/** What formtransform writes when the form sets nothing (`shownoanswer=N`). */
+/** What formtransform writes when the form sets nothing (`shownoanswer=N`, `allowprev=Y`, `showxquestions=N`). */
 export const LIMESURVEY_SETTING_DEFAULTS: Readonly<Record<string, string>> =
   RULE.defaults;
 const TRUE_VALUES = new Set<string>(RULE.trueValues);
@@ -90,7 +90,7 @@ export function limesurveySettingsOf(
 /**
  * The way back: a TSV's `S` rows as `limesurvey_<setting>` columns. Only the
  * supported settings with a valid value, and not a value formtransform writes
- * by default (`shownoanswer=N`), so a converted form comes back as authored.
+ * by default (`LIMESURVEY_SETTING_DEFAULTS`), so a converted form comes back as authored.
  */
 export function limesurveySettingColumns(
   sRows: readonly { name: string; text: string }[],

@@ -46,7 +46,7 @@ export class SurveySettingsEmitter {
 
   /**
    * Emit the S rows (language, additional_languages, format, shownoanswer,
-   * then the form's `limesurvey_<setting>` columns) and
+   * allowprev, showxquestions, then the form's `limesurvey_<setting>` columns) and
    * the SL rows (title + optional welcome/end text) for the survey.
    */
   emit(settings: SettingsRow): void {
@@ -89,18 +89,24 @@ export class SurveySettingsEmitter {
       }),
     );
 
-    // The form's limesurvey_<setting> columns (#228). shownoanswer=N is
-    // formtransform's default unless hideNoAnswer is false; a column overrides it.
+    // The form's limesurvey_<setting> columns (#228) over formtransform's
+    // defaults (shownoanswer=N unless hideNoAnswer is false; allowprev=Y and
+    // showxquestions=N unless surveySettingDefaults is false, #240).
+    const config = this.configManager.getConfig();
     const lsSettings = limesurveySettingsOf(settings, this.warn);
-    if (
-      this.configManager.getConfig().hideNoAnswer !== false &&
-      !lsSettings.has('shownoanswer')
-    ) {
-      lsSettings.set('shownoanswer', LIMESURVEY_SETTING_DEFAULTS.shownoanswer);
+    const defaulted = Object.keys(LIMESURVEY_SETTING_DEFAULTS).filter((name) =>
+      name === 'shownoanswer'
+        ? config.hideNoAnswer !== false
+        : config.surveySettingDefaults !== false,
+    );
+    for (const name of defaulted) {
+      if (!lsSettings.has(name)) {
+        lsSettings.set(name, LIMESURVEY_SETTING_DEFAULTS[name]);
+      }
     }
     const ordered = [
-      ...(lsSettings.has('shownoanswer') ? ['shownoanswer'] : []),
-      ...[...lsSettings.keys()].filter((name) => name !== 'shownoanswer'),
+      ...defaulted,
+      ...[...lsSettings.keys()].filter((name) => !defaulted.includes(name)),
     ];
     for (const name of ordered) {
       this.rowEmitter.addRow(
