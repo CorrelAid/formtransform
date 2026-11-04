@@ -28,6 +28,12 @@ describe('markdownToHtml utility', () => {
     );
   });
 
+  test('braces in link targets stay unencoded (#219)', () => {
+    expect(markdownToHtml('[go](https://x.de/?a=${a}&id={SAVEDID})')).toBe(
+      '<a href="https://x.de/?a=${a}&id={SAVEDID}">go</a>',
+    );
+  });
+
   test('inline code converts to <code>', () => {
     expect(markdownToHtml('use `npm install`')).toBe(
       'use <code>npm install</code>',
@@ -87,6 +93,22 @@ describe('Markdown label conversion in converter pipeline', () => {
       const rows = await convertAndParse(survey);
       expect(findRowByName(rows, 'q1')?.text).toContain(
         '<a href="https://example.com">our site</a>',
+      );
+    });
+
+    test('references inside a link URL are converted (#219)', async () => {
+      const survey = [
+        { type: 'hidden', name: 'partner', label: 'P' },
+        {
+          type: 'note',
+          name: 'n1',
+          label:
+            'Link: https://x.de/index.php/1?partner=${partner}&id={SAVEDID}',
+        },
+      ];
+      const rows = await convertAndParse(survey);
+      expect(findRowByName(rows, 'n1')?.text).toContain(
+        'href="https://x.de/index.php/1?partner={partner}&id={SAVEDID}"',
       );
     });
 

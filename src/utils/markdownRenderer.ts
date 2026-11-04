@@ -11,7 +11,7 @@ import { marked } from 'marked';
 export function markdownToHtml(text: string): string {
   if (!text) return text;
 
-  const html = (marked.parse(text) as string).trim();
+  const html = keepBracesInHrefs((marked.parse(text) as string).trim());
 
   // Strip the wrapping <p>…</p> only when the output is a single paragraph
   // (i.e. exactly one <p> tag). Multi-paragraph output keeps its structure.
@@ -24,6 +24,19 @@ export function markdownToHtml(text: string): string {
   }
 
   return html;
+}
+
+/**
+ * `marked` percent-encodes `{` and `}` in link targets. Put them back, so that
+ * `${name}` references and LimeSurvey placeholders such as `{SAVEDID}` in a URL
+ * are converted and piped like the same text outside a link (#219).
+ */
+function keepBracesInHrefs(html: string): string {
+  return html.replace(
+    /href="([^"]*)"/g,
+    (_, href: string) =>
+      `href="${href.replace(/%7B/gi, '{').replace(/%7D/gi, '}')}"`,
+  );
 }
 
 /**
