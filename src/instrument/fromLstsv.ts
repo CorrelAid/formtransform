@@ -383,13 +383,30 @@ function gridMember(
 /**
  * A group holding nothing but one array is how the forward path writes an
  * XLSForm table-list group (G row + F question): the group *is* the grid.
+ * The label is on one of the two (#224): an array without text takes the G
+ * row's title and description; one with text keeps it, and a different
+ * title is the group's `label_short`. (A TSV written before #224 has the
+ * label on both.)
  */
 function unwrapLoneArray(item: Item): Item {
   if (item.kind !== 'group' || item.children.length !== 1) return item;
   const only = item.children[0];
-  return only.kind === 'group' && only.appearance === GRID_APPEARANCE
-    ? only
-    : item;
+  if (only.kind !== 'group' || only.appearance !== GRID_APPEARANCE) {
+    return item;
+  }
+  const labelShort: Text = {};
+  for (const [lang, title] of Object.entries(item.label)) {
+    if (!only.label[lang]) {
+      only.label[lang] = title;
+      if (item.hint[lang] && !only.hint[lang]) {
+        only.hint[lang] = item.hint[lang];
+      }
+    } else if (title !== only.label[lang]) {
+      labelShort[lang] = title;
+    }
+  }
+  if (Object.keys(labelShort).length > 0) only.labelShort = labelShort;
+  return only;
 }
 
 /**

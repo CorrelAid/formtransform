@@ -1398,6 +1398,7 @@ const conventions = {
           "headerRow": "F-type question (matrix header) with answerClass=A; answer codes from shared list",
           "itemRows": "SQ-class rows, one per item",
           "note": "LS represents the matrix as a single question with sub-questions; categories not re-emitted per row",
+          "title": "A table-list group's G row comes first and is the page title; the label is on only one of the two (formtransform#224). With a label_short, the G row's name is the label_short and the F question's text and help are the label and hint; without one, the G row's name and description are the label and hint and the F question has no text. The reverse reads the label from the F text, else the G row, and a G name other than the F text as the label_short.",
           "numericRows": "A table of numbers is no LimeSurvey array: an ordinary group (G row with the group's label) with one question per row. LimeSurvey reads it back as a field-list group, not a table-list one."
         }
       },

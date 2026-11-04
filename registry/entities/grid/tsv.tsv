@@ -4,7 +4,7 @@ S		format	1	A		en
 S		shownoanswer	1	N		en								
 SL		surveyls_title	1	Untitled Survey		en								
 G	1	Vertrauen in Institutionen	1			en								
-Q	F	institutionen	1	Vertrauen in Institutionen		en								1
+Q	F	institutionen	1			en								1
 SQ		vertrauenparlament	1	Das Parlament		en								
 SQ		vertrauenpolizei	1	Die Polizei		en								
 A		1		Gar nicht		en								
