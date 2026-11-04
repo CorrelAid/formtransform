@@ -61,6 +61,10 @@ export const BASE_COLUMNS = [
  *   theme from `question_theme_name` and stores the other columns as
  *   question attributes.
  *
+ * - `display_columns`: the number of columns an L / M question's options are
+ *   laid out in, from the appearance `columns-n` (convention in
+ *   `conventions/displayColumns.ts`).
+ *
  * A registry attribute missing here would be dropped silently; a test checks
  * the registry against this list.
  */
@@ -83,6 +87,7 @@ export const ATTRIBUTE_COLUMNS = [
   'question_theme_name',
   'show_search',
   'width_entry',
+  'display_columns',
 ] as const;
 
 export type BaseColumn = (typeof BASE_COLUMNS)[number];

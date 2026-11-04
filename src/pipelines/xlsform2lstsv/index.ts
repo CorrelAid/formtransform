@@ -652,6 +652,11 @@ class Conversion {
         ),
         ...fields.answerBounds,
         ...this.arrayFilterAttribute(questionName),
+        ...this.appearanceHandler.columnsAttributes(
+          lsType,
+          appearance,
+          xfTypeInfo.base,
+        ),
         ...this.appearanceHandler.themeAttributes(
           lsType,
           appearance,

@@ -1,6 +1,12 @@
 import { APPEARANCES } from '../../generated/Appearances.js';
 import type { AppearanceSpec } from '../../generated/Appearances.js';
 import { QUESTION_THEME_COLUMN } from '../../conventions/questionTheme.js';
+import {
+  COLUMNS_BASE_TYPES,
+  COLUMNS_LS_TYPES,
+  DISPLAY_COLUMNS_ATTRIBUTE,
+  columnsInAppearance,
+} from '../../conventions/displayColumns.js';
 import { LSType } from './typeMapper.js';
 import { consoleWarning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
@@ -59,6 +65,14 @@ export class AppearanceHandler {
     base: string,
   ): Record<string, string> {
     let columns: Record<string, string> = {};
+    // An explicit column count wins over a button row (`horizontal`).
+    if (
+      this.columnsAttributes(lsType, appearance, base)[
+        DISPLAY_COLUMNS_ATTRIBUTE
+      ]
+    ) {
+      return columns;
+    }
     for (const spec of applicable(appearance, base)) {
       const theme = spec.lsQuestionTheme;
       if (!theme || (!spec.lsTypeOverride && lsType.type !== 'L')) continue;
@@ -69,6 +83,22 @@ export class AppearanceHandler {
       };
     }
     return columns;
+  }
+
+  /**
+   * `columns-n` / `columns` on a list (L) or multiple choice (M) →
+   * `display_columns` (convention in `conventions/displayColumns.ts`). A
+   * dropdown (`minimal`, `autocomplete`) has no columns: none is written.
+   */
+  columnsAttributes(
+    lsType: LSType,
+    appearance: string,
+    base: string,
+  ): Record<string, string> {
+    if (!COLUMNS_BASE_TYPES.includes(base)) return {};
+    if (!COLUMNS_LS_TYPES.includes(lsType.type)) return {};
+    const n = columnsInAppearance(appearance);
+    return n === undefined ? {} : { [DISPLAY_COLUMNS_ATTRIBUTE]: String(n) };
   }
 }
 
