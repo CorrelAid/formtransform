@@ -42,6 +42,13 @@ import {
   countsSelections,
 } from '../../conventions/selectionCount.js';
 import { ARRAY_FILTER_ATTRIBUTE } from '../../conventions/choiceFilter.js';
+import {
+  KEEP_CODES_ATTRIBUTE,
+  RANDOM_ORDER_ATTRIBUTES,
+  RANDOM_ORDER_RULE,
+  randomizable,
+  randomizeOf,
+} from '../../conventions/randomOrder.js';
 import { resolveArrayFilter } from './choiceFilter.js';
 import type { ArrayFilter } from './choiceFilter.js';
 import {
@@ -382,6 +389,17 @@ class Conversion {
   }
 
   /**
+   * The answer codes of a select_multiple's choices marked `exclusive`
+   * (convention:exclusiveChoice), sanitized as LimeSurvey stores them.
+   */
+  private exclusiveCodes(baseType: string, listName: string | null): string[] {
+    if (!listName || !EXCLUSIVE_RULE.appliesTo.includes(baseType)) return [];
+    return (this.choiceManager.getChoices(listName) ?? [])
+      .filter(isExclusive)
+      .map((c) => this.fieldNameHandler.sanitizeAnswerCode(String(c.name)));
+  }
+
+  /**
    * `exclude_all_others` for a select_multiple whose list marks choices
    * `exclusive` (convention:exclusiveChoice): their answer codes, `;`-joined.
    */
@@ -389,10 +407,7 @@ class Conversion {
     baseType: string,
     listName: string | null,
   ): Record<string, string> {
-    if (!listName || !EXCLUSIVE_RULE.appliesTo.includes(baseType)) return {};
-    const codes = (this.choiceManager.getChoices(listName) ?? [])
-      .filter(isExclusive)
-      .map((c) => this.fieldNameHandler.sanitizeAnswerCode(String(c.name)));
+    const codes = this.exclusiveCodes(baseType, listName);
     if (codes.length === 0) return {};
     return {
       [EXCLUSIVE_RULE.limesurveyAttribute]: codes.join(
@@ -400,6 +415,60 @@ class Conversion {
       ),
     };
   }
+
+  /**
+   * `parameters: randomize=true` on a select → LimeSurvey's ordering
+   * attribute for its type (convention:randomOrder), with its exclusive
+   * answers kept in place. A seed, an exclusive answer ODK would shuffle, and
+   * a type LimeSurvey can't order are each a warning.
+   */
+  private randomOrderAttributes(
+    q: QuestionItem,
+    baseType: string,
+    lsCode: string,
+    listName: string | null,
+    questionName: string,
+  ): Record<string, string> {
+    const { randomize, seed } = randomizeOf(q.parameters);
+    if (!randomize || !randomizable(baseType)) return {};
+    const spec = RANDOM_ORDER_ATTRIBUTES[lsCode];
+    if (!spec) {
+      this.warn(
+        warning(
+          'randomize-dropped',
+          `'${questionName}': LimeSurvey can't shuffle the options of a type ${lsCode} question, so randomize=true is dropped and they keep their order`,
+          questionName,
+        ),
+      );
+      return {};
+    }
+    if (seed !== undefined) {
+      this.warn(
+        warning(
+          'randomize-seed-dropped',
+          `'${questionName}': LimeSurvey has no seed for a random order, so seed=${seed} is dropped and LimeSurvey draws its own order`,
+          questionName,
+        ),
+      );
+    }
+    const keep = this.exclusiveCodes(baseType, listName);
+    if (keep.length > 0) {
+      this.warn(
+        warning(
+          'randomize-pinned',
+          `'${questionName}': LimeSurvey keeps the exclusive answer(s) ${keep.join(', ')} at their position while it shuffles the others (${KEEP_CODES_ATTRIBUTE}, LimeSurvey 6.17 or later); ODK and Kobo shuffle them with the rest`,
+          questionName,
+        ),
+      );
+    }
+    return {
+      [spec.attribute]: spec.value,
+      ...(keep.length > 0
+        ? { [KEEP_CODES_ATTRIBUTE]: keep.join(RANDOM_ORDER_RULE.keepSeparator) }
+        : {}),
+    };
+  }
+
   /** `array_filter` for a question with a convertible choice_filter. */
   private arrayFilterAttribute(questionName: string): Record<string, string> {
     const filter = this.arrayFilters.get(questionName);
@@ -470,7 +539,11 @@ class Conversion {
       appearance,
       this.matrixHelpers(),
     );
-    if (handledByMatrix) return;
+    if (handledByMatrix) {
+      // A grid row is a subquestion of an array (F): its columns can't shuffle.
+      this.randomOrderAttributes(q, xfTypeInfo.base, 'F', null, q.name);
+      return;
+    }
 
     // Warn on unsupported appearances: not in the registry allowlist, or
     // registered but not valid for this question type.
@@ -500,6 +573,13 @@ class Conversion {
       attributes: {
         ...parameterAttributes(xfTypeInfo.base, q.parameters, questionName),
         ...this.exclusiveAttribute(xfTypeInfo.base, xfTypeInfo.listName),
+        ...this.randomOrderAttributes(
+          q,
+          xfTypeInfo.base,
+          lsType.type,
+          xfTypeInfo.listName,
+          questionName,
+        ),
         ...fields.answerBounds,
         ...this.arrayFilterAttribute(questionName),
       },

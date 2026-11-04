@@ -987,6 +987,45 @@ const conventions = {
         }
       }
     },
+    "randomOrder": {
+      "parametersKey": "randomize",
+      "trueValues": [
+        "true"
+      ],
+      "seedKey": "seed",
+      "appliesTo": [
+        "select_one",
+        "select_multiple",
+        "select_one_from_file",
+        "select_multiple_from_file"
+      ],
+      "limesurveyAttributes": {
+        "L": {
+          "attribute": "answer_order",
+          "value": "random"
+        },
+        "!": {
+          "attribute": "answer_order",
+          "value": "random"
+        },
+        "M": {
+          "attribute": "subquestion_order",
+          "value": "random"
+        }
+      },
+      "limesurveyLegacyAttribute": {
+        "attribute": "random_order",
+        "value": "1"
+      },
+      "keepAttribute": "keep_codes_order",
+      "keepSeparator": ";",
+      "limesurveyEmission": "parameters randomize=true on a select becomes LimeSurvey 6's ordering attribute for its question type: answer_order=random on a list (L) or dropdown (!), subquestion_order=random on a multiple choice (M). The legacy random_order=1 is only read back",
+      "pinned": "a randomized select_multiple's exclusive choices (convention:exclusiveChoice) also go in keep_codes_order, so LimeSurvey keeps them at their position in the list (usually last) while it shuffles the rest. keep_codes_order needs LimeSurvey 6.17 or later; older versions drop it on import and pin only a single exclude_all_others code. ODK and Kobo shuffle every choice, so a randomize-pinned warning names the pinned codes. LimeSurvey's own other option (convention:other) is always last, as or_other is in ODK",
+      "seed": "ODK's seed parameter has no LimeSurvey counterpart: it is dropped with a randomize-seed-dropped warning, and LimeSurvey draws an order per respondent",
+      "unmapped": "a randomize=true LimeSurvey can't order (a select in a table-list grid, any other LimeSurvey type) is dropped with a randomize-dropped warning",
+      "reverse": "answer_order=random, subquestion_order=random or random_order=1 on a list, dropdown or multiple choice comes back as parameters randomize=true",
+      "ddiEmission": "none beyond the form's parameters cell, kept as a cdl:parameters note (convention:ddiFields)"
+    },
     "sanitization": {
       "name": {
         "maxLength": 20,
