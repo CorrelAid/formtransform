@@ -24,7 +24,7 @@ SQ		preis	1	… der Preis?		de
 SQ		takt	1	… der Takt?		de									
 A		nie		Nie		de									
 A		oft		Oft		de									
-G	5	G4	1	G4		de									
+G	5	Questions	1			de									
 Q	L	herkunft	1	Herkunftsland?		de								cdlvocab-iso_3166_1	1
 A		AF		Afghanistan		de									
 A		AX		Åland Islands		de									

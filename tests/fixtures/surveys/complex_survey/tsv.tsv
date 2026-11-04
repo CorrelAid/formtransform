@@ -20,5 +20,5 @@ Q	L	satisfactionlevel	1	How satisfied are you?		en								1
 A		happ		Happy		en										
 A		unhp		Unhappy		en										
 Q	S	othercomments	satisfactionlevel == 'unhappy'	Any other comments?		en								1		
-G	3	G2	1	G2		en										
+G	3	Questions	1			en										
 Q	D	surveydate	1	Date of survey		en					today()			1		

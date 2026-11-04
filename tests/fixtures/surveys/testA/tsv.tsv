@@ -108,5 +108,5 @@ A		nb		Nicht-binär		en
 A		d		Divers		en											
 A		ander		Anderes Geschlecht		en											
 Q	S	geschlechtandere	geschlecht == 'ander'	Falls &quot;Anderes&quot;: Bitte angeben (optional)		en								1			
-G	7	G6	1	G6		en											
+G	7	Questions	1			en											
 Q	X	danke	1	Vielen Dank! Deine Meinung hilft uns sehr weiter!		en											
