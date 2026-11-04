@@ -6,12 +6,19 @@ import { marked } from 'marked';
  * - Block content (multiple paragraphs, lists, etc.) is returned as full HTML.
  * - Single-paragraph content has its outer <p>…</p> stripped so that short
  *   labels remain inline strings rather than block elements.
+ * - Block elements are joined without newlines (`<p>a</p><p>b</p><ul>…`).
+ *   The TSV serializer turns every newline into `<br />`, which on top of
+ *   the paragraph/list margins would double the spacing (#225). A newline
+ *   remains only for a single line break inside a paragraph (and inside
+ *   `<pre>`).
  * - Empty / non-string input is returned as-is.
  */
 export function markdownToHtml(text: string): string {
   if (!text) return text;
 
-  const html = keepBracesInHrefs((marked.parse(text) as string).trim());
+  const html = keepBracesInHrefs(
+    joinBlocks((marked.parse(text) as string).trim()),
+  );
 
   // Strip the wrapping <p>…</p> only when the output is a single paragraph
   // (i.e. exactly one <p> tag). Multi-paragraph output keeps its structure.
@@ -24,6 +31,19 @@ export function markdownToHtml(text: string): string {
   }
 
   return html;
+}
+
+const BLOCK_TAG =
+  /\n*(<\/?(?:p|ul|ol|li|h[1-6]|blockquote|hr|table|thead|tbody|tr|th|td)\b[^>]*>)\n*/g;
+
+/** Drop the newlines `marked` puts around block tags, except inside `<pre>`. */
+function joinBlocks(html: string): string {
+  return html
+    .split(/(<pre>[\s\S]*?<\/pre>)/)
+    .map((part, i) => (i % 2 ? part : part.replace(BLOCK_TAG, '$1')))
+    .join('')
+    .replace(/(<\/pre>)\n+/g, '$1')
+    .replace(/\n+(<pre>)/g, '$1');
 }
 
 /**
@@ -64,6 +84,14 @@ export function htmlToMarkdown(html: string): string {
 
   let md = html;
 
+  // Line breaks. Older TSVs joined blocks with `<br />` (`</p><br /><p>`);
+  // drop a `<br />` next to a block boundary, turn the rest into newlines.
+  md = md.replace(
+    /(<\/(?:p|ul|ol|h[1-6]|blockquote|pre)>|<hr\s*\/?>)(?:\s*<br\s*\/?>)+/gi,
+    '$1',
+  );
+  md = md.replace(/<br\s*\/?>/gi, '\n');
+
   // <a href="...">text</a> → [text](...)
   md = md.replace(
     /<a\s+href="([^"]+)">([^<]*)<\/a>/g,
@@ -75,18 +103,17 @@ export function htmlToMarkdown(html: string): string {
   md = md.replace(/<(em|i)>([^<]*)<\/(em|i)>/g, '_$2_');
 
   // <h1>-<h6> → # - ######
-  md = md.replace(/<h([1-6])>/g, (_, n) => `${'#'.repeat(Number(n))} `);
-  md = md.replace(/<\/h[1-6]>/g, '');
-
-  // <blockquote> → >
-  md = md.replace(/<blockquote>/gi, '> ');
-  md = md.replace(/<\/blockquote>/gi, '');
+  md = md.replace(/<h([1-6])>/g, (_, n) => `\n\n${'#'.repeat(Number(n))} `);
+  md = md.replace(/<\/h[1-6]>/g, '\n\n');
 
   // <hr> → ---
-  md = md.replace(/<hr\s*\/?>/gi, '\n---\n');
+  md = md.replace(/<hr\s*\/?>/gi, '\n\n---\n\n');
 
   // <pre><code>...</code></pre> → ```...``` (before inline <code> handler)
-  md = md.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, '```\n$1\n```');
+  md = md.replace(
+    /<pre><code>([\s\S]*?)\n?<\/code><\/pre>/g,
+    '\n\n```\n$1\n```\n\n',
+  );
 
   // <code>x</code> → `x`
   md = md.replace(/<code>([^<]*)<\/code>/g, '`$1`');
@@ -94,26 +121,32 @@ export function htmlToMarkdown(html: string): string {
   // <ul>/<ol>...</ul/ol> — collect <li> items and prefix with - or numbers
   md = md.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, content: string) => {
     const items = (content.match(/<li>([\s\S]*?)<\/li>/g) || []) as string[];
-    return items.map((item) => `- ${item.replace(/<\/?li>/g, '')}`).join('\n');
+    return `\n\n${items.map((item) => `- ${item.replace(/<\/?li>/g, '')}`).join('\n')}\n\n`;
   });
   md = md.replace(/<ol>([\s\S]*?)<\/ol>/g, (_, content: string) => {
     const items = (content.match(/<li>([\s\S]*?)<\/li>/g) || []) as string[];
-    return items
-      .map(
-        (item: string, i: number) =>
-          `${i + 1}. ${item.replace(/<\/?li>/g, '')}`,
-      )
-      .join('\n');
+    const lines = items.map(
+      (item: string, i: number) => `${i + 1}. ${item.replace(/<\/?li>/g, '')}`,
+    );
+    return `\n\n${lines.join('\n')}\n\n`;
   });
 
-  // <p>...</p> → ... (double newline between blocks for paragraphs)
+  // <p>...</p> → ... (blank line between blocks)
   md = md.replace(/<p>([\s\S]*?)<\/p>/gi, (_, content: string) => {
     const stripped = content.trim();
-    if (!stripped) return '';
-    // If already starts with markdown block char, keep as block
-    if (/^[-#>`]/.test(stripped)) return `\n\n${stripped}`;
-    return stripped;
+    return stripped ? `\n\n${stripped}\n\n` : '';
   });
+
+  // <blockquote>…</blockquote> → "> " on every line (after <p> is resolved)
+  md = md.replace(
+    /<blockquote>([\s\S]*?)<\/blockquote>/gi,
+    (_, content: string) =>
+      `\n\n${content
+        .trim()
+        .split('\n')
+        .map((l) => (l.trim() ? `> ${l}` : '>'))
+        .join('\n')}\n\n`,
+  );
 
   // Collapse runs of internal whitespace within lines, trim final whitespace
   md = md
