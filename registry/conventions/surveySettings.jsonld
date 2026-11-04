@@ -76,7 +76,170 @@
             "ddiPath": "—",
             "note": "End-of-survey thank-you. LS-only."
           }
-        ]
+        ],
+        "limesurveySettings": {
+          "description": "LimeSurvey survey settings (the surveys table) set from optional settings-sheet columns named <prefix><setting>, e.g. limesurvey_allowprev = Y. Each becomes an `S <setting>` row of the TSV, which LimeSurvey's TSV import writes into the survey (formtransform#228). ODK and Kobo ignore the columns. Only the settings listed here are passed through: an unknown setting or a value outside its list is dropped with a `setting-invalid` warning. Y/N settings also take yes/no and true/false, in any case. The reverse path reads every listed S row back into its column, except a value formtransform writes by default. In DDI each is a cdl:setting note like any other setting (convention:ddiFields).",
+          "prefix": "limesurvey_",
+          "lsTsvRow": "S <setting>",
+          "ddiPath": "stdyDscr/notes[@type='cdl:setting'][@subject='limesurvey_<setting>']",
+          "trueValues": [
+            "yes",
+            "true"
+          ],
+          "falseValues": [
+            "no",
+            "false"
+          ],
+          "derived": {
+            "language": "`default_language` (else the first language)",
+            "additional_languages": "the form's other languages (`label::<lang>` columns)",
+            "format": "`style: pages` gives G (a page per group), anything else A (all in one)"
+          },
+          "defaults": {
+            "shownoanswer": "N"
+          },
+          "settings": {
+            "allowprev": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "a Previous button"
+            },
+            "allowsave": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "respondents can save and resume later"
+            },
+            "showprogress": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "a progress bar"
+            },
+            "showxquestions": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "'There are N questions in this survey' (counts hidden and filtered questions too)"
+            },
+            "showgroupinfo": {
+              "values": [
+                "B",
+                "N",
+                "D",
+                "X"
+              ],
+              "label": "group name and description: B both, N name, D description, X neither"
+            },
+            "showqnumcode": {
+              "values": [
+                "B",
+                "N",
+                "C",
+                "X"
+              ],
+              "label": "question number and code: B both, N number, C code, X neither"
+            },
+            "shownoanswer": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "a 'No answer' option on optional questions (formtransform writes N unless the hideNoAnswer option is false)"
+            },
+            "showwelcome": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "the welcome page"
+            },
+            "questionindex": {
+              "values": [
+                "0",
+                "1",
+                "2"
+              ],
+              "label": "a question index: 0 none, 1 incremental, 2 full"
+            },
+            "nokeyboard": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "an on-screen keyboard"
+            },
+            "printanswers": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "respondents can print their answers"
+            },
+            "autoredirect": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "redirect to the end URL when the survey is completed"
+            },
+            "navigationdelay": {
+              "pattern": "^[0-9]+$",
+              "label": "seconds before the navigation buttons are enabled"
+            },
+            "anonymized": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "anonymized responses"
+            },
+            "datestamp": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "store the date and time of each response"
+            },
+            "ipaddr": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "store the respondent's IP address"
+            },
+            "ipanonymize": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "anonymize the stored IP address"
+            },
+            "refurl": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "store the referrer URL"
+            },
+            "savetimings": {
+              "values": [
+                "Y",
+                "N"
+              ],
+              "label": "store the time spent on each page and question"
+            },
+            "template": {
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "label": "the theme's name (it must be installed in LimeSurvey)"
+            }
+          }
+        }
       }
     }
   ]

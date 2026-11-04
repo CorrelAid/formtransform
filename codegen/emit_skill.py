@@ -373,6 +373,21 @@ def _settings_section(settings: dict) -> list[str]:
         for m in magic:
             out.append(f"- {m.get('xlsformRow', '')} \u2192 {m.get('note', '')}")
         out.append("")
+    ls = settings.get("limesurveySettings")
+    if ls:
+        prefix = ls["prefix"]
+        out.append(
+            f"**LimeSurvey survey settings** (optional `{prefix}<setting>` columns; "
+            "ODK and Kobo ignore them, LimeSurvey gets an `S` row each; "
+            "anything else is dropped with a `setting-invalid` warning):\n"
+        )
+        out += ["| Column | Values | Effect |", "|---|---|---|"]
+        for name, spec in ls["settings"].items():
+            values = " ".join(f"`{v}`" for v in spec["values"]) if "values" in spec else f"`{spec['pattern']}`"
+            out.append(f"| `{prefix}{name}` | {values} | {spec['label']} |")
+        out.append("")
+        derived = ", ".join(f"`{k}` ({v})" for k, v in ls["derived"].items())
+        out.append(f"Not settable, derived from the form: {derived}.\n")
     return out
 
 

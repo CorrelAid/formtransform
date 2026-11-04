@@ -83,3 +83,30 @@ LimeSurvey has a fixed set of language codes. A regional tag it lacks falls back
 
 - type=note + name=welcome → Body text from label promoted to survey-level intro. Convention only; opt-in via tool config.
 - type=note + name=end → End-of-survey thank-you. LS-only.
+
+**LimeSurvey survey settings** (optional `limesurvey_<setting>` columns; ODK and Kobo ignore them, LimeSurvey gets an `S` row each; anything else is dropped with a `setting-invalid` warning):
+
+| Column | Values | Effect |
+|---|---|---|
+| `limesurvey_allowprev` | `Y` `N` | a Previous button |
+| `limesurvey_allowsave` | `Y` `N` | respondents can save and resume later |
+| `limesurvey_showprogress` | `Y` `N` | a progress bar |
+| `limesurvey_showxquestions` | `Y` `N` | 'There are N questions in this survey' (counts hidden and filtered questions too) |
+| `limesurvey_showgroupinfo` | `B` `N` `D` `X` | group name and description: B both, N name, D description, X neither |
+| `limesurvey_showqnumcode` | `B` `N` `C` `X` | question number and code: B both, N number, C code, X neither |
+| `limesurvey_shownoanswer` | `Y` `N` | a 'No answer' option on optional questions (formtransform writes N unless the hideNoAnswer option is false) |
+| `limesurvey_showwelcome` | `Y` `N` | the welcome page |
+| `limesurvey_questionindex` | `0` `1` `2` | a question index: 0 none, 1 incremental, 2 full |
+| `limesurvey_nokeyboard` | `Y` `N` | an on-screen keyboard |
+| `limesurvey_printanswers` | `Y` `N` | respondents can print their answers |
+| `limesurvey_autoredirect` | `Y` `N` | redirect to the end URL when the survey is completed |
+| `limesurvey_navigationdelay` | `^[0-9]+$` | seconds before the navigation buttons are enabled |
+| `limesurvey_anonymized` | `Y` `N` | anonymized responses |
+| `limesurvey_datestamp` | `Y` `N` | store the date and time of each response |
+| `limesurvey_ipaddr` | `Y` `N` | store the respondent's IP address |
+| `limesurvey_ipanonymize` | `Y` `N` | anonymize the stored IP address |
+| `limesurvey_refurl` | `Y` `N` | store the referrer URL |
+| `limesurvey_savetimings` | `Y` `N` | store the time spent on each page and question |
+| `limesurvey_template` | `^[A-Za-z0-9_-]+$` | the theme's name (it must be installed in LimeSurvey) |
+
+Not settable, derived from the form: `language` (`default_language` (else the first language)), `additional_languages` (the form's other languages (`label::<lang>` columns)), `format` (`style: pages` gives G (a page per group), anything else A (all in one)).

@@ -2,6 +2,8 @@ class	type/scale	name	relevance	text	help	language	validation	em_validation_q	ma
 S		language	1	en		en									
 S		format	1	A		en									
 S		shownoanswer	1	N		en									
+S		allowprev	1	Y		en									
+S		showqnumcode	1	X		en									
 SL		surveyls_title	1	Settings Test Survey		en									
 SL		surveyls_welcometext	1	<strong>Welcome</strong> to the survey!		en									
 SL		surveyls_endtext	1	<strong>Thank you</strong> for participating!		en									

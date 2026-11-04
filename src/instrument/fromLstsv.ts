@@ -32,6 +32,7 @@ import type { APPEARANCES } from '../generated/Appearances.js';
 /** The registry appearance for a group shown as one page. */
 const PAGE_APPEARANCE: keyof typeof APPEARANCES = 'field-list';
 import { fromFileTypeFor, vocabFromCssClass } from '../conventions/fromFile.js';
+import { limesurveySettingColumns } from '../conventions/surveySettings.js';
 import { resolveType } from './lstsvTypes.js';
 import {
   ConversionError,
@@ -566,6 +567,11 @@ export function instrumentFromLstsv(
     settings: {
       ...(title ? { form_title: cell(title, 'text') } : {}),
       ...(pages ? { style: 'pages' } : {}),
+      ...limesurveySettingColumns(
+        rows
+          .filter((r) => cell(r, 'class') === 'S')
+          .map((r) => ({ name: cell(r, 'name'), text: cell(r, 'text') })),
+      ),
     },
     lists: state.lists,
     body,

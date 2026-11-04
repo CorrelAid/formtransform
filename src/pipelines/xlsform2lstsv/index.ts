@@ -134,6 +134,7 @@ class Conversion {
       this.configManager,
       this.rowEmitter,
       this.languageHandler,
+      this.warn,
     );
     this.counters = new Counters();
     this.groupEmitter = new GroupEmitter(

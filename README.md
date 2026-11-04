@@ -231,6 +231,44 @@ columns (`cdl:column`). Two settings name the whole form the same way:
 `form_subtitle` is the study's `<subTitl>` and `form_title_short` its
 `<altTitl>` (plain, or one per language like `form_title`).
 
+## LimeSurvey survey settings
+
+LimeSurvey's survey settings (Previous button, save and resume, progress bar,
+question numbers, …) go in optional columns on the `settings` sheet, named
+`limesurvey_<setting>` (#228). Each becomes an `S` row of the TSV, which
+LimeSurvey's import writes into the survey. ODK, Kobo and pyxform ignore the
+columns, so the form stays valid XLSForm.
+
+| form_title | default_language | limesurvey_allowprev | limesurvey_allowsave | limesurvey_showxquestions | limesurvey_showqnumcode |
+|---|---|---|---|---|---|
+| Kommunalindex | de | Y | Y | N | X |
+
+gives these `S` rows:
+
+| class | name | text |
+|---|---|---|
+| S | language | de |
+| S | format | A |
+| S | shownoanswer | N |
+| S | allowprev | Y |
+| S | allowsave | Y |
+| S | showxquestions | N |
+| S | showqnumcode | X |
+
+Only the settings in `convention:surveySettings` (`limesurveySettings`) pass
+through, each with its allowed values (Y/N settings also take `yes`/`no` and
+`true`/`false`); the generated skill's syntax reference lists them. An unknown
+setting or an invalid value is dropped with a `setting-invalid` warning.
+`format`, `language` and `additional_languages` come from the form (`style:
+pages`, `default_language`, the `label::<lang>` columns), so their columns are
+dropped with that warning too. `limesurvey_shownoanswer` overrides
+formtransform's default `shownoanswer=N` (`--show-no-answer`). LimeSurvey's own
+defaults are not changed: without the columns the TSV is as before.
+
+The way back reads the `S` rows into the same columns (except
+`shownoanswer=N`, formtransform's default), and the DDI keeps each as a
+`cdl:setting` note like any other setting, so XLSForm → DDI → XLSForm keeps them.
+
 ## Errors and warnings
 
 Every error the library throws is a `ConversionError` with a stable `code`

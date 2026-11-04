@@ -54,6 +54,7 @@ export type DiagnosticCode =
   | 'randomize-pinned'
   | 'choice-filter-dropped'
   | 'choice-filter-recoded'
+  | 'setting-invalid'
   | 'xlsform-outside-subset'
   // expressions
   | 'xpath-syntax'

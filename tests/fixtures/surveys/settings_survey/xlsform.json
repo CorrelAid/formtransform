@@ -56,7 +56,9 @@
     {
       "form_title": "Settings Test Survey",
       "form_id": "settings_survey",
-      "default_language": "en"
+      "default_language": "en",
+      "limesurvey_allowprev": "Y",
+      "limesurvey_showqnumcode": "X"
     }
   ]
 }
