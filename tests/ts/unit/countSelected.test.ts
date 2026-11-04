@@ -2,7 +2,9 @@
  * convention:logicMapping `selectionCount`: `count-selected()` (#185, #186).
  * In an expression it counts a select_multiple's ticked subquestions; a
  * constraint bounding it on the question itself becomes `min_answers` /
- * `max_answers`.
+ * `max_answers` (#217: on an optional question the lower bound stays in the
+ * guarded validation equation, because LimeSurvey enforces `min_answers` on an
+ * empty answer too).
  */
 import { describe, expect, test } from 'vitest';
 import fc from 'fast-check';
@@ -19,8 +21,14 @@ const choices = [
 ];
 
 /** "Tick all that apply, then pick the most important" (AES DIFFTYPE/DIFFMAIN). */
-const pickMain = (constraint = '') => [
-  { type: 'select_multiple m', name: 'k04', label: 'Which?', constraint },
+const pickMain = (constraint = '', required = '') => [
+  {
+    type: 'select_multiple m',
+    name: 'k04',
+    label: 'Which?',
+    constraint,
+    required,
+  },
   {
     type: 'select_one m',
     name: 'k04haupt',
@@ -110,12 +118,46 @@ describe('count-selected(.) constraint → min_answers/max_answers (#186)', () =
     ['count-selected(.) >= 1 and count-selected(.) <= 3', '1', '3'],
     ['count-selected(${k04}) <= 2', undefined, '2'],
   ])('%s', async (constraint, min, max) => {
-    const { rows, warnings } = await convert(pickMain(constraint));
+    const { rows, warnings } = await convert(pickMain(constraint, 'yes'));
     const row = q(rows, 'k04');
     expect(row.min_answers || undefined).toBe(min);
     expect(row.max_answers || undefined).toBe(max);
     expect(row.em_validation_q).toBe('');
     expect(warnings.filter((w) => w.code === 'constraint-dropped')).toEqual([]);
+  });
+
+  const COUNT = 'count(k04_a.NAOK, k04_b.NAOK, k04_c.NAOK)';
+
+  test.each([
+    ['count-selected(.) >= 2', undefined, `${COUNT} == 0 or (${COUNT} >= 2)`],
+    ['count-selected(.) > 1', undefined, `${COUNT} == 0 or (${COUNT} >= 2)`],
+    ['count-selected(.) = 2', '2', `${COUNT} == 0 or (${COUNT} >= 2)`],
+    [
+      'count-selected(.) >= 2 and count-selected(.) <= 3',
+      '3',
+      `${COUNT} == 0 or (${COUNT} >= 2)`,
+    ],
+    // at least one tick only excludes the empty answer, which stays allowed
+    ['count-selected(.) >= 1', undefined, ''],
+    ['count-selected(.) <= 3', '3', ''],
+  ])(
+    'optional: %s keeps the lower bound out of min_answers (#217)',
+    async (constraint, max, validation) => {
+      const { rows } = await convert(pickMain(constraint));
+      const row = q(rows, 'k04');
+      expect(row.min_answers ?? '').toBe('');
+      expect(row.max_answers || undefined).toBe(max);
+      expect(row.em_validation_q).toBe(validation);
+    },
+  );
+
+  test('optional: a lower bound and another term share the guard (#217)', async () => {
+    const { rows } = await convert(
+      pickMain("count-selected(.) >= 2 and not(selected(., 'c'))"),
+    );
+    expect(q(rows, 'k04').em_validation_q).toBe(
+      `${COUNT} == 0 or (${COUNT} >= 2 and (!((self=="c"))))`,
+    );
   });
 
   test('the other terms stay the validation equation', async () => {
@@ -169,9 +211,24 @@ describe('the way back (lstsv2xlsform)', () => {
     expect(k04?.constraint).toBe('not(count-selected(.) < 2)');
   });
 
+  test('optional: the lower bound in the guarded equation comes back as the constraint (#217)', async () => {
+    const back = await roundTrip(
+      pickMain('count-selected(.) >= 2 and count-selected(.) <= 3'),
+    );
+    const k04 = back.find((r) => r.name === 'k04');
+    expect(k04?.constraint).toBe(
+      'count-selected(.) <= 3 and count-selected(.) >= 2',
+    );
+    // ...and converts to the same TSV again
+    const again = await roundTrip(pickMain(String(k04?.constraint)));
+    expect(again.find((r) => r.name === 'k04')?.constraint).toBe(
+      k04?.constraint,
+    );
+  });
+
   test('min_answers/max_answers come back as a count-selected(.) constraint', async () => {
     const back = await roundTrip(
-      pickMain('count-selected(.) >= 1 and count-selected(.) <= 3'),
+      pickMain('count-selected(.) >= 1 and count-selected(.) <= 3', 'yes'),
     );
     const k04 = back.find((r) => r.name === 'k04');
     expect(k04?.constraint).toBe(
@@ -216,6 +273,7 @@ describe('property: count bounds survive XLSForm → LimeSurvey → XLSForm', ()
       fc.asyncProperty(
         fc.array(term, { minLength: 1, maxLength: 3 }),
         async (terms) => {
+          // required: the bounds are LimeSurvey attributes
           const constraint = terms
             .map(({ op, n, flipped }) =>
               flipped
@@ -223,19 +281,20 @@ describe('property: count bounds survive XLSForm → LimeSurvey → XLSForm', ()
                 : `count-selected(.) ${op} ${n}`,
             )
             .join(' and ');
-          const { rows } = await convert(pickMain(constraint));
+          const { rows } = await convert(pickMain(constraint, 'yes'));
           const row = q(rows, 'k04');
           expect(row.em_validation_q).toBe('');
           const min = Number(row.min_answers || 0);
           const max = row.max_answers ? Number(row.max_answers) : Infinity;
-          // An empty answer (0 ticks) is the "not answered" case for both ODK
-          // and LimeSurvey; compare the counts a respondent can tick.
+          // Required, so 0 ticks is rejected by mandatory on both platforms;
+          // compare the counts a respondent can tick. (On an optional question
+          // LimeSurvey would enforce min_answers on 0 ticks too: #217.)
           for (let k = 1; k <= 4; k++) {
             expect(k >= min && k <= max).toBe(allows(terms, k));
           }
           // ...and the way back gives the same bounds again.
           const tsv = await new XLSFormToTSVConverter().convert(
-            pickMain(constraint),
+            pickMain(constraint, 'yes'),
             choices,
             [],
           );
@@ -243,6 +302,7 @@ describe('property: count bounds survive XLSForm → LimeSurvey → XLSForm', ()
           const again = await convert(
             pickMain(
               String(back.find((r) => r.name === 'k04')?.constraint ?? ''),
+              'yes',
             ),
           );
           expect(q(again.rows, 'k04').min_answers ?? '').toBe(

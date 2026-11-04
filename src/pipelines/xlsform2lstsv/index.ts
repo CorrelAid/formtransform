@@ -779,19 +779,32 @@ class Conversion {
     }
     const { validation, min, max } =
       this.transpilerHelper.convertSelectionConstraint(q.constraint, self);
+    // LimeSurvey enforces min_answers on an empty multiple choice too (its
+    // equation is `count(...) >= n`, unguarded), so an optional question keeps
+    // its lower bound in the guarded validation equation instead (a bound of
+    // 1 or less excludes nothing but the empty answer, so it is dropped).
+    const lowerInEquation = !q.required && min !== undefined && min > 1;
+    let equation = validation;
+    if (lowerInEquation) {
+      const lower = this.transpilerHelper.convertConstraint(
+        `count-selected(.) >= ${min}`,
+        self,
+      );
+      equation = validation ? `${lower} and (${validation})` : lower;
+    }
     return {
       emValidation:
-        q.required || !validation
-          ? validation
+        q.required || !equation
+          ? equation
           : guardEmpty(
-              validation,
+              equation,
               this.transpilerHelper.convertConstraint(
                 SELECT_MULTIPLE_EMPTY_GUARD,
                 self,
               ),
             ),
       answerBounds: {
-        ...(min !== undefined && min > 0
+        ...(q.required && min !== undefined && min > 0
           ? { [MIN_ANSWERS_ATTRIBUTE]: String(min) }
           : {}),
         ...(max !== undefined ? { [MAX_ANSWERS_ATTRIBUTE]: String(max) } : {}),

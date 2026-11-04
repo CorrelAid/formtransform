@@ -383,8 +383,12 @@ becomes `is_empty(self) or (self >= 0 and self <= 100)` (on a
 `select_multiple`, `count(<its subquestions>) == 0 or (…)`), and an empty
 answer passes on both platforms. A required question's equation is left as
 it is. `lstsv2xlsform` drops the guard again (`convention:logicMapping`,
-`emptyAnswer`). `min_answers` is not guarded: LimeSurvey also enforces it on
-an empty multiple choice.
+`emptyAnswer`). LimeSurvey also enforces `min_answers` on an empty multiple
+choice, so on an optional `select_multiple` the lower bound is not written as
+`min_answers` but into the guarded equation
+(`count(…) == 0 or (count(…) >= 2)`); `max_answers` stays an attribute. A
+lower bound of 1 or less is dropped there, since it only excludes the empty
+answer. The reverse paths read the equation back as the same constraint.
 
 `coalesce(${a}, 0)` (the answer, or `0` when there is none) becomes
 `if(is_empty(a), 0, a)`, and back.
