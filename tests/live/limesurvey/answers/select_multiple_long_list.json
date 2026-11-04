@@ -1,7 +1,3 @@
 {
-  "besuchtelaender": [
-    "DE",
-    "FR",
-    "JP"
-  ]
+  "besuchtelaender": ["DE", "FR", "JP"]
 }

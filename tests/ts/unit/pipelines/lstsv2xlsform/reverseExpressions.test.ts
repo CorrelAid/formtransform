@@ -253,3 +253,31 @@ describe('reverseRelevance — exact output for #98', () => {
     expect(reverseRelevance(`a == "it's"`, selectCtx)).toBe(`\${a} = "it's"`);
   });
 });
+
+describe('reverseConstraint — regexMatch', () => {
+  test.each([
+    ["regexMatch('/^[0-9]{5}$/', self)", "regex(., '^[0-9]{5}$')"],
+    ["regexMatch('/^(?:[0-9]{5})$/', self)", "regex(., '[0-9]{5}')"],
+    ["regexMatch('/^(?:a|b)$/', zip)", "regex(${zip}, 'a|b')"],
+    ["regexMatch('/^a\\/b$/', self)", "regex(., '^a/b$')"],
+    // LimeSurvey-native, unanchored: kept as written.
+    ["regexMatch('/abc/', self)", "regex(., 'abc')"],
+    // Flags have no ODK form: the delimited text is kept.
+    ["regexMatch('/abc/i', self)", "regex(., '/abc/i')"],
+    // The pre-fix output, field first and undelimited, is still read.
+    ["regexMatch(self, '^[0-9]{5}$')", "regex(., '^[0-9]{5}$')"],
+    ["regexMatch(zip, '^[0-9]{5}$')", "regex(${zip}, '^[0-9]{5}$')"],
+  ])('%s', (em, xpath) => {
+    expect(reverseConstraint(em)).toBe(xpath);
+  });
+
+  test.each([
+    "regex(., '^[0-9]{5}$')",
+    "regex(., '[0-9]{5}')",
+    "regex(., 'a|b')",
+    "regex(., '^a/b$')",
+    "regex(., '^a\\$')",
+  ])('forward then reverse restores %s', async (xpath) => {
+    expect(reverseConstraint(await convertConstraint(xpath))).toBe(xpath);
+  });
+});

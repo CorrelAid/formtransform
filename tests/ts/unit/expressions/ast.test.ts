@@ -55,7 +55,7 @@ describe('AST parsing', () => {
     const limeSurveyExpr = await xpathToLimeSurvey(xpathExpr);
 
     console.log(limeSurveyExpr);
-    expect(limeSurveyExpr).toBe('regexMatch(self, "\\p{L}+")');
+    expect(limeSurveyExpr).toBe('regexMatch("/^(?:\\p{L}+)$/", self)');
   });
 
   test('should parse contains function', async () => {

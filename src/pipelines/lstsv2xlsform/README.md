@@ -143,14 +143,13 @@ listed here must match exactly.
    group, whether they come interleaved or in LimeSurvey's per-language blocks
    (`knownLosses.test.ts` covers a multi-group survey; `multilingual_survey`
    covers the fixture path).
-7. **`regexMatch` argument order is assumed.** `convertConstraint()`'s
-   early-return path for a bare `regexMatch(...)` literal in the original XPath
-   (an escape hatch for EM-flavoured syntax) swaps the arguments —
-   `regexMatch(pattern, field)` — relative to the generic `transpile()` path's
-   `regexMatch(field, pattern)`. Once transpiled both look identical in the TSV,
-   so which one applied cannot be determined on the way back;
-   `reverseConstraint` always assumes the generic (unswapped) order. No fixture
-   uses either form.
+7. **`regexMatch` reads back as a whole-string `regex()`.** ODK `regex()`
+   matches the whole value, LimeSurvey's `regexMatch('/pat/', x)` searches, so
+   the forward path writes `^(?:pat)$` and the reverse strips it again. A
+   LimeSurvey-native, unanchored pattern comes back unchanged and therefore
+   becomes whole-string in ODK; regex flags (`/pat/i`) have no ODK form and
+   are kept as text. The old field-first form `regexMatch(x, 'pat')` is still
+   read.
 8. **`calculation` is not reversed — out of scope.** The `calculate` XLSForm
    type is not registered, so the forward converter rejects it and no TSV this
    tool produces contains a calculation question: there is nothing to reverse.

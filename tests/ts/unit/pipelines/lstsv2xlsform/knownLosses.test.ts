@@ -67,28 +67,22 @@ describe('README known losses', () => {
     });
   });
 
-  test('regexMatch: the reverse assumes the generic (field, pattern) order', async () => {
+  test('regexMatch: a LimeSurvey-native unanchored pattern becomes ODK whole-string', async () => {
     const { tsv, back } = await roundTrip([
-      // XPath regex(): the generic path, which round-trips.
-      {
-        type: 'text',
-        name: 'a',
-        label: 'A?',
-        constraint: "regex(., '^[0-9]{5}$')",
-      },
-      // An EM-style regexMatch(pattern, field) takes the escape hatch, which
-      // swaps the arguments; the TSV can't show which path applied.
+      { type: 'text', name: 'a', label: 'A?', constraint: "regex(., '[0-9]')" },
+      // An author-written EM regexMatch is searched, not anchored: ODK will
+      // match the whole value instead.
       {
         type: 'text',
         name: 'b',
         label: 'B?',
-        constraint: "regexMatch('^[0-9]{5}$', .)",
+        constraint: "regexMatch('/[0-9]/', .)",
       },
     ]);
-    expect(tsv).toContain("regexMatch(self, '^[0-9]{5}$')");
-    expect(tsv).toContain("regexMatch('^[0-9]{5}$', self)");
-    expect(question(back, 'a')?.constraint).toBe("regex(., '^[0-9]{5}$')");
-    expect(question(back, 'b')?.constraint).toBe("regex('^[0-9]{5}$', .)");
+    expect(tsv).toContain("regexMatch('/^(?:[0-9])$/', self)");
+    expect(tsv).toContain("regexMatch('/[0-9]/', self)");
+    expect(question(back, 'a')?.constraint).toBe("regex(., '[0-9]')");
+    expect(question(back, 'b')?.constraint).toBe("regex(., '[0-9]')");
   });
 
   test('a multilingual survey with several groups keeps every translation', async () => {

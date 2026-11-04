@@ -731,7 +731,8 @@ const conventions = {
         },
         {
           "xlsform": "regex(., '...')",
-          "ls": "regexMatch(...)"
+          "ls": "regexMatch('/^(?:...)$/', self)",
+          "note": "LimeSurvey takes the pattern first and delimited (`/…/`, `/` escaped), and searches instead of matching the whole value as ODK does, so the pattern is wrapped in `^(?:…)$` (left alone when it is already anchored). lstsv2xlsform strips both and also reads the old field-first `regexMatch(x, 'pat')`."
         },
         {
           "xlsform": "coalesce(x, y)",

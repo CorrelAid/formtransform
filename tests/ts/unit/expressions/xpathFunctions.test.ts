@@ -32,12 +32,49 @@ describe('XPath Function Conversion', () => {
   describe('regex() function', () => {
     test('converts regex() with field reference', async () => {
       const result = await xpathToLimeSurvey('regex(${name}, "^[A-Z][a-z]+$")');
-      expect(result).toBe('regexMatch(name, "^[A-Z][a-z]+$")');
+      expect(result).toBe('regexMatch("/^[A-Z][a-z]+$/", name)');
     });
 
     test('converts regex() with current field', async () => {
       const result = await xpathToLimeSurvey('regex(., "^[A-Z][a-z]+$")');
-      expect(result).toBe('regexMatch(self, "^[A-Z][a-z]+$")');
+      expect(result).toBe('regexMatch("/^[A-Z][a-z]+$/", self)');
+    });
+
+    test('anchors an unanchored pattern, since ODK matches the whole value', async () => {
+      const result = await xpathToLimeSurvey("regex(., '[0-9]{5}')");
+      expect(result).toBe("regexMatch('/^(?:[0-9]{5})$/', self)");
+    });
+
+    test('groups alternation so the anchors cover every branch', async () => {
+      const result = await xpathToLimeSurvey("regex(., 'a|b')");
+      expect(result).toBe("regexMatch('/^(?:a|b)$/', self)");
+    });
+
+    test('escapes / in the pattern, once', async () => {
+      expect(await xpathToLimeSurvey("regex(., '^a/b\\/c$')")).toBe(
+        "regexMatch('/^a\\/b\\/c$/', self)",
+      );
+    });
+
+    test('keeps the quote style and the other quote char in the pattern', async () => {
+      expect(await xpathToLimeSurvey(`regex(., "^[a-z\']+$")`)).toBe(
+        `regexMatch("/^[a-z']+$/", self)`,
+      );
+      expect(await xpathToLimeSurvey(`regex(., '^"x"$')`)).toBe(
+        `regexMatch('/^"x"$/', self)`,
+      );
+    });
+
+    test('a pattern ending in an escaped dollar is not anchored', async () => {
+      expect(await xpathToLimeSurvey("regex(., '^a\\$')")).toBe(
+        "regexMatch('/^(?:^a\\$)$/', self)",
+      );
+    });
+
+    test('a computed pattern is delimited and anchored at run time', async () => {
+      expect(await xpathToLimeSurvey("regex(., concat('a', ${b}))")).toBe(
+        "regexMatch('/^(?:' + 'a' + b + ')$/', self)",
+      );
     });
   });
 
