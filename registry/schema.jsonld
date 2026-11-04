@@ -899,13 +899,13 @@
               ],
               "description": "False when a row bearing this appearance is presentation-only and stores no response (the matrix header row): it must not become a DDI variable. Absent means the row carries data as usual."
             },
-            "lsReverse": {
-              "type": "boolean",
+            "lsQuestionTheme": {
+              "type": "object",
               "required": false,
               "consumedBy": [
                 "ls-transformer"
               ],
-              "description": "False when the way back from LimeSurvey must not write this appearance for its lsTypeOverride, because another appearance has the same override (autocomplete and minimal both give `!`; the way back writes minimal). Absent means it does."
+              "description": "`{name, attributes?}`: the LimeSurvey question theme this appearance selects, written to the Q row as `question_theme_name` = `name`, plus each of `attributes` (theme attribute → value) as a column of its own; LimeSurvey's TSV import sets the theme from `question_theme_name` and stores the other columns as question attributes. Applies where `validForTypes` allows, together with `lsTypeOverride` if any (autocomplete: `!` + bootstrap_dropdown + show_search=true). The way back writes this appearance for a Q row whose `question_theme_name` and attributes match (and whose type is `lsTypeOverride`, when set); a row with the override but not the theme reads back as the appearance that has the override and no theme (minimal)."
             }
           }
         },

@@ -437,9 +437,9 @@ const conventions = {
       "xlsformTypePattern": "^select_(one|multiple)_from_file (?P<filename>[^ ]+\\.csv)$",
       "ddiVocabFromFilename": "stripExtension",
       "ddiEmission": "concept[@vocab='<vocab>'] in place of inline catgry; catgry MUST NOT be emitted",
-      "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import). appearance minimal or autocomplete makes a select_one a dropdown (!) instead of a radio list",
+      "limesurveyEmission": "base select (L/M) with the vocabulary's options inlined as A/SQ rows + cssclass='cdlvocab-<vocab>' carrying provenance (a registered LimeSurvey question attribute, so it survives import). appearance minimal makes a select_one a dropdown (!) instead of a radio list; appearance autocomplete makes it a searchable dropdown: ! with LimeSurvey's core question theme bootstrap_dropdown and show_search=true (appearance:autocomplete lsQuestionTheme), which suits a long list",
       "limesurveyCssClassPrefix": "cdlvocab-",
-      "limesurveyCssClassPurpose": "A machine hook, not styling: it records which vocabulary the options came from (the way back reads it as select_*_from_file <vocab>.csv), and it is where a LimeSurvey theme can attach a searchable dropdown to a long list (`.cdlvocab-<vocab> select`). formtransform ships no such theme",
+      "limesurveyCssClassPurpose": "A machine hook, not styling: it records which vocabulary the options came from (the way back reads it as select_*_from_file <vocab>.csv). It has no styling effect and is not needed for search: the searchable dropdown comes from appearance autocomplete",
       "limesurveyCodes": {
         "rule": "An option code that already fits LimeSurvey (convention:sanitization choiceCode: pattern and maxLength) is kept. Every other one gets a code derived from the code itself, never from its row: hash(code) in base 36, maxLength characters. The codes are the same whatever the order of the file or which rows are added or removed; a collision (with a kept code or an earlier hashed one, case-insensitively, codes taken in sorted order) re-hashes `<code><collisionSeparator><n>`, n = 1, 2, …",
         "hash": "fnv1a32",

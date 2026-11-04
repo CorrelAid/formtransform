@@ -41,7 +41,8 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | `other=Y` (+ `other_replace_text`) | re-add the `other` choice + `${base}_other` companion + relevance; the companion's label is `other_replace_text`, else the canonical one | shares `OTHER_CODE`/`OTHER_SUFFIX`/`otherLabelFor` with `lstsv/toVariables.ts` |
 | `cssclass=cdlvocab-<id>` | `select_*_from_file <id>.csv`, inlined A rows dropped | shares `vocabFromCssClass` with the DDI path |
 | `mandatory=Y` / `default` | `required: yes` / `default` | direct |
-| type override `!` / `T` | `appearance: minimal` / `multiline` | inverts `APPEARANCES[*].lsTypeOverride` — registry-driven, not hardcoded; `autocomplete` (also `!`, `lsReverse: false`) comes back as `minimal` |
+| type override `!` / `T` | `appearance: minimal` / `multiline` | inverts `APPEARANCES[*].lsTypeOverride` — registry-driven, not hardcoded |
+| `question_theme_name` (+ theme attributes) | the appearance whose `lsQuestionTheme` matches: `!` + `bootstrap_dropdown` + `show_search=true` → `autocomplete` | inverts `APPEARANCES[*].lsQuestionTheme`; `bootstrap_dropdown` without `show_search=true` stays `minimal` |
 | F + SQ + A | `begin_group appearance=table-list` + child `select_one`s | inverts the grid → F encoding |
 | SL welcome/end text | `note` named `welcome` / `end` | inverts note promotion |
 | per-language rows | `label::<lang>` / `hint::<lang>` | direct |

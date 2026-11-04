@@ -334,11 +334,12 @@ codes (`DE`). Any other code (a 12-digit regional key, `059700040040`) gets a
 file is reordered or rows are added or removed (`convention:externalCodeList`,
 `limesurveyCodes`). The mapping beside the TSV (see `--sanitize` below) records
 each derived code, and `lstsv2ddi --data` writes the file's own codes back.
-`appearance: minimal` or `autocomplete` makes the question a LimeSurvey
-dropdown instead of a radio list. LimeSurvey's dropdown has no search: its
-`cssclass` `cdlvocab-<vocabulary>` records where the options came from (the
-way back reads it), and it is where a LimeSurvey theme can hook in a
-searchable dropdown. formtransform ships no such theme.
+`appearance: minimal` makes the question a LimeSurvey dropdown instead of a
+radio list. `appearance: autocomplete` makes it a dropdown the respondent can
+search by typing: LimeSurvey's core question theme `bootstrap_dropdown` with
+`show_search=true` (no plugin needed), which suits a long list. Its `cssclass`
+`cdlvocab-<vocabulary>` only records where the options came from (the way
+back reads it).
 
 An exclusive answer in a `select_multiple` ("Keine Angabe", "Nichts davon")
 is marked with an `exclusive` column (`yes`) on the choices sheet, not a

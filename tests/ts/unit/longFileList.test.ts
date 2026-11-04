@@ -163,14 +163,17 @@ describe('select_one_from_file with a long list', () => {
     },
   );
 
-  test('the way back reads the dropdown as minimal', async () => {
-    const { tsv } = await convert(survey('autocomplete'), file);
-    const back = lstsvToXlsform(tsv, { skipValidation: true });
-    expect(back.survey[0]).toMatchObject({
-      type: 'select_one_from_file kommunen.csv',
-      appearance: 'minimal',
-    });
-  });
+  test.each(['autocomplete', 'minimal'])(
+    'the way back reads the dropdown as %s (#226)',
+    async (appearance) => {
+      const { tsv } = await convert(survey(appearance), file);
+      const back = lstsvToXlsform(tsv, { skipValidation: true });
+      expect(back.survey[0]).toMatchObject({
+        type: 'select_one_from_file kommunen.csv',
+        appearance,
+      });
+    },
+  );
 
   test('a registered vocabulary whose codes fit keeps them', async () => {
     const { mapping } = await xlsformToLstsvWithMapping(

@@ -36,7 +36,7 @@ The TypeScript library (`@correlaid/formtransform`), split into **format modules
 
 - **`src/instrument/`** — the parsed survey model (`types.ts`) and its parsers (`fromXlsform.ts`, `fromLstsv.ts`). Shared by every pipeline; it imports no format module or pipeline. See [The Instrument model](#the-instrument-model-69).
 
-- **`src/conventions/`** — one module per registry convention (`other.ts`, `fromFile.ts`, `exclusive.ts`, `grid.ts`, `metadata.ts`). Each reads its values from `src/generated/conventions` and exposes helpers; every format module and pipeline imports them from here. No convention value (suffix, choice code, label, prefix) is written out anywhere else, which `tests/ts/unit/conventionLiterals.test.ts` enforces.
+- **`src/conventions/`** — one module per registry convention (`other.ts`, `fromFile.ts`, `exclusive.ts`, `grid.ts`, `metadata.ts`). Each reads its values from `src/generated/conventions` and exposes helpers; every format module and pipeline imports them from here. No convention value (suffix, choice code, label, prefix) is written out anywhere else, which `tests/ts/unit/conventionLiterals.test.ts` enforces. `questionTheme.ts` is the one module for a registry field rather than a convention: an appearance's LimeSurvey question theme (`lsQuestionTheme`), shared by the forward emitter and the reverse type resolver.
 
 #### Pipelines
 

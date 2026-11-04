@@ -5,6 +5,7 @@
  */
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
+import { themedAppearanceOf } from '../conventions/questionTheme.js';
 
 type Row = Record<string, string>;
 
@@ -83,11 +84,14 @@ for (const [xfType, m] of Object.entries(TYPE_MAPPINGS)) {
   }
 }
 
-/** Appearance name → LS type-override code it produces (e.g. `minimal` → `!`). */
+/**
+ * Appearance name → LS type-override code it produces (e.g. `minimal` → `!`).
+ * An appearance that also selects a question theme is told apart by that
+ * theme (see `themedAppearanceOf`), so the bare code reads as the other one.
+ */
 const APPEARANCE_BY_OVERRIDE: Record<string, string> = {};
 for (const [name, spec] of Object.entries(APPEARANCES)) {
-  // `lsReverse: false`: another appearance has the override (autocomplete → `!` → minimal).
-  if (spec.lsTypeOverride && spec.lsReverse !== false) {
+  if (spec.lsTypeOverride && !spec.lsQuestionTheme) {
     APPEARANCE_BY_OVERRIDE[spec.lsTypeOverride] = name;
   }
 }
@@ -100,6 +104,12 @@ export interface ResolvedType {
 
 /** Resolve a Q-row's `type/scale` (+ attribute hints) to an XLSForm type. */
 export function resolveType(lsCode: string, row: Row): ResolvedType {
+  const resolved = resolveBaseType(lsCode, row);
+  const themed = themedAppearanceOf(lsCode, resolved.base, row);
+  return themed ? { ...resolved, appearance: themed } : resolved;
+}
+
+function resolveBaseType(lsCode: string, row: Row): ResolvedType {
   const dateFormat = cell(row, 'date_format');
   const overrideAppearance = APPEARANCE_BY_OVERRIDE[lsCode];
   if (overrideAppearance) {
