@@ -19,6 +19,7 @@ import { ConversionError } from '../diagnostics.js';
  *   - a bare field name                → `${name}`
  *   - `(name.NAOK=='code')`            → `selected(${name}, 'code')` (select_one)
  *   - `(name_code.NAOK=='Y')`          → `selected(${name}, 'code')` (select_multiple)
+ *   - `if(is_empty(x), y, x)`          → `coalesce(x, y)` (in reverseExpressions)
  *
  * NOT reversed (forward collapses these onto the same output, ambiguously):
  *   - `+` used for string `concat()` vs numeric addition — always emitted as

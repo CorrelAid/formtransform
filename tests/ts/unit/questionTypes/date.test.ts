@@ -39,7 +39,9 @@ describe('Date Question Type', () => {
     const question = findRowByName(rows, 'future');
 
     // AST-based converter converts date constraints to expressions
-    expect(question?.em_validation_q).toBe('self > today()');
+    expect(question?.em_validation_q).toBe(
+      'is_empty(self) or (self > today())',
+    );
   });
 
   test('converts date question with default value', async () => {

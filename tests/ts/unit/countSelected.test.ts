@@ -124,7 +124,9 @@ describe('count-selected(.) constraint → min_answers/max_answers (#186)', () =
     );
     const row = q(rows, 'k04');
     expect(row.max_answers).toBe('2');
-    expect(row.em_validation_q).toBe('!((self=="c"))');
+    expect(row.em_validation_q).toBe(
+      'count(k04_a.NAOK, k04_b.NAOK, k04_c.NAOK) == 0 or (!((self=="c")))',
+    );
   });
 
   test('a count inside or/not stays in the equation as count()', async () => {
@@ -134,7 +136,7 @@ describe('count-selected(.) constraint → min_answers/max_answers (#186)', () =
     const row = q(rows, 'k04');
     expect(row.max_answers ?? '').toBe('');
     expect(row.em_validation_q).toBe(
-      '!((self=="c") and count(k04_a.NAOK, k04_b.NAOK, k04_c.NAOK) > 1)',
+      'count(k04_a.NAOK, k04_b.NAOK, k04_c.NAOK) == 0 or (!((self=="c") and count(k04_a.NAOK, k04_b.NAOK, k04_c.NAOK) > 1))',
     );
   });
 
@@ -160,6 +162,12 @@ describe('the way back (lstsv2xlsform)', () => {
     const tsv = await new XLSFormToTSVConverter().convert(survey, choices, []);
     return lstsvToXlsform(tsv, { skipValidation: true }).survey;
   };
+
+  test('the empty-answer guard is dropped again (#214)', async () => {
+    const back = await roundTrip(pickMain('not(count-selected(.) < 2)'));
+    const k04 = back.find((r) => r.name === 'k04');
+    expect(k04?.constraint).toBe('not(count-selected(.) < 2)');
+  });
 
   test('min_answers/max_answers come back as a count-selected(.) constraint', async () => {
     const back = await roundTrip(

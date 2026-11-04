@@ -41,6 +41,11 @@ import {
   MIN_ANSWERS_ATTRIBUTE,
   countsSelections,
 } from '../../conventions/selectionCount.js';
+import {
+  EMPTY_GUARD,
+  SELECT_MULTIPLE_EMPTY_GUARD,
+  guardEmpty,
+} from '../../conventions/emptyAnswer.js';
 import { ARRAY_FILTER_ATTRIBUTE } from '../../conventions/choiceFilter.js';
 import { resolveArrayFilter } from './choiceFilter.js';
 import type { ArrayFilter } from './choiceFilter.js';
@@ -598,7 +603,9 @@ class Conversion {
   /**
    * The validation equation, and for a select_multiple the bounds its
    * constraint puts on the number of answers as `min_answers` /
-   * `max_answers` (convention:logicMapping `selectionCount`).
+   * `max_answers` (convention:logicMapping `selectionCount`). A question that
+   * is not required gets its equation guarded so it can be left empty, as in
+   * ODK (convention:logicMapping `emptyAnswer`).
    */
   private convertConstraint(
     q: QuestionItem,
@@ -606,18 +613,28 @@ class Conversion {
   ): { emValidation: string; answerBounds: Record<string, string> } {
     const self = this.fieldNameHandler.sanitizeName(q.name);
     if (!countsSelections(base)) {
+      const equation = this.transpilerHelper.convertConstraint(
+        q.constraint,
+        self,
+      );
       return {
-        emValidation: this.transpilerHelper.convertConstraint(
-          q.constraint,
-          self,
-        ),
+        emValidation: q.required ? equation : guardEmpty(equation, EMPTY_GUARD),
         answerBounds: {},
       };
     }
     const { validation, min, max } =
       this.transpilerHelper.convertSelectionConstraint(q.constraint, self);
     return {
-      emValidation: validation,
+      emValidation:
+        q.required || !validation
+          ? validation
+          : guardEmpty(
+              validation,
+              this.transpilerHelper.convertConstraint(
+                SELECT_MULTIPLE_EMPTY_GUARD,
+                self,
+              ),
+            ),
       answerBounds: {
         ...(min !== undefined && min > 0
           ? { [MIN_ANSWERS_ATTRIBUTE]: String(min) }

@@ -734,6 +734,11 @@ const conventions = {
           "ls": "regexMatch(...)"
         },
         {
+          "xlsform": "coalesce(x, y)",
+          "ls": "if(is_empty(x), y, x)",
+          "note": "x when it is answered, else y (e.g. `coalesce(${a}, 0)` counts an unanswered number as 0). EM has no coalesce(); lstsv2xlsform reads this if() back as coalesce()."
+        },
+        {
           "xlsform": "count-selected(${f})",
           "ls": "count(f_a.NAOK, f_b.NAOK, …)",
           "note": "The number of ticked answers of a select_multiple: an unticked subquestion is empty, so count() over its subquestions counts the ticked ones (its native other text box, f_other, counts too). See selectionCount."
@@ -744,6 +749,7 @@ const conventions = {
         "or",
         "not",
         "if",
+        "coalesce",
         "selected",
         "contains",
         "starts-with",
@@ -778,6 +784,12 @@ const conventions = {
           "rule": "On a select_multiple, each top-level `and` term of the constraint that compares count-selected(.) with a number becomes a question attribute instead of validation: `<= n` max_answers=n, `< n` max_answers=n-1, `>= n` min_answers=n, `> n` min_answers=n+1, `= n` both (the number on the left mirrors the operator). The other terms stay the validation equation. A count-selected(.) anywhere else (inside `or`, `not()`) stays in the equation as count().",
           "reverse": "A LimeSurvey multiple choice's min_answers/max_answers come back as `count-selected(.) >= n` / `count-selected(.) <= n`, ANDed before the reversed validation equation."
         }
+      },
+      "emptyAnswer": {
+        "guard": "is_empty(self)",
+        "selectMultipleGuard": "count-selected(.) = 0",
+        "rule": "ODK evaluates a constraint only on an answered question; LimeSurvey evaluates em_validation_q on an empty answer too, so an optional question with a constraint could not be left empty. On a question that is not required, the converted validation equation is therefore written as `is_empty(self) or (<equation>)`. On a select_multiple, `self` stands for all its subquestions, so the guard is selectMultipleGuard, i.e. `count(<q>_<code>.NAOK, …) == 0 or (<equation>)`. A required question is mandatory in LimeSurvey, which rejects an empty answer before the equation matters, so its equation is not guarded. The guard covers the equation only: LimeSurvey enforces min_answers on an empty multiple choice too (see selectionCount).",
+        "reverse": "lstsv2xlsform drops a top-level `<guard> or (…)` and reads back only the equation inside it. Under ODK's rule the guard makes no difference, so XLSForm → LimeSurvey → XLSForm keeps the constraint as authored."
       },
       "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions",
       "ddiEncoding": {
