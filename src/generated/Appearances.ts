@@ -35,6 +35,20 @@ export const APPEARANCES: Record<string, AppearanceSpec> = {
     lsTypeOverride: "!",
     lsQuestionTheme: {"name": "bootstrap_dropdown", "attributes": {"show_search": "true"}},
   },
+  "horizontal": {
+    supported: true,
+    behavior: "handled",
+    validForTypes: ["select_one"],
+    lsEffect: "LimeSurvey's core question theme bootstrap_buttons on a list (L): the options as a row of buttons",
+    lsQuestionTheme: {"name": "bootstrap_buttons"},
+  },
+  "horizontal-compact": {
+    supported: true,
+    behavior: "handled",
+    validForTypes: ["select_one"],
+    lsEffect: "As horizontal: bootstrap_buttons on a list (L). The way back gives the first registered appearance of a theme, horizontal",
+    lsQuestionTheme: {"name": "bootstrap_buttons"},
+  },
   "multiline": {
     supported: true,
     behavior: "handled",

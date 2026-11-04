@@ -636,7 +636,11 @@ class Conversion {
         ),
         ...fields.answerBounds,
         ...this.arrayFilterAttribute(questionName),
-        ...this.appearanceHandler.themeAttributes(appearance, xfTypeInfo.base),
+        ...this.appearanceHandler.themeAttributes(
+          lsType,
+          appearance,
+          xfTypeInfo.base,
+        ),
       },
     };
 

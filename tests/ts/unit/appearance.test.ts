@@ -164,7 +164,7 @@ describe('Appearance Handling', () => {
           type: 'select_one yn',
           name: 'q1',
           label: 'Pick',
-          appearance: 'minimal horizontal',
+          appearance: 'minimal quick',
         },
       ];
       const choices = createChoices('yn', [
@@ -177,7 +177,7 @@ describe('Appearance Handling', () => {
           typeof call[0] === 'string' && call[0].includes('will be ignored'),
       );
       expect(appearanceWarnings).toHaveLength(1);
-      expect(appearanceWarnings[0][0]).toContain('"horizontal"');
+      expect(appearanceWarnings[0][0]).toContain('"quick"');
       warnSpy.mockRestore();
     });
 

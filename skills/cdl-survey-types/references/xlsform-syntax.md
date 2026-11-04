@@ -56,6 +56,8 @@ To limit how many answers a `select_multiple` takes, write `count-selected(.) <=
 |---|---|---|
 | `autocomplete` | Dropdown with search (autocomplete) | `select_one`, `select_one_from_file` |
 | `field-list` | Field list group | `begin_group` |
+| `horizontal` | Horizontal choices (buttons) | `select_one` |
+| `horizontal-compact` | Horizontal choices, compact (buttons) | `select_one` |
 | `label` | Matrix header row | `begin_group`, `select_one` |
 | `likert` | Likert appearance hint | `select_one` |
 | `list-nolabel` | Matrix body row | `select_one` |
