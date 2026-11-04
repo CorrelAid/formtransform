@@ -314,6 +314,16 @@ that bounds it (`count-selected(.) >= 1 and count-selected(.) <= 3`) becomes
 LimeSurvey's `min_answers` / `max_answers`; the reverse paths read those back
 as the same constraint.
 
+ODK evaluates a `constraint` only on an answered question; LimeSurvey
+evaluates `em_validation_q` on an empty answer too. So on a question that is
+not `required`, the converted equation is guarded: `. >= 0 and . <= 100`
+becomes `is_empty(self) or (self >= 0 and self <= 100)` (on a
+`select_multiple`, `count(<its subquestions>) == 0 or (…)`), and an empty
+answer passes on both platforms. A required question's equation is left as
+it is. `lstsv2xlsform` drops the guard again (`convention:logicMapping`,
+`emptyAnswer`). `min_answers` is not guarded: LimeSurvey also enforces it on
+an empty multiple choice.
+
 A `choice_filter` that keeps the options ticked in an earlier
 `select_multiple` (`selected(${k04}, name)`) becomes LimeSurvey's
 `array_filter`, which needs the option codes to equal the filtering

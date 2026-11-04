@@ -166,6 +166,35 @@ describe('reverseConstraint — direct unit checks', () => {
   });
 });
 
+describe('reverseConstraint — the empty-answer guard (#214)', () => {
+  test('is_empty(self) or (…) reads back as the equation alone', () => {
+    expect(
+      reverseConstraint('is_empty(self) or (self >= 0 and self <= 100)'),
+    ).toBe('. >= 0 and . <= 100');
+  });
+
+  test('an equation that is an or keeps its own grouping', () => {
+    expect(reverseConstraint('is_empty(self) or (self < 0 or self > 9)')).toBe(
+      '. < 0 or . > 9',
+    );
+  });
+
+  test("a select_multiple's count() == 0 guard is dropped", () => {
+    expect(
+      reverseConstraint(
+        'count(langs_de.NAOK, langs_en.NAOK, langs_fr.NAOK) == 0 or (!(langs_de.NAOK == "Y"))',
+        { ...selectCtx, self: 'langs' },
+      ),
+    ).toBe("not(selected(${langs}, 'de'))");
+  });
+
+  test('is_empty() anywhere else is outside the dialect', () => {
+    expect(() => reverseConstraint('self > 1 or is_empty(self)')).toThrow(
+      expect.objectContaining({ code: 'em-unsupported' }),
+    );
+  });
+});
+
 describe('rejects EM outside the forward dialect (em-unsupported)', () => {
   // Each input is valid-looking EM the forward transpiler never writes; the
   // reverse must refuse it rather than guess.

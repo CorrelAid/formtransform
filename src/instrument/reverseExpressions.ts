@@ -37,6 +37,10 @@
 import { parseEm, EmNode } from './emParser.js';
 import { ConversionError } from '../diagnostics.js';
 import { COUNT_SELECTED } from '../conventions/selectionCount.js';
+import {
+  EMPTY_GUARD,
+  SELECT_MULTIPLE_EMPTY_GUARD,
+} from '../conventions/emptyAnswer.js';
 
 export interface SelectContext {
   /** `${qname}_${code}` → the select_multiple question + choice it refers to. */
@@ -290,5 +294,27 @@ export function reverseConstraint(
 ): string {
   const trimmed = em.trim();
   if (!trimmed) return '';
-  return nodeToXPath(parseEm(trimmed), ctx);
+  return nodeToXPath(withoutEmptyGuard(parseEm(trimmed), ctx), ctx);
+}
+
+/** The parsed guard (`is_empty(self)`), compared node for node. */
+const EMPTY_GUARD_NODE = JSON.stringify(parseEm(EMPTY_GUARD));
+
+/**
+ * `<guard> or (<equation>)` → `<equation>`: the forward path guards an
+ * optional question's equation so LimeSurvey, like ODK, accepts an empty
+ * answer (convention:logicMapping `emptyAnswer`). ODK skips a constraint on an
+ * empty answer anyway, so the guard is dropped.
+ */
+function withoutEmptyGuard(node: EmNode, ctx: SelectContext): EmNode {
+  if (node.t !== 'bin' || node.op !== 'or') return node;
+  if (JSON.stringify(node.left) === EMPTY_GUARD_NODE) return node.right;
+  // A select_multiple's guard: `count(<all its subquestions>) == 0`.
+  try {
+    if (nodeToXPath(node.left, ctx) === SELECT_MULTIPLE_EMPTY_GUARD)
+      return node.right;
+  } catch {
+    // not a guard
+  }
+  return node;
 }

@@ -5,7 +5,7 @@ S		shownoanswer	1	N		en
 SL		surveyls_title	1	Complex Survey with Groups and Logic		en										
 G	1	Demographics	1			en										
 Q	S	fullname	1	Full Name		en			Y					1		
-Q	N	age	1	Age		en		self >= 18 and self <= 120						1	1	Age must be between 18 and 120
+Q	N	age	1	Age		en		is_empty(self) or (self >= 18 and self <= 120)						1	1	Age must be between 18 and 120
 Q	L	gender	1	Gender		en								1		
 A		male		Male		en										
 A		feml		Woman		en										

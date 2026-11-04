@@ -779,6 +779,12 @@ const conventions = {
           "reverse": "A LimeSurvey multiple choice's min_answers/max_answers come back as `count-selected(.) >= n` / `count-selected(.) <= n`, ANDed before the reversed validation equation."
         }
       },
+      "emptyAnswer": {
+        "guard": "is_empty(self)",
+        "selectMultipleGuard": "count-selected(.) = 0",
+        "rule": "ODK evaluates a constraint only on an answered question; LimeSurvey evaluates em_validation_q on an empty answer too, so an optional question with a constraint could not be left empty. On a question that is not required, the converted validation equation is therefore written as `is_empty(self) or (<equation>)`. On a select_multiple, `self` stands for all its subquestions, so the guard is selectMultipleGuard, i.e. `count(<q>_<code>.NAOK, …) == 0 or (<equation>)`. A required question is mandatory in LimeSurvey, which rejects an empty answer before the equation matters, so its equation is not guarded. The guard covers the equation only: LimeSurvey enforces min_answers on an empty multiple choice too (see selectionCount).",
+        "reverse": "lstsv2xlsform drops a top-level `<guard> or (…)` and reads back only the equation inside it. Under ODK's rule the guard makes no difference, so XLSForm → LimeSurvey → XLSForm keeps the constraint as authored."
+      },
       "unsupportedFunctionBehavior": "error — the transpiler throws on any XPath function outside supportedXPathFunctions",
       "ddiEncoding": {
         "noteSubject": "xlsform-xpath",
