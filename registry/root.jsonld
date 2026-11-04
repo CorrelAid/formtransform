@@ -137,9 +137,14 @@
         "select_one",
         "select_one_from_file"
       ],
-      "lsEffect": "Override LS type from L to ! (a dropdown; LimeSurvey has no built-in search, see convention:externalCodeList limesurveyCssClassPurpose)",
+      "lsEffect": "Override LS type from L to ! with LimeSurvey's core question theme bootstrap_dropdown and its show_search attribute: a dropdown the respondent can search by typing",
       "lsTypeOverride": "!",
-      "lsReverse": false
+      "lsQuestionTheme": {
+        "name": "bootstrap_dropdown",
+        "attributes": {
+          "show_search": "true"
+        }
+      }
     },
     {
       "@id": "appearance:multiline",

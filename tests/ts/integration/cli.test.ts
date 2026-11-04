@@ -509,7 +509,10 @@ describe('a long select_one_from_file list (#188)', () => {
     expect(r.stderr).toContain('50 code(s) of kommunen.csv');
     expect(r.stderr).toContain('kommunen_form.mapping.json');
     const tsv = rowsOf(readFileSync(out, 'utf-8'));
-    expect(tsv.find((x) => x.class === 'Q')?.['type/scale']).toBe('!');
+    const q = tsv.find((x) => x.class === 'Q');
+    expect(q?.['type/scale']).toBe('!');
+    expect(q?.question_theme_name).toBe('bootstrap_dropdown');
+    expect(q?.show_search).toBe('true');
     const lsCode = tsv.filter((x) => x.class === 'A')[7].name;
 
     writeFileSync(join(dir, 'export.csv'), `id,kommune\n1,${lsCode}\n`);

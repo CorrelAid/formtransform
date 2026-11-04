@@ -12,8 +12,11 @@ export interface AppearanceSpec {
   lsTypeOverride?: string;
   /** False when a row bearing this appearance stores no response (matrix header). */
   carriesData?: boolean;
-  /** False when the way back from LimeSurvey writes another appearance for its override. */
-  lsReverse?: boolean;
+  /**
+   * LimeSurvey question theme the appearance selects: `name` goes to the Q row's
+   * `question_theme_name`, each of `attributes` to a column of its own.
+   */
+  lsQuestionTheme?: { name: string; attributes?: Record<string, string> };
 }
 
 export const APPEARANCES: Record<string, AppearanceSpec> = {
@@ -28,9 +31,9 @@ export const APPEARANCES: Record<string, AppearanceSpec> = {
     supported: true,
     behavior: "handled",
     validForTypes: ["select_one", "select_one_from_file"],
-    lsEffect: "Override LS type from L to ! (a dropdown; LimeSurvey has no built-in search, see convention:externalCodeList limesurveyCssClassPurpose)",
+    lsEffect: "Override LS type from L to ! with LimeSurvey's core question theme bootstrap_dropdown and its show_search attribute: a dropdown the respondent can search by typing",
     lsTypeOverride: "!",
-    lsReverse: false,
+    lsQuestionTheme: {"name": "bootstrap_dropdown", "attributes": {"show_search": "true"}},
   },
   "multiline": {
     supported: true,

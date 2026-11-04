@@ -53,6 +53,13 @@ export const BASE_COLUMNS = [
  * - `other_replace_text`: the label of the native "other" answer's text box,
  *   carrying the XLSForm `<question>_other` companion's label (convention:other).
  *
+ * - `question_theme_name`, `show_search`: the LimeSurvey question theme an
+ *   appearance selects and that theme's attributes (registry
+ *   `lsQuestionTheme`): `autocomplete` → `bootstrap_dropdown` with
+ *   `show_search=true`, a searchable dropdown. LimeSurvey's import sets the
+ *   theme from `question_theme_name` and stores the other columns as
+ *   question attributes.
+ *
  * A registry attribute missing here would be dropped silently; a test checks
  * the registry against this list.
  */
@@ -72,6 +79,8 @@ export const ATTRIBUTE_COLUMNS = [
   'array_filter',
   'em_validation_q_tip',
   'other_replace_text',
+  'question_theme_name',
+  'show_search',
 ] as const;
 
 export type BaseColumn = (typeof BASE_COLUMNS)[number];
