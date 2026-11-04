@@ -54,7 +54,7 @@ SQ		green		Data Science		de
 G	6	Anmeldedaten	1			de											
 Q	S	qmandatory	1	Wie lautet Ihre E-Mail-Adresse?		de			Y					1			
 Q	S	qhint	1	Wie lautet Ihre Telefonnummer?	Format: +49 123 456789	de								1			
-Q	N	qconstraint	1	Wie alt sind Sie?		de		self >= 18 and self <= 120						1		1	Bitte geben Sie ein gültiges Alter zwischen 18 und 120 ein
+Q	N	qconstraint	1	Wie alt sind Sie?		de		is_empty(self) or (self >= 18 and self <= 120)						1		1	Bitte geben Sie ein gültiges Alter zwischen 18 und 120 ein
 Q	S	qdefault	1	In welchem Land leben Sie?		de					Deutschland			1			
 Q	S	qrelevant	qmandatory != ''	Wie sollen wir Sie kontaktieren?		de								1			
 Q	S	qallfeatures	qmandatory != ''	Haben Sie noch Anmerkungen?	Freiwillig, aber willkommen	de			Y		Keine Anmerkungen			1			

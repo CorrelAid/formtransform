@@ -39,7 +39,9 @@ describe('Decimal Question Type', () => {
     const question = findRowByName(rows, 'score');
 
     // AST-based converter returns LimeSurvey expressions for numeric ranges
-    expect(question?.em_validation_q).toBe('self >= 0 and self <= 100');
+    expect(question?.em_validation_q).toBe(
+      'is_empty(self) or (self >= 0 and self <= 100)',
+    );
   });
 
   test('converts decimal question with default value', async () => {

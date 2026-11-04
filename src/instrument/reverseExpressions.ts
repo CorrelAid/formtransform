@@ -37,6 +37,10 @@
 import { parseEm, EmNode } from './emParser.js';
 import { ConversionError } from '../diagnostics.js';
 import { COUNT_SELECTED } from '../conventions/selectionCount.js';
+import {
+  EMPTY_GUARD,
+  SELECT_MULTIPLE_EMPTY_GUARD,
+} from '../conventions/emptyAnswer.js';
 
 export interface SelectContext {
   /** `${qname}_${code}` → the select_multiple question + choice it refers to. */
@@ -89,6 +93,23 @@ function countSelectedToXPath(
   if (questions.size !== 1 || ctx.multipleSizes?.get(question) !== codes.size)
     return null;
   return `${COUNT_SELECTED}(${question === ctx.self ? '.' : `\${${question}}`})`;
+}
+
+/**
+ * `if(is_empty(x), y, x)` → `coalesce(x, y)`, the form the forward path
+ * writes (convention:logicMapping syntaxMappings). `null` for any other call.
+ */
+function coalesceToXPath(
+  node: EmNode & { t: 'call' },
+  ctx: SelectContext,
+): string | null {
+  if (node.name !== 'if' || node.args.length !== 3) return null;
+  const [test, fallback, value] = node.args;
+  if (test.t !== 'call' || test.name !== 'is_empty' || test.args.length !== 1)
+    return null;
+  const x = nodeToXPath(value, ctx);
+  if (nodeToXPath(test.args[0], ctx) !== x) return null;
+  return `coalesce(${x}, ${nodeToXPath(fallback, ctx)})`;
 }
 
 const FUNCTION_NAME_TO_XPATH: Record<string, string> = {
@@ -209,6 +230,8 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
     case 'call': {
       const counted = countSelectedToXPath(node, ctx);
       if (counted) return counted;
+      const coalesced = coalesceToXPath(node, ctx);
+      if (coalesced) return coalesced;
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
         throw new ConversionError(
@@ -290,5 +313,27 @@ export function reverseConstraint(
 ): string {
   const trimmed = em.trim();
   if (!trimmed) return '';
-  return nodeToXPath(parseEm(trimmed), ctx);
+  return nodeToXPath(withoutEmptyGuard(parseEm(trimmed), ctx), ctx);
+}
+
+/** The parsed guard (`is_empty(self)`), compared node for node. */
+const EMPTY_GUARD_NODE = JSON.stringify(parseEm(EMPTY_GUARD));
+
+/**
+ * `<guard> or (<equation>)` → `<equation>`: the forward path guards an
+ * optional question's equation so LimeSurvey, like ODK, accepts an empty
+ * answer (convention:logicMapping `emptyAnswer`). ODK skips a constraint on an
+ * empty answer anyway, so the guard is dropped.
+ */
+function withoutEmptyGuard(node: EmNode, ctx: SelectContext): EmNode {
+  if (node.t !== 'bin' || node.op !== 'or') return node;
+  if (JSON.stringify(node.left) === EMPTY_GUARD_NODE) return node.right;
+  // A select_multiple's guard: `count(<all its subquestions>) == 0`.
+  try {
+    if (nodeToXPath(node.left, ctx) === SELECT_MULTIPLE_EMPTY_GUARD)
+      return node.right;
+  } catch {
+    // not a guard
+  }
+  return node;
 }

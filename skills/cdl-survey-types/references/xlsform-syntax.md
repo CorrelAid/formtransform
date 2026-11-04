@@ -44,7 +44,7 @@ To limit how many answers a `select_multiple` takes, write `count-selected(.) <=
 
 **Only these functions are supported** (anything else is rejected):
 
-`and`, `or`, `not`, `if`, `selected`, `contains`, `starts-with`, `ends-with`, `regex`, `string`, `number`, `concat`, `substring`, `string-length`, `normalize-space`, `count`, `count-selected`, `sum`, `round`, `floor`, `ceiling`, `div`, `mod`, `today`, `now`
+`and`, `or`, `not`, `if`, `coalesce`, `selected`, `contains`, `starts-with`, `ends-with`, `regex`, `string`, `number`, `concat`, `substring`, `string-length`, `normalize-space`, `count`, `count-selected`, `sum`, `round`, `floor`, `ceiling`, `div`, `mod`, `today`, `now`
 
 ## Appearances (`appearance` column)
 

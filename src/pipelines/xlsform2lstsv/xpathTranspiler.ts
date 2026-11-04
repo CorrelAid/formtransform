@@ -241,6 +241,17 @@ function transpileCountSelected(
   return `count(${fields.map((f) => `${f}.NAOK`).join(', ')})`;
 }
 
+/**
+ * `coalesce(x, y)` → `if(is_empty(x), y, x)`: EM has no coalesce()
+ * (convention:logicMapping syntaxMappings).
+ */
+function transpileCoalesce(args: XPathNode[], ctx?: TranspilerContext): string {
+  if (args.length !== 2)
+    throw new ConversionError('xpath-syntax', 'coalesce() needs 2 arguments');
+  const [x, y] = args.map((a) => transpile(a, ctx));
+  return `if(is_empty(${x}), ${y}, ${x})`;
+}
+
 function transpileSubstring(
   args: XPathNode[],
   ctx?: TranspilerContext,
@@ -260,6 +271,7 @@ function transpileFunctionCall(
   const { name, args } = node;
   if (name === 'selected') return transpileSelected(args, ctx);
   if (name === 'substring') return transpileSubstring(args, ctx);
+  if (name === 'coalesce') return transpileCoalesce(args, ctx);
   if (name === COUNT_SELECTED) return transpileCountSelected(args, ctx);
   const handler = FUNCTION_HANDLERS[name];
   if (handler) return handler(args, ctx);

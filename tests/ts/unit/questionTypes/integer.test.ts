@@ -1,5 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { convertAndParse, findRowByName } from '../helpers';
+import { XLSFormToTSVConverter } from '../../../../src/pipelines/xlsform2lstsv/index.js';
+import { lstsvToXlsform } from '../../../../src/pipelines/lstsv2xlsform/index.js';
 
 describe('Integer Question Type', () => {
   test('converts basic integer question', async () => {
@@ -50,7 +52,41 @@ describe('Integer Question Type', () => {
     const question = findRowByName(rows, 'age');
 
     // AST-based converter returns LimeSurvey expressions for numeric ranges
+    // Optional, so an empty answer passes as in ODK (#214).
+    expect(question?.em_validation_q).toBe(
+      'is_empty(self) or (self >= 18 and self <= 100)',
+    );
+  });
+
+  test('a required question keeps its equation unguarded (#214)', async () => {
+    const rows = await convertAndParse([
+      {
+        type: 'integer',
+        name: 'age',
+        label: 'Age',
+        required: 'yes',
+        constraint: '. >= 18 and . <= 100',
+      },
+    ]);
+    const question = findRowByName(rows, 'age');
+    expect(question?.mandatory).toBe('Y');
     expect(question?.em_validation_q).toBe('self >= 18 and self <= 100');
+  });
+
+  test('a guarded constraint reads back as authored (#214)', async () => {
+    const survey = [
+      {
+        type: 'integer',
+        name: 'age',
+        label: 'Age',
+        constraint: '. >= 18 and (. <= 100 or . = 999)',
+      },
+    ];
+    const tsv = await new XLSFormToTSVConverter().convert(survey, [], []);
+    const back = lstsvToXlsform(tsv, { skipValidation: true }).survey;
+    expect(back.find((r) => r.name === 'age')?.constraint).toBe(
+      '. >= 18 and (. <= 100 or . = 999)',
+    );
   });
 
   test('converts integer question with default value', async () => {

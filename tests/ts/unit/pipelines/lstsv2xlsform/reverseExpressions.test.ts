@@ -63,6 +63,7 @@ describe('reverseRelevance — round-trips the forward dialect', () => {
     ['ceiling(${x})', 'ceiling'],
     ['substring(${x}, 1, 3)', 'substring'],
     ['string-length(${x})', 'string-length'],
+    ['coalesce(${x}, 0) + coalesce(${y}, 0) = 100', 'coalesce'],
     ["starts-with(${x}, 'a')", 'starts-with'],
     ["ends-with(${x}, 'a')", 'ends-with'],
     ['normalize-space(${x})', 'normalize-space'],
@@ -143,6 +144,7 @@ describe('reverseConstraint — round-trips the forward dialect', () => {
     ['round(${x}) > 2', 'round'],
     ["regex(., '^[A-Z]{2}$')", 'regex on self'],
     ['. mod 5 = 0', 'mod on self'],
+    ['coalesce(${a}, 0) + . <= 100', 'coalesce'],
   ])('%s (%s)', async (xpath) => {
     const { em, em2 } = await constraintRoundTrip(xpath);
     expect(em2).toBe(em);
@@ -162,6 +164,50 @@ describe('reverseConstraint — direct unit checks', () => {
   test('range with and reverses correctly', () => {
     expect(reverseConstraint('self >= 1 and self <= 100')).toBe(
       '. >= 1 and . <= 100',
+    );
+  });
+});
+
+describe('reverseConstraint — the empty-answer guard (#214)', () => {
+  test('is_empty(self) or (…) reads back as the equation alone', () => {
+    expect(
+      reverseConstraint('is_empty(self) or (self >= 0 and self <= 100)'),
+    ).toBe('. >= 0 and . <= 100');
+  });
+
+  test('an equation that is an or keeps its own grouping', () => {
+    expect(reverseConstraint('is_empty(self) or (self < 0 or self > 9)')).toBe(
+      '. < 0 or . > 9',
+    );
+  });
+
+  test("a select_multiple's count() == 0 guard is dropped", () => {
+    expect(
+      reverseConstraint(
+        'count(langs_de.NAOK, langs_en.NAOK, langs_fr.NAOK) == 0 or (!(langs_de.NAOK == "Y"))',
+        { ...selectCtx, self: 'langs' },
+      ),
+    ).toBe("not(selected(${langs}, 'de'))");
+  });
+
+  test('is_empty() anywhere else is outside the dialect', () => {
+    expect(() => reverseConstraint('self > 1 or is_empty(self)')).toThrow(
+      expect.objectContaining({ code: 'em-unsupported' }),
+    );
+  });
+
+  test('if(is_empty(x), y, x) reads back as coalesce(x, y)', () => {
+    expect(reverseConstraint('if(is_empty(a), 0, a) + self <= 100')).toBe(
+      'coalesce(${a}, 0) + . <= 100',
+    );
+  });
+
+  test('an if() that is no coalesce stays an if()', () => {
+    expect(() => reverseConstraint('if(is_empty(a), 0, b) > 1')).toThrow(
+      expect.objectContaining({ code: 'em-unsupported' }),
+    );
+    expect(reverseConstraint('if(a > 1, 0, a) > 1')).toBe(
+      'if(${a} > 1, 0, ${a}) > 1',
     );
   });
 });
