@@ -85,7 +85,7 @@ The forward path guards an optional question's equation so an empty answer
 passes, as in ODK: `is_empty(self) or (<equation>)`, on a select_multiple
 `count(<its subquestions>) == 0 or (<equation>)` (convention:logicMapping
 `emptyAnswer`). The reverser drops a top-level guard and reads back the
-equation alone.
+equation alone. `if(is_empty(x), y, x)` reads back as `coalesce(x, y)`.
 
 Rejected alternative: having forward stash the original XPath in a question
 attribute. It would make round-tripping our own output trivial but does nothing

@@ -95,6 +95,23 @@ function countSelectedToXPath(
   return `${COUNT_SELECTED}(${question === ctx.self ? '.' : `\${${question}}`})`;
 }
 
+/**
+ * `if(is_empty(x), y, x)` → `coalesce(x, y)`, the form the forward path
+ * writes (convention:logicMapping syntaxMappings). `null` for any other call.
+ */
+function coalesceToXPath(
+  node: EmNode & { t: 'call' },
+  ctx: SelectContext,
+): string | null {
+  if (node.name !== 'if' || node.args.length !== 3) return null;
+  const [test, fallback, value] = node.args;
+  if (test.t !== 'call' || test.name !== 'is_empty' || test.args.length !== 1)
+    return null;
+  const x = nodeToXPath(value, ctx);
+  if (nodeToXPath(test.args[0], ctx) !== x) return null;
+  return `coalesce(${x}, ${nodeToXPath(fallback, ctx)})`;
+}
+
 const FUNCTION_NAME_TO_XPATH: Record<string, string> = {
   count: 'count',
   regexMatch: 'regex',
@@ -213,6 +230,8 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
     case 'call': {
       const counted = countSelectedToXPath(node, ctx);
       if (counted) return counted;
+      const coalesced = coalesceToXPath(node, ctx);
+      if (coalesced) return coalesced;
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
         throw new ConversionError(

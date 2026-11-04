@@ -324,6 +324,9 @@ it is. `lstsv2xlsform` drops the guard again (`convention:logicMapping`,
 `emptyAnswer`). `min_answers` is not guarded: LimeSurvey also enforces it on
 an empty multiple choice.
 
+`coalesce(${a}, 0)` (the answer, or `0` when there is none) becomes
+`if(is_empty(a), 0, a)`, and back.
+
 A `choice_filter` that keeps the options ticked in an earlier
 `select_multiple` (`selected(${k04}, name)`) becomes LimeSurvey's
 `array_filter`, which needs the option codes to equal the filtering

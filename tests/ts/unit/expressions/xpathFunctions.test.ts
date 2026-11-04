@@ -68,6 +68,26 @@ describe('XPath Function Conversion', () => {
       expect(result).toBe('strlen(name) > 5');
     });
 
+    test('converts coalesce() to if(is_empty()) (#213)', async () => {
+      const result = await xpathToLimeSurvey(
+        'coalesce(${a}, 0) + coalesce(${b}, 0) = 100',
+      );
+      expect(result).toBe(
+        'if(is_empty(a), 0, a) + if(is_empty(b), 0, b) == 100',
+      );
+    });
+
+    test('coalesce() of an expression keeps it whole (#213)', async () => {
+      const result = await xpathToLimeSurvey("coalesce(${a} + 1, 'x')");
+      expect(result).toBe("if(is_empty(a + 1), 'x', a + 1)");
+    });
+
+    test('coalesce() needs two arguments (#213)', async () => {
+      await expect(xpathToLimeSurvey('coalesce(${a})')).rejects.toThrow(
+        /coalesce\(\) needs 2 arguments/,
+      );
+    });
+
     test('converts substring() function', async () => {
       const result = await xpathToLimeSurvey('substring(${code}, 1, 3)');
       expect(result).toBe('substr(code, 1, 3)');

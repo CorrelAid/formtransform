@@ -734,6 +734,11 @@ const conventions = {
           "ls": "regexMatch(...)"
         },
         {
+          "xlsform": "coalesce(x, y)",
+          "ls": "if(is_empty(x), y, x)",
+          "note": "x when it is answered, else y (e.g. `coalesce(${a}, 0)` counts an unanswered number as 0). EM has no coalesce(); lstsv2xlsform reads this if() back as coalesce()."
+        },
+        {
           "xlsform": "count-selected(${f})",
           "ls": "count(f_a.NAOK, f_b.NAOK, …)",
           "note": "The number of ticked answers of a select_multiple: an unticked subquestion is empty, so count() over its subquestions counts the ticked ones (its native other text box, f_other, counts too). See selectionCount."
@@ -744,6 +749,7 @@ const conventions = {
         "or",
         "not",
         "if",
+        "coalesce",
         "selected",
         "contains",
         "starts-with",
