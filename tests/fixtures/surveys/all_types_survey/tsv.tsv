@@ -3,7 +3,7 @@ S		language	1	de		de
 S		format	1	A		de											
 S		shownoanswer	1	N		de											
 SL		surveyls_title	1	Workshop-Feedback-Umfrage		de											
-G	1	G0	1	G0		de											
+G	1	Questions	1			de											
 Q	S	hidden1	1	hidden1		de							1	1			
 Q	S	orphanbefore	1	Wie lautet Ihre Teilnehmer-ID?		de								1			
 G	2	Persönliche Angaben	1			de											
@@ -58,5 +58,5 @@ Q	N	qconstraint	1	Wie alt sind Sie?		de		is_empty(self) or (self >= 18 and self 
 Q	S	qdefault	1	In welchem Land leben Sie?		de					Deutschland			1			
 Q	S	qrelevant	qmandatory != ''	Wie sollen wir Sie kontaktieren?		de								1			
 Q	S	qallfeatures	qmandatory != ''	Haben Sie noch Anmerkungen?	Freiwillig, aber willkommen	de			Y		Keine Anmerkungen			1			
-G	7	G6	1	G6		de											
+G	7	Questions 2	1			de											
 Q	X	orphanafter	1	Vielen Dank für Ihre Teilnahme an dieser Umfrage!		de											

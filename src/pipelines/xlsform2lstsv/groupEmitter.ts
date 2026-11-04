@@ -42,6 +42,8 @@ export class GroupEmitter {
   private pendingGroupNotes: SurveyRow[] = [];
   /** The stack entry the last G row was emitted for. */
   private openGroup: GroupStackItem | null = null;
+  private emittedGroups = 0;
+  private autoGroups = 0;
 
   constructor(
     private configManager: ConfigManager,
@@ -81,10 +83,24 @@ export class GroupEmitter {
     this.counters.bumpGroupSeq();
   }
 
+  /** Whether any G row has been emitted yet. */
+  hasEmittedGroup(): boolean {
+    return this.emittedGroups > 0;
+  }
+
+  /**
+   * A page for questions outside every group. Like the default group it
+   * takes the configured name (defaults.groupName) with no description; a
+   * later run of orphans gets a number so the names stay unique (#223).
+   */
   addAutoGroupForOrphans(): void {
-    const groupName = `G${this.counters.getGroupSeq()}`;
+    const base = this.configManager.getDefaults().groupName;
+    this.autoGroups++;
+    const groupName =
+      this.autoGroups === 1 ? base : `${base} ${this.autoGroups}`;
     this.counters.bumpGroupSeq();
     this.currentGroup = groupName;
+    this.emittedGroups++;
 
     const groupSeqKey = String(this.counters.getGroupSeq());
 
@@ -93,7 +109,7 @@ export class GroupEmitter {
         class: 'G',
         'type/scale': groupSeqKey,
         name: groupName,
-        text: groupName,
+        text: '',
       }),
       'direct',
     );
@@ -112,6 +128,7 @@ export class GroupEmitter {
 
     this.counters.bumpGroupSeq();
     this.currentGroup = groupName;
+    this.emittedGroups++;
 
     // type/scale is used as a stable group sequence key for LimeSurvey's TSV importer
     // to correctly match group translations across languages.

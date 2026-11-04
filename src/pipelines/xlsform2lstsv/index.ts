@@ -85,6 +85,8 @@ class Conversion {
   private tsvGenerator: TSVGenerator;
   private choiceManager: ChoiceManager;
   private groupProcessor: GroupProcessor;
+  /** Top-level hidden questions waiting for the next group's first page (#223). */
+  private hiddenForNextGroup: QuestionItem[] = [];
   private languageHandler: LanguageHandler;
   private rowEmitter: RowEmitter;
   private otherPatternDetector: OtherPatternDetector;
@@ -296,6 +298,11 @@ class Conversion {
 
     this.walk(instrument.body);
 
+    // Hidden questions no group opened for get a page of their own.
+    for (const hidden of this.hiddenForNextGroup.splice(0)) {
+      this.processQuestion(hidden);
+    }
+
     // Flush any pending matrix at the end
     this.matrixHandler.flushMatrix(this.matrixHelpers());
 
@@ -348,22 +355,60 @@ class Conversion {
    * children, then its end (if the sheet closed it). A folded `_other`
    * companion is skipped.
    */
-  private walk(items: Item[]): void {
-    for (const item of items) {
+  private walk(items: Item[], topLevel = true): void {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       const row = item.row as SurveyRow;
       if (item.kind === 'question') {
-        if (!this.collapsedCompanions.has(row)) this.processQuestion(item);
+        if (this.collapsedCompanions.has(row)) continue;
+        if (topLevel && this.isHiddenOnlyRun(items, i)) {
+          // Hidden questions need no page of their own (#223): they join
+          // the next group, or the previous one when none follows.
+          this.validateRow(row);
+          if (items[this.runEnd(items, i)]) this.hiddenForNextGroup.push(item);
+          else this.processQuestion(item, true);
+          continue;
+        }
+        this.processQuestion(item);
         continue;
       }
       this.validateRow(row);
       this.handleBeginGroup(row);
-      this.walk(item.children);
+      this.walk(item.children, false);
       if (item.closed) this.handleEndGroup();
     }
   }
 
+  /** Index after the run of top-level questions that contains `i`. */
+  private runEnd(items: Item[], i: number): number {
+    let end = i;
+    while (end < items.length && items[end].kind === 'question') end++;
+    return end;
+  }
+
+  /**
+   * True when the run of top-level questions around `i` has a hidden one
+   * and nothing but hidden or skipped ones, and it can join a group: the
+   * next one (not an array, whose questions are its cells) or, at the end
+   * of the sheet, an earlier one.
+   */
+  private isHiddenOnlyRun(items: Item[], i: number): boolean {
+    let start = i;
+    while (start > 0 && items[start - 1].kind === 'question') start--;
+    const end = this.runEnd(items, i);
+    const run = items.slice(start, end) as QuestionItem[];
+    const content = run.filter((q) => !SKIP_TYPES.includes(q.type));
+    if (content.length === 0 || content.some((q) => q.type !== 'hidden'))
+      return false;
+    const next = items[end];
+    if (next?.kind === 'group') {
+      return !this.groupProcessor.getArrayGroups().has(next.name);
+    }
+    return this.groupEmitter.hasEmittedGroup();
+  }
+
   /** Emit one question item (skipping metadata and promoted welcome/end notes). */
-  private processQuestion(q: QuestionItem): void {
+  private processQuestion(q: QuestionItem, joinPrevious = false): void {
     const row = q.row as SurveyRow;
     // Metadata types are skipped silently.
     if (SKIP_TYPES.includes(q.type)) return;
@@ -376,11 +421,14 @@ class Conversion {
     }
     this.validateRow(row);
     // Auto-create a group for questions outside any explicit group.
-    if (this.isOutsideAnyGroup()) {
+    if (!joinPrevious && this.isOutsideAnyGroup()) {
       this.rowEmitter.flushGroupContent();
       this.groupEmitter.addAutoGroupForOrphans();
     }
     this.groupEmitter.openCurrentGroup(this.groupHelpers());
+    for (const hidden of this.hiddenForNextGroup.splice(0)) {
+      this.addQuestion(hidden);
+    }
     this.addQuestion(q);
   }
 

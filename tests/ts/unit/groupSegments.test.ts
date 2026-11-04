@@ -46,7 +46,7 @@ describe('group segments (#206)', () => {
       { type: 'end_group' },
     ]);
     expect(groupsOf(rows)).toEqual([
-      ['G0', ['a']],
+      ['Questions', ['a']],
       ['Wissen', ['bd', 'k20']],
       ['Nutzung', ['k12']],
       ['Digitalisierung', ['k13', 'k13haupt']],
