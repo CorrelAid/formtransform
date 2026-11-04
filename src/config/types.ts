@@ -50,6 +50,13 @@ export interface LstsvConfig {
   hideNoAnswer?: boolean;
 
   /**
+   * Write formtransform's LimeSurvey survey-setting defaults `allowprev=Y`
+   * (Previous button) and `showxquestions=N` (no question count) unless the
+   * form sets them with `limesurvey_*` columns (default: true, #240)
+   */
+  surveySettingDefaults?: boolean;
+
+  /**
    * Suppress LimeSurvey's automatic per-question tips — e.g. "Only numbers may
    * be entered in this field." (numeric) or "Select all that apply" (multiple
    * choice) — by setting the `hide_tip` question attribute (default: true).
@@ -87,6 +94,7 @@ export const defaultConfig: LstsvConfig = {
   convertOtherPattern: true,
   convertMarkdown: true,
   hideNoAnswer: true,
+  surveySettingDefaults: true,
   hideQuestionTips: true,
 
   defaults: {

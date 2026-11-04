@@ -251,8 +251,8 @@ gives these `S` rows:
 | S | format | A |
 | S | shownoanswer | N |
 | S | allowprev | Y |
-| S | allowsave | Y |
 | S | showxquestions | N |
+| S | allowsave | Y |
 | S | showqnumcode | X |
 
 Only the settings in `convention:surveySettings` (`limesurveySettings`) pass
@@ -262,11 +262,20 @@ setting or an invalid value is dropped with a `setting-invalid` warning.
 `format`, `language` and `additional_languages` come from the form (`style:
 pages`, `default_language`, the `label::<lang>` columns), so their columns are
 dropped with that warning too. `limesurvey_shownoanswer` overrides
-formtransform's default `shownoanswer=N` (`--show-no-answer`). LimeSurvey's own
-defaults are not changed: without the columns the TSV is as before.
+formtransform's default `shownoanswer=N` (`--show-no-answer`).
+
+**Defaults (behaviour change, #240).** Without the columns, formtransform
+writes `allowprev=Y` (a Previous button) and `showxquestions=N` (no "This
+survey contains 74 questions" line, which counts hidden and filtered questions
+and overstates the length) next to `shownoanswer=N`, because LimeSurvey's own
+defaults (`allowprev=N`, `showxquestions=Y`) are poor for most XLSForm surveys.
+A form that sets `limesurvey_allowprev` or `limesurvey_showxquestions` wins,
+including `N` / `Y`. `--no-setting-defaults` (option `surveySettingDefaults:
+false`) leaves both out, so LimeSurvey's defaults apply. The reverse path
+skips the three defaults, so a form round-trips as authored.
 
 The way back reads the `S` rows into the same columns (except
-`shownoanswer=N`, formtransform's default), and the DDI keeps each as a
+formtransform's three defaults), and the DDI keeps each as a
 `cdl:setting` note like any other setting, so XLSForm → DDI → XLSForm keeps them.
 
 ## Errors and warnings

@@ -78,7 +78,7 @@
           }
         ],
         "limesurveySettings": {
-          "description": "LimeSurvey survey settings (the surveys table) set from optional settings-sheet columns named <prefix><setting>, e.g. limesurvey_allowprev = Y. Each becomes an `S <setting>` row of the TSV, which LimeSurvey's TSV import writes into the survey (formtransform#228). ODK and Kobo ignore the columns. Only the settings listed here are passed through: an unknown setting or a value outside its list is dropped with a `setting-invalid` warning. Y/N settings also take yes/no and true/false, in any case. The reverse path reads every listed S row back into its column, except a value formtransform writes by default. In DDI each is a cdl:setting note like any other setting (convention:ddiFields).",
+          "description": "LimeSurvey survey settings (the surveys table) set from optional settings-sheet columns named <prefix><setting>, e.g. limesurvey_allowprev = Y. Each becomes an `S <setting>` row of the TSV, which LimeSurvey's TSV import writes into the survey (formtransform#228). ODK and Kobo ignore the columns. Only the settings listed here are passed through: an unknown setting or a value outside its list is dropped with a `setting-invalid` warning. Y/N settings also take yes/no and true/false, in any case. The reverse path reads every listed S row back into its column, except a value formtransform writes by default (the `defaults`: shownoanswer=N, allowprev=Y, showxquestions=N; a form's column overrides them, and the allowprev and showxquestions defaults can be turned off with the surveySettingDefaults option). In DDI each is a cdl:setting note like any other setting (convention:ddiFields).",
           "prefix": "limesurvey_",
           "lsTsvRow": "S <setting>",
           "ddiPath": "stdyDscr/notes[@type='cdl:setting'][@subject='limesurvey_<setting>']",
@@ -96,7 +96,9 @@
             "format": "`style: pages` gives G (a page per group), anything else A (all in one)"
           },
           "defaults": {
-            "shownoanswer": "N"
+            "shownoanswer": "N",
+            "allowprev": "Y",
+            "showxquestions": "N"
           },
           "settings": {
             "allowprev": {

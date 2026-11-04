@@ -188,6 +188,17 @@ describe('xlsform2lstsv', () => {
     expect(sRow(shown, 'shownoanswer')).toBeUndefined();
   });
 
+  test('--no-setting-defaults drops allowprev=Y and showxquestions=N (#240)', () => {
+    const form = writeXlsx('simple', SIMPLE);
+    const on = cli('xlsform2lstsv', form).stdout;
+    expect(sRow(on, 'allowprev')?.text).toBe('Y');
+    expect(sRow(on, 'showxquestions')?.text).toBe('N');
+    const off = cli('xlsform2lstsv', form, '--no-setting-defaults').stdout;
+    expect(sRow(off, 'allowprev')).toBeUndefined();
+    expect(sRow(off, 'showxquestions')).toBeUndefined();
+    expect(sRow(off, 'shownoanswer')?.text).toBe('N');
+  });
+
   test('--no-welcome-note keeps a `welcome` note as a question', () => {
     const form = writeXlsx('welcome', {
       survey: [

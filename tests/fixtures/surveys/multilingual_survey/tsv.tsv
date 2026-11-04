@@ -3,6 +3,8 @@ S		language	1	en		en
 S		additional_languages	1	es		en									
 S		format	1	A		en									
 S		shownoanswer	1	N		en									
+S		allowprev	1	Y		en									
+S		showxquestions	1	N		en									
 SL		surveyls_title	1	Multilingual Survey		en									
 SL		surveyls_title	1	Encuesta multilingüe		es									
 G	1	Demographics	1			en									

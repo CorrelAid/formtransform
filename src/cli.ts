@@ -71,6 +71,9 @@ Options:
       --no-end-note       Do not promote an "end" note to surveyls_endtext
       --no-other-pattern  Do not collapse the _other question pattern into a native "other"
       --show-no-answer    Keep the "no answer" option on non-mandatory questions
+      --no-setting-defaults
+                          Do not write the survey settings allowprev=Y and
+                          showxquestions=N (LimeSurvey's own defaults apply)
       --sanitize          Accept names and answer codes outside LimeSurvey's limits
                           (k23_ars, -98): they are sanitized (k23ars, n98) and each
                           change is recorded in the mapping
@@ -261,6 +264,7 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     'no-end-note': { type: 'boolean', default: false },
     'no-other-pattern': { type: 'boolean', default: false },
     'show-no-answer': { type: 'boolean', default: false },
+    'no-setting-defaults': { type: 'boolean', default: false },
     sanitize: { type: 'boolean', default: false },
     mapping: { type: 'string' },
     'skip-validation': { type: 'boolean', default: false },
@@ -277,6 +281,7 @@ async function cmdXlsform2lstsv(argv: string[]): Promise<void> {
     convertEndNote: !values['no-end-note'],
     convertOtherPattern: !values['no-other-pattern'],
     hideNoAnswer: !values['show-no-answer'],
+    surveySettingDefaults: !values['no-setting-defaults'],
   };
   if (values.language || values.title || values['group-name']) {
     config.defaults = {
