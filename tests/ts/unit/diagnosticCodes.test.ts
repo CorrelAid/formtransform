@@ -182,6 +182,17 @@ describe('validateSubset', () => {
       [{ type: 'text', name: 'q', label: 'Q?', appearance: 'likert' }],
     ],
     [
+      'appearance-invalid-columns',
+      [
+        {
+          type: 'select_one yn',
+          name: 'q',
+          label: 'Q?',
+          appearance: 'columns-0',
+        },
+      ],
+    ],
+    [
       'exclusive-invalid',
       [{ type: 'select_multiple l', name: 'q', label: 'Q?' }],
       [{ list_name: 'l', name: 'a', label: 'A', exclusive: 'maybe' }],

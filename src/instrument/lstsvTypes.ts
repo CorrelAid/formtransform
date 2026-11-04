@@ -5,6 +5,10 @@
  */
 import { APPEARANCES } from '../generated/Appearances.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
+import {
+  DISPLAY_COLUMNS_ATTRIBUTE,
+  columnsAppearanceOf,
+} from '../conventions/displayColumns.js';
 import { themedAppearanceOf } from '../conventions/questionTheme.js';
 
 type Row = Record<string, string>;
@@ -106,7 +110,11 @@ export interface ResolvedType {
 export function resolveType(lsCode: string, row: Row): ResolvedType {
   const resolved = resolveBaseType(lsCode, row);
   const themed = themedAppearanceOf(lsCode, resolved.base, row);
-  return themed ? { ...resolved, appearance: themed } : resolved;
+  const columns = ['L', 'M'].includes(lsCode)
+    ? columnsAppearanceOf(cell(row, DISPLAY_COLUMNS_ATTRIBUTE))
+    : undefined;
+  const appearance = [themed, columns].filter(Boolean).join(' ');
+  return appearance ? { ...resolved, appearance } : resolved;
 }
 
 function resolveBaseType(lsCode: string, row: Row): ResolvedType {

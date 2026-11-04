@@ -7,6 +7,12 @@ import type {
   WarningHandler,
 } from '../diagnostics.js';
 import { APPEARANCES } from '../generated/Appearances.js';
+import {
+  COLUMNS_BASE_TYPES,
+  MAX_COLUMNS,
+  columnsOf,
+  isColumnsAppearance,
+} from '../conventions/displayColumns.js';
 import { TYPE_MAPPINGS } from '../generated/TypeMappings.js';
 
 import { SurveyRow, ChoiceRow } from './types.js';
@@ -913,6 +919,26 @@ export class XLSValidator {
     const baseType = (row.type || '').trim().split(/\s+/)[0];
     const name = typeof row.name === 'string' ? row.name : '';
     for (const part of appearance.split(/\s+/)) {
+      if (isColumnsAppearance(part)) {
+        if (columnsOf(part) === undefined) {
+          violations.push(
+            warning(
+              'appearance-invalid-columns',
+              `appearance "${part}" on "${name}" needs a column count from 1 to ${MAX_COLUMNS} and will be ignored`,
+              name,
+            ),
+          );
+        } else if (!COLUMNS_BASE_TYPES.includes(baseType)) {
+          violations.push(
+            warning(
+              'appearance-invalid-for-type',
+              `appearance "${part}" on "${name}" is not valid for type "${baseType}" and will be ignored`,
+              name,
+            ),
+          );
+        }
+        continue;
+      }
       const spec = APPEARANCES[part];
       if (!spec) {
         violations.push(

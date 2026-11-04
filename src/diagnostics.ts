@@ -42,6 +42,7 @@ export type DiagnosticCode =
   | 'vocab-csv-invalid'
   | 'vocab-codes-derived'
   | 'appearance-unregistered'
+  | 'appearance-invalid-columns'
   | 'appearance-invalid-for-type'
   | 'exclusive-invalid'
   | 'exclusive-no-effect'
