@@ -147,6 +147,40 @@
       }
     },
     {
+      "@id": "appearance:horizontal",
+      "@type": "Appearance",
+      "skos:prefLabel": "Horizontal choices (buttons)",
+      "xlsform": {
+        "appearanceString": "horizontal"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one"
+      ],
+      "lsEffect": "LimeSurvey's core question theme bootstrap_buttons on a list (L): the options as a row of buttons",
+      "lsQuestionTheme": {
+        "name": "bootstrap_buttons"
+      }
+    },
+    {
+      "@id": "appearance:horizontal-compact",
+      "@type": "Appearance",
+      "skos:prefLabel": "Horizontal choices, compact (buttons)",
+      "xlsform": {
+        "appearanceString": "horizontal-compact"
+      },
+      "supported": true,
+      "behavior": "handled",
+      "validForTypes": [
+        "select_one"
+      ],
+      "lsEffect": "As horizontal: bootstrap_buttons on a list (L). The way back gives the first registered appearance of a theme, horizontal",
+      "lsQuestionTheme": {
+        "name": "bootstrap_buttons"
+      }
+    },
+    {
       "@id": "appearance:multiline",
       "@type": "Appearance",
       "skos:prefLabel": "Multi-line text",

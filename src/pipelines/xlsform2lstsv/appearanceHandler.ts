@@ -49,13 +49,19 @@ export class AppearanceHandler {
    * The Q-row columns of the LimeSurvey question theme an appearance selects
    * (registry `lsQuestionTheme`): `question_theme_name` plus the theme's
    * attributes, e.g. `autocomplete` → `bootstrap_dropdown` + `show_search`.
-   * The last appearance with a theme wins, as with type overrides.
+   * The last appearance with a theme wins, as with type overrides. A theme
+   * that doesn't override the type (`bootstrap_buttons`) is for a plain list
+   * only: a dropdown from another appearance (`minimal`) keeps none.
    */
-  themeAttributes(appearance: string, base: string): Record<string, string> {
+  themeAttributes(
+    lsType: LSType,
+    appearance: string,
+    base: string,
+  ): Record<string, string> {
     let columns: Record<string, string> = {};
     for (const spec of applicable(appearance, base)) {
       const theme = spec.lsQuestionTheme;
-      if (!theme) continue;
+      if (!theme || (!spec.lsTypeOverride && lsType.type !== 'L')) continue;
       columns = {
         [QUESTION_THEME_COLUMN]: theme.name,
         ...(theme.attributes ?? {}),
