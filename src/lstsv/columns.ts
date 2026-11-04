@@ -42,6 +42,10 @@ export const BASE_COLUMNS = [
  * - `min_answers`, `max_answers`: bounds on the number of answers of a
  *   multiple choice, from a `count-selected(.)` constraint
  *   (convention:logicMapping `selectionCount`).
+ * - `answer_order`, `subquestion_order`: `random` shuffles a list's answers /
+ *   a multiple choice's subquestions, from `parameters: randomize=true`;
+ *   `keep_codes_order`: the codes that stay in place meanwhile
+ *   (convention:randomOrder).
  * - `array_filter`: the multiple choice whose ticked subquestions keep a
  *   question's options, from its `choice_filter` (convention:choiceFilter).
  * - `em_validation_q_tip`: the per-language message shown when the question's
@@ -62,6 +66,9 @@ export const ATTRIBUTE_COLUMNS = [
   'exclude_all_others',
   'min_answers',
   'max_answers',
+  'answer_order',
+  'subquestion_order',
+  'keep_codes_order',
   'array_filter',
   'em_validation_q_tip',
   'other_replace_text',

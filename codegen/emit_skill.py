@@ -291,6 +291,19 @@ def _exclusive_section(ex: dict) -> list[str]:
     ]
 
 
+def _random_order_section(ro: dict) -> list[str]:
+    key = ro.get("parametersKey", "randomize")
+    yes = ro.get("trueValues", ["true"])[0]
+    return [
+        f"## Random answer order (`parameters: {key}={yes}`)\n",
+        f"Applies to: `select_one`, `select_multiple` (also from a file). Write `{key}={yes}` "
+        "in the `parameters` column to shuffle the options, e.g. to avoid primacy effects. "
+        "LimeSurvey shuffles them too, and keeps a `select_multiple`'s `exclusive` answers "
+        "at their position (LimeSurvey 6.17 or later); ODK and Kobo shuffle every option. "
+        f"Don't add a `{ro.get('seedKey', 'seed')}`: LimeSurvey has none and drops it.\n",
+    ]
+
+
 def _external_list_section(ext: dict, vocabs: list[dict]) -> list[str]:
     # Example filename comes from the registry, not a hardcoded vocabulary:
     # vocabularies are open-ended (convention:externalCodeList's
@@ -403,6 +416,7 @@ def _syntax_md(registry: dict[str, Any]) -> str:
         (True, lambda _: _CHOICES_SECTION),
         (conv("convention:other"), _other_section),
         (conv("convention:exclusiveChoice"), _exclusive_section),
+        (conv("convention:randomOrder"), _random_order_section),
         (conv("convention:externalCodeList"), lambda ext: _external_list_section(ext, vocabs)),
         (conv("convention:logicMapping"), _logic_section),
         (appearances, lambda _: _appearances_section(appearances)),
