@@ -120,6 +120,7 @@ export class GroupEmitter {
     sanitizeName: (name: string) => string,
     convertRelevance: (relevant?: string) => string,
     withDescription = true,
+    array = false,
   ): void {
     const groupName =
       row.name && row.name.trim() !== ''
@@ -135,18 +136,26 @@ export class GroupEmitter {
     const groupSeqKey = String(this.counters.getGroupSeq());
     const relevance = convertRelevance(row.relevant);
 
-    this.rowEmitter.emitForEachLanguage(
-      (lang) => ({
+    this.rowEmitter.emitForEachLanguage((lang) => {
+      // An array's page title is its `label_short`; its label and hint are
+      // then the array's text. Without one, the label is the title and the
+      // array has no text of its own, so the page shows it once (#224).
+      const short = array
+        ? this.languageHandler.renderText(row, 'label_short', lang)
+        : '';
+      return {
         class: 'G',
         'type/scale': groupSeqKey,
-        name: this.languageHandler.renderText(row, 'label', lang, groupName),
+        name:
+          short ||
+          this.languageHandler.renderText(row, 'label', lang, groupName),
         relevance,
-        text: withDescription
-          ? this.languageHandler.renderText(row, 'hint', lang)
-          : '',
-      }),
-      'direct',
-    );
+        text:
+          withDescription && !short
+            ? this.languageHandler.renderText(row, 'hint', lang)
+            : '',
+      };
+    }, 'direct');
   }
 
   pushStack(item: GroupStackItem): void {
@@ -179,7 +188,7 @@ export class GroupEmitter {
    * after a nested group, or after its title became a note, carries the
    * title alone (#206).
    */
-  openCurrentGroup(helpers: GroupHelpers): void {
+  openCurrentGroup(helpers: GroupHelpers, array = false): void {
     const top = this.groupStack[this.groupStack.length - 1];
     if (!top || top === this.openGroup) return;
     this.rowEmitter.flushGroupContent();
@@ -188,6 +197,7 @@ export class GroupEmitter {
       helpers.sanitizeName,
       helpers.convertRelevance,
       !top.shown,
+      array,
     );
     this.currentGroup = top.sanitizedName;
     top.shown = true;
@@ -238,7 +248,8 @@ export class GroupEmitter {
    *
    *   - `array` (a `table-list` group with choice rows): emit as a
    *     LimeSurvey array (F) — the G row plus an `addTableListHeader` to mark
-   *     the array. A table of numbers is an ordinary group (#174).
+   *     the array; the label is on only one of the two (#224). A table of
+   *     numbers is an ordinary group (#174).
    *   - `messageOnly` (group contains only a welcome/end note): push, never
    *     emitted.
    *   - `parentOnly` (group has no direct questions): push, queue a pending
@@ -280,7 +291,7 @@ export class GroupEmitter {
     this.groupStack.push(item);
 
     if (kind.array) {
-      this.openCurrentGroup(helpers);
+      this.openCurrentGroup(helpers, true);
       onTableList(sanitizedName);
       return;
     }

@@ -6,7 +6,7 @@ SL		surveyls_title	1	Grid-Hinweise		de
 G	1	Questions	1			de									
 Q	X	intro	1	Einige Fragen zu Ihrem Vertrauen.		de									
 G	2	Wie sehr vertrauen Sie …	1			de									
-Q	F	vertrauen	1	Wie sehr vertrauen Sie …		de								1	
+Q	F	vertrauen	1			de								1	
 SQ		parlament	1	… dem Parlament?		de									
 SQ		polizei	1	… der Polizei?		de									
 A		1		Gar nicht		de									

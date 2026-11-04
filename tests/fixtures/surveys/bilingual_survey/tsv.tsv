@@ -35,8 +35,8 @@ SQ		en		English		en
 Q	L	quelle	1	How did you hear about us?		en				Y				1
 A		web		Website		en								
 A		frien		Friends		en								
-G	3	Wie sehr vertrauen Sie …	1			de								
-G	3	How much do you trust …	1			en								
+G	3	Vertrauen (5 Items)	1			de								
+G	3	Trust (5 items)	1			en								
 Q	F	vertrauen	1	Wie sehr vertrauen Sie …		de								1
 SQ		parlament	1	… dem Parlament?		de								
 SQ		polizei	1	… der Polizei?		de								

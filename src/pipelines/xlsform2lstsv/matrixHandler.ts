@@ -129,10 +129,12 @@ export class MatrixHandler {
   }
 
   /**
-   * Open a LimeSurvey array (F) for a `table-list` group. The array title is
-   * the group label; its select_one children are added as subquestions and the
-   * shared answer scale is emitted by flushMatrix (on end_group). No G row is
-   * emitted — the group *is* the array.
+   * Open a LimeSurvey array (F) for a `table-list` group; its select_one
+   * children are added as subquestions and the shared answer scale is emitted
+   * by flushMatrix (on end_group). The group's G row comes first and is the
+   * page title: the group's `label_short`, the array's text then its label
+   * and hint. Without a `label_short` the label is the title and the array
+   * text is empty, so the page shows it once (#224).
    */
   addTableListHeader(
     row: SurveyRow,
@@ -158,10 +160,20 @@ export class MatrixHandler {
       name: questionName,
       relevance,
       mandatory,
-      text: this.languageHandler.renderText(row, 'label', lang, questionName),
-      help: this.languageHandler.renderText(row, 'hint', lang),
+      ...this.tableListText(row, lang),
       ...(hideTip ? { hide_tip: hideTip } : {}),
     }));
+  }
+
+  /** A table-list array's text and help in `lang`: empty without a `label_short`. */
+  private tableListText(row: SurveyRow, lang: string) {
+    if (!this.languageHandler.renderText(row, 'label_short', lang)) {
+      return { text: '', help: '' };
+    }
+    return {
+      text: this.languageHandler.renderText(row, 'label', lang),
+      help: this.languageHandler.renderText(row, 'hint', lang),
+    };
   }
 
   addMatrixHeader(

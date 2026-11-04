@@ -19,7 +19,7 @@ SQ		bahn	1	Bahn		de
 A		nie		Nie		de									
 A		oft		Oft		de									
 G	3	Wie wichtig ist Ihnen …	1			de									
-Q	F	raster	1	Wie wichtig ist Ihnen …		de									1
+Q	F	raster	1			de									1
 SQ		preis	1	… der Preis?		de									
 SQ		takt	1	… der Takt?		de									
 A		nie		Nie		de									

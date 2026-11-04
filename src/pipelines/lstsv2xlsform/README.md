@@ -164,7 +164,9 @@ listed here must match exactly.
 11. **An array inside a mixed group is a nested grid.** A LimeSurvey group
     holding an `F` array next to other questions comes back as that group
     with a `table-list` group inside, named after the array; a group holding
-    only the array is the grid itself.
+    only the array is the grid itself. Its label is the array's text, else
+    the G row's name; a G name other than the array's text is its
+    `label_short` (#224), also when a plain group held only a matrix header.
 12. **Group relevance includes the enclosing groups'.** LimeSurvey groups are
     flat, so the forward ANDs every enclosing group's condition into each G
     row; the reverse gives each (flat) group that combined condition.
