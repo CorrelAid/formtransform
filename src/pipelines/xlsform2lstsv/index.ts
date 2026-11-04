@@ -51,6 +51,7 @@ import {
   KEEP_CODES_ATTRIBUTE,
   RANDOM_ORDER_ATTRIBUTES,
   RANDOM_ORDER_RULE,
+  isFixed,
   randomizable,
   randomizeOf,
 } from '../../conventions/randomOrder.js';
@@ -454,6 +455,21 @@ class Conversion {
   }
 
   /**
+   * The codes a randomized question keeps in place (keep_codes_order): its
+   * exclusive answers and the choices marked `fixed` (convention:randomOrder),
+   * in list order, once each.
+   */
+  private keptCodes(baseType: string, listName: string | null): string[] {
+    if (!listName) return [];
+    const exclusive = EXCLUSIVE_RULE.appliesTo.includes(baseType)
+      ? isExclusive
+      : () => false;
+    return (this.choiceManager.getChoices(listName) ?? [])
+      .filter((c) => exclusive(c) || isFixed(c))
+      .map((c) => this.fieldNameHandler.sanitizeAnswerCode(String(c.name)));
+  }
+
+  /**
    * `exclude_all_others` for a select_multiple whose list marks choices
    * `exclusive` (convention:exclusiveChoice): their answer codes, `;`-joined.
    */
@@ -472,8 +488,8 @@ class Conversion {
 
   /**
    * `parameters: randomize=true` on a select → LimeSurvey's ordering
-   * attribute for its type (convention:randomOrder), with its exclusive
-   * answers kept in place. A seed, an exclusive answer ODK would shuffle, and
+   * attribute for its type (convention:randomOrder), with its exclusive and
+   * fixed answers kept in place. A seed, an exclusive answer ODK would shuffle, and
    * a type LimeSurvey can't order are each a warning.
    */
   private randomOrderAttributes(
@@ -505,12 +521,12 @@ class Conversion {
         ),
       );
     }
-    const keep = this.exclusiveCodes(baseType, listName);
+    const keep = this.keptCodes(baseType, listName);
     if (keep.length > 0) {
       this.warn(
         warning(
           'randomize-pinned',
-          `'${questionName}': LimeSurvey keeps the exclusive answer(s) ${keep.join(', ')} at their position while it shuffles the others (${KEEP_CODES_ATTRIBUTE}, LimeSurvey 6.17 or later); ODK and Kobo shuffle them with the rest`,
+          `'${questionName}': LimeSurvey keeps the exclusive or fixed answer(s) ${keep.join(', ')} at their position while it shuffles the others (${KEEP_CODES_ATTRIBUTE}, LimeSurvey 6.17 or later); ODK and Kobo shuffle them with the rest`,
           questionName,
         ),
       );

@@ -48,7 +48,7 @@ CLI: `formtransform lstsv2xlsform <input.tsv>`.
 | per-language rows | `label::<lang>` / `hint::<lang>` | direct |
 | S rows | settings (`default_language`, `form_title`, `style`, and `limesurvey_<setting>` for each supported survey setting) | convention:surveySettings `limesurveySettings`; `shownoanswer=N`, formtransform's default, isn't read back |
 | `relevance`, `em_validation_q` | `relevant`, `constraint` | reverse-transpiled — see below |
-| `answer_order=random` (L, `!`), `subquestion_order=random` (M), legacy `random_order=1` | `parameters: randomize=true` | convention:randomOrder; `keep_codes_order` isn't read back (a multiple choice's exclusive answers come back from `exclude_all_others`) |
+| `answer_order=random` (L, `!`), `subquestion_order=random` (M), legacy `random_order=1` | `parameters: randomize=true` | convention:randomOrder; a `keep_codes_order` code that isn't in `exclude_all_others` comes back as `fixed=yes` on its choice; exclusive answers come back from `exclude_all_others` |
 | `array_filter = q` | `choice_filter: selected(${q}, name)` | convention:choiceFilter. A filter the forward path recoded (`selected(${q}, <column>)`) comes back on the codes LimeSurvey stores, not the list's own |
 
 `label` / `list-nolabel` matrix appearances (the non-`table-list` matrix

@@ -6,6 +6,7 @@ import { describe, expect, test } from 'vitest';
 
 import { XLSFormToTSVConverter } from '../../../src/pipelines/xlsform2lstsv/index.js';
 import { lstsvToXlsform } from '../../../src/pipelines/lstsv2xlsform/index.js';
+import { lstsvToDdiXml } from '../../../src/pipelines/lstsv2ddi/index.js';
 import type { Diagnostic } from '../../../src/diagnostics.js';
 import { findRowByName, parseTSV } from './helpers';
 
@@ -253,5 +254,106 @@ describe('LimeSurvey → randomize=true', () => {
     expect(back.survey.find((r) => r.name === 'q1')?.parameters).toBe(
       'randomize=true',
     );
+  });
+});
+
+describe('fixed choices (#237)', () => {
+  const fixedChoices = [
+    { list_name: 'l', name: 'umw', label: 'Umwelt' },
+    { list_name: 'l', name: 'sonst', label: 'Sonstiges', fixed: 'yes' },
+    { list_name: 'l', name: 'bil', label: 'Bildung' },
+    { list_name: 'l', name: 'keine', label: 'Keine', exclusive: 'yes' },
+    { list_name: 'l', name: 'wn', label: 'WN', exclusive: 'yes', fixed: 'yes' },
+  ];
+  const randomized = (type: string, extra: Record<string, unknown> = {}) => ({
+    type,
+    name: 'q1',
+    label: 'Q',
+    parameters: 'randomize=true',
+    ...extra,
+  });
+
+  test('select_multiple: fixed and exclusive codes in list order, once each', async () => {
+    const { rows, warnings } = await convert(
+      [randomized('select_multiple l')],
+      fixedChoices,
+    );
+    expect(attr(rows, 'q1', 'keep_codes_order')).toBe('sonst;keine;wn');
+    expect(attr(rows, 'q1', 'exclude_all_others')).toBe('keine;wn');
+    expect(warnings.map((w) => w.code)).toEqual(['randomize-pinned']);
+    expect(warnings[0].message).toMatch(/exclusive or fixed.*sonst, keine, wn/);
+  });
+
+  test('select_one: fixed codes in keep_codes_order, exclusive ones are not', async () => {
+    const { rows, warnings } = await convert(
+      [randomized('select_one l')],
+      fixedChoices,
+    );
+    expect(attr(rows, 'q1', 'answer_order')).toBe('random');
+    expect(attr(rows, 'q1', 'keep_codes_order')).toBe('sonst;wn');
+    expect(attr(rows, 'q1', 'exclude_all_others')).toBe('');
+    expect(warnings.map((w) => w.code)).toEqual(['randomize-pinned']);
+  });
+
+  test('a select_one filtered by a select_multiple on the same list', async () => {
+    const { rows } = await convert(
+      [
+        { type: 'select_multiple l', name: 'k04', label: 'Welche?' },
+        randomized('select_one l', {
+          name: 'k04haupt',
+          choice_filter: 'selected(${k04}, name)',
+        }),
+      ],
+      fixedChoices,
+    );
+    expect(attr(rows, 'k04haupt', 'array_filter')).toBe('k04');
+    expect(attr(rows, 'k04haupt', 'keep_codes_order')).toBe('sonst;wn');
+  });
+
+  test('without randomize, fixed has no effect and no warning', async () => {
+    const { tsv, warnings } = await convert(
+      [{ type: 'select_one l', name: 'q1', label: 'Q' }],
+      fixedChoices,
+    );
+    expect(tsv).not.toMatch(/keep_codes_order/);
+    expect(warnings).toEqual([]);
+  });
+
+  test('true/1 spellings count, other values do not', async () => {
+    const { rows } = await convert(
+      [randomized('select_one l')],
+      choices.map((c, i) => ({ ...c, fixed: ['TRUE', '1', 'no'][i] })),
+    );
+    expect(attr(rows, 'q1', 'keep_codes_order')).toBe('umw;bil');
+  });
+
+  test('round-trips: keep_codes_order reads back as fixed=yes', async () => {
+    const { tsv } = await convert(
+      [
+        randomized('select_multiple l', { name: 'q2' }),
+        randomized('select_one l'),
+      ],
+      fixedChoices,
+    );
+    const back = lstsvToXlsform(tsv, { skipValidation: true });
+    const fixed = (list: string) =>
+      back.choices
+        .filter((c) => c.list_name === list && c.fixed === 'yes')
+        .map((c) => c.name);
+    expect(fixed('q2')).toEqual(['sonst']);
+    expect(fixed('q1')).toEqual(['sonst', 'wn']);
+    // Exclusive stays exclusive.
+    expect(
+      back.choices
+        .filter((c) => c.list_name === 'q2' && c.exclusive === 'yes')
+        .map((c) => c.name),
+    ).toEqual(['keine', 'wn']);
+  });
+
+  test('lstsv2ddi carries fixed as a choice column', async () => {
+    const { tsv } = await convert([randomized('select_one l')], fixedChoices);
+    const xml = lstsvToDdiXml(tsv);
+    expect(xml).toMatch(/cdl:choice_column"[^>]*>yes</);
+    expect(xml).toMatch(/subject="sonst fixed"/);
   });
 });

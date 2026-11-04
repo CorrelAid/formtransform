@@ -13,6 +13,8 @@ import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
 import {
+  KEEP_CODES_ATTRIBUTE,
+  RANDOM_ORDER_RULE,
   RANDOMIZE_PARAMETER,
   isRandomOrder,
 } from '../conventions/randomOrder.js';
@@ -235,6 +237,20 @@ function excludes(row: Record<string, unknown>, code: string): boolean {
 }
 
 /**
+ * Whether a Q row's `keep_codes_order` lists `code` and `exclude_all_others`
+ * doesn't: a `fixed` choice (convention:randomOrder).
+ */
+function isFixedCode(row: Record<string, unknown>, code: string): boolean {
+  const value = row[KEEP_CODES_ATTRIBUTE];
+  return (
+    !excludes(row, code) &&
+    (typeof value === 'string' ? value : '')
+      .split(RANDOM_ORDER_RULE.keepSeparator)
+      .some((c) => c.trim() === code)
+  );
+}
+
+/**
  * An A/SQ row: an option of `owner`'s list. A multiple choice's defaults sit
  * on its SQ rows as `Y`.
  */
@@ -251,17 +267,26 @@ function addChoice(
       .join(' ');
   }
   const code = cell(row, 'name');
+  // The question's keep_codes_order, as the `fixed` column (a choice column
+  // the model doesn't lift, so a codebook carries it too).
+  const fixed =
+    question && isFixedCode(question.row, code)
+      ? {
+          [RANDOM_ORDER_RULE.fixedColumn]: RANDOM_ORDER_RULE.fixedTrueValues[0],
+        }
+      : null;
   (state.lists[owner] ??= []).push({
     name: code,
     label: text(state, `label:${cls}:${owner}:${code}`),
     // The question's exclude_all_others, on the choice as an XLSForm has it.
-    row:
-      question && excludes(question.row, code)
-        ? {
-            ...row,
-            [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0],
-          }
-        : row,
+    row: {
+      ...row,
+      ...(question && excludes(question.row, code)
+        ? { [EXCLUSIVE_RULE.choicesColumn]: EXCLUSIVE_RULE.trueValues[0] }
+        : {}),
+      ...fixed,
+    },
+    ...(fixed ? { columns: fixed } : {}),
   });
 }
 
