@@ -163,7 +163,7 @@ G	7	Über dich	1			de
 G	7	About you	1			en									
 Q	S	firstname	1	Wie lautet dein Vorname?		de			Y					1	
 Q	S	lastname	1	Wie lautet dein Nachname?		de			Y					1	
-Q	S	emailaddress	1	Unter welcher E-Mail Adresse können wir dich erreichen?		de		regexMatch(self, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')	Y					1	Please specify a valid email address.
+Q	S	emailaddress	1	Unter welcher E-Mail Adresse können wir dich erreichen?		de		regexMatch('/^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/', self)	Y					1	Please specify a valid email address.
 Q	L	gender	1	Was ist dein Geschlecht?	Hinweis: Da wir bei CorrelAid nach dem Grundprinzip von Geschlechtergleichberechtigung arbeiten, ist diese Frage für uns besonders wichtig.	de			Y					1	
 A		femal		Weiblich		de									
 A		male		Männlich		de									
@@ -173,7 +173,7 @@ A		selfi		Mein Geschlecht ist (eigene Angabe):		de
 Q	S	genderselfidentifica	gender == 'selfi'	Mein Geschlecht ist:	Bitte gebe hier dein Geschlecht an.	de			Y					1	
 Q	S	firstname	1	What is your first name?		en			Y					1	
 Q	S	lastname	1	What is your last name?		en			Y					1	
-Q	S	emailaddress	1	Which email address can we use to contact you?		en		regexMatch(self, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$')	Y					1	Please specify a valid email address.
+Q	S	emailaddress	1	Which email address can we use to contact you?		en		regexMatch('/^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/', self)	Y					1	Please specify a valid email address.
 Q	L	gender	1	What is your gender?	Note: We ask this question because we want to foster gender diversity within CorrelAid.	en			Y					1	
 A		femal		Female		en									
 A		male		Male		en									

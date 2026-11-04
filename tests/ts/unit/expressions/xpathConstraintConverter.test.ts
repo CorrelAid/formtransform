@@ -41,7 +41,7 @@ describe('XPath Constraint Conversion', () => {
         'regexMatch("^[A-Z][a-z]+$", name)',
       );
       // regex() is supported and mapped to regexMatch()
-      expect(result).toBe(`regexMatch('^[A-Z][a-z]+$', name)`);
+      expect(result).toBe(`regexMatch('/^[A-Z][a-z]+$/', name)`);
     });
   });
 
@@ -152,12 +152,22 @@ describe('XPath Constraint Conversion', () => {
   describe('regexMatch function extraction', () => {
     test('returns regexMatch for supported regex patterns', async () => {
       const result = await convertConstraint('regexMatch("^[A-Z][a-z]+$", .)');
-      expect(result).toBe(`regexMatch('^[A-Z][a-z]+$', self)`);
+      expect(result).toBe(`regexMatch('/^[A-Z][a-z]+$/', self)`);
     });
 
     test('returns regexMatch for complex regex patterns', async () => {
       const result = await convertConstraint('regexMatch("^[0-9]{5}$", .)');
-      expect(result).toBe(`regexMatch('^[0-9]{5}$', self)`);
+      expect(result).toBe(`regexMatch('/^[0-9]{5}$/', self)`);
+    });
+
+    test('keeps an already delimited pattern as written', async () => {
+      const result = await convertConstraint(`regexMatch("/^[0-9]{5}$/", .)`);
+      expect(result).toBe(`regexMatch('/^[0-9]{5}$/', self)`);
+    });
+
+    test('escapes a slash when delimiting a bare pattern', async () => {
+      const result = await convertConstraint(`regexMatch("^a/b$", .)`);
+      expect(result).toBe(`regexMatch('/^a\\/b$/', self)`);
     });
 
     test('returns empty for regexMatch with different argument order', async () => {

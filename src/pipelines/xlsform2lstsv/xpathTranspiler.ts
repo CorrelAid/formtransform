@@ -25,6 +25,10 @@ import { consoleWarning, warning } from '../../diagnostics.js';
 import type { WarningHandler } from '../../diagnostics.js';
 import { ConversionError } from '../../diagnostics.js';
 import { COUNT_SELECTED } from '../../conventions/selectionCount.js';
+import {
+  delimitPattern,
+  odkPatternToLs,
+} from '../../conventions/regexPattern.js';
 
 /**
  * Callback to look up a sanitized answer code given a question name and original choice value.
@@ -133,6 +137,20 @@ function arg(args: XPathNode[], i: number, fn: string): XPathNode {
   return node;
 }
 
+/**
+ * `regex(x, 'pat')` → `regexMatch('/^(?:pat)$/', x)`: LimeSurvey takes the
+ * pattern first, delimited, and searches rather than matching the whole value.
+ */
+function transpileRegex(args: XPathNode[], ctx?: TranspilerContext): string {
+  const input = transpile(arg(args, 0, 'regex'), ctx);
+  const pattern = arg(args, 1, 'regex');
+  const ls =
+    pattern.kind === 'str'
+      ? `${pattern.delim}${odkPatternToLs(pattern.value)}${pattern.delim}`
+      : `'/^(?:' + ${transpile(pattern, ctx)} + ')$/'`;
+  return `regexMatch(${ls}, ${input})`;
+}
+
 const FUNCTION_HANDLERS: Record<
   string,
   (args: XPathNode[], ctx?: TranspilerContext) => string
@@ -158,7 +176,7 @@ const FUNCTION_HANDLERS: Record<
   // EM's `+` is also string concatenation, so any operator argument gets its
   // own parentheses: `a + b - c` would join strings, then subtract.
   concat: (args, ctx) => args.map((a) => operand(a, Infinity, ctx)).join(' + '),
-  regex: (args, ctx) => wrapArgs('regexMatch', args, ctx),
+  regex: (args, ctx) => transpileRegex(args, ctx),
   // 2-arg
   contains: (args, ctx) =>
     `contains(${transpile(arg(args, 0, 'contains'), ctx)}, ${transpile(arg(args, 1, 'contains'), ctx)})`,
@@ -409,9 +427,10 @@ function reconstructRegexMatch(
   if (!secondArgIsFieldRef(secondArg) || !firstArgLooksLikePattern(firstArg))
     return null;
   const processedFieldArg = secondArg.replace(/\./g, 'self');
-  const processedPatternArg = firstArg
-    .replace(/^"|"$/g, "'")
-    .replace(/\\'/g, "'");
+  const unquoted = firstArg.replace(/^"|"$/g, "'").replace(/\\'/g, "'");
+  const processedPatternArg = /^'.*'$/s.test(unquoted)
+    ? `'${delimitPattern(unquoted.slice(1, -1))}'`
+    : unquoted;
   return `regexMatch(${processedPatternArg}, ${processedFieldArg})`;
 }
 

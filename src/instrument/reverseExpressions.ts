@@ -20,14 +20,9 @@
  *     counterpart to forward's own simplified (context-free) constraint
  *     handling, not a separate loss on top of it.
  *
- * NOT implemented: `convertConstraint`'s separate early-return path for a
- * literal `regexMatch(...)` substring in the *original* XPath text (an
- * escape-hatch letting authors write EM-flavored syntax directly in
- * `constraint`) swaps `regexMatch(pattern, field)`'s argument order relative
- * to the generic `transpile()` path's `regexMatch(field, pattern)`. Once
- * transpiled, both look identical in the TSV, so which order applies can't be
- * determined on the way back — `reverseConstraint` always assumes the
- * generic (unswapped) order. No fixture uses either form.
+ * `regexMatch('/pat/', x)` reverses to `regex(x, 'pat')` (delimiters and the
+ * forward path's `^(?:…)$` anchoring removed); the pre-fix field-first
+ * `regexMatch(x, 'pat')` is still read (see `regexMatchToXPath`).
  *
  * `calculation` is out of scope entirely: the `calculate` XLSForm type isn't
  * registered, so the forward converter rejects it and never produces a
@@ -36,6 +31,7 @@
 
 import { parseEm, EmNode } from './emParser.js';
 import { ConversionError } from '../diagnostics.js';
+import { lsPatternToOdk } from '../conventions/regexPattern.js';
 import { COUNT_SELECTED } from '../conventions/selectionCount.js';
 import {
   EMPTY_GUARD,
@@ -112,9 +108,26 @@ function coalesceToXPath(
   return `coalesce(${x}, ${nodeToXPath(fallback, ctx)})`;
 }
 
+/**
+ * `regexMatch('/pat/', x)` → `regex(x, 'pat')`, undoing the forward
+ * delimiters and anchoring. The pre-fix `regexMatch(x, 'pat')` (field first)
+ * is still read, as `regex(x, 'pat')`. `null` for any other call.
+ */
+function regexMatchToXPath(
+  node: EmNode & { t: 'call' },
+  ctx: SelectContext,
+): string | null {
+  if (node.name !== 'regexMatch' || node.args.length !== 2) return null;
+  const [first, second] = node.args;
+  if (first.t === 'str') {
+    const odk = lsPatternToOdk(first.v);
+    return `regex(${nodeToXPath(second, ctx)}, ${quote(odk ?? first.v)})`;
+  }
+  return `regex(${nodeToXPath(first, ctx)}, ${nodeToXPath(second, ctx)})`;
+}
+
 const FUNCTION_NAME_TO_XPATH: Record<string, string> = {
   count: 'count',
-  regexMatch: 'regex',
   contains: 'contains',
   floor: 'floor',
   ceil: 'ceiling',
@@ -232,6 +245,8 @@ function nodeToXPath(node: EmNode, ctx: SelectContext): string {
       if (counted) return counted;
       const coalesced = coalesceToXPath(node, ctx);
       if (coalesced) return coalesced;
+      const regex = regexMatchToXPath(node, ctx);
+      if (regex) return regex;
       const xfName = FUNCTION_NAME_TO_XPATH[node.name];
       if (!xfName) {
         throw new ConversionError(
