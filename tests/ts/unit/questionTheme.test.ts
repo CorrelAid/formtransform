@@ -65,6 +65,7 @@ describe('appearance → LimeSurvey question theme (#226)', () => {
       expect(q['type/scale']).toBe('!');
       expect(q.question_theme_name).toBe('bootstrap_dropdown');
       expect(q.show_search).toBe('true');
+      expect(q.width_entry).toBe('true');
     },
   );
 
@@ -137,6 +138,16 @@ describe('LimeSurvey question theme → appearance (#226)', () => {
     );
     const out = lstsvToXlsform(tsv, { skipValidation: true });
     expect(out.survey[0]).toMatchObject({ appearance: 'minimal' });
+  });
+
+  test('a 0.11.0 TSV without width_entry still reads back as autocomplete', async () => {
+    const tsv = withCell(
+      await toTsv('select_one land', 'autocomplete'),
+      'width_entry',
+      '',
+    );
+    const out = lstsvToXlsform(tsv, { skipValidation: true });
+    expect(out.survey[0]).toMatchObject({ appearance: 'autocomplete' });
   });
 
   test('show_search stored as 1 still reads back as autocomplete', async () => {

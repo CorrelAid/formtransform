@@ -143,6 +143,9 @@
         "name": "bootstrap_dropdown",
         "attributes": {
           "show_search": "true"
+        },
+        "emitOnlyAttributes": {
+          "width_entry": "true"
         }
       }
     },
