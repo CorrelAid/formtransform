@@ -307,6 +307,16 @@ is marked with an `exclusive` column (`yes`) on the choices sheet, not a
 `count-selected()` constraint. LimeSurvey enforces it through
 `exclude_all_others`; DDI has no field for it.
 
+`parameters: randomize=true` on a `select_one` or `select_multiple`
+shuffles its options in LimeSurvey too (`convention:randomOrder`): a list
+or dropdown gets `answer_order=random`, a multiple choice
+`subquestion_order=random`. A randomized `select_multiple` keeps its
+exclusive answers at their position (`keep_codes_order`, LimeSurvey 6.17 or
+later), which ODK and Kobo don't, so a `randomize-pinned` warning names them.
+LimeSurvey's "other" answer is always last. A `seed` is dropped with a
+`randomize-seed-dropped` warning, a randomized grid row with
+`randomize-dropped`. The reverse paths read `randomize=true` back.
+
 `count-selected()` counts the ticked answers of a `select_multiple`. In a
 `relevant` (`count-selected(${k04}) > 1`) it becomes `count()` over the
 question's subquestions in LimeSurvey. A `constraint` on the question itself
