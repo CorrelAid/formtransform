@@ -13,6 +13,10 @@ import { OTHER_CODE, OTHER_SUFFIX } from '../conventions/other.js';
 import { GRID_APPEARANCE } from '../conventions/grid.js';
 import { EXCLUSIVE_RULE } from '../conventions/exclusive.js';
 import {
+  RANDOMIZE_PARAMETER,
+  isRandomOrder,
+} from '../conventions/randomOrder.js';
+import {
   COUNT_SELECTED,
   MAX_ANSWERS_ATTRIBUTE,
   MIN_ANSWERS_ATTRIBUTE,
@@ -204,10 +208,21 @@ function questionItem(row: Row, state: ParseState): QuestionItem {
     constraintMessage: text(state, `tip:${key}`),
     required: cell(row, 'mandatory') === 'Y',
     default: cell(row, 'default'),
-    parameters: t.resolved.parameters ?? '',
+    parameters: withRandomOrder(row, t.resolved.parameters ?? ''),
     ...otherLabel,
     ...columns,
   };
+}
+
+/**
+ * A Q row's `parameters`, with `randomize=true` when LimeSurvey shuffles its
+ * options (convention:randomOrder).
+ */
+function withRandomOrder(row: Row, parameters: string): string {
+  if (!isRandomOrder(cell(row, 'type/scale'), (a) => cell(row, a))) {
+    return parameters;
+  }
+  return [parameters, RANDOMIZE_PARAMETER].filter(Boolean).join(' ');
 }
 
 /** Whether a Q row's `exclude_all_others` lists `code`. */
